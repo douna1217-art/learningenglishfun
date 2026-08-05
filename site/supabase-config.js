@@ -12,6 +12,6 @@
 // 在你填好真实值之前，网站会自动跳过云同步这一步，一切照常在本地浏览器里工作，
 // 不会报错，也不会影响看书、答题、复习等任何现有功能。
 window.SUPABASE_CONFIG = {
-  url: "https://YOUR-PROJECT.supabase.co",
-  anonKey: "YOUR-ANON-KEY"
+  url: "https://thdktsiyuelogqqgzbex.supabase.co",
+  anonKey: "sb_publishable_DyvuuXQL2Qq8d7UaT2ODYg_HpeU9VG3"
 };
