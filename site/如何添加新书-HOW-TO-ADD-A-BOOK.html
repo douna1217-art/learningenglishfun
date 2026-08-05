@@ -1,0 +1,40 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>如何添加新书 · Readiverse</title>
+<style>
+body{font-family:system-ui,"PingFang SC","Microsoft YaHei",Arial,sans-serif;color:#26372e;background:#fff9ef;margin:0;padding:32px;line-height:1.7;max-width:820px;margin:auto}
+h1{font-size:1.6rem}h2{margin-top:34px;border-bottom:2px solid #eadfd4;padding-bottom:6px}
+code{background:#f1ecff;padding:2px 6px;border-radius:6px;font-size:.95em}
+.step{background:#fff;border:1px solid #eadfd4;border-radius:14px;padding:16px 20px;margin:14px 0}
+.n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#7254b8;color:#fff;font-weight:800;margin-right:8px}
+.tip{background:#eef8e9;border-radius:12px;padding:12px 16px;margin:14px 0}
+.folder{font-family:ui-monospace,monospace;background:#26372e;color:#e9ffe9;border-radius:12px;padding:16px;white-space:pre;overflow:auto;font-size:.9rem}
+</style></head><body>
+<h1>📚 如何给 Readiverse 添加新书</h1>
+<p>这个网站是一个文件夹，直接拖到 Netlify 就能部署。每个 topic（科目）是 <code>books/</code> 里的一个文件夹。往里放书就行，<b>不需要改动 index.html</b>。</p>
+
+<div class="folder">site/
+├─ index.html            ← 首页（不用动）
+├─ catalog.js            ← 科目定义（很少改）
+└─ books/
+   ├─ fiction/           空科目
+   ├─ science/
+   ├─ sel/               ← 里面已放好《The Lost Red Ball》
+   │   ├─ books.js               这个科目的书单
+   │   ├─ the-lost-red-ball.html 这本书本身
+   │   └─ the-lost-red-ball.jpg  封面
+   ├─ social-studies/
+   ├─ math-stories/
+   └─ history/</div>
+
+<h2>给某个 topic 加一本书</h2>
+<div class="step"><span class="n">1</span>把这本书的两个文件放进对应科目文件夹，例如 SEL 就放进 <code>books/sel/</code>：
+<br>· <code>书名.html</code>（阅读器本身）<br>· <code>书名.jpg</code>（封面图）</div>
+<div class="step"><span class="n">2</span>打开那个科目的 <code>books.js</code>，在书单里加一段：
+<br><code>{ "title":"书名", "grade":"Grade 1", "subtitle":"简介", "readingBand":"Beginning Reader", "minutes":"8 min", "modules":["Listen","Read","Grammar","Vocabulary"], "cover":"books/sel/书名.jpg", "file":"books/sel/书名.html" }</code></div>
+<div class="step"><span class="n">3</span>把整个 <code>site</code> 文件夹重新拖到 Netlify。首页会自动显示这本书，科目的数量也会自动更新。</div>
+
+<div class="tip">💡 <b>更省事的办法：</b>把新书发给我，我直接给你一个该科目的压缩包（书 + 封面 + 已经写好的 books.js），你解压后整包丢进 <code>books/对应科目/</code> 覆盖即可——完全不用手动改文字。</div>
+
+<h2>说明</h2>
+<p>因为 Netlify 是静态托管，网页无法自己“发现”你丢进去的文件，所以需要 books.js 这个书单登记一下。这是唯一需要登记的地方，其它都不用碰。</p>
+</body></html>
