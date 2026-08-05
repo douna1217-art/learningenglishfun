@@ -91,6 +91,7 @@ create table if not exists public.app_events (
   book_id text,
   book_title text,
   category text,
+  source text,
   visitor_id text,
   user_id uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
@@ -113,6 +114,7 @@ as $$
   select json_build_object(
     'total_visits', (select count(*) from app_events where event_type = 'page_view'),
     'unique_visitors', (select count(distinct visitor_id) from app_events where event_type = 'page_view' and visitor_id is not null),
+    'signed_in_visitors', (select count(distinct user_id) from app_events where event_type = 'page_view' and user_id is not null),
     'total_book_opens', (select count(*) from app_events where event_type = 'book_open'),
     'unique_readers', (select count(distinct visitor_id) from app_events where event_type = 'book_open' and visitor_id is not null),
     'review_correct', (select count(*) from app_events where event_type = 'review_correct'),
@@ -137,6 +139,26 @@ as $$
         limit 10
       ) t
     ),
+    'top_sources', (
+      select coalesce(json_agg(t), '[]'::json) from (
+        select coalesce(source, 'direct') as source, count(*) as visits
+        from app_events
+        where event_type = 'page_view'
+        group by coalesce(source, 'direct')
+        order by visits desc
+        limit 10
+      ) t
+    ),
+    'daily_visits', (
+      select coalesce(json_agg(t), '[]'::json) from (
+        select to_char(d.day, 'YYYY-MM-DD') as date, count(e.id) as visits
+        from generate_series(current_date - interval '13 days', current_date, interval '1 day') as d(day)
+        left join app_events e
+          on e.event_type = 'page_view' and date_trunc('day', e.created_at) = d.day
+        group by d.day
+        order by d.day
+      ) t
+    ),
     'last_updated', now()
   );
 $$;
@@ -145,8 +167,13 @@ grant execute on function public.get_public_stats() to anon, authenticated;
 ```
 
 `get_public_stats()` 是 `SECURITY DEFINER` 函数，只对外返回算好的汇总数字（总
-访问量、独立访客数、阅读次数、最受欢迎的书/主题、复习正确率），从不暴露单条
-记录——这是唯一一个能从前端读到统计数字的入口。
+访问量、独立访客数、阅读次数、最受欢迎的书/主题、复习正确率、近 14 天每日
+访问趋势、流量来源、登录同步的采用率），从不暴露单条记录——这是唯一一个能
+从前端读到统计数字的入口。
+
+流量来源（`source`）的判定逻辑：URL 带 `?src=xxx` 或 `?utm_source=xxx` 时优先
+用这个值（比如给二维码海报的链接加 `?src=qr-poster`，就能在统计里单独看到这
+条来源的访问量）；否则看 `document.referrer` 的域名；都没有就记成 `direct`。
 
 **怎么看统计**：打开 `site/stats.html`（没有放进导航栏，自己收藏这个网址就
 行），或者直接在 Supabase 的 SQL Editor 里运行 `select public.get_public_stats();`。

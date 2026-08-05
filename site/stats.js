@@ -70,12 +70,30 @@
 
   window.__trackEvent = track;
 
+  // Where did this visit come from? ?src=/?utm_source= wins (e.g. the QR
+  // poster can link to /?src=qr-poster); otherwise the referring site's
+  // domain; otherwise "direct".
+  function pageSource() {
+    try {
+      var params = new URLSearchParams(location.search);
+      var tagged = params.get("src") || params.get("utm_source");
+      if (tagged) return tagged;
+      if (document.referrer) {
+        var refHost = new URL(document.referrer).hostname;
+        if (refHost && refHost !== location.hostname) return refHost;
+      }
+      return "direct";
+    } catch (e) {
+      return "direct";
+    }
+  }
+
   try {
     if (!sessionStorage.getItem("les_pv_sent")) {
       sessionStorage.setItem("les_pv_sent", "1");
-      track("page_view");
+      track("page_view", { source: pageSource() });
     }
   } catch (e) {
-    track("page_view");
+    track("page_view", { source: pageSource() });
   }
 })();
