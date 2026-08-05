@@ -24,7 +24,8 @@
 
   if (!configured) return; // stay silent until a real Supabase project is configured
 
-  var sb = window.supabase.createClient(cfg.url, cfg.anonKey);
+  // Shared with stats.js so the page only ever creates one GoTrueClient.
+  var sb = window.__lesSupabaseClient || (window.__lesSupabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey));
   var K = "les_review_v1";
   var pushTimer = null;
 
