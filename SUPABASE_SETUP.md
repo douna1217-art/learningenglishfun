@@ -75,3 +75,78 @@ Supabase 项目 → **Authentication → URL Configuration**，把 **Site URL**�
   云端；登录时会把本地和云端的记录按"进度更靠前的那份为准"合并一次，不会因为
   换设备登录就把已有进度冲掉。
 - 没有配置 `supabase-config.js` 或者没登录时，一切跟以前完全一样，只存本地。
+
+## 使用统计（访问量 / 阅读量 / 复习正确率）
+
+跟上面同一个 Supabase 项目里，还建了一张 `app_events` 表，记录三类轻量事件：
+打开首页、打开某本书（附书名和主题）、Smart Review 答对/答错。这张表**只允许
+写入，不允许任何人直接读取**——就算拿到 anon key 也读不到任何一条原始访问记录。
+
+建表 + 汇总函数的 SQL（在 SQL Editor 里运行一次）：
+
+```sql
+create table if not exists public.app_events (
+  id bigint generated always as identity primary key,
+  event_type text not null,
+  book_id text,
+  book_title text,
+  category text,
+  visitor_id text,
+  user_id uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.app_events enable row level security;
+
+create policy "Allow insert for everyone" on public.app_events
+  for insert
+  to anon, authenticated
+  with check (true);
+
+create or replace function public.get_public_stats()
+returns json
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select json_build_object(
+    'total_visits', (select count(*) from app_events where event_type = 'page_view'),
+    'unique_visitors', (select count(distinct visitor_id) from app_events where event_type = 'page_view' and visitor_id is not null),
+    'total_book_opens', (select count(*) from app_events where event_type = 'book_open'),
+    'unique_readers', (select count(distinct visitor_id) from app_events where event_type = 'book_open' and visitor_id is not null),
+    'review_correct', (select count(*) from app_events where event_type = 'review_correct'),
+    'review_wrong', (select count(*) from app_events where event_type = 'review_wrong'),
+    'top_books', (
+      select coalesce(json_agg(t), '[]'::json) from (
+        select book_id, book_title, count(*) as opens
+        from app_events
+        where event_type = 'book_open' and book_id is not null
+        group by book_id, book_title
+        order by opens desc
+        limit 10
+      ) t
+    ),
+    'top_categories', (
+      select coalesce(json_agg(t), '[]'::json) from (
+        select category, count(*) as opens
+        from app_events
+        where event_type = 'book_open' and category is not null
+        group by category
+        order by opens desc
+        limit 10
+      ) t
+    ),
+    'last_updated', now()
+  );
+$$;
+
+grant execute on function public.get_public_stats() to anon, authenticated;
+```
+
+`get_public_stats()` 是 `SECURITY DEFINER` 函数，只对外返回算好的汇总数字（总
+访问量、独立访客数、阅读次数、最受欢迎的书/主题、复习正确率），从不暴露单条
+记录——这是唯一一个能从前端读到统计数字的入口。
+
+**怎么看统计**：打开 `site/stats.html`（没有放进导航栏，自己收藏这个网址就
+行），或者直接在 Supabase 的 SQL Editor 里运行 `select public.get_public_stats();`。
