@@ -19,12 +19,19 @@ th{color:var(--muted);font-weight:700}
 .muted{color:var(--muted)}
 .err{background:#fff0ee;color:#b23b34;border-radius:12px;padding:14px;margin-bottom:16px}
 button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer}
-.bars{display:flex;align-items:flex-end;gap:6px;height:90px;margin-bottom:6px}
-.bars .bar{flex:1;background:var(--line);border-radius:4px 4px 0 0;position:relative;min-height:2px}
-.bars .bar.has{background:var(--green)}
-.bars .bar span{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:.7rem;color:var(--muted)}
-.barlabels{display:flex;gap:6px}
-.barlabels span{flex:1;text-align:center;font-size:.68rem;color:var(--muted)}
+.chart-row{display:flex;gap:4px}
+.chart-row.values,.chart-row.labels{margin:0}
+.chart-row.values span,.chart-row.labels span{flex:1;min-width:0;text-align:center;font-size:.72rem;color:var(--muted);line-height:1.3}
+.chart-row.values span{height:16px;font-weight:700}
+.chart-row.values span.has{color:var(--ink)}
+.chart-row.bars{align-items:flex-end;height:90px;margin:2px 0}
+.chart-row.bars .bar{flex:1;min-width:0;background:var(--line);border-radius:3px 3px 0 0;min-height:2px}
+.chart-row.bars .bar.has{background:var(--green)}
+@media(max-width:480px){
+  .chart-row.labels span{visibility:hidden}
+  .chart-row.labels span:nth-child(3n+1),
+  .chart-row.labels span:last-child{visibility:visible}
+}
 </style></head>
 <body><div class="wrap">
 <h1>📊 Site stats</h1>
@@ -80,15 +87,25 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
       '<p class="muted">Last updated: '+(d.last_updated||"")+'</p>';
   }
 
+  function shortDate(iso){
+    // "2026-08-05" -> "8/5" (no leading zeros, single line, narrow)
+    var parts = iso.split("-");
+    return (+parts[1]) + "/" + (+parts[2]);
+  }
   function bars(rows){
     if(!rows || !rows.length) return '<p class="muted">No data yet.</p>';
     var max = Math.max.apply(null, rows.map(function(r){return r.visits||0;}).concat([1]));
+    var values = rows.map(function(r){
+      return '<span class="'+(r.visits?'has':'')+'">'+(r.visits||"")+'</span>';
+    }).join("");
     var barsHtml = rows.map(function(r){
       var h = Math.round((r.visits||0)/max*88)+2;
-      return '<div class="bar'+(r.visits?' has':'')+'" style="height:'+h+'px" title="'+r.date+': '+r.visits+'">'+(r.visits?'<span>'+r.visits+'</span>':'')+'</div>';
+      return '<div class="bar'+(r.visits?' has':'')+'" style="height:'+h+'px" title="'+r.date+': '+r.visits+'"></div>';
     }).join("");
-    var labels = rows.map(function(r){return '<span>'+r.date.slice(5)+'</span>';}).join("");
-    return '<div class="bars">'+barsHtml+'</div><div class="barlabels">'+labels+'</div>';
+    var labels = rows.map(function(r){return '<span>'+shortDate(r.date)+'</span>';}).join("");
+    return '<div class="chart-row values">'+values+'</div>'+
+      '<div class="chart-row bars">'+barsHtml+'</div>'+
+      '<div class="chart-row labels">'+labels+'</div>';
   }
 
   function card(n, label){
