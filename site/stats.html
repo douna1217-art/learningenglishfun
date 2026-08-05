@@ -19,6 +19,12 @@ th{color:var(--muted);font-weight:700}
 .muted{color:var(--muted)}
 .err{background:#fff0ee;color:#b23b34;border-radius:12px;padding:14px;margin-bottom:16px}
 button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9px 16px;font-weight:800;cursor:pointer}
+.bars{display:flex;align-items:flex-end;gap:6px;height:90px;margin-bottom:6px}
+.bars .bar{flex:1;background:var(--line);border-radius:4px 4px 0 0;position:relative;min-height:2px}
+.bars .bar.has{background:var(--green)}
+.bars .bar span{position:absolute;top:-18px;left:0;right:0;text-align:center;font-size:.7rem;color:var(--muted)}
+.barlabels{display:flex;gap:6px}
+.barlabels span{flex:1;text-align:center;font-size:.68rem;color:var(--muted)}
 </style></head>
 <body><div class="wrap">
 <h1>📊 Site stats</h1>
@@ -52,6 +58,10 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
     var totalReview = (d.review_correct||0) + (d.review_wrong||0);
     var accuracy = totalReview ? Math.round((d.review_correct||0)/totalReview*100) : null;
 
+    var signedInPct = d.unique_visitors ? Math.round((d.signed_in_visitors||0)/d.unique_visitors*100) : null;
+    var sources = d.top_sources || [];
+    var daily = d.daily_visits || [];
+
     el.innerHTML =
       '<div class="grid">'+
         card(d.total_visits, "Page views") +
@@ -60,10 +70,25 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
         card(d.unique_readers, "Unique readers") +
         card(totalReview, "Review answers") +
         card(accuracy===null?"—":accuracy+"%", "Review accuracy") +
+        card(d.signed_in_visitors||0, "Signed-in (sync) visitors") +
+        card(signedInPct===null?"—":signedInPct+"%", "Sync adoption rate") +
       '</div>'+
+      '<div class="section"><h2>📈 Visits, last 14 days</h2>'+ bars(daily) +'</div>'+
+      '<div class="section"><h2>🔗 Traffic sources</h2>'+ table(sources, function(r){return [r.source, r.visits];}, ["Source","Visits"]) +'</div>'+
       '<div class="section"><h2>📚 Most-read books</h2>'+ table(books, function(r){return [r.book_title||r.book_id, r.opens];}, ["Book","Opens"]) +'</div>'+
       '<div class="section"><h2>🗂️ Most-read topics</h2>'+ table(cats, function(r){return [r.category, r.opens];}, ["Topic","Opens"]) +'</div>'+
       '<p class="muted">Last updated: '+(d.last_updated||"")+'</p>';
+  }
+
+  function bars(rows){
+    if(!rows || !rows.length) return '<p class="muted">No data yet.</p>';
+    var max = Math.max.apply(null, rows.map(function(r){return r.visits||0;}).concat([1]));
+    var barsHtml = rows.map(function(r){
+      var h = Math.round((r.visits||0)/max*88)+2;
+      return '<div class="bar'+(r.visits?' has':'')+'" style="height:'+h+'px" title="'+r.date+': '+r.visits+'">'+(r.visits?'<span>'+r.visits+'</span>':'')+'</div>';
+    }).join("");
+    var labels = rows.map(function(r){return '<span>'+r.date.slice(5)+'</span>';}).join("");
+    return '<div class="bars">'+barsHtml+'</div><div class="barlabels">'+labels+'</div>';
   }
 
   function card(n, label){
