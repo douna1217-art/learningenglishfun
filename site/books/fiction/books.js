@@ -1,7 +1,7 @@
 /* Books shown under the "fiction" topic. */
 window.RV_BOOKS = window.RV_BOOKS || {};
 window.RV_BOOKS["fiction"] = [
-  {"slug":"the-big-blue-kite","title":"The Big Blue Kite","subtitle":"A Story About Not Giving Up","grade":"Grade 1","readingBand":"Beginning Reader","minutes":"7 min","modules":["Listen","Read","Grammar","Vocabulary"],"status":"ready","cover":"books/fiction/the-big-blue-kite.svg","file":"books/fiction/the-big-blue-kite.html"},
+  {"slug":"the-wobbly-tower","title":"The Wobbly Tower","subtitle":"A Story About Trying Again","grade":"Grade 1","readingBand":"Beginning Reader","minutes":"7 min","modules":["Listen","Read","Reading","Vocabulary"],"status":"ready","cover":"books/fiction/the-wobbly-tower.svg","file":"books/fiction/the-wobbly-tower.html"},
   {"slug":"my-cardboard-box","title":"My Cardboard Box","subtitle":"A Story About Imagination","grade":"Grade 1","readingBand":"Beginning Reader","minutes":"7 min","modules":["Listen","Read","Grammar","Vocabulary"],"status":"ready","cover":"books/fiction/my-cardboard-box.svg","file":"books/fiction/my-cardboard-box.html"},
   {"slug":"the-big-race","title":"The Big Race","subtitle":"A Story About Trying Your Best","grade":"Grade 1","readingBand":"Beginning Reader","minutes":"7 min","modules":["Listen","Read","Grammar","Vocabulary"],"status":"ready","cover":"books/fiction/the-big-race.svg","file":"books/fiction/the-big-race.html"},
   {"slug":"kiki-forest-adventure","title":"Kiki's Big Forest Adventure","subtitle":"A Story About Being Special","grade":"Grade 1","readingBand":"Beginning Reader","minutes":"8 min","modules":["Listen","Read","Grammar","Vocabulary"],"status":"ready","cover":"books/fiction/kiki-forest-adventure.jpg","file":"books/fiction/kiki-forest-adventure.html"},
