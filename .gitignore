@@ -1,0 +1,8 @@
+.DS_Store
+*/.DS_Store
+**/.DS_Store
+
+# personal notes / marketing assets, not part of the site code
+*.pages
+/ChatGPT Image*.png
+/learningenglishfun-qr-poster.png
