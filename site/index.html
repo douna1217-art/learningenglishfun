@@ -122,11 +122,12 @@ document.getElementById("categories").innerHTML = data.categories.map(c=>{
     <span class="count">${label}</span><span class="go">Explore →</span></a>`;
 }).join("");
 
-function openBook(file,title){
+function openBook(file,title,category){
   document.getElementById("readerTitle").textContent = title || "";
   document.getElementById("readerFrame").src = file;
   document.getElementById("readerOverlay").style.display = "flex";
   document.body.style.overflow = "hidden";
+  if(window.__trackEvent)window.__trackEvent("book_open",{book_id:file,book_title:title||"",category:category||""});
 }
 function closeBook(){
   document.getElementById("readerFrame").src = "about:blank"; /* stops any narration */
@@ -162,10 +163,10 @@ function showShelf(id){
         <div class="meta">${b.readingBand?`<span class="pill">${b.readingBand}</span>`:""}${b.minutes?`<span class="pill">${b.minutes}</span>`:""}</div>
         <p>${b.subtitle||""}</p>
         <div class="skills">${(b.modules||[]).map(m=>`<span>${m}</span>`).join("")}</div>
-        <button class="open" style="border:0;cursor:pointer;width:100%" data-file="${b.file}" data-title="${b.title}">Open Book</button>
+        <button class="open" style="border:0;cursor:pointer;width:100%" data-file="${b.file}" data-title="${b.title}" data-category="${id}">Open Book</button>
       </div>
     </article>`).join("");
-  el.querySelectorAll(".open").forEach(btn=>btn.addEventListener("click",()=>openBook(btn.dataset.file, btn.dataset.title)));
+  el.querySelectorAll(".open").forEach(btn=>btn.addEventListener("click",()=>openBook(btn.dataset.file, btn.dataset.title, btn.dataset.category)));
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
@@ -223,8 +224,10 @@ document.getElementById("homeBtn").onclick=()=>{
     document.querySelectorAll(".rev-opt").forEach(function(o,i){o.classList.remove("ok","no");if(i===sel)o.classList.add(i===it.answer?"ok":"no");});
     var db=load(), id=it.book+"::"+it.tab+"-"+it.idx, rec=db.items[id]||it;
     if(sel===it.answer){var nb=Math.min(5,(rec.box||1)+1);rec.box=nb;rec.due=addDays(INT[nb]);rec.lastResult="correct";db.items[id]=rec;save(db);
+      if(window.__trackEvent)window.__trackEvent("review_correct",{book_id:it.book,book_title:it.bookTitle||""});
       fb.className="rev-fb good";fb.innerHTML="✓ Correct! "+(it.explain||"")+(it.teach?'<div class="rev-teach">💡 <b>Let’s learn:</b><br>'+it.teach+'</div>':"")+'<br><button class="rev-next" id="revNext">Next →</button>';}
     else{rec.box=1;rec.due=addDays(1);rec.lastResult="wrong";db.items[id]=rec;save(db);
+      if(window.__trackEvent)window.__trackEvent("review_wrong",{book_id:it.book,book_title:it.bookTitle||""});
       fb.className="rev-fb bad";fb.innerHTML="Not yet. "+(it.hint||"Try again.")+(it.teach?'<div class="rev-teach">💡 <b>Let’s learn:</b><br>'+it.teach+'</div>':"")+'<br><button class="rev-next" id="revNext">Next →</button>';}
     document.getElementById("revNext").addEventListener("click",function(){qi++;render();});
   }
@@ -239,4 +242,5 @@ document.getElementById("homeBtn").onclick=()=>{
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase-config.js"></script>
 <script src="sync.js"></script>
+<script src="stats.js"></script>
 </body></html>
