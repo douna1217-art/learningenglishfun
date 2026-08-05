@@ -14,6 +14,10 @@ window.READIVERSE_CATALOG = {
         "name": "Listen"
       },
       {
+        "icon": "🗣️",
+        "name": "Speak"
+      },
+      {
         "icon": "📖",
         "name": "Read"
       },
