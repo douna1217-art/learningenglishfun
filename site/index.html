@@ -124,7 +124,8 @@ const clsMap = {fiction:"fiction",science:"science",sel:"sel","social-studies":"
 // hero
 document.getElementById("siteName").textContent = data.site.name;
 document.getElementById("tagline").textContent = data.site.tagline;
-document.getElementById("eyebrow").textContent = data.site.heroEyebrow;
+if (data.site.heroEyebrow) { document.getElementById("eyebrow").textContent = data.site.heroEyebrow; }
+else { document.getElementById("eyebrow").style.display = "none"; }
 document.getElementById("heroTitle").textContent = data.site.heroTitle;
 document.getElementById("heroText").textContent = data.site.heroText;
 document.getElementById("modules").innerHTML = data.site.learningModules.map(m=>`<div class="module"><span class="m-ic">${m.icon}</span><span>${m.name}</span></div>`).join("");

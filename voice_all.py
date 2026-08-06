@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # =====================================================================
-#  Readiverse — ONE-CLICK whole-site narration (STABLE v3)
+#  Readiverse — ONE-CLICK whole-site narration (STABLE v4)
 #  - reads every book format (strict JSON + older JS-literal books)
+#  - voices story pages (window.RV_AUDIO) AND grammar "Let's learn"
+#    explanations, English + Chinese (window.RV_TEACH_AUDIO), each in
+#    the SAME voice as that book's own topic (no separate voice picker)
 #  - 60s timeout, auto-retry 4x, continue past failures
-#  - SKIPS books already voiced (safe + fast to re-run)
+#  - SKIPS whatever is already voiced (safe + fast to re-run)
 #  Runs on your Mac. Your key stays on your computer.
 #
 #  RUN (Terminal):
@@ -108,20 +111,92 @@ def get_narration(html):
                     items.append((str(idx), _dec(m.group(1))))
         return items
 
+def _extract_braced(html, marker, open_ch, close_ch):
+    """Find `marker` then return the balanced open_ch..close_ch block right after it."""
+    i = html.find(marker)
+    if i < 0: return None
+    b = html.index(open_ch, i); d = 0
+    for k in range(b, len(html)):
+        if html[k] == open_ch: d += 1
+        elif html[k] == close_ch:
+            d -= 1
+            if d == 0: return html[b:k+1]
+    return None
+
+def _split_teach(teach_html):
+    """Split one 'teach' string into (english_text, chinese_text), tags stripped."""
+    m = re.search(r"<span class=['\"]cn['\"]>(.*?)</span>", teach_html, re.S)
+    cn_html = m.group(1) if m else ""
+    en_html = teach_html[:m.start()] if m else teach_html
+    strip = lambda s: re.sub(r"<[^>]+>", "", s).strip()
+    return strip(en_html), strip(cn_html)
+
+def get_teach_items(html):
+    """Returns [(key, english_text, chinese_text), ...] for each grammar question
+    that has a non-empty 'teach' field. key looks like 'grammar-0', 'grammar-1', ...
+    matching the reader's activeTab+'-'+qi convention. Handles both formats."""
+    obj_text = _extract_braced(html, "const quizzes=", "{", "}")
+    if obj_text is None:
+        return []
+    try:
+        quizzes = json.loads(obj_text)
+        items = []
+        for idx, g in enumerate(quizzes.get("grammar", [])):
+            teach = g.get("teach", "")
+            if not teach: continue
+            en, cn = _split_teach(teach)
+            if en or cn: items.append(("grammar-%d" % idx, en, cn))
+        return items
+    except Exception:
+        pass
+    # Fallback for older JS-literal books: pull out the "grammar" array by hand.
+    gi = obj_text.find('"grammar"')
+    if gi < 0: gi = obj_text.find("grammar:")
+    if gi < 0: return []
+    arr = _extract_braced(obj_text[gi:], "", "[", "]")
+    if arr is None: return []
+    items = []
+    for idx, o in enumerate(_split_objects(arr)):
+        m = re.search(r'["\']?teach["\']?\s*:\s*"((?:[^"\\]|\\.)*)"', o)
+        if not m: continue
+        en, cn = _split_teach(_dec(m.group(1)))
+        if en or cn: items.append(("grammar-%d" % idx, en, cn))
+    return items
+
 def voice_one(path, key, voice):
     html = open(path, encoding="utf-8").read()
-    if "window.RV_AUDIO=" in html:
-        return "skip"
-    items = get_narration(html)
-    if not items:
-        return "notbook"
-    audio = {}
-    for k, t in items:
-        audio[k] = "data:audio/mpeg;base64," + base64.b64encode(tts(t, key, voice)).decode()
-    block = "<script>window.RV_AUDIO=" + json.dumps(audio) + ";</script>"
-    html = html.replace("</body>", block + "\n</body>", 1)
+    did = []
+
+    if "window.RV_AUDIO=" not in html:
+        items = get_narration(html)
+        if items:
+            audio = {}
+            for k, t in items:
+                audio[k] = "data:audio/mpeg;base64," + base64.b64encode(tts(t, key, voice)).decode()
+            block = "<script>window.RV_AUDIO=" + json.dumps(audio) + ";</script>"
+            html = html.replace("</body>", block + "\n</body>", 1)
+            did.append("story")
+
+    if "window.RV_TEACH_AUDIO=" not in html:
+        teach_items = get_teach_items(html)
+        if teach_items:
+            teach_audio = {}
+            for k, en, cn in teach_items:
+                entry = {}
+                if en: entry["en"] = "data:audio/mpeg;base64," + base64.b64encode(tts(en, key, voice)).decode()
+                if cn: entry["cn"] = "data:audio/mpeg;base64," + base64.b64encode(tts(cn, key, voice)).decode()
+                if entry: teach_audio[k] = entry
+            if teach_audio:
+                block2 = "<script>window.RV_TEACH_AUDIO=" + json.dumps(teach_audio) + ";</script>"
+                html = html.replace("</body>", block2 + "\n</body>", 1)
+                did.append("teach")
+
+    if not did:
+        looks_like_book = "const pages=" in html or "const quizzes=" in html
+        return "skip" if looks_like_book else "notbook"
+
     open(path, "w", encoding="utf-8").write(html)
-    return "done"
+    return "+".join(did)
 
 def collect(target):
     if os.path.isfile(target) and target.endswith(".html"):
@@ -138,7 +213,7 @@ def main(site):
     books = collect(site)
     if not books:
         sys.exit("No .html books found there. Drag the 'site' folder, OR a single book .html.")
-    print("Found %d book(s). Already-voiced are skipped.\n" % len(books))
+    print("Found %d book(s). Already-voiced parts are skipped.\n" % len(books))
     done = skipped = 0; failed = []
     for i, f in enumerate(books, 1):
         topic = os.path.basename(os.path.dirname(f))
@@ -148,16 +223,16 @@ def main(site):
         except Exception as e:
             print("[%d/%d] %-15s FAILED (%s)" % (i, len(books), topic, e))
             failed.append(os.path.basename(f)); continue
-        tag = {"done": voice, "skip": "already ok", "notbook": "(not a book)"}.get(r, voice)
-        print("[%d/%d] %-15s %-11s %s" % (i, len(books), topic, tag, os.path.basename(f)))
-        if r == "done": done += 1
-        elif r == "skip": skipped += 1
-    print("\nNewly voiced: %d | already done: %d | failed: %d" % (done, skipped, len(failed)))
+        tag = {"skip": "already ok", "notbook": "(not a book)"}.get(r, "%s (%s)" % (voice, r))
+        print("[%d/%d] %-15s %-22s %s" % (i, len(books), topic, tag, os.path.basename(f)))
+        if r == "skip": skipped += 1
+        else: done += 1
+    print("\nNewly voiced (story and/or teach audio): %d | already done: %d | failed: %d" % (done, skipped, len(failed)))
     if failed:
         print("Not finished yet — run again to complete:")
         for x in failed: print("   -", x)
     else:
-        print("All 72 books are voiced! Now deploy the 'site' folder to Netlify.")
+        print("Everything is voiced! Now deploy the 'site' folder to Netlify.")
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
