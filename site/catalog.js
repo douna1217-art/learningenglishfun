@@ -5,7 +5,7 @@ window.READIVERSE_CATALOG = {
   "site": {
     "name": "learningenglishfun",
     "tagline": "Read · Think · Discover",
-    "heroEyebrow": "A growing reading universe",
+    "heroEyebrow": "",
     "heroTitle": "Every subject can become a reading adventure.",
     "heroText": "Explore stories and informational texts across the elementary grades. Build knowledge, vocabulary, fluency, and comprehension—one book at a time.",
     "learningModules": [
@@ -30,7 +30,7 @@ window.READIVERSE_CATALOG = {
         "name": "Vocabulary"
       }
     ],
-    "standardsNote": "Individual books can list their exact California Common Core State Standards for English Language Arts and Literacy."
+    "standardsNote": "Individual books can list their exact California standards — Common Core State Standards for English Language Arts and Literacy and Mathematics, Next Generation Science Standards, History–Social Science Content Standards, and Computer Science Standards."
   },
   "categories": [
     {
