@@ -64,7 +64,7 @@ window.READIVERSE_CATALOG = {
     {
       "id": "math-stories",
       "icon": "➗",
-      "name": "Math Stories",
+      "name": "Math",
       "description": "Fractions, measurement, geometry, multiplication, and problem solving.",
       "className": "math"
     },
