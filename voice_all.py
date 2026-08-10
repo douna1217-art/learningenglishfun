@@ -64,6 +64,53 @@ def tts(text, key, voice):
         time.sleep(3 * attempt)
     raise RuntimeError(str(last))
 
+_ABBREV_RE = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr)\.")
+_SENT_BOUNDARY_RE = re.compile(r"([.!?][\u2019\u201d'\"]?)\s+")
+_ABBREV_PLACEHOLDER = chr(0)   # stands in for the period in "Ms." while splitting
+_SPLIT_MARK = chr(1)           # marks a real sentence boundary
+
+def split_sentences(text):
+    """Split English text into sentence-sized chunks for TTS.
+    gpt-4o-mini-tts (a generative, autoregressive model) occasionally stops
+    early on long multi-sentence input and silently drops the tail sentence.
+    Feeding it one sentence at a time removes that risk almost entirely;
+    common abbreviations like 'Ms.' are protected so they don't get split
+    mid-name."""
+    text = (text or "").strip()
+    if not text:
+        return []
+    protected = _ABBREV_RE.sub(lambda m: m.group(1) + _ABBREV_PLACEHOLDER, text)
+    marked = _SENT_BOUNDARY_RE.sub(lambda m: m.group(1) + _SPLIT_MARK, protected)
+    parts = [p.replace(_ABBREV_PLACEHOLDER, ".").strip() for p in marked.split(_SPLIT_MARK) if p.strip()]
+    return parts if parts else [text]
+
+def tts_multi(text, key, voice):
+    """TTS a full page/teach text by splitting into sentences and concatenating
+    each sentence's audio, instead of sending the whole multi-sentence text in
+    one request (see split_sentences for why).
+
+    Returns (audio_bytes, marks). marks is None for single-sentence text
+    (nothing to correct for). For multi-sentence text, marks is a list of
+    {"cs": cumulative_char_fraction, "cf": cumulative_byte_fraction}, one per
+    sentence boundary — the reader's word-highlighter uses these checkpoints
+    to correct for the small silence gaps at each concatenation seam, instead
+    of assuming one smooth, evenly-paced audio clip for the whole page."""
+    sentences = split_sentences(text)
+    if len(sentences) <= 1:
+        return tts(text, key, voice), None
+    audios = [tts(s, key, voice) for s in sentences]
+    combined = b"".join(audios)
+    char_lens = [len(s) + 1 for s in sentences]
+    byte_lens = [len(a) for a in audios]
+    total_chars = sum(char_lens) or 1
+    total_bytes = sum(byte_lens) or 1
+    marks = []
+    cc = cb = 0
+    for cl, bl in zip(char_lens, byte_lens):
+        cc += cl; cb += bl
+        marks.append({"cs": round(cc / total_chars, 4), "cf": round(cb / total_bytes, 4)})
+    return combined, marks
+
 def _split_objects(arr):
     objs = []; i = arr.find("{")
     while i != -1:
@@ -171,10 +218,16 @@ def voice_one(path, key, voice):
         items = get_narration(html)
         if items:
             audio = {}
+            marks_map = {}
             for k, t in items:
-                audio[k] = "data:audio/mpeg;base64," + base64.b64encode(tts(t, key, voice)).decode()
+                raw, marks = tts_multi(t, key, voice)
+                audio[k] = "data:audio/mpeg;base64," + base64.b64encode(raw).decode()
+                if marks: marks_map[k] = marks
             block = "<script>window.RV_AUDIO=" + json.dumps(audio) + ";</script>"
             html = html.replace("</body>", block + "\n</body>", 1)
+            if marks_map:
+                blockm = "<script>window.RV_AUDIO_MARKS=" + json.dumps(marks_map) + ";</script>"
+                html = html.replace("</body>", blockm + "\n</body>", 1)
             did.append("story")
 
     if "window.RV_TEACH_AUDIO=" not in html:
@@ -183,7 +236,7 @@ def voice_one(path, key, voice):
             teach_audio = {}
             for k, en, cn in teach_items:
                 entry = {}
-                if en: entry["en"] = "data:audio/mpeg;base64," + base64.b64encode(tts(en, key, voice)).decode()
+                if en: entry["en"] = "data:audio/mpeg;base64," + base64.b64encode(tts_multi(en, key, voice)[0]).decode()
                 if cn: entry["cn"] = "data:audio/mpeg;base64," + base64.b64encode(tts(cn, key, voice)).decode()
                 if entry: teach_audio[k] = entry
             if teach_audio:
