@@ -66,21 +66,30 @@ def tts(text, key, voice):
 
 _ABBREV_RE = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr)\.")
 _SENT_BOUNDARY_RE = re.compile(r"([.!?][\u2019\u201d'\"]?)\s+")
+_DIALOGUE_TAG_RE = re.compile(r"([,][\u2019\u201d'\"])\s+")
 _ABBREV_PLACEHOLDER = chr(0)   # stands in for the period in "Ms." while splitting
 _SPLIT_MARK = chr(1)           # marks a real sentence boundary
 
 def split_sentences(text):
     """Split English text into sentence-sized chunks for TTS.
     gpt-4o-mini-tts (a generative, autoregressive model) occasionally stops
-    early on long multi-sentence input and silently drops the tail sentence.
-    Feeding it one sentence at a time removes that risk almost entirely;
-    common abbreviations like 'Ms.' are protected so they don't get split
-    mid-name."""
+    early on long multi-sentence input and silently drops the tail. Feeding
+    it one sentence at a time removes that risk almost entirely; common
+    abbreviations like 'Ms.' are protected so they don't get split mid-name.
+
+    A second boundary also splits after a quoted-dialogue comma, e.g.
+    "'We need a basket,' Malik explained." -> "'We need a basket,'" +
+    "Malik explained." (and likewise "'...,' she said." -> two pieces).
+    Without this, the whole thing is one "sentence" by the period-only
+    rule, and the short trailing attribution clause ("Malik explained",
+    "she said") was observed getting silently dropped by the TTS engine
+    the same way a trailing sentence can be."""
     text = (text or "").strip()
     if not text:
         return []
     protected = _ABBREV_RE.sub(lambda m: m.group(1) + _ABBREV_PLACEHOLDER, text)
     marked = _SENT_BOUNDARY_RE.sub(lambda m: m.group(1) + _SPLIT_MARK, protected)
+    marked = _DIALOGUE_TAG_RE.sub(lambda m: m.group(1) + _SPLIT_MARK, marked)
     parts = [p.replace(_ABBREV_PLACEHOLDER, ".").strip() for p in marked.split(_SPLIT_MARK) if p.strip()]
     return parts if parts else [text]
 
