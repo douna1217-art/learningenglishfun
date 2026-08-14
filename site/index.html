@@ -218,8 +218,9 @@ function bookCardHTML(b, categoryId){
 function gradeGroupsFor(books){
   const groups = {};
   books.forEach(b=>{ const g = b.grade || "More Books"; (groups[g] = groups[g] || []).push(b); });
+  const gradeRank = g => /kindergarten/i.test(g) ? 0 : parseInt((g.match(/\d+/)||[])[0], 10);
   const gradeKeys = Object.keys(groups).sort((ga,gb)=>{
-    const na = parseInt((ga.match(/\d+/)||[])[0], 10), nb = parseInt((gb.match(/\d+/)||[])[0], 10);
+    const na = gradeRank(ga), nb = gradeRank(gb);
     if(!isNaN(na) && !isNaN(nb)) return na - nb;
     if(!isNaN(na)) return -1;
     if(!isNaN(nb)) return 1;
