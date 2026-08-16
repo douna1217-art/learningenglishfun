@@ -6,3 +6,6 @@
 *.pages
 /ChatGPT Image*.png
 /learningenglishfun-qr-poster.png
+
+# COS credentials for uploading book photos/audio — never commit
+.cos_credentials

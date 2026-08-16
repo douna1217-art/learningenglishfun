@@ -219,23 +219,46 @@ def get_teach_items(html):
         if en or cn: items.append(("grammar-%d" % idx, en, cn))
     return items
 
-def _audio_dir_for(path):
-    """Per-book folder for external mp3 files, next to the book's .html,
-    e.g. books/social-studies/the-crosswalk-rule.html ->
-         books/social-studies/the-crosswalk-rule-audio/"""
-    slug = os.path.splitext(os.path.basename(path))[0]
-    d = os.path.join(os.path.dirname(path), slug + "-audio")
-    os.makedirs(d, exist_ok=True)
-    return d, slug
+_COS_CREDS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cos_credentials")
+_cos_client = None
+_cos_creds = None
 
-def _write_mp3(audio_dir, name, raw_bytes):
-    """Write mp3 bytes to <audio_dir>/<name>.mp3 and return the path
-    relative to the book's own folder (what the HTML's <script> should
-    reference), e.g. 'the-crosswalk-rule-audio/page_3.mp3'."""
-    fname = name + ".mp3"
-    with open(os.path.join(audio_dir, fname), "wb") as f:
-        f.write(raw_bytes)
-    return os.path.basename(audio_dir) + "/" + fname
+def _get_cos_client():
+    """Lazily build a COS client from the gitignored .cos_credentials file
+    next to this script. Audio is uploaded straight to COS instead of being
+    base64-embedded in the HTML (which used to balloon every book's .html
+    to multiple MB and eventually broke the site's EdgeOne deploys) or
+    written as a local file (which would re-bloat the git repo)."""
+    global _cos_client, _cos_creds
+    if _cos_client is None:
+        sys.path.insert(0, "/Users/nadou/Library/Python/3.9/lib/python/site-packages")
+        from qcloud_cos import CosConfig, CosS3Client
+        creds = {}
+        for line in open(_COS_CREDS_PATH):
+            line = line.strip()
+            if line and "=" in line:
+                k, v = line.split("=", 1)
+                creds[k] = v
+        config = CosConfig(Region=creds["COS_REGION"], SecretId=creds["COS_SECRET_ID"], SecretKey=creds["COS_SECRET_KEY"])
+        _cos_client = CosS3Client(config)
+        _cos_creds = creds
+    return _cos_client, _cos_creds
+
+def _audio_dir_for(path):
+    """COS key prefix for a book's audio, derived from its path, e.g.
+    books/social-studies/the-crosswalk-rule.html ->
+    'books/social-studies/the-crosswalk-rule-audio'"""
+    slug = os.path.splitext(os.path.basename(path))[0]
+    subject_dir = os.path.basename(os.path.dirname(path))
+    return f"books/{subject_dir}/{slug}-audio", slug
+
+def _write_mp3(audio_prefix, name, raw_bytes):
+    """Upload mp3 bytes to COS under <audio_prefix>/<name>.mp3 and return
+    the absolute URL for window.RV_AUDIO / window.RV_TEACH_AUDIO to use."""
+    client, creds = _get_cos_client()
+    key = f"{audio_prefix}/{name}.mp3"
+    client.put_object(Bucket=creds["COS_BUCKET"], Body=raw_bytes, Key=key, ContentType="audio/mpeg")
+    return f"https://{creds['COS_DOMAIN']}/{key}"
 
 def voice_one(path, key, voice):
     html = open(path, encoding="utf-8").read()
