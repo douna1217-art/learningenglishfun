@@ -207,10 +207,11 @@ create policy "Allow insert for everyone" on public.feedback
   with check (true);
 ```
 
-**怎么看反馈**：打开 `site/feedback-admin.html`（同样没放进导航栏，自己收藏
-这个网址）。这个页面需要用**你自己的邮箱**登录（跟首页"parent/teacher email"
-同一套魔法链接登录方式）——登录后只有邮箱匹配的人才能看到反馈内容，别人就算
-知道这个网址、甚至知道你的 anon key，也读不到任何一条反馈。
+**怎么看反馈**：打开 `site/stats.html`，往下滚动到"💬 Feedback"区块。这个区块
+需要用**你自己的邮箱**登录（跟首页"parent/teacher email"同一套魔法链接登录
+方式）——登录后只有邮箱匹配的人才能看到反馈内容，别人就算知道这个网址、甚至
+知道你的 anon key，也读不到任何一条反馈。页面上方的访问统计数字（总访问量等）
+本身是公开的，不需要登录也能看，登录只影响下面这个反馈区块。
 
 这背后靠的是下面这个数据库函数（在 SQL Editor 里运行，紧接着上面建表的 SQL
 之后）：

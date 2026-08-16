@@ -13,14 +13,15 @@
 //   possible without ever asking for it. Nobody — including this site's
 //   own frontend code — can read feedback back out through the anon key
 //   (insert-only table, same pattern as app_events in stats.js). Read
-//   submissions via feedback-admin.html.
+//   submissions in the "💬 Feedback" section of stats.html (sign in there
+//   with the owner's email).
 // - If supabase-config.js still has placeholder values, this file quietly
 //   does nothing: no button, no errors, no network calls.
 //
 // 中文说明：右下角悬浮的反馈按钮，点开只有一个留言框，不用填邮箱、不用登录，
 // 尽量降低填写门槛。提交后写进 Supabase 的 feedback 表。这张表只允许"写入"，
 // 任何人（包括本网站前端代码自己）都读不出别人提交的内容——只有你自己登录
-// feedback-admin.html 才能看到。没配置 Supabase 项目之前，这个文件什么都不做，
+// stats.html 里的"反馈"区块才能看到。没配置 Supabase 项目之前，这个文件什么都不做，
 // 不会显示按钮。
 (function () {
   var cfg = window.SUPABASE_CONFIG;
