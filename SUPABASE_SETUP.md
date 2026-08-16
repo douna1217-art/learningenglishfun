@@ -177,3 +177,36 @@ grant execute on function public.get_public_stats() to anon, authenticated;
 
 **怎么看统计**：打开 `site/stats.html`（没有放进导航栏，自己收藏这个网址就
 行），或者直接在 Supabase 的 SQL Editor 里运行 `select public.get_public_stats();`。
+
+## 反馈按钮
+
+同一个 Supabase 项目里，还建一张 `feedback` 表，配合右下角悬浮的"💬 Feedback"
+按钮（`site/feedback.js`，已经加进首页和每一本书的页面）。跟 `app_events` 一
+样是**只允许写入**，谁都读不到别人提交的内容——包括网站前端代码自己。你在
+Supabase 的 **Table Editor** 里用自己的账号登录查看提交的反馈。
+
+建表的 SQL（在 SQL Editor 里运行一次）：
+
+```sql
+create table if not exists public.feedback (
+  id bigint generated always as identity primary key,
+  message text not null,
+  email text,
+  page_url text,
+  page_title text,
+  visitor_id text,
+  user_id uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.feedback enable row level security;
+
+create policy "Allow insert for everyone" on public.feedback
+  for insert
+  to anon, authenticated
+  with check (true);
+```
+
+**怎么看反馈**：Supabase 项目 → **Table Editor** → `feedback` 表，能看到每条
+反馈的留言内容、提交时间、来自哪个页面（`page_url`/`page_title`），以及对方
+留没留邮箱（`email`，方便你回复）。
