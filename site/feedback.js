@@ -3,22 +3,25 @@
 // What this does:
 // - Adds a small "💬 Feedback" button fixed in the bottom-right corner of
 //   every page (homepage and every book reader).
-// - Clicking it opens a tiny form: a message textarea (required) and an
-//   optional email field (only so you can reply — never required).
+// - Clicking it opens a tiny form: just a message textarea, nothing else
+//   required — no email, no sign-in — to keep the bar to giving feedback
+//   as low as possible.
 // - Submitting inserts one row into the Supabase `feedback` table, tagged
 //   with the page URL/title it was sent from, a random per-browser
-//   visitor id, and the signed-in user id if the reader is logged in for
-//   Smart Review sync. Nobody — including this site's own frontend code —
-//   can read feedback back out through the anon key (insert-only table,
-//   same pattern as app_events in stats.js). You read submissions in the
-//   Supabase Table Editor.
+//   visitor id, and — only if the reader already happens to be signed in
+//   for Smart Review sync — their email/user id, so a reply is still
+//   possible without ever asking for it. Nobody — including this site's
+//   own frontend code — can read feedback back out through the anon key
+//   (insert-only table, same pattern as app_events in stats.js). Read
+//   submissions via feedback-admin.html.
 // - If supabase-config.js still has placeholder values, this file quietly
 //   does nothing: no button, no errors, no network calls.
 //
-// 中文说明：右下角悬浮的反馈按钮，点开是一个小表单（留言 + 可选邮箱），提交后
-// 写进 Supabase 的 feedback 表。这张表只允许"写入"，任何人（包括本网站前端
-// 代码自己）都读不出别人提交的内容——只有你自己登录 Supabase 后台的 Table
-// Editor 才能看到。没配置 Supabase 项目之前，这个文件什么都不做，不会显示按钮。
+// 中文说明：右下角悬浮的反馈按钮，点开只有一个留言框，不用填邮箱、不用登录，
+// 尽量降低填写门槛。提交后写进 Supabase 的 feedback 表。这张表只允许"写入"，
+// 任何人（包括本网站前端代码自己）都读不出别人提交的内容——只有你自己登录
+// feedback-admin.html 才能看到。没配置 Supabase 项目之前，这个文件什么都不做，
+// 不会显示按钮。
 (function () {
   var cfg = window.SUPABASE_CONFIG;
   var configured =
@@ -92,8 +95,6 @@
     "<h3>Send feedback</h3>" +
     "<p>Found a problem, or have an idea? Tell us — thank you!</p>" +
     '<textarea id="lesFbMsg" placeholder="What\'s on your mind..."></textarea>' +
-    '<label for="lesFbEmail">Your email (optional, so we can reply)</label>' +
-    '<input type="email" id="lesFbEmail" placeholder="you@example.com">' +
     '<div id="lesFbActions">' +
     '<button id="lesFbCancel" type="button">Cancel</button>' +
     '<button id="lesFbSubmit" type="button">Send</button>' +
@@ -103,7 +104,6 @@
   document.body.appendChild(overlay);
 
   var msgEl = overlay.querySelector("#lesFbMsg");
-  var emailEl = overlay.querySelector("#lesFbEmail");
   var statusEl = overlay.querySelector("#lesFbStatus");
   var submitBtn = overlay.querySelector("#lesFbSubmit");
 
@@ -137,21 +137,24 @@
     statusEl.className = "";
 
     sb.auth.getSession().then(function (res) {
-      var userId = res && res.data && res.data.session && res.data.session.user ? res.data.session.user.id : null;
+      var user = res && res.data && res.data.session && res.data.session.user;
+      // No email field in the form (kept the bar to submitting as low as
+      // possible) — if the visitor happens to already be signed in for
+      // Smart Review sync, tag their email automatically so a reply is
+      // still possible; otherwise it's just left blank.
       return sb.from("feedback").insert({
         message: message,
-        email: (emailEl.value || "").trim() || null,
+        email: user ? user.email : null,
         page_url: location.href,
         page_title: document.title,
         visitor_id: visitorId(),
-        user_id: userId,
+        user_id: user ? user.id : null,
       });
     }).then(function (res) {
       if (res && res.error) throw res.error;
       statusEl.textContent = "Thank you! Your feedback was sent. 🎉";
       statusEl.className = "good";
       msgEl.value = "";
-      emailEl.value = "";
       setTimeout(closeModal, 1600);
     }).catch(function (err) {
       statusEl.textContent = "Could not send — please try again.";
