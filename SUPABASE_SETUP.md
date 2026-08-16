@@ -207,6 +207,29 @@ create policy "Allow insert for everyone" on public.feedback
   with check (true);
 ```
 
-**怎么看反馈**：Supabase 项目 → **Table Editor** → `feedback` 表，能看到每条
-反馈的留言内容、提交时间、来自哪个页面（`page_url`/`page_title`），以及对方
-留没留邮箱（`email`，方便你回复）。
+**怎么看反馈**：打开 `site/feedback-admin.html`（同样没放进导航栏，自己收藏
+这个网址）。这个页面需要用**你自己的邮箱**登录（跟首页"parent/teacher email"
+同一套魔法链接登录方式）——登录后只有邮箱匹配的人才能看到反馈内容，别人就算
+知道这个网址、甚至知道你的 anon key，也读不到任何一条反馈。
+
+这背后靠的是下面这个数据库函数（在 SQL Editor 里运行，紧接着上面建表的 SQL
+之后）：
+
+```sql
+create or replace function public.get_all_feedback()
+returns setof public.feedback
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select * from public.feedback
+  where auth.jwt() ->> 'email' = '你的邮箱@example.com'
+  order by created_at desc;
+$$;
+
+grant execute on function public.get_all_feedback() to authenticated;
+```
+
+记得把 `你的邮箱@example.com` 换成你自己登录用的真实邮箱——只有用这个邮箱登录
+才能看到反馈，其他任何邮箱登录都只会看到空列表。
