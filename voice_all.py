@@ -219,18 +219,38 @@ def get_teach_items(html):
         if en or cn: items.append(("grammar-%d" % idx, en, cn))
     return items
 
+def _audio_dir_for(path):
+    """Per-book folder for external mp3 files, next to the book's .html,
+    e.g. books/social-studies/the-crosswalk-rule.html ->
+         books/social-studies/the-crosswalk-rule-audio/"""
+    slug = os.path.splitext(os.path.basename(path))[0]
+    d = os.path.join(os.path.dirname(path), slug + "-audio")
+    os.makedirs(d, exist_ok=True)
+    return d, slug
+
+def _write_mp3(audio_dir, name, raw_bytes):
+    """Write mp3 bytes to <audio_dir>/<name>.mp3 and return the path
+    relative to the book's own folder (what the HTML's <script> should
+    reference), e.g. 'the-crosswalk-rule-audio/page_3.mp3'."""
+    fname = name + ".mp3"
+    with open(os.path.join(audio_dir, fname), "wb") as f:
+        f.write(raw_bytes)
+    return os.path.basename(audio_dir) + "/" + fname
+
 def voice_one(path, key, voice):
     html = open(path, encoding="utf-8").read()
     did = []
+    audio_dir = None
 
     if "window.RV_AUDIO=" not in html:
         items = get_narration(html)
         if items:
+            if audio_dir is None: audio_dir, slug = _audio_dir_for(path)
             audio = {}
             marks_map = {}
             for k, t in items:
                 raw, marks = tts_multi(t, key, voice)
-                audio[k] = "data:audio/mpeg;base64," + base64.b64encode(raw).decode()
+                audio[k] = _write_mp3(audio_dir, "page_" + k, raw)
                 if marks: marks_map[k] = marks
             block = "<script>window.RV_AUDIO=" + json.dumps(audio) + ";</script>"
             html = html.replace("</body>", block + "\n</body>", 1)
@@ -242,11 +262,12 @@ def voice_one(path, key, voice):
     if "window.RV_TEACH_AUDIO=" not in html:
         teach_items = get_teach_items(html)
         if teach_items:
+            if audio_dir is None: audio_dir, slug = _audio_dir_for(path)
             teach_audio = {}
             for k, en, cn in teach_items:
                 entry = {}
-                if en: entry["en"] = "data:audio/mpeg;base64," + base64.b64encode(tts_multi(en, key, voice)[0]).decode()
-                if cn: entry["cn"] = "data:audio/mpeg;base64," + base64.b64encode(tts(cn, key, voice)).decode()
+                if en: entry["en"] = _write_mp3(audio_dir, "teach_" + k + "_en", tts_multi(en, key, voice)[0])
+                if cn: entry["cn"] = _write_mp3(audio_dir, "teach_" + k + "_cn", tts(cn, key, voice))
                 if entry: teach_audio[k] = entry
             if teach_audio:
                 block2 = "<script>window.RV_TEACH_AUDIO=" + json.dumps(teach_audio) + ";</script>"
