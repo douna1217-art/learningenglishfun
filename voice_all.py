@@ -14,6 +14,7 @@
 #    then paste your key when asked (hidden while typing).
 # =====================================================================
 import os, sys, json, base64, glob, getpass, re, time, urllib.request, urllib.error
+import difflib, subprocess, tempfile, wave
 
 VOICES = {
     "fiction":        "fable",
@@ -260,10 +261,134 @@ def _write_mp3(audio_prefix, name, raw_bytes):
     client.put_object(Bucket=creds["COS_BUCKET"], Body=raw_bytes, Key=key, ContentType="audio/mpeg")
     return f"https://{creds['COS_DOMAIN']}/{key}"
 
+# ---------------------------------------------------------------------
+# Real per-word highlight timing (window.RV_WORD_TIMES), derived from the
+# TTS audio itself via local Whisper word-level alignment -- replaces the
+# old character-length-proportion *estimate* the reader used to fall back
+# on. Zero extra API cost: runs entirely on-device against audio already
+# generated in this same pass (no new network calls beyond the TTS calls
+# already being made). Added 2026-08-22.
+# ---------------------------------------------------------------------
+_WHISPER_MODEL = None
+
+def _get_whisper_model():
+    global _WHISPER_MODEL
+    if _WHISPER_MODEL is None:
+        import whisper
+        print("Loading local Whisper model for word-timing alignment (one-time, ~1-2 min)...")
+        _WHISPER_MODEL = whisper.load_model("base")
+    return _WHISPER_MODEL
+
+def _wnorm(w):
+    return re.sub(r"[^\w']", "", w.lower())
+
+def align_word_times(text, mp3_bytes):
+    """Given a page's original text and its already-generated mp3 bytes,
+    return a list of real start-times (seconds), one per whitespace-split
+    token in `text`, aligned via local Whisper word-level timestamps.
+    Returns [] on any failure (caller should treat that as 'skip', not
+    fatal -- the reader falls back to the old estimate automatically)."""
+    import numpy as np
+    our_tokens = text.split()
+    if not our_tokens:
+        return []
+    try:
+        model = _get_whisper_model()
+        with tempfile.TemporaryDirectory() as td:
+            mp3_path = os.path.join(td, "p.mp3")
+            wav_path = os.path.join(td, "p.wav")
+            with open(mp3_path, "wb") as f:
+                f.write(mp3_bytes)
+            subprocess.run(["afconvert", "-f", "WAVE", "-d", "LEI16@16000", mp3_path, wav_path],
+                            check=True, capture_output=True)
+            with wave.open(wav_path, "rb") as w:
+                frames = w.readframes(w.getnframes())
+            audio = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
+        result = model.transcribe(audio, language="en", word_timestamps=True, fp16=False)
+        wh_words = []
+        for seg in result.get("segments", []):
+            for w in seg.get("words", []):
+                wh_words.append((w["word"].strip(), w["start"]))
+        if not wh_words:
+            return []
+
+        our_norm = [_wnorm(t) for t in our_tokens]
+        wh_norm = [_wnorm(w) for w, _ in wh_words]
+        sm = difflib.SequenceMatcher(a=our_norm, b=wh_norm, autojunk=False)
+        times = [None] * len(our_tokens)
+        for tag, i1, i2, j1, j2 in sm.get_opcodes():
+            if tag == "equal":
+                for k in range(i2 - i1):
+                    times[i1 + k] = wh_words[j1 + k][1]
+            elif tag == "replace":
+                n1, n2 = i2 - i1, j2 - j1
+                if n2 > 0:
+                    for k in range(n1):
+                        jj = j1 + min(n2 - 1, round(k * n2 / max(n1, 1)))
+                        times[i1 + k] = wh_words[jj][1]
+        for i in range(len(times)):
+            if times[i] is None:
+                prev_i = next((k for k in range(i - 1, -1, -1) if times[k] is not None), None)
+                next_i = next((k for k in range(i + 1, len(times)) if times[k] is not None), None)
+                if prev_i is not None and next_i is not None:
+                    span = next_i - prev_i
+                    times[i] = times[prev_i] + (times[next_i] - times[prev_i]) * (i - prev_i) / span
+                elif prev_i is not None:
+                    times[i] = times[prev_i]
+                elif next_i is not None:
+                    times[i] = times[next_i]
+                else:
+                    times[i] = 0.0
+        return [round(t, 3) for t in times]
+    except Exception as e:
+        print("      (word-timing alignment skipped: %s)" % e)
+        return []
+
+_INTERVAL_RE = re.compile(
+    r"if\(dur>0&&spans\.length\)\{var frac=(rvRemapFrac\(a\.currentTime/dur,marks\)|a\.currentTime/dur),idx=0,j;"
+    r"for\(j=0;j<starts\.length;j\+\+\)\{if\(frac>=starts\[j\]\)idx=j;else break;\}"
+    r"clearHighlight\(\);if\(spans\[idx\]\)spans\[idx\]\.classList\.add\('reading'\);\}"
+)
+_SPANS_DECL = "var spans=highlight?[].slice.call(document.querySelectorAll('.story-word')):[];"
+
+def patch_speak_audio_for_word_times(html):
+    """Make the reader's speakAudio() prefer window.RV_WORD_TIMES (real
+    per-word timestamps) over the old character-proportion estimate, when
+    present. Idempotent -- no-ops if already patched or if the function
+    doesn't match a known shape (in which case RV_WORD_TIMES data is still
+    written, just unused until the reader is patched some other way)."""
+    i = html.find("function speakAudio(")
+    if i < 0:
+        return html, False
+    j = html.find("function ttsSpeak(", i)
+    if j < 0:
+        return html, False
+    block = html[i:j]
+    if "wordTimes" in block or _SPANS_DECL not in block:
+        return html, False
+    m = _INTERVAL_RE.search(block)
+    if not m:
+        return html, False
+    frac_expr = m.group(1)
+    new_interval = (
+        "if(dur>0&&spans.length){var idx=0,j;if(wordTimes&&wordTimes.length){"
+        "var t=a.currentTime;for(j=0;j<wordTimes.length;j++){if(t>=wordTimes[j])idx=j;else break;}"
+        "}else{var frac=" + frac_expr + ";for(j=0;j<starts.length;j++){if(frac>=starts[j])idx=j;else break;}}"
+        "clearHighlight();if(spans[idx])spans[idx].classList.add('reading');}"
+    )
+    new_block = block.replace(_SPANS_DECL, _SPANS_DECL + "var wordTimes=window.RV_WORD_TIMES&&window.RV_WORD_TIMES[page];", 1)
+    new_block = _INTERVAL_RE.sub(lambda _m: new_interval, new_block, count=1)
+    return html[:i] + new_block + html[j:], True
+
 def voice_one(path, key, voice):
     html = open(path, encoding="utf-8").read()
     did = []
     audio_dir = None
+
+    if "</body>" not in html:
+        print("      WARNING: no </body> tag found -- audio blocks would silently fail to "
+              "insert (this happened before, see gen-book-tpl-reconstruction-checklist). Skipping.")
+        return "no-body-tag"
 
     if "window.RV_AUDIO=" not in html:
         items = get_narration(html)
@@ -271,15 +396,23 @@ def voice_one(path, key, voice):
             if audio_dir is None: audio_dir, slug = _audio_dir_for(path)
             audio = {}
             marks_map = {}
+            word_times = {}
             for k, t in items:
                 raw, marks = tts_multi(t, key, voice)
                 audio[k] = _write_mp3(audio_dir, "page_" + k, raw)
                 if marks: marks_map[k] = marks
+                wt = align_word_times(t, raw)
+                if wt: word_times[k] = wt
             block = "<script>window.RV_AUDIO=" + json.dumps(audio) + ";</script>"
             html = html.replace("</body>", block + "\n</body>", 1)
             if marks_map:
                 blockm = "<script>window.RV_AUDIO_MARKS=" + json.dumps(marks_map) + ";</script>"
                 html = html.replace("</body>", blockm + "\n</body>", 1)
+            if word_times:
+                html, _ = patch_speak_audio_for_word_times(html)
+                blockw = "<script>window.RV_WORD_TIMES=" + json.dumps(word_times) + ";</script>"
+                html = html.replace("</body>", blockw + "\n</body>", 1)
+                did.append("word-times")
             did.append("story")
 
     if "window.RV_TEACH_AUDIO=" not in html:
