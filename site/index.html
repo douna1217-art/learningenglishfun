@@ -88,11 +88,24 @@ h1,.hero h2,.cat h3,.section-title h2,.rev-hero h3,.cover-title h3,.brand h1{fon
 .book{border-radius:28px}
 .logo{border-radius:16px}
 .section-title h2{font-size:1.7rem}
+
+/* --- reading placement quiz --- */
+.placement-hero{background:linear-gradient(120deg,#1f4d38,#315f47);color:#fff;border-radius:22px;padding:22px 26px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-bottom:16px}
+.placement-hero .ic{font-size:44px}.placement-hero .tx{flex:1;min-width:200px}.placement-hero .tx h3{margin:0;font-size:1.5rem;font-family:"Fredoka",ui-rounded,"Trebuchet MS",Arial,sans-serif}.placement-hero .tx p{margin:6px 0 0;opacity:.93;font-weight:600}
+.placement-hero .btn{background:#fff;color:#1f4d38;border:0;border-radius:14px;padding:14px 22px;font-weight:950;font-size:1.05rem;cursor:pointer}
+#placementOverlay{position:fixed;inset:0;z-index:2100;background:#f5f7f4;display:none;flex-direction:column}
+.plc-bar{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#1f4d38;color:#fff}
+.plc-bar button{border:0;background:rgba(255,255,255,.2);color:#fff;font-weight:800;padding:9px 14px;border-radius:10px;cursor:pointer}
+.plc-bar .ttl{font-weight:900;font-size:1.05rem}.plc-bar .prog{margin-left:auto;font-weight:800;opacity:.9}
+#plcContent{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:26px 16px}
+#recommendedCard{display:none;margin-bottom:8px}
 </style></head>
 <body><header class="top"><div class="brand"><div class="logo">L</div><div><h1 id="siteName"></h1><p id="tagline"></p></div></div><div class="teacher" id="syncBox"></div></header>
 <main class="wrap">
 <section class="hero"><div class="eyebrow" id="eyebrow"></div><h2 id="heroTitle"></h2><p id="heroText"></p><div class="module-caption">Every book includes</div><div class="module-row" id="modules"></div><div class="note" id="standardsNote"></div></section>
+<div id="placementCard"><div class="placement-hero"><div class="ic">🎯</div><div class="tx"><h3>Not sure what to read?</h3><p id="placementSub">Take a quick placement quiz and we'll suggest a grade level to start with.</p></div><button class="btn" id="startPlacement">Take the quiz →</button></div></div>
 <div id="reviewCard"><div class="rev-hero"><div class="ic">🧠</div><div class="tx"><h3>Smart Review <span class="rev-badge" id="reviewBadge" style="display:none"></span></h3><p id="reviewSub">Practice the questions you missed — spaced out over days so you remember.</p></div><button class="btn" id="startReview">Start review →</button></div></div>
+<div id="recommendedCard"></div>
 <div class="section-title"><h2>Topics</h2><p>Choose a subject to explore its books.</p></div>
 <section class="categories" id="categories"></section>
 <section id="shelfView" style="display:none">
@@ -107,6 +120,7 @@ h1,.hero h2,.cat h3,.section-title h2,.rev-hero h3,.cover-title h3,.brand h1{fon
   <div class="reader-bar"><button id="readerBack">← Back</button><span class="rtitle" id="readerTitle"></span></div>
   <iframe id="readerFrame" title="Book reader" allow="microphone; autoplay" allowfullscreen></iframe>
 </div>
+<div id="placementOverlay"><div class="plc-bar"><button id="placementBack">← Back</button><span class="ttl">🎯 Placement Quiz</span><span class="prog" id="plcProgress"></span></div><div id="plcContent"></div></div>
 
 <div id="reviewOverlay"><div class="rev-bar"><button id="reviewBack">← Back</button><span class="ttl">🧠 Smart Review</span><span class="prog" id="revProgress"></span></div><div id="revContent"></div></div>
 <script src="catalog.js"></script>
@@ -148,6 +162,7 @@ function openBook(file,title,category){
   document.body.style.overflow = "hidden";
   if(window.__trackEvent)window.__trackEvent("book_open",{book_id:file,book_title:title||"",category:category||""});
 }
+window.__openBook = openBook;
 function closeBook(){
   document.getElementById("readerFrame").src = "about:blank"; /* stops any narration */
   document.getElementById("readerOverlay").style.display = "none";
@@ -370,4 +385,7 @@ document.getElementById("folderBackBtn").onclick=()=>{ if(currentTopicId) showGr
 <script src="sync.js"></script>
 <script src="stats.js"></script>
 <script src="feedback.js"></script>
+<script src="placement-data.js"></script>
+<script src="placement-sync.js"></script>
+<script src="placement.js"></script>
 </body></html>
