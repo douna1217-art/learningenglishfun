@@ -76,6 +76,33 @@ Supabase 项目 → **Authentication → URL Configuration**，把 **Site URL**�
   换设备登录就把已有进度冲掉。
 - 没有配置 `supabase-config.js` 或者没登录时，一切跟以前完全一样，只存本地。
 
+## 阅读水平测评结果同步（可选）
+
+首页新加的"不知道该看几年级？先测一下"入门测评，结果默认也是只存本地
+（`localStorage`），不用配置任何东西就能正常使用。想让登录后换设备也能看到
+同一份测评结果（推荐年级），在 SQL Editor 里再运行一次这段（跟上面
+`review_progress` 是同一套写法）：
+
+```sql
+create table if not exists public.placement_results (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  result jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.placement_results enable row level security;
+
+create policy "Users manage their own placement result"
+  on public.placement_results
+  for all
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+```
+
+不运行这段也完全没问题——测评本身、推荐书单都正常工作，只是换设备/换浏览器
+登录同一个邮箱时看不到之前测过的结果，需要重新测一次。
+
 ## 使用统计（访问量 / 阅读量 / 复习正确率）
 
 跟上面同一个 Supabase 项目里，还建了一张 `app_events` 表，记录三类轻量事件：
