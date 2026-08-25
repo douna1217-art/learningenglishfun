@@ -219,6 +219,29 @@
     }
   }
 
+  // Chinese labels for grades/bands, used only in the result/recommendation
+  // text (never in the quiz passages/questions themselves — translating
+  // those would defeat the point of testing English reading).
+  var GRADE_CN = {
+    "Kindergarten": "幼儿园",
+    "Grade 1": "一年级",
+    "Grade 2": "二年级",
+    "Grade 3": "三年级",
+    "Grade 4": "四年级",
+  };
+  var BAND_CN = {
+    "Early Reader": "启蒙读者",
+    "Beginning Reader": "入门读者",
+    "Growing Reader": "进阶读者",
+    "Fluent Reader": "流利读者",
+  };
+  function gradeCN(grade) {
+    return GRADE_CN[grade] || grade;
+  }
+  function bandCN(band) {
+    return BAND_CN[band] || band;
+  }
+
   function showResult() {
     var rawPrimaryIdx = state.passed.length ? Math.max.apply(null, state.passed) : null;
     // Cap the recommendation at startIndex+1 (stretch at startIndex+2) no
@@ -247,16 +270,21 @@
       (result.noLevelPassed ? "Let's start with the basics" : "Recommended: " + result.primaryGrade) +
       '</h2><p>' +
       (result.noLevelPassed
-        ? "We'll suggest some " + primaryLevel.grade + " books to build up from."
-        : result.primaryBand + " — books at this level should feel comfortable to read on your own.") +
+        ? "We'll suggest some " + primaryLevel.grade + " books to build up from." +
+          '<span class="cn">我们会先推荐一些' + gradeCN(primaryLevel.grade) + "的书，帮助打好基础。</span>"
+        : result.primaryBand + " — books at this level should feel comfortable to read on your own." +
+          '<span class="cn">' + bandCN(result.primaryBand) + "——这个级别的书，应该能比较轻松地自己读下来。</span>") +
       "</p>" +
       (result.stretchGrade
-        ? '<p style="color:var(--muted)">Feeling confident? ' + result.stretchGrade + " books are a good next challenge.</p>"
+        ? '<p style="color:var(--muted)">Feeling confident? ' + result.stretchGrade + " books are a good next challenge." +
+          '<span class="cn">如果想挑战一下，可以试试' + gradeCN(result.stretchGrade) + "的书。</span></p>"
         : "") +
       '<p style="color:var(--muted);font-size:.92rem">Math and Science book picks will match your grade (' +
       reportedLevel.grade +
       ") instead, since those depend on what's already been taught in class." +
-      '</p><p style="color:var(--muted);font-size:.92rem">This is just a suggestion — you can still read any book, at any grade, any time.</p>' +
+      '<span class="cn">数学和科学类的书会按照你的实际年级（' + gradeCN(reportedLevel.grade) + '）来推荐，因为这两科需要课堂上教过的知识基础。</span>' +
+      '</p><p style="color:var(--muted);font-size:.92rem">This is just a suggestion — you can still read any book, at any grade, any time.' +
+      '<span class="cn">这只是一个建议——你随时都可以阅读任何年级的书。</span></p>' +
       '<button class="rev-next" id="plcDone">See recommended books →</button></div>';
     document.getElementById("plcDone").addEventListener("click", closeOverlay);
   }
@@ -322,14 +350,28 @@
     card.style.display = "block";
     var gradeNote =
       reportedGrade === result.primaryGrade
-        ? result.primaryGrade + " · " + result.primaryBand
+        ? result.primaryGrade +
+          " · " +
+          result.primaryBand +
+          '<span class="cn">' +
+          gradeCN(result.primaryGrade) +
+          " · " +
+          bandCN(result.primaryBand) +
+          "</span>"
         : "reading level " +
           result.primaryGrade +
           " (" +
           result.primaryBand +
           ") for stories · " +
           reportedGrade +
-          " for Math/Science, matched to your grade";
+          " for Math/Science, matched to your grade" +
+          '<span class="cn">阅读水平 ' +
+          gradeCN(result.primaryGrade) +
+          "（" +
+          bandCN(result.primaryBand) +
+          "）适用于故事类书籍 · 数学/科学按你的实际年级（" +
+          gradeCN(reportedGrade) +
+          "）推荐</span>";
     var cardsHTML = books
       .map(function (b) {
         return (
