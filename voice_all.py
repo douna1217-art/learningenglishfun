@@ -66,6 +66,12 @@ def tts(text, key, voice):
     raise RuntimeError(str(last))
 
 _ABBREV_RE = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr)\.")
+# A section/list enumerator at the start of the text or a line ("2. Title ...").
+# Without protecting this, split_sentences() treats the "." after the number as a
+# sentence boundary and sends a lone "2." to the TTS as its own chunk; the
+# generative model then reads that context-free "2." unpredictably (observed:
+# "two dollars"). The (?=\s) lookahead keeps decimals like "2.5 km" untouched.
+_ENUM_RE = re.compile(r"(^|\n)(\d{1,3})\.(?=\s)")
 _SENT_BOUNDARY_RE = re.compile(r"([.!?][\u2019\u201d'\"]?)\s+")
 _DIALOGUE_TAG_RE = re.compile(r"([,][\u2019\u201d'\"])\s+")
 _ABBREV_PLACEHOLDER = chr(0)   # stands in for the period in "Ms." while splitting
@@ -89,6 +95,7 @@ def split_sentences(text):
     if not text:
         return []
     protected = _ABBREV_RE.sub(lambda m: m.group(1) + _ABBREV_PLACEHOLDER, text)
+    protected = _ENUM_RE.sub(lambda m: m.group(1) + m.group(2) + _ABBREV_PLACEHOLDER, protected)
     marked = _SENT_BOUNDARY_RE.sub(lambda m: m.group(1) + _SPLIT_MARK, protected)
     marked = _DIALOGUE_TAG_RE.sub(lambda m: m.group(1) + _SPLIT_MARK, marked)
     parts = [p.replace(_ABBREV_PLACEHOLDER, ".").strip() for p in marked.split(_SPLIT_MARK) if p.strip()]
@@ -339,7 +346,26 @@ def align_word_times(text, mp3_bytes):
                     times[i] = times[next_i]
                 else:
                     times[i] = 0.0
-        return [round(t, 3) for t in times]
+        out = [round(t, 3) for t in times]
+        # Whisper often gives two or more adjacent tokens the same (or a
+        # slightly decreasing) start time -- common in dense prose and
+        # right after a heading number + pause. The reader highlights the
+        # last token whose time <= currentTime, so any tied token never
+        # gets its own highlight moment (a visible one-word "skip").
+        # Spread each tied/decreasing run evenly up to the next real time.
+        i = 0
+        while i < len(out):
+            j = i
+            while j + 1 < len(out) and out[j + 1] <= out[j]:
+                j += 1
+            if j > i:
+                lo = out[i]
+                hi = out[j + 1] if j + 1 < len(out) else lo + 0.25 * (j - i + 1)
+                step = (hi - lo) / (j - i + 1)
+                for k in range(i + 1, j + 1):
+                    out[k] = round(lo + step * (k - i), 3)
+            i = j + 1
+        return out
     except Exception as e:
         print("      (word-timing alignment skipped: %s)" % e)
         return []
