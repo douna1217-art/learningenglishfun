@@ -228,6 +228,8 @@
     "Grade 2": "二年级",
     "Grade 3": "三年级",
     "Grade 4": "四年级",
+    "Grade 5": "五年级",
+    "Grade 6": "六年级",
   };
   var BAND_CN = {
     "Early Reader": "启蒙读者",

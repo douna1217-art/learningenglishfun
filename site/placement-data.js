@@ -72,6 +72,32 @@ window.PLACEMENT_LEVELS = [
       {kind: "Grammar", q: "“A saguaro's roots spread wide instead of growing deep, ___ it can absorb water quickly whenever a rare storm passes through.” Which word shows the result?", choices: ["so", "but", "because"], answer: 0}
     ],
     tiebreak: {kind: "Tie-breaker", q: "What does comparing the stem to an accordion help you understand?", choices: ["That the plant makes music", "That the stem expands and contracts to hold water", "That the stem is very heavy"], answer: 1}
+  },
+  {
+    grade: "Grade 5",
+    passage: "Scientists once believed that monarch butterflies simply drifted wherever the wind carried them, but tracking data revealed something more precise. Each fall, monarchs born in southern Canada fly more than two thousand miles to the same forests in central Mexico, even though none of them have ever made the journey before. Researchers now think the butterflies combine two internal tools: a sense of the sun's position at different times of day, and a sensitivity to Earth's magnetic field that works like a backup compass on cloudy days. Losing either tool alone rarely confuses a monarch, but losing both at once can throw its course off by hundreds of miles.",
+    questions: [
+      {kind: "Literal", q: "How far do monarch butterflies born in southern Canada fly to reach central Mexico?", choices: ["More than two thousand miles", "About one hundred miles", "Around ten miles"], answer: 0},
+      {kind: "Inferential", q: "Why don't scientists think the monarchs are simply drifting with the wind?", choices: ["Because wind patterns change every single day", "Because they always fly in exactly the same direction as the wind", "Because they reliably reach the same forests every year without ever having gone there before"], answer: 2},
+      {kind: "Vocabulary", q: "“Sensitivity” as used in the passage means ___.", choices: ["A strong dislike of something", "An ability to detect or respond to something", "A complete lack of awareness"], answer: 1},
+      {kind: "Vocabulary", q: "“Confuses” means ___.", choices: ["Makes something completely clear", "Makes something move faster", "Makes something uncertain or hard to understand"], answer: 2},
+      {kind: "Grammar", q: "“Losing either tool alone rarely confuses a monarch, ___ losing both at once can throw its course off by hundreds of miles.” Which word shows contrast?", choices: ["so", "but", "because"], answer: 1},
+      {kind: "Grammar", q: "“Monarchs fly to the same forests in Mexico ___ none of them have ever made the journey before.” Which word shows a surprising contrast?", choices: ["even though", "because", "so"], answer: 0}
+    ],
+    tiebreak: {kind: "Tie-breaker", q: "What backup tool do monarchs use on cloudy days, when they can't see the sun?", choices: ["A sensitivity to Earth's magnetic field that works like a compass", "A memory of the exact path from last year", "Help from older butterflies leading the way"], answer: 0}
+  },
+  {
+    grade: "Grade 6",
+    passage: "City planners once assumed that adding more trees was the only way to cool overheated neighborhoods, but temperature maps told a more complicated story. Streets paved with dark asphalt absorbed sunlight all day and released it slowly after sunset, keeping some blocks nearly ten degrees warmer than nearby parks even at midnight. When one city coated several rooftops with a reflective white coating, the buildings underneath stayed several degrees cooler during the day, although the same coating did little to help pedestrians walking on the scorching sidewalks below. Researchers concluded that no single fix could solve the problem alone, because trees, reflective roofs, and pavement each addressed a different part of how a city absorbed and released heat.",
+    questions: [
+      {kind: "Literal", q: "What happened to the buildings after their rooftops were coated with reflective white paint?", choices: ["They needed to be repainted every month", "They stayed several degrees cooler during the day", "They became more expensive to build"], answer: 1},
+      {kind: "Inferential", q: "Why did researchers conclude that no single fix could solve the problem alone?", choices: ["Because trees, reflective roofs, and pavement each addressed a different part of the problem", "Because the city refused to try more than one solution", "Because none of the solutions worked at all"], answer: 0},
+      {kind: "Vocabulary", q: "“Absorbed” means ___.", choices: ["Reflected away completely", "Released immediately into the air", "Took in and held"], answer: 2},
+      {kind: "Vocabulary", q: "“Scorching” means ___.", choices: ["Extremely hot", "Pleasantly warm", "Very cold"], answer: 0},
+      {kind: "Grammar", q: "“The buildings underneath stayed several degrees cooler during the day, ___ the same coating did little to help pedestrians on the sidewalks below.” Which word shows contrast?", choices: ["because", "so", "although"], answer: 2},
+      {kind: "Grammar", q: "“No single fix could solve the problem alone, ___ trees, reflective roofs, and pavement each addressed a different part of the problem.” Which word shows a reason?", choices: ["so", "because", "but"], answer: 1}
+    ],
+    tiebreak: {kind: "Tie-breaker", q: "What problem did the reflective roof coating NOT solve, according to the passage?", choices: ["Making it harder for birds to nest on rooftops", "Helping pedestrians on hot sidewalks stay cool", "Increasing the city's electricity costs"], answer: 1}
   }
 ];
 
