@@ -103,6 +103,30 @@
     if (e.key === K) schedulePush();
   });
 
+  // Soft reminder: once a reader has finished a few whole books on this
+  // device, gently suggest saving progress by email -- not a gate, just a
+  // friendlier nudge shown above the always-available sync form. Counts
+  // distinct books where every tab (comprehension/grammar/vocabulary) is
+  // marked complete, by scanning the per-book "les-<slug>-v1" keys that
+  // every book page already writes via saveProgress() (see
+  // tools/templates/human_book_tail.js and the Math/Science/CS template).
+  var HINT_THRESHOLD = 3;
+  var HINT_DISMISSED_KEY = "les_sync_hint_dismissed";
+
+  function countCompletedBooks() {
+    var n = 0;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (!key || !/^les-.+-v1$/.test(key)) continue;
+        var data = JSON.parse(localStorage.getItem(key) || "{}");
+        var c = data.completed;
+        if (c && c.comprehension && c.grammar && c.vocabulary) n++;
+      }
+    } catch (e) {}
+    return n;
+  }
+
   function renderAuthUI(session) {
     var box = document.getElementById("syncBox");
     if (!box) return;
@@ -115,11 +139,35 @@
         sb.auth.signOut();
       };
     } else {
+      var hintHtml = "";
+      var showHint = false;
+      try {
+        showHint =
+          countCompletedBooks() >= HINT_THRESHOLD &&
+          !localStorage.getItem(HINT_DISMISSED_KEY);
+      } catch (e) {}
+      if (showHint) {
+        hintHtml =
+          '<div id="syncHint" style="background:#fff6e0;border:1px solid #f0d896;border-radius:12px;padding:10px 12px;margin-bottom:8px;font-size:.82rem;line-height:1.5;position:relative">' +
+          '<button id="syncHintClose" aria-label="关闭" style="position:absolute;top:6px;right:8px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:1rem;line-height:1">×</button>' +
+          '<span style="padding-right:16px;display:inline-block">🎉 孩子已经读完好几本书啦！留个邮箱，换设备也能接着读，进度不会丢。</span>' +
+          "</div>";
+      }
       box.innerHTML =
+        hintHtml +
         '<form id="syncForm" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">' +
         '<input id="syncEmail" type="email" placeholder="parent/teacher email" required style="border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.85rem;width:180px">' +
         '<button type="submit" style="border:0;background:var(--green);color:#fff;border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">Sync progress</button>' +
         '</form><span id="syncMsg" style="font-size:.78rem;color:var(--muted);display:block;margin-top:4px"></span>';
+      if (showHint) {
+        document.getElementById("syncHintClose").onclick = function () {
+          try {
+            localStorage.setItem(HINT_DISMISSED_KEY, "1");
+          } catch (e) {}
+          var hint = document.getElementById("syncHint");
+          if (hint) hint.remove();
+        };
+      }
       document.getElementById("syncForm").addEventListener("submit", async function (e) {
         e.preventDefault();
         var email = document.getElementById("syncEmail").value.trim();
