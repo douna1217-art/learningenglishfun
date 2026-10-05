@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>learningenglishfun</title>
-<meta name="description" content="Free English reading practice for K-6 kids: hundreds of read-aloud stories and nonfiction books across Fiction, Science, Math, SEL, Social Studies, and Computer Science, each with listening, recording, grammar and vocabulary practice, and a placement quiz to find the right level.">
+<meta name="description" content="English reading practice for K-6 kids: hundreds of read-aloud stories and nonfiction books across Fiction, Science, Math, SEL, Social Studies, and Computer Science, each with listening, recording, grammar and vocabulary practice, and a placement quiz to find the right level.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet"><style>
 
 :root{--ink:#26372e;--muted:#718077;--line:#dfe8e1;--green:#315f47;--shadow:0 18px 42px rgba(46,66,55,.12)}
@@ -100,23 +100,202 @@ h1,.hero h2,.cat h3,.section-title h2,.rev-hero h3,.cover-title h3,.brand h1{fon
 .plc-bar .ttl{font-weight:900;font-size:1.05rem}.plc-bar .prog{margin-left:auto;font-weight:800;opacity:.9}
 #plcContent{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:26px 16px}
 #recommendedCard{display:none;margin-bottom:8px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4FAFF;font-family:'Nunito',ui-rounded,sans-serif;color:#1E2A4A}
+a{color:inherit;text-decoration:none}
+a.card{transition:transform .18s}
+a.card:hover{transform:translateY(-6px) rotate(-.6deg)}
+a.btn{transition:transform .15s}
+a.btn:hover{transform:translateY(-2px)}
+a.card:hover .mascot{animation:wiggle .6s ease-in-out}
+.mascot{animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@keyframes wiggle{0%,100%{rotate:0deg}25%{rotate:-10deg}75%{rotate:10deg}}
+@media (prefers-reduced-motion:reduce){.mascot,a.card:hover .mascot{animation:none}}
+
+#viewPets{--ink:#1E2A4A;--muted:#4A5878;--bg:#F4FAFF}#viewPets *{box-sizing:border-box}#viewPets{margin:0;background:var(--bg);font-family:'Nunito',ui-rounded,sans-serif;color:var(--ink)}#viewPets h1,#viewPets h2,#viewPets h3,#viewPets .fd{font-family:'Fredoka',sans-serif;font-weight:700;margin:0}#viewPets button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}#viewPets .wrap{max-width:1100px;margin:0 auto;padding:20px 24px 60px}#viewPets .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 18px}#viewPets .logo{display:flex;align-items:center;gap:12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px}#viewPets .logo i{width:46px;height:46px;border-radius:16px;background:#FFC93C;box-shadow:0 5px 0 #E0A800;display:grid;place-items:center;font-style:normal;font-size:28px;transform:rotate(-6deg)}#viewPets .panel{background:#BFE6FF;border-radius:44px;padding:36px;position:relative;overflow:hidden}#viewPets .panel:before{content:"";position:absolute;right:-80px;top:-100px;width:320px;height:320px;border-radius:50%;background:#FFD96B}#viewPets .panel>*{position:relative}#viewPets .sub{font-size:19px;font-weight:700;color:#33415F;margin:8px 0 26px}#viewPets .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:780px;margin:0 auto}#viewPets .pick{background:#fff;border-radius:30px;padding:14px 12px 16px;box-shadow:0 6px 0 #9FB6CC;text-align:center;border:4px solid transparent;transition:transform .15s}#viewPets .pick:hover{transform:translateY(-5px)}#viewPets .pick.sel{border-color:#6A48E8;box-shadow:0 6px 0 #4A2FB8}#viewPets .pick svg{overflow:visible;width:100%;max-width:130px;height:auto}#viewPets .pick .nm{font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;margin-top:4px}#viewPets .setup{margin-top:26px;background:#fff;border-radius:32px;padding:24px 26px;display:none;flex-wrap:wrap;gap:22px;align-items:flex-end;box-shadow:0 6px 0 #9FB6CC}#viewPets .setup.on{display:flex}#viewPets .lbl{font-weight:800;font-size:15px;color:var(--muted);margin-bottom:8px;display:block}#viewPets .sw{display:flex;gap:10px}#viewPets .sw button{width:44px;height:44px;border-radius:50%;border:4px solid #fff;box-shadow:0 0 0 3px #B7C6DD}#viewPets .sw button.on{box-shadow:0 0 0 4px #6A48E8}#viewPets input[type=text]{font:inherit;font-weight:800;font-size:20px;border:3px solid #B7C6DD;border-radius:18px;padding:12px 16px;width:230px;color:var(--ink)}#viewPets input[type=text]:focus{outline:none;border-color:#6A48E8}#viewPets .cta{background:#6A48E8;color:#fff;font-weight:800;font-size:20px;padding:15px 32px;border-radius:999px;box-shadow:0 6px 0 #4A2FB8;transition:transform .15s}#viewPets .cta:hover{transform:translateY(-2px)}#viewPets .cta:disabled{background:#B7C6DD;box-shadow:0 6px 0 #93A5C2;cursor:not-allowed}#viewPets .ghost{background:#fff;font-weight:800;padding:12px 22px;border-radius:999px;box-shadow:0 5px 0 #9FB6CC}#viewPets #home{display:none}#viewPets .phome{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px}@media(max-width:820px){#viewPets .phome{grid-template-columns:1fr}#viewPets .panel{padding:24px 18px}}#viewPets .stage{background:#fff;border-radius:36px;padding:22px;text-align:center;box-shadow:0 6px 0 #9FB6CC;display:flex;flex-direction:column;align-items:center}#viewPets .bubble{background:#FFF6D6;border-radius:22px;padding:12px 18px;font-weight:800;font-size:17px;min-height:48px;display:flex;align-items:center;margin-bottom:6px}#viewPets #petBox svg{width:260px;height:260px;display:block;overflow:visible}#viewPets .bob{animation:bob 3s ease-in-out infinite}#viewPets .sleepy{animation:none}#viewPets .jump{animation:jump .6s ease-out}@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -9px}}@keyframes jump{0%{translate:0 0}35%{translate:0 -34px;rotate:-6deg}70%{translate:0 0;rotate:5deg}100%{translate:0 0}}@media(prefers-reduced-motion:reduce){#viewPets .bob,#viewPets .jump{animation:none}}#viewPets .bar{height:22px;border-radius:999px;background:#E6EEF7;overflow:hidden;width:100%;border:3px solid #fff;box-shadow:0 0 0 2px #C9D7E8}#viewPets .bar i{display:block;height:100%;border-radius:999px;transition:width .5s}#viewPets .card{background:#fff;border-radius:36px;padding:24px;box-shadow:0 6px 0 #9FB6CC}#viewPets .stars{display:inline-flex;align-items:center;gap:8px;background:#FFF1C2;border:3px solid #FFC93C;border-radius:999px;padding:8px 18px;font-weight:800;font-size:20px}#viewPets .foods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}#viewPets .food{background:#F4FAFF;border:3px solid #D5E3F0;border-radius:24px;padding:12px 6px 10px;text-align:center;font-weight:800;transition:transform .15s}#viewPets .foods{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))!important}
+.food:hover{transform:translateY(-4px);border-color:#6A48E8}#viewPets .food:disabled{opacity:.45;cursor:not-allowed;transform:none}#viewPets .food>svg{width:54px;height:54px;display:block;margin:0 auto 4px}#viewPets .food small{display:flex;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:15px}#viewPets .demo{margin-top:18px;border-top:3px dashed #D5E3F0;padding-top:14px}#viewPets .demo .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}#viewPets .demo button{background:#EEF3FA;border-radius:14px;padding:10px 14px;font-weight:800;font-size:15px}#viewPets .fav{display:inline-block;background:#FF8FB1;color:#4A1226;border-radius:999px;font-size:12px;padding:2px 8px;margin-left:4px}
+
+.rules-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:16px;box-shadow:0 5px 0 #9FB6CC;border:0;cursor:pointer;color:#1E2A4A;font-family:inherit}
+.rules-btn:hover{transform:translateY(-2px)}
+.rules-link{background:none;border:0;padding:0;margin-top:6px;font:inherit;font-weight:800;font-size:15px;color:#4A2FB8;text-decoration:underline;cursor:pointer;text-align:left}
+#modal{position:fixed;inset:0;z-index:300;background:rgba(30,42,74,.55);display:none;align-items:center;justify-content:center;padding:16px}
+#modal .mp{background:#fff;border-radius:36px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:28px 30px 30px;position:relative;color:#1E2A4A;font-family:'Nunito',sans-serif}
+#modal h2{font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;margin:0 0 4px}
+#modal h3{font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;margin:22px 0 10px}
+#modal .x{position:absolute;right:18px;top:16px;width:44px;height:44px;border-radius:50%;background:#EEF3FA;border:0;font-size:22px;font-weight:800;cursor:pointer;color:#1E2A4A}
+#modal .row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#F4FAFF;margin-bottom:8px}
+#modal .row .t{flex:1;font-weight:800;font-size:17px;line-height:1.35}
+#modal .row .t small{display:block;display:block;font-weight:700;font-size:13px;color:#4A5878}
+#modal .pill{background:#FFF1C2;border:2px solid #FFC93C;border-radius:999px;padding:4px 12px;font-weight:800;white-space:nowrap}
+#modal .note{background:#FFF6D6;border-radius:18px;padding:12px 16px;font-weight:700;font-size:16px;line-height:1.5}
+#modal .note small{display:block;color:#4A5878}
+#modal .act{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:#F4FAFF;border:3px solid #D5E3F0;border-radius:18px;padding:12px 16px;font:inherit;font-weight:800;font-size:16px;margin-bottom:8px;cursor:pointer;color:#1E2A4A}
+#modal .act:hover:not(:disabled){border-color:#6A48E8}
+#modal .act:disabled{background:#E8F7EC;border-color:#9AD7AE;cursor:default}
+#modal .log{margin-top:10px;font-weight:800;min-height:24px;color:#2E6B43}
+#modal .bar2{height:18px;border-radius:999px;background:#E6EEF7;overflow:hidden;margin:6px 0 4px}
+#modal .bar2 i{display:block;height:100%;background:#FFC93C;border-radius:999px;transition:width .4s}
+#demoBand{font:inherit;font-weight:800;border:3px solid #D8B25A;border-radius:14px;padding:8px 12px;background:#fff;color:#1E2A4A}
+
+.tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tabs button,#viewPets .tabs button{background:#EEF3FA;border-radius:999px;padding:10px 18px;font-weight:800;font-size:16px;border:3px solid transparent;color:#1E2A4A;cursor:pointer;font-family:inherit}
+.tabs button.on,#viewPets .tabs button.on{background:#6A48E8;color:#fff}
+#viewPets #petBox .toy{position:absolute;bottom:0;width:78px;height:78px;background:none;border:0;padding:0}
+#viewPets #petBox .toy svg{width:100%;height:100%;display:block;overflow:visible}
+.toy{position:absolute;bottom:0;width:78px;height:78px;cursor:pointer;background:none;border:0;padding:0;transition:transform .15s}
+.toy:hover{transform:translateY(-6px) rotate(-6deg)}
+.toy svg{width:100%;height:100%;display:block;overflow:visible}
+.tag{display:inline-block;border-radius:999px;font-size:12px;padding:2px 8px;margin-left:4px;font-weight:800}
+.food .st{display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;color:#4A5878;font-weight:800;min-height:20px}
+.food.on{border-color:#6A48E8;background:#EFEAFF}
+
+.gfold{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:230px;border-radius:30px;padding:20px 22px;text-align:left;border:0;cursor:pointer;font-family:inherit;color:#1E2A4A;transition:transform .15s}
+.gfold:hover{transform:translateY(-8px) rotate(0deg)!important}
+.gfold .gn{font-family:'Fredoka',sans-serif;font-weight:700;font-size:56px;line-height:1}
+.bk{background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 6px 0 #C9D7E8;border:0;padding:0;text-align:left;cursor:pointer;font-family:inherit;color:#1E2A4A;display:flex;flex-direction:column;transition:transform .15s}
+.bk:hover{transform:translateY(-6px)}
+.bk img{width:100%;aspect-ratio:700/520;object-fit:cover;display:block}
+@media (min-width:641px){#heroBadge{position:absolute !important;left:44px;top:24px;z-index:3;box-shadow:0 4px 0 #9FB6CC}}
+@media (max-width:640px){#heroBadge{position:static !important}}
+
+@media (min-width:641px){#heroBadge{position:absolute !important;left:44px;top:24px;z-index:3;box-shadow:0 4px 0 #9FB6CC}}
+@media (max-width:640px){
+ #heroBadge{position:relative !important;z-index:3;align-self:flex-start}
+ #viewHome header{padding:14px 16px !important}
+ #viewHome header nav{gap:2px !important;justify-content:flex-start !important}
+ #viewHome header nav a{padding:8px 10px !important}
+ #top{padding:66px 18px 24px !important;margin:0 10px !important;border-radius:32px !important;gap:20px !important}
+ #heroH{font-size:36px !important}
+ #heroP{font-size:16px !important}
+ #top [data-guide]{right:12px !important;top:12px !important;font-size:14px !important;padding:8px 14px 8px 10px !important}
+ #top > div[style*="min-width: 0"]{flex-basis:100% !important}
+ #topics{flex-basis:100% !important}
+ #topics div[style*="grid-template-columns"]{gap:12px !important;padding:16px 12px 0 !important}
+ #botd{padding:56px 14px 0 !important}
+ #botd h2{font-size:32px !important}
+ #botd > div:nth-child(2){padding:20px 16px !important;gap:18px !important}
+ #viewHome footer{padding:24px 18px 26px !important;margin-top:50px !important}
+ #shHead{padding:24px 20px !important;min-height:0 !important}
+ #shHead > a{display:none !important}
+ .gfold{min-height:200px}
+ #modal .mp{padding:22px 16px 24px}
+ #modal h2{font-size:26px}
+}
+#recommendedCard .book{border-radius:28px;box-shadow:0 7px 0 #C9D7E8}
+#recommendedCard .open{background:#6A48E8!important;border-radius:999px!important;box-shadow:0 5px 0 #4A2FB8;padding:13px 18px!important}
+#recommendedCard h2{font-family:'Fredoka',sans-serif}
+.teacher{white-space:nowrap}
+#modal{z-index:3000}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);opacity:0;z-index:3500;pointer-events:none;background:#fff;border:3px solid #FFC93C;border-radius:24px;padding:14px 20px;box-shadow:0 8px 0 #E0A800,0 14px 30px rgba(30,42,74,.25);max-width:min(92vw,460px);font-weight:800;color:#1E2A4A;transition:all .35s}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast .tl{display:flex;justify-content:space-between;gap:14px;font-size:15px;line-height:1.4}
+#toast .tl small{color:#4A5878;font-weight:700}
+#toast .tt{margin-top:6px;padding-top:6px;border-top:2px dashed #F0DFA0;font-family:'Fredoka',sans-serif;font-size:20px}
 </style></head>
-<body><header class="top"><div class="brand"><div class="logo">L</div><div><h1 id="siteName"></h1><p id="tagline"></p></div></div><div class="teacher" id="syncBox"></div></header>
-<main class="wrap">
-<section class="hero"><div class="eyebrow" id="eyebrow"></div><h2 id="heroTitle"></h2><p id="heroText"></p><div class="module-caption">Every book includes</div><div class="module-row" id="modules"></div><div class="note" id="standardsNote"></div></section>
+<body>
+<div id="viewHome">
+
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column">
+
+<!-- header -->
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 48px">
+<a href="#top" style="display: flex; align-items: center; gap: 12px">
+<div style="width: 52px; height: 52px; border-radius: 18px; background: #FFC93C; color: #1E2A4A; display: grid; place-items: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 30px; transform: rotate(-6deg); box-shadow: 0 6px 0 #E0A800">L</div>
+<div>
+<div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px; line-height: 1">learningenglishfun</div>
+<div style="font-weight: 800; font-size: 14px; color: #4A5878; margin-top: 4px">Read · Think · Discover</div>
+</div>
+</a>
+<nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 800; font-size: 16px">
+<a href="#topics" style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">Topics<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">主题</span></span></a>
+
+<a data-level href="#level" style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">Find my level<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">阅读水平测试</span></span></a>
+<a href="#review" data-review style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">Review<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">复习</span></span></a><a href="#guide" data-guide style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">How it works<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">网站使用说明</span></span></a>
+<div class="teacher" id="syncBox"></div>
+</nav>
+</header>
+
+<!-- hero -->
+<section id="top" style="margin: 0 24px; border-radius: 48px; background: #BFE6FF; position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; gap: 28px; padding: 74px 44px 44px">
+<div style="position: absolute; right: -90px; top: -110px; width: 380px; height: 380px; border-radius: 50%; background: #FFD96B"></div>
+<div style="position: absolute; left: -60px; bottom: -120px; width: 280px; height: 280px; border-radius: 50%; background: #9ED8FF"></div><div id="heroBadge" style="background: #fff; border-radius: 999px; padding: 9px 18px; font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E2A4A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>
+Grades K–6 · Read-aloud stories
+</div>
+<a class="btn" href="#guide" data-guide style="position: absolute; right: 36px; top: 22px; z-index: 3; background: #fff; color: #1E2A4A; font-weight: 800; font-size: 17px; padding: 10px 20px 10px 14px; border-radius: 999px; box-shadow: 0 5px 0 #E0A800; display: flex; align-items: center; gap: 8px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E2A4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.700M12 17h.01"/></svg>How to use <span style="font-weight: 700; color: #4A5878">网站使用说明</span></a>
+<div style="position: relative; flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 18px">
+<h1 id="heroH" style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 54px; line-height: 1.06; letter-spacing: -.5px">Every subject can become a <span style="background: #FFC93C; padding: 0 14px; border-radius: 18px; display: inline-block; transform: rotate(-1.5deg)">reading adventure.</span></h1>
+<p id="heroP" style="margin: 0; font-size: 18px; line-height: 1.55; font-weight: 700; color: #33415F; max-width: 560px">Explore stories and nonfiction across the elementary grades. Build knowledge, vocabulary, fluency and comprehension, one book at a time.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch">
+
+<a data-level class="btn" href="#level" style="background: #fff; color: #1E2A4A; font-weight: 800; font-size: 16px; padding: 0 16px; min-height: 64px; display: flex; align-items: center; border-radius: 999px; box-shadow: 0 6px 0 #9FB6CC"><span style="display: block; line-height: 1.15; text-align: left">Find my level<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">阅读水平测试</span></span></a><a class="btn" href="#review" data-review style="background: #fff; color: #1E2A4A; font-weight: 800; font-size: 16px; padding: 0 14px; min-height: 64px; border-radius: 999px; box-shadow: 0 6px 0 #9FB6CC; display: flex; align-items: center; gap: 8px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E2A4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg><span style="display: block; line-height: 1.15; text-align: left">Smart review<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">智能复习</span></span><span id="revBadge" style="background: #D93B1E; color: #fff; border-radius: 999px; font-size: 14px; padding: 2px 9px; min-width: 24px; text-align: center">3</span></a><a class="btn" href="#pets" data-go="pets" id="petBtn" style="background: #FFE9B0; color: #1E2A4A; font-weight: 800; font-size: 16px; padding: 0 14px 0 8px; min-height: 64px; border-radius: 999px; box-shadow: 0 6px 0 #E8B84A; display: flex; align-items: center; gap: 8px"><span id="petBtnIcon" style="width: 44px; height: 44px; flex: none; display: block"></span><span id="petBtnText" style="display: block; line-height: 1.15; text-align: left">Adopt a pet<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">领养宠物</span></span><span id="petStars" style="display: none; align-items: center; gap: 6px; background: #fff; border: 2px solid #FFC93C; border-radius: 999px; padding: 2px 10px 2px 6px; font-size: 16px"></span></a>
+</div>
+
+</div>
+<div id="topics" style="position:relative;flex:1 1 520px;min-width:0"><div style="position:relative;border-radius:22px 22px 10px 10px;padding:0 14px 16px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 3px,rgba(0,0,0,.05) 3px 7px),#B8783A;box-shadow:0 10px 0 #7E4F22,0 18px 22px rgba(50,25,0,.28)"><div style="padding:12px 8px 12px;text-align:center"><div style="display:inline-block;background:linear-gradient(180deg,#F6DDB0,#EBC88C);border-radius:12px;padding:6px 22px 8px;box-shadow:0 3px 0 #8A5A2B,inset 0 0 0 2px rgba(138,90,43,.35)"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#5A3A12">Pick a book shelf and start!</span> <span style="font-weight:800;font-size:15px;color:#7A5A2B">选一个书架开始吧！</span></div></div><div style="position:relative;border-radius:6px;overflow:hidden;background:repeating-linear-gradient(90deg,rgba(0,0,0,.045) 0 2px,transparent 2px 64px),linear-gradient(180deg,#E9CD9E,#DDBC86);box-shadow:inset 0 9px 14px rgba(60,30,0,.28),inset 9px 0 14px rgba(60,30,0,.16),inset -9px 0 14px rgba(60,30,0,.16)"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:20px 20px 0;align-items:end"><a class="card" href="#fiction" data-shelf="Fiction" aria-label="Fiction books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #5B3FC4 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5B3FC4"/><stop offset="1" stop-color="#FF9E5E"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg1)"/><circle cx="94" cy="62" r="11" fill="#FFF3C4"/><circle cx="20" cy="52" r="1.6" fill="#fff"/><circle cx="50" cy="46" r="1.2" fill="#fff"/><circle cx="72" cy="58" r="1.4" fill="#fff"/><circle cx="108" cy="90" r="1.3" fill="#fff"/><circle cx="10" cy="88" r="1.3" fill="#fff"/><path d="M30 76 L20 62 L38 70Z" fill="#A8E87F"/><ellipse cx="38" cy="78" rx="11" ry="6.5" fill="#7ED957" stroke="#3C8B21" stroke-width="2"/><circle cx="50" cy="74" r="5.2" fill="#7ED957" stroke="#3C8B21" stroke-width="2"/><circle cx="52" cy="73" r="1.2" fill="#1E2A4A"/><path d="M28 80 Q16 86 14 76" fill="none" stroke="#3C8B21" stroke-width="3" stroke-linecap="round"/><path d="M45 68 L47 62 L51 68Z" fill="#E8456A"/><ellipse cx="60" cy="176" rx="86" ry="28" fill="#3FA06A"/><rect x="34" y="120" width="52" height="46" fill="#EDE8FA" stroke="#8A7BC4" stroke-width="2"/><rect x="26" y="106" width="14" height="60" fill="#EDE8FA" stroke="#8A7BC4" stroke-width="2"/><rect x="80" y="106" width="14" height="60" fill="#EDE8FA" stroke="#8A7BC4" stroke-width="2"/><rect x="50" y="98" width="20" height="68" fill="#F6F2FF" stroke="#8A7BC4" stroke-width="2"/><path d="M23 106 L33 88 L43 106Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="2" stroke-linejoin="round"/><path d="M77 106 L87 88 L97 106Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="2" stroke-linejoin="round"/><path d="M47 98 L60 76 L73 98Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="2" stroke-linejoin="round"/><path d="M60 76V64" stroke="#8A7BC4" stroke-width="2"/><path d="M60 64L70 68L60 72Z" fill="#FFC93C"/><path d="M54 166V150Q60 142 66 150V166Z" fill="#7A5AF8"/><rect x="31" y="118" width="4" height="7" rx="2" fill="#FFC93C"/><rect x="85" y="118" width="4" height="7" rx="2" fill="#FFC93C"/><rect x="58" y="108" width="4" height="8" rx="2" fill="#FFC93C"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; right: 16px; top: -2px; width: 14px; height: 26px; background: #D93B1E; clip-path: polygon(0 0,100% 0,100% 100%,50% 78%,0 100%); z-index: 2"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Fiction</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">故事</div></a><a class="card" href="#science" data-shelf="Science" aria-label="Science books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #1B2766 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2766"/><stop offset="1" stop-color="#4B66E8"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg2)"/><circle cx="16" cy="56" r="1.5" fill="#fff"/><circle cx="40" cy="48" r="1.2" fill="#fff"/><circle cx="104" cy="50" r="1.6" fill="#fff"/><circle cx="20" cy="98" r="1.2" fill="#fff"/><circle cx="62" cy="92" r="1.3" fill="#fff"/><circle cx="108" cy="110" r="1.2" fill="#fff"/><circle cx="30" cy="72" r="1" fill="#fff"/><g transform="rotate(-20 84 84)"><path d="M56 84 A28 8 0 0 1 112 84" fill="none" stroke="#FF8FB1" stroke-width="4"/></g><circle cx="84" cy="84" r="17" fill="#FFC93C" stroke="#B26A00" stroke-width="2.5"/><path d="M69 78Q84 84 99 76M68 90Q84 96 100 88" fill="none" stroke="#E8A200" stroke-width="2.5"/><g transform="rotate(-20 84 84)"><path d="M56 84 A28 8 0 0 0 112 84" fill="none" stroke="#FF8FB1" stroke-width="4"/></g><ellipse cx="60" cy="178" rx="96" ry="28" fill="#C9D4EA"/><circle cx="26" cy="152" r="5" fill="#A9B7D2"/><circle cx="92" cy="158" r="7" fill="#A9B7D2"/><circle cx="62" cy="162" r="4" fill="#A9B7D2"/><g transform="translate(40,116) rotate(28)"><path d="M0 -32 Q11 -15 9 14 L-9 14 Q-11 -15 0 -32Z" fill="#fff" stroke="#4A5878" stroke-width="2.4"/><path d="M0 -32 Q4.5 -26 5.5 -21 L-5.5 -21 Q-4.5 -26 0 -32Z" fill="#FF5C5C"/><circle cx="0" cy="-7" r="5" fill="#3DA5F4" stroke="#4A5878" stroke-width="2"/><path d="M-9 6 L-18 20 L-9 15Z M9 6 L18 20 L9 15Z" fill="#FF5C5C" stroke="#4A5878" stroke-width="2" stroke-linejoin="round"/><path d="M-5 15 Q0 34 5 15Z" fill="#FFC93C" stroke="#FF8A3D" stroke-width="1.5"/></g></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Science</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">科学</div></a><a class="card" href="#sel" data-shelf="SEL" aria-label="SEL books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #C93E74 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8FB1"/><stop offset="1" stop-color="#FFDCE8"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg3)"/><path d="M60 152 C12 120 12 76 43 74 C54 73 59 79 60 84 C61 79 66 73 77 74 C108 76 108 120 60 152Z" fill="#FF4F86" stroke="#B3265C" stroke-width="3" stroke-linejoin="round"/><path d="M30 92Q32 84 40 83" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/><circle cx="50.879999999999995" cy="105.12" r="3.3600000000000003" fill="#1E2A4A"/><circle cx="69.12" cy="105.12" r="3.3600000000000003" fill="#1E2A4A"/><path d="M50.879999999999995 115.16Q60 128.16 69.12 115.16" fill="none" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="45.120000000000005" cy="112.8" r="3.3600000000000003" fill="#FF6F9C" opacity=".5"/><circle cx="74.88" cy="112.8" r="3.3600000000000003" fill="#FF6F9C" opacity=".5"/><circle cx="20" cy="60" r="12" fill="#FFD93D" stroke="#6B4A6B" stroke-width="2"/><circle cx="15.44" cy="58.56" r="1.6800000000000002" fill="#1E2A4A"/><circle cx="24.560000000000002" cy="58.56" r="1.6800000000000002" fill="#1E2A4A"/><path d="M15.44 63.08Q20 70.08 24.560000000000002 63.08" fill="none" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="12.56" cy="62.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="27.439999999999998" cy="62.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="100" cy="62" r="12" fill="#8FD0FF" stroke="#6B4A6B" stroke-width="2"/><circle cx="95.44" cy="60.56" r="1.6800000000000002" fill="#1E2A4A"/><circle cx="104.56" cy="60.56" r="1.6800000000000002" fill="#1E2A4A"/><path d="M96.16 69.08Q100 63.68 103.84 69.08" fill="none" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="92.56" cy="64.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="107.44" cy="64.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="14" cy="150" r="11" fill="#FFB86B" stroke="#6B4A6B" stroke-width="2"/><circle cx="9.82" cy="148.68" r="1.54" fill="#1E2A4A"/><circle cx="18.18" cy="148.68" r="1.54" fill="#1E2A4A"/><ellipse cx="14" cy="154.84" rx="1.54" ry="2.2" fill="#1E2A4A"/><circle cx="7.18" cy="152.2" r="1.54" fill="#FF6F9C" opacity=".5"/><circle cx="20.82" cy="152.2" r="1.54" fill="#FF6F9C" opacity=".5"/><circle cx="106" cy="152" r="11" fill="#C7B2FF" stroke="#6B4A6B" stroke-width="2"/><circle cx="101.82" cy="150.68" r="1.54" fill="#1E2A4A"/><circle cx="110.18" cy="150.68" r="1.54" fill="#1E2A4A"/><path d="M102.92 156.29000000000002L109.08 156.29000000000002" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="99.18" cy="154.2" r="1.54" fill="#FF6F9C" opacity=".5"/><circle cx="112.82" cy="154.2" r="1.54" fill="#FF6F9C" opacity=".5"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; right: 16px; top: -2px; width: 14px; height: 26px; background: #D93B1E; clip-path: polygon(0 0,100% 0,100% 100%,50% 78%,0 100%); z-index: 2"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">SEL</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">情感</div></a></div><div style="position:relative;height:20px;margin-top:-1px;background:linear-gradient(180deg,#F0C688 0 4px,#D29A58 4px 13px,#A9712F 13px);box-shadow:0 7px 9px rgba(60,30,0,.32);z-index:2"></div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:20px 20px 0;align-items:end"><a class="card" href="#social" data-shelf="Social Studies" aria-label="Social Studies books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #1F78BC 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FD3FF"/><stop offset="1" stop-color="#E4F7FF"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg4)"/><ellipse cx="26" cy="60" rx="14" ry="5" fill="#fff" opacity=".8"/><ellipse cx="98" cy="70" rx="12" ry="4.5" fill="#fff" opacity=".8"/><circle cx="60" cy="92" r="30" fill="#3DA5F4" stroke="#1F78BC" stroke-width="3"/><path d="M42 78Q54 68 62 78Q58 92 46 90Z" fill="#5CC98A"/><path d="M68 98Q84 94 86 108Q76 120 64 112Z" fill="#5CC98A"/><path d="M50 106Q56 102 60 108Q56 116 50 114Z" fill="#5CC98A"/><ellipse cx="60" cy="92" rx="13" ry="30" fill="none" stroke="#fff" stroke-width="1.6" opacity=".5"/><path d="M30 92H90" stroke="#fff" stroke-width="1.6" opacity=".5"/><path d="M76 64 C69 64 67 71 69 75 L76 86 L83 75 C85 71 83 64 76 64Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="1.8"/><circle cx="76" cy="71" r="3" fill="#fff"/><rect y="140" width="120" height="30" fill="#7ED957"/><rect x="6" y="124" width="22" height="22" fill="#FF8FB1" stroke="#4A5878" stroke-width="1.8"/><path d="M4 124 L17.0 110 L30 124Z" fill="#E8456A" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="14.5" y="134" width="5" height="12" fill="#7A5AF8"/><rect x="34" y="124" width="20" height="22" fill="#FFC93C" stroke="#4A5878" stroke-width="1.8"/><path d="M32 124 L44.0 110 L56 124Z" fill="#D93B1E" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="41.5" y="134" width="5" height="12" fill="#7A5AF8"/><rect x="62" y="124" width="22" height="22" fill="#BDEBF2" stroke="#4A5878" stroke-width="1.8"/><path d="M60 124 L73.0 110 L86 124Z" fill="#3DA5F4" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="70.5" y="134" width="5" height="12" fill="#7A5AF8"/><rect x="90" y="124" width="22" height="22" fill="#FFE3A3" stroke="#4A5878" stroke-width="1.8"/><path d="M88 124 L101.0 110 L114 124Z" fill="#8F6CF5" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="98.5" y="134" width="5" height="12" fill="#7A5AF8"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 17px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Social Studies</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">社会</div></a><a class="card" href="#math" data-shelf="Math" aria-label="Math books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #5238C4 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A58BFF"/><stop offset="1" stop-color="#E9E0FF"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg5)"/><g transform="rotate(-3 27 152)"><rect x="12" y="138" width="30" height="28" rx="6" fill="#FFC93C" stroke="#1E2A4A" stroke-width="2.4"/><text x="27" y="159" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#1E2A4A">1</text></g><g transform="rotate(4 27 124)"><rect x="12" y="110" width="30" height="28" rx="6" fill="#FF8FB1" stroke="#1E2A4A" stroke-width="2.4"/><text x="27" y="131" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#1E2A4A">2</text></g><g transform="rotate(-5 27 96)"><rect x="12" y="82" width="30" height="28" rx="6" fill="#3DA5F4" stroke="#1E2A4A" stroke-width="2.4"/><text x="27" y="103" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#1E2A4A">3</text></g><circle cx="86" cy="94" r="21" fill="#fff" stroke="#1E2A4A" stroke-width="2.6"/><path d="M86 82V106M74 94H98" stroke="#E8456A" stroke-width="6" stroke-linecap="round"/><path d="M52 160L106 160L52 124Z" fill="#7ED957" stroke="#2F8F55" stroke-width="2.6" stroke-linejoin="round"/><path d="M60 160V154M68 160V156M76 160V154M84 160V156M92 160V154" stroke="#2F8F55" stroke-width="2"/><circle cx="98" cy="132" r="8" fill="#FF6B4A" stroke="#1E2A4A" stroke-width="2.2"/><path d="M60 52L66 60L60 68" fill="none" stroke="none"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; right: 16px; top: -2px; width: 14px; height: 26px; background: #D93B1E; clip-path: polygon(0 0,100% 0,100% 100%,50% 78%,0 100%); z-index: 2"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Math</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">数学</div></a><a class="card" href="#cs" data-shelf="Computer Science" aria-label="Computer Science and AI books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #C4501F 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9B6B"/><stop offset="1" stop-color="#FFDCC6"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg6)"/><path d="M0 60H40V80H70M120 70H92V96M0 120H22V140M120 130H100" fill="none" stroke="#E8693A" stroke-width="2" opacity=".5"/><circle cx="40" cy="80" r="2.6" fill="#E8693A" opacity=".6"/><circle cx="92" cy="96" r="2.6" fill="#E8693A" opacity=".6"/><g transform="translate(-15 -2) scale(1.25)"><path d="M60 56V46" stroke="#4A5878" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="43" r="5" fill="#FFC93C" stroke="#4A5878" stroke-width="2"/><rect x="38" y="56" width="44" height="36" rx="11" fill="#EEF3FA" stroke="#4A5878" stroke-width="2.6"/><rect x="45" y="63" width="30" height="20" rx="7" fill="#1E2A4A"/><circle cx="53" cy="73" r="4.2" fill="#6FE3FF"/><circle cx="67" cy="73" r="4.2" fill="#6FE3FF"/><path d="M55 80Q60 84 65 80" fill="none" stroke="#6FE3FF" stroke-width="2" stroke-linecap="round"/><rect x="28" y="64" width="8" height="18" rx="4" fill="#FF9B6B" stroke="#4A5878" stroke-width="2"/><rect x="84" y="64" width="8" height="18" rx="4" fill="#FF9B6B" stroke="#4A5878" stroke-width="2"/></g><g stroke="#E8693A" stroke-width="1.6" opacity=".85"><path d="M12 60L26 72L12 86M26 72L40 66" fill="none"/><circle cx="12" cy="60" r="3.2" fill="#fff"/><circle cx="12" cy="86" r="3.2" fill="#fff"/><circle cx="26" cy="72" r="3.6" fill="#FFC93C"/></g><g transform="rotate(12 96 62)"><rect x="82" y="52" width="26" height="20" rx="6" fill="#FFC93C" stroke="#1E2A4A" stroke-width="2.2"/><text x="95" y="67" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">AI</text></g><path d="M106 84l1.6 3.600 3.600 1.600-3.600 1.600-1.600 3.600-1.600-3.600-3.600-1.600 3.600-1.600z" fill="#fff"/><g transform="translate(0 -12) scale(1 .92)"><path d="M24 118L10 134L24 150" fill="none" stroke="#1E2A4A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M96 118L110 134L96 150" fill="none" stroke="#1E2A4A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M68 112L52 156" stroke="#fff" stroke-width="6" stroke-linecap="round"/></g></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 14px; line-height: 1.05; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Computer Science<br>AI</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">计算机 · 人工智能</div></a></div><div style="position:relative;height:20px;margin-top:-1px;background:linear-gradient(180deg,#F0C688 0 4px,#D29A58 4px 13px,#A9712F 13px);box-shadow:0 7px 9px rgba(60,30,0,.32);z-index:2"></div></div><div style="position:absolute;left:34px;bottom:-28px;width:36px;height:18px;border-radius:0 0 8px 8px;background:#7E4F22"></div><div style="position:absolute;right:34px;bottom:-28px;width:36px;height:18px;border-radius:0 0 8px 8px;background:#7E4F22"></div></div><div style="margin:40px 6px 0;text-align:center;font-weight:700;font-size:14px;line-height:1.5;color:#33415F">Every book is created to align with California’s academic standards.<br><span style="color:#4A5878;font-size:13.5px">所有书籍均依据加州课程标准编写。</span></div></div></section>
+
+<!-- topics -->
+
+
+
+<!-- popular -->
+<div class="wrap" id="recWrap" style="padding-top:0;max-width:1260px;margin:0 auto"><div id="recommendedCard"></div></div>
+<section id="botd" style="padding: 70px 48px 0"></section>
+
+
+<!-- level -->
+
+
+<!-- review + what you get -->
+
+
+<!-- footer -->
+<footer style="margin-top: 70px; background: #DCEEFF; color: #1E2A4A; border-radius: 48px 48px 0 0; padding: 30px 48px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 44px; height: 44px; border-radius: 15px; background: #FFC93C; box-shadow: 0 4px 0 #E0A800; color: #1E2A4A; display: grid; place-items: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px; transform: rotate(-6deg)">L</div>
+<div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px">learningenglishfun</div>
+</div>
+<div style="font-weight: 800; font-size: 16px; color: #4A5878">English reading practice for K–6.</div>
+</footer>
+
+</div>
+</div>
+<div id="viewShelf" style="display:none;background:#F4FAFF;min-height:100vh"><div style="max-width:1100px;margin:0 auto;padding:20px 24px 60px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 18px"><button class="rules-btn" id="shBack">&larr; Back <span style="font-weight:700">返回</span></button><div id="shelfStars"></div></div>
+<section id="shHead" style="border-radius:40px;padding:28px 34px;color:#fff;position:relative;overflow:hidden"></section>
+<div id="shBody" style="margin-top:26px"></div></div></div>
+<div id="viewPets" style="display:none;background:#F4FAFF;min-height:100vh"><div class="wrap"><div class="top"><button class="ghost" data-go="home">&larr; Back to home</button><div id="topStars"></div></div><section id="adopt" class="panel">
+<h1 style="font-size:50px;line-height:1.05">Pick your reading pet! <span style="display:block;font-size:24px;color:#33415F;margin-top:6px">选一只你的阅读宠物！</span></h1>
+<p class="sub">Read books to earn stars. Use stars to feed and care for your pet.<br><span style="font-size:17px">读书赚星星，用星星喂养和照顾你的宠物。</span></p><div style="margin:-8px 0 22px;display:flex;flex-wrap:wrap;gap:12px"><button class="rules-btn" data-adopt>How to adopt a pet <span style="font-weight:700">怎么领养宠物</span></button></div>
+<div class="grid" id="pickGrid"></div>
+<div class="setup" id="setup">
+<div><span class="lbl">Color</span><div class="sw" id="sw"></div></div>
+<div><label class="lbl" for="nameIn">Give your pet a name</label><input type="text" id="nameIn" maxlength="12" placeholder="Mochi" autocomplete="off"></div>
+<button class="cta" id="adoptBtn" disabled>Adopt!</button>
+</div>
+</section><section id="petHome" class="panel">
+<div class="phome">
+<div class="stage">
+<div class="bubble" id="bubble"></div>
+<div id="petBox"></div>
+<div class="fd" id="petName" style="font-size:34px;margin-top:4px"></div>
+<div style="width:100%;margin-top:14px"><div style="display:flex;justify-content:space-between;font-weight:800;margin-bottom:6px"><span>Tummy</span><span id="hungerTxt"></span></div><div class="bar"><i id="hungerBar"></i></div></div>
+</div>
+<div class="card">
+<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px"><h2 style="font-size:30px">Pet shop</h2><div class="stars" id="starBal"></div></div>
+<p style="margin:8px 0 0;font-weight:700;color:var(--muted)">Spend your stars on snacks, clothes and toys.</p><div style="margin-top:12px"><button class="rules-btn" data-rules>How do stars work? <span style="font-weight:700">怎么赚星星？</span></button></div>
+<div class="tabs" id="shopTabs"><button data-tab="food">Snacks 零食</button><button data-tab="clothes">Clothes 衣服</button><button data-tab="toys">Toys 玩具</button></div><div id="shopNote" style="margin-top:14px;background:#FFF6D6;border-radius:16px;padding:10px 14px;font-weight:700;font-size:15px;line-height:1.4"></div><div class="foods" id="foods"></div>
+<div class="demo"><div class="row"><button id="dBack">Choose another pet 换一只宠物</button></div></div>
+</div>
+</div>
+</section></div></div>
+<div id="legacy" style="display:none">
 <div id="placementCard"><div class="placement-hero"><div class="ic">🎯</div><div class="tx"><h3>Not sure what to read?</h3><p id="placementSub">Take a quick placement quiz and we'll suggest a grade level to start with.</p></div><button class="btn" id="startPlacement">Take the quiz →</button></div></div>
 <div id="reviewCard"><div class="rev-hero"><div class="ic">🧠</div><div class="tx"><h3>Smart Review <span class="rev-badge" id="reviewBadge" style="display:none"></span></h3><p id="reviewSub">Practice the questions you missed — spaced out over days so you remember.</p></div><button class="btn" id="startReview">Start review →</button></div></div>
-<div id="recommendedCard"></div>
-<div class="section-title"><h2>Topics</h2><p>Choose a subject to explore its books.</p></div>
-<section class="categories" id="categories"></section>
-<section id="shelfView" style="display:none">
-  <div class="subnav"><button class="back" id="homeBtn" style="border:0;cursor:pointer">← Back to all topics</button><button class="back" id="folderBackBtn" style="border:0;cursor:pointer;display:none;margin-left:10px">← Back to grades</button></div>
-  <div class="shelf-head" id="shelfHead"><div><h2 id="shelfName"></h2><p id="shelfDesc"></p></div><div class="big" id="shelfIcon"></div></div>
-  <section class="folders" id="shelfFolders"></section>
-  <h3 class="grade-group-title" id="gradeBooksHead" style="display:none"></h3>
-  <section class="books" id="shelfBooks" style="display:none"></section>
-</section>
-</main>
+</div>
 <div id="readerOverlay">
   <div class="reader-bar"><button id="readerBack">← Back</button><span class="rtitle" id="readerTitle"></span></div>
   <iframe id="readerFrame" title="Book reader" allow="microphone; autoplay" allowfullscreen></iframe>
@@ -124,6 +303,8 @@ h1,.hero h2,.cat h3,.section-title h2,.rev-hero h3,.cover-title h3,.brand h1{fon
 <div id="placementOverlay"><div class="plc-bar"><button id="placementBack">← Back</button><span class="ttl">🎯 Placement Quiz</span><span class="prog" id="plcProgress"></span></div><div id="plcContent"></div></div>
 
 <div id="reviewOverlay"><div class="rev-bar"><button id="reviewBack">← Back</button><span class="ttl">🧠 Smart Review</span><span class="prog" id="revProgress"></span></div><div id="revContent"></div></div>
+<div id="modal" role="dialog" aria-modal="true"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script src="catalog.js"></script>
 <script src="books/fiction/books.js"></script>
 <script src="books/science/books.js"></script>
@@ -132,195 +313,649 @@ h1,.hero h2,.cat h3,.section-title h2,.rev-hero h3,.cover-title h3,.brand h1{fon
 <script src="books/math-stories/books.js"></script>
 <script src="books/cs/books.js"></script>
 <script>
-const data = window.READIVERSE_CATALOG;
-const BOOKS = window.RV_BOOKS || {};
-const clsMap = {fiction:"fiction",science:"science",sel:"sel","social-studies":"social","math-stories":"math",cs:"cs"};
-
-// hero
-document.getElementById("siteName").textContent = data.site.name;
-document.getElementById("tagline").textContent = data.site.tagline;
-if (data.site.heroEyebrow) { document.getElementById("eyebrow").textContent = data.site.heroEyebrow; }
-else { document.getElementById("eyebrow").style.display = "none"; }
-document.getElementById("heroTitle").textContent = data.site.heroTitle;
-document.getElementById("heroText").textContent = data.site.heroText;
-document.getElementById("modules").innerHTML = data.site.learningModules.map(m=>`<div class="module"><span class="m-ic">${m.icon}</span><span>${m.name}</span></div>`).join("");
-document.getElementById("standardsNote").textContent = data.site.standardsNote;
-
-// topic cards with live counts
-function countFor(id){ return (BOOKS[id]||[]).length; }
-document.getElementById("categories").innerHTML = data.categories.map(c=>{
-  const n = countFor(c.id);
-  const label = n===1 ? "1 book" : n+" books";
-  return `<a class="cat ${c.className}" href="#" data-category="${c.id}">
-    <div class="icon">${c.icon}</div><h3>${c.name}</h3><p>${c.description}</p>
-    <span class="count">${label}</span><span class="go">Explore →</span></a>`;
-}).join("");
-
+var data = window.READIVERSE_CATALOG;
+var BOOKS = window.RV_BOOKS || {};
+var currentFile=null;
 function openBook(file,title,category){
+  currentFile=file;
   document.getElementById("readerTitle").textContent = title || "";
   document.getElementById("readerFrame").src = file;
   document.getElementById("readerOverlay").style.display = "flex";
   document.body.style.overflow = "hidden";
   if(window.__trackEvent)window.__trackEvent("book_open",{book_id:file,book_title:title||"",category:category||""});
 }
-window.__openBook = openBook;
+window.__openBook=openBook;
 function closeBook(){
+  try{settleReading();}catch(e){}
+  currentFile=null;
   document.getElementById("readerFrame").src = "about:blank"; /* stops any narration */
   document.getElementById("readerOverlay").style.display = "none";
   document.body.style.overflow = "";
   if(window.__updateReviewBadge)window.__updateReviewBadge();
+  try{renderHomePet();renderBotd();}catch(e){}
 }
 document.getElementById("readerBack").addEventListener("click", closeBook);
-
-// one color set per grade "folder" — cycles if there are ever more than 6 grades in a topic
-const FOLDER_PALETTE = [
-  {tab:"#f3b93f", body1:"#ffe9b8", body2:"#ffd479", ink:"#6b4a06"}, // Grade 1 — warm yellow
-  {tab:"#5aa9e6", body1:"#cfe9ff", body2:"#9fd0ff", ink:"#0d3a63"}, // Grade 2 — sky blue
-  {tab:"#4d9b52", body1:"#d8f5df", body2:"#a9e6b8", ink:"#1f4d24"}, // Grade 3 — green
-  {tab:"#a35fd1", body1:"#f3d9ff", body2:"#e0b3f7", ink:"#4a1a63"}, // Grade 4 — purple
-  {tab:"#e2673f", body1:"#ffd9d0", body2:"#ffb3a1", ink:"#6b2003"}, // Grade 5 — coral
-  {tab:"#4a9b8e", body1:"#d3f2ec", body2:"#a6e2d4", ink:"#0d453d"}  // Grade 6 — teal
-];
-// a little stack of books, drawn (not an emoji) so it matches the site's illustration style
-const BOOK_STACK_ICON = `<svg viewBox="0 0 40 40" fill="currentColor"><rect x="4" y="10" width="10" height="24" rx="2.5" transform="rotate(-9 9 22)"/><rect x="15" y="6" width="10" height="28" rx="2.5"/><rect x="26" y="10" width="10" height="24" rx="2.5" transform="rotate(9 31 22)"/></svg>`;
-
-// a couple of small hand-drawn doodles per topic, scattered as faint decoration
-// in the empty space on each grade-folder card
-const TOPIC_DECOR = {
-  fiction: [
-    `<svg viewBox="0 0 40 40" fill="currentColor"><path d="M20 3 L24.5 15.5 L38 15.5 L27 23.5 L31 36 L20 28 L9 36 L13 23.5 L2 15.5 L15.5 15.5 Z"/></svg>`,
-    `<svg viewBox="0 0 40 40" fill="currentColor"><path d="M25 4c-9 2-16 10-16 18s7 16 16 18c-12 1-22-8-22-18S13 3 25 4z"/></svg>`
-  ],
-  science: [
-    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h12M16 4v15L7 33a3 3 0 0 0 3 5h20a3 3 0 0 0 3-5l-9-14V4"/><circle cx="20" cy="30" r="1.8" fill="currentColor" stroke="none"/><circle cx="15" cy="26" r="1.4" fill="currentColor" stroke="none"/><circle cx="25" cy="27" r="1.4" fill="currentColor" stroke="none"/></svg>`,
-    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3"><line x1="20" y1="20" x2="8" y2="10"/><line x1="20" y1="20" x2="32" y2="10"/><line x1="20" y1="20" x2="14" y2="32"/><circle cx="20" cy="20" r="4" fill="currentColor" stroke="none"/><circle cx="8" cy="10" r="3" fill="currentColor" stroke="none"/><circle cx="32" cy="10" r="3" fill="currentColor" stroke="none"/><circle cx="14" cy="32" r="3" fill="currentColor" stroke="none"/></svg>`
-  ],
-  sel: [
-    `<svg viewBox="0 0 40 40" fill="currentColor"><path d="M20 34S4 24 4 13a9 9 0 0 1 16-5 9 9 0 0 1 16 5c0 11-16 21-16 21Z"/></svg>`,
-    `<svg viewBox="0 0 40 40" fill="currentColor"><circle cx="20" cy="20" r="9"/><g stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="20" y1="2" x2="20" y2="8"/><line x1="20" y1="32" x2="20" y2="38"/><line x1="2" y1="20" x2="8" y2="20"/><line x1="32" y1="20" x2="38" y2="20"/><line x1="7" y1="7" x2="11" y2="11"/><line x1="29" y1="29" x2="33" y2="33"/><line x1="33" y1="7" x2="29" y2="11"/><line x1="11" y1="29" x2="7" y2="33"/></g></svg>`
-  ],
-  "social-studies": [
-    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 20 L20 7 L34 20"/><path d="M10 17 V34 H30 V17"/><rect x="17" y="24" width="6" height="10"/></svg>`,
-    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3"><circle cx="20" cy="20" r="16"/><path d="M4 20h32M20 4c5 4 8 10 8 16s-3 12-8 16c-5-4-8-10-8-16s3-12 8-16z"/></svg>`
-  ],
-  "math-stories": [
-    `<svg viewBox="0 0 40 40" fill="currentColor"><circle cx="9" cy="10" r="7"/><polygon points="31,4 38,17 24,17"/><rect x="20" y="24" width="16" height="16" rx="3"/></svg>`,
-    `<svg viewBox="0 0 40 40" fill="currentColor"><rect x="16" y="4" width="8" height="32" rx="3"/><rect x="4" y="16" width="32" height="8" rx="3"/></svg>`
-  ],
-  cs: [
-    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="12" width="28" height="22" rx="6"/><line x1="20" y1="12" x2="20" y2="4"/><circle cx="20" cy="3" r="2" fill="currentColor" stroke="none"/><circle cx="14" cy="22" r="2.5" fill="currentColor" stroke="none"/><circle cx="26" cy="22" r="2.5" fill="currentColor" stroke="none"/><line x1="13" y1="29" x2="27" y2="29"/></svg>`,
-    `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="32" cy="8" r="3"/><circle cx="8" cy="32" r="3"/><circle cx="32" cy="32" r="3"/><path d="M8 11v10a4 4 0 0 0 4 4h8M32 11v6a4 4 0 0 1-4 4h-6M20 25v4"/></svg>`
-  ]
-};
-const DECOR_POS = [
-  "top:8px;right:12px;width:62px;height:62px;transform:rotate(-9deg)",
-  "top:98px;right:52px;width:36px;height:36px;transform:rotate(13deg)"
-];
-
-function bookCardHTML(b, categoryId){
-  return `<article class="book">
-      <div class="cover"><img src="${b.cover}" alt="${b.title} cover" loading="lazy">
-        <div class="cover-title"><small>${b.grade||""}</small><h3>${b.title}</h3></div>
-      </div>
-      <div class="body">
-        <div class="meta">${b.readingBand?`<span class="pill">${b.readingBand}</span>`:""}${b.minutes?`<span class="pill">${b.minutes}</span>`:""}</div>
-        <p>${b.subtitle||""}</p>
-        <div class="skills">${(b.modules||[]).map(m=>`<span>${m}</span>`).join("")}</div>
-        <button class="open" style="border:0;cursor:pointer;width:100%" data-file="${b.file}" data-title="${b.title}" data-category="${categoryId}">Open Book</button>
-      </div>
-    </article>`;
-}
-
 function gradeGroupsFor(books){
-  const groups = {};
-  books.forEach(b=>{ const g = b.grade || "More Books"; (groups[g] = groups[g] || []).push(b); });
-  const gradeRank = g => /kindergarten/i.test(g) ? 0 : parseInt((g.match(/\d+/)||[])[0], 10);
-  const gradeKeys = Object.keys(groups).sort((ga,gb)=>{
-    const na = gradeRank(ga), nb = gradeRank(gb);
+  var groups = {};
+  books.forEach(function(b){ var g = b.grade || "More Books"; (groups[g] = groups[g] || []).push(b); });
+  var gradeRank = function(g){ return /kindergarten/i.test(g) ? 0 : parseInt((g.match(/\d+/)||[])[0], 10); };
+  var gradeKeys = Object.keys(groups).sort(function(ga,gb){
+    var na = gradeRank(ga), nb = gradeRank(gb);
     if(!isNaN(na) && !isNaN(nb)) return na - nb;
     if(!isNaN(na)) return -1;
     if(!isNaN(nb)) return 1;
     return ga.localeCompare(gb);
   });
-  return {groups, gradeKeys};
+  return {groups:groups, gradeKeys:gradeKeys};
 }
-
-let currentTopicId = null;
-
-function showShelf(id){
-  const c = data.categories.find(x=>x.id===id);
-  currentTopicId = id;
-  document.querySelector(".hero").style.display="none";
-  document.querySelector(".section-title").style.display="none";
-  document.getElementById("categories").style.display="none";
-  var _rc=document.getElementById("reviewCard");if(_rc)_rc.style.display="none";
-  document.getElementById("shelfView").style.display="block";
-  document.getElementById("shelfHead").className = "shelf-head " + (clsMap[id]||"");
-  document.getElementById("shelfName").textContent = c.name;
-  document.getElementById("shelfDesc").textContent = c.description;
-  document.getElementById("shelfIcon").textContent = c.icon;
-  showGradeFolders(id);
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-function showGradeFolders(id){
-  const books = BOOKS[id] || [];
-  const foldersEl = document.getElementById("shelfFolders");
-  const booksEl = document.getElementById("shelfBooks");
-  const headEl = document.getElementById("gradeBooksHead");
-  const folderBack = document.getElementById("folderBackBtn");
-  booksEl.style.display = "none";
-  headEl.style.display = "none";
-  foldersEl.style.display = "grid";
-  if(folderBack) folderBack.style.display = "none";
-  if(!books.length){
-    foldersEl.innerHTML = `<div class="empty-shelf">No books here yet. Drop a book into <code>books/${id}/</code> to add one.</div>`;
-    return;
-  }
-  const {groups, gradeKeys} = gradeGroupsFor(books);
-  const decorIcons = TOPIC_DECOR[id] || [];
-  const decorHTML = decorIcons.map((svg,di)=>`<span style="${DECOR_POS[di % DECOR_POS.length]}">${svg}</span>`).join("");
-  foldersEl.innerHTML = gradeKeys.map((g,i)=>{
-    const p = FOLDER_PALETTE[i % FOLDER_PALETTE.length];
-    const n = groups[g].length;
-    return `<button class="folder-card" style="--tab:${p.tab};--body1:${p.body1};--body2:${p.body2};--ink:${p.ink}" data-grade="${g}">
-      <span class="folder-decor">${decorHTML}</span>
-      <span class="folder-icon">${BOOK_STACK_ICON}</span>
-      <span class="folder-label">${g}</span>
-      <span class="folder-count">${n} book${n===1?"":"s"}</span>
-      <span class="folder-go">Open →</span>
-    </button>`;
-  }).join("");
-  foldersEl.querySelectorAll(".folder-card").forEach(btn=>{
-    btn.addEventListener("click", ()=> showGradeBooks(id, btn.dataset.grade, groups[btn.dataset.grade]));
-  });
-}
-
-function showGradeBooks(id, grade, books){
-  const foldersEl = document.getElementById("shelfFolders");
-  const booksEl = document.getElementById("shelfBooks");
-  const headEl = document.getElementById("gradeBooksHead");
-  const folderBack = document.getElementById("folderBackBtn");
-  foldersEl.style.display = "none";
-  booksEl.style.display = "grid";
-  headEl.style.display = "flex";
-  headEl.innerHTML = `<span class="tag">${grade}</span><span class="n">${books.length} book${books.length===1?"":"s"}</span>`;
-  if(folderBack) folderBack.style.display = "inline-block";
-  booksEl.innerHTML = books.map(b=>bookCardHTML(b, id)).join("");
-  booksEl.querySelectorAll(".open").forEach(btn=>btn.addEventListener("click",()=>openBook(btn.dataset.file, btn.dataset.title, btn.dataset.category)));
-  window.scrollTo({top:0,behavior:"smooth"});
-}
-
-document.querySelectorAll("[data-category]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();showShelf(a.dataset.category);}));
-document.getElementById("homeBtn").onclick=()=>{
-  document.querySelector(".hero").style.display="";
-  document.querySelector(".section-title").style.display="";
-  document.getElementById("categories").style.display="grid";
-  var _rc=document.getElementById("reviewCard");if(_rc)_rc.style.display="";
-  document.getElementById("shelfView").style.display="none";
-  window.scrollTo({top:0,behavior:"smooth"});
+var ID2NAME={'fiction':'Fiction','science':'Science','sel':'SEL','social-studies':'Social Studies','math-stories':'Math','cs':'Computer Science'};
+var NAME2ID={};Object.keys(ID2NAME).forEach(function(k){NAME2ID[ID2NAME[k]]=k;});
+var READING_GATED=['fiction','sel','social-studies'];
+var GRADES=['Kindergarten','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6'];
+var SHELF={},ALL=[];
+(function(){Object.keys(ID2NAME).forEach(function(id){var books=BOOKS[id]||[],gg=gradeGroupsFor(books),sj=ID2NAME[id];SHELF[sj]={};
+ gg.gradeKeys.forEach(function(g){SHELF[sj][g]={count:gg.groups[g].length,books:gg.groups[g].map(function(b){var o={slug:b.slug,title:b.title,subtitle:b.subtitle||'',grade:b.grade||g,band:b.readingBand||'',minutes:b.minutes||'',subject:sj,id:id,cover:b.cover,file:b.file};ALL.push(o);return o;})};});});})();
+</script>
+<script>
+var INK='#1E2A4A';
+var PETS={
+cat:{name:'Cat',pal:[{b:'#FFA94D',d:'#B5651D',l:'#FFE2B8'},{b:'#B8C0CC',d:'#5A6578',l:'#EEF1F5'},{b:'#FFF6EA',d:'#A8957A',l:'#fff'}],fav:'fish',line:'Meow!'},
+dog:{name:'Dog',pal:[{b:'#E0A96A',d:'#8A5A2B',l:'#FFF0D6'},{b:'#A8714A',d:'#5E3A1E',l:'#F1D9BE'},{b:'#FFF6E8',d:'#B79C75',l:'#fff'}],fav:'bone',line:'Woof!'},
+lizard:{name:'Lizard',pal:[{b:'#6CD08A',d:'#2F8F55',l:'#D9F6D2'},{b:'#4FC8C0',d:'#1F8A86',l:'#D5F4F0'},{b:'#F2D14B',d:'#A67F0A',l:'#FFF3BF'}],fav:'bug',line:'Hiss-ssso happy!'},
+monkey:{name:'Monkey',pal:[{b:'#B07A4A',d:'#6B4423',l:'#F2D3A8'},{b:'#E8B24A',d:'#9A6B14',l:'#FFF0C4'},{b:'#9AA3B2',d:'#4F586A',l:'#E3E8F0'}],fav:'banana',line:'Ooh ooh ah ah!'},
+bunny:{name:'Bunny',pal:[{b:'#FFFFFF',d:'#9AA6BD',l:'#fff'},{b:'#FFC6D9',d:'#C0577F',l:'#fff'},{b:'#CBD2DB',d:'#6B7587',l:'#fff'}],fav:'carrot',line:'Hop hop!'},
+dino:{name:'Dino',pal:[{b:'#7ED957',d:'#3C8B21',l:'#E3F7D1'},{b:'#A58BF5',d:'#5B3FC4',l:'#E4DAFF'},{b:'#5CB3F7',d:'#1F6FB2',l:'#D6ECFF'}],fav:'leaf',line:'Rawr!'}
 };
-document.getElementById("folderBackBtn").onclick=()=>{ if(currentTopicId) showGradeFolders(currentTopicId); };
+function eyes(m,cx,ey,dx,r){var o='';[cx-dx,cx+dx].forEach(function(x){
+ if(m==='happy')o+='<circle cx="'+x+'" cy="'+ey+'" r="'+r+'" fill="'+INK+'"/><circle cx="'+(x+r*.35)+'" cy="'+(ey-r*.4)+'" r="'+(r*.36)+'" fill="#fff"/>';
+ else if(m==='eat')o+='<path d="M'+(x-r)+' '+(ey+2)+'Q'+x+' '+(ey-r*1.3)+' '+(x+r)+' '+(ey+2)+'" fill="none" stroke="'+INK+'" stroke-width="4" stroke-linecap="round"/>';
+ else o+='<path d="M'+(x-r)+' '+ey+'Q'+x+' '+(ey+r*.9)+' '+(x+r)+' '+ey+'" fill="none" stroke="'+INK+'" stroke-width="4" stroke-linecap="round"/>';});return o;}
+function blush(m,cx,ey,dx){var op=m==='sleepy'?.25:.55;return [cx-dx-9,cx+dx+9].map(function(x){return '<ellipse cx="'+x+'" cy="'+(ey+14)+'" rx="7" ry="4.5" fill="#FF6F9C" opacity="'+op+'"/>';}).join('');}
+function mouthU(m,cx,y,w){w=w||10;
+ if(m==='happy')return '<path d="M'+(cx-w)+' '+y+'Q'+cx+' '+(y+w+1)+' '+(cx+w)+' '+y+'" fill="none" stroke="'+INK+'" stroke-width="4" stroke-linecap="round"/>';
+ if(m==='eat')return '<ellipse cx="'+cx+'" cy="'+(y+5)+'" rx="'+(w*.7)+'" ry="'+(w*.65)+'" fill="'+INK+'"/><ellipse cx="'+cx+'" cy="'+(y+9)+'" rx="'+(w*.4)+'" ry="'+(w*.3)+'" fill="#FF7A9A"/>';
+ return '<path d="M'+(cx-w*.8)+' '+(y+5)+'Q'+cx+' '+(y-3)+' '+(cx+w*.8)+' '+(y+5)+'" fill="none" stroke="'+INK+'" stroke-width="4" stroke-linecap="round"/>';}
+function mouthW(m,cx,y){
+ if(m==='happy')return '<path d="M'+cx+' '+y+'V'+(y+4)+'Q'+(cx-6)+' '+(y+10)+' '+(cx-11)+' '+(y+5)+'M'+cx+' '+(y+4)+'Q'+(cx+6)+' '+(y+10)+' '+(cx+11)+' '+(y+5)+'" fill="none" stroke="'+INK+'" stroke-width="3.5" stroke-linecap="round"/>';
+ return mouthU(m,cx,y+4,7);}
+var SW='stroke-linejoin="round" stroke-linecap="round"';
+function draw(t,c,m,acc){var b=c.b,d=c.d,l=c.l,s='';
+ if(t==='cat'){
+  s+='<path d="M16 58L22 10L54 32Z" fill="'+b+'" stroke="'+d+'" stroke-width="4" '+SW+'/><path d="M104 58L98 10L66 32Z" fill="'+b+'" stroke="'+d+'" stroke-width="4" '+SW+'/><path d="M25 40L27 22L40 32Z" fill="#FFC6D4"/><path d="M95 40L93 22L80 32Z" fill="#FFC6D4"/>';
+  s+='<path d="M8 66Q8 30 60 30Q112 30 112 66Q112 106 60 108Q8 106 8 66Z" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><path d="M60 32V44M48 34L50 44M72 34L70 44" stroke="'+d+'" stroke-width="4" stroke-linecap="round" opacity=".6"/><path d="M6 80L26 82M6 90L26 88M114 80L94 82M114 90L94 88" stroke="'+d+'" stroke-width="2.5" stroke-linecap="round" opacity=".5"/>';
+  s+=eyes(m,60,62,19,6.5)+blush(m,60,62,19)+'<path d="M55 76H65L60 82Z" fill="#FF8FB1"/>'+mouthW(m,60,83);
+ }else if(t==='dog'){
+  s+='<path d="M20 36Q-4 40 6 86Q24 90 32 56Z" fill="'+d+'" stroke="'+d+'" stroke-width="4" '+SW+'/><path d="M100 36Q124 40 114 86Q96 90 88 56Z" fill="'+d+'" stroke="'+d+'" stroke-width="4" '+SW+'/>';
+  s+='<path d="M12 62Q12 26 60 26Q108 26 108 62Q108 108 60 110Q12 108 12 62Z" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><ellipse cx="60" cy="88" rx="26" ry="19" fill="'+l+'"/>';
+  s+=eyes(m,60,58,20,6.5)+blush(m,60,58,20)+'<ellipse cx="60" cy="77" rx="9" ry="6.5" fill="'+INK+'"/>'+mouthU(m,60,88,10);
+  if(m==='happy')s+='<path d="M54 95Q54 107 60 107Q66 107 66 95Z" fill="#FF7A9A"/>';
+ }else if(t==='lizard'){
+  s+='<path d="M10 72Q10 38 60 38Q110 38 110 72Q110 106 60 108Q10 106 10 72Z" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><path d="M24 90Q60 114 96 90Q90 108 60 110Q30 108 24 90Z" fill="'+l+'" opacity=".9"/><path d="M48 40L54 24L60 38L66 24L72 40Z" fill="'+d+'"/>';
+  s+='<circle cx="34" cy="40" r="17" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><circle cx="86" cy="40" r="17" fill="'+b+'" stroke="'+d+'" stroke-width="4"/>';
+  if(m==='happy')s+='<circle cx="34" cy="40" r="11" fill="#fff"/><circle cx="86" cy="40" r="11" fill="#fff"/>'+eyes('happy',60,41,26,6);
+  else s+=eyes(m,60,42,26,8);
+  s+='<circle cx="60" cy="52" r="4" fill="'+d+'" opacity=".3"/><circle cx="46" cy="58" r="3" fill="'+d+'" opacity=".3"/><circle cx="74" cy="58" r="3" fill="'+d+'" opacity=".3"/><circle cx="53" cy="72" r="2.5" fill="'+d+'"/><circle cx="67" cy="72" r="2.5" fill="'+d+'"/>'+blush(m,60,64,24)+mouthU(m,60,80,16);
+ }else if(t==='monkey'){
+  s+='<circle cx="12" cy="64" r="17" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><circle cx="108" cy="64" r="17" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><circle cx="12" cy="64" r="8" fill="'+l+'"/><circle cx="108" cy="64" r="8" fill="'+l+'"/>';
+  s+='<path d="M10 60Q10 24 60 24Q110 24 110 60Q110 106 60 108Q10 106 10 60Z" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><path d="M60 52Q44 38 32 50Q20 66 34 84Q44 102 60 102Q76 102 88 84Q100 66 88 50Q76 38 60 52Z" fill="'+l+'"/><path d="M52 28Q60 14 68 28" fill="none" stroke="'+d+'" stroke-width="4" stroke-linecap="round"/>';
+  s+=eyes(m,60,62,17,6.5)+blush(m,60,62,17)+'<circle cx="55" cy="78" r="2.6" fill="'+d+'"/><circle cx="65" cy="78" r="2.6" fill="'+d+'"/>'+mouthU(m,60,87,10);
+ }else if(t==='bunny'){
+  var a=m==='sleepy'?105:8;
+  s+='<g transform="rotate(-'+a+' 40 58)"><ellipse cx="40" cy="30" rx="13" ry="30" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><ellipse cx="40" cy="32" rx="6" ry="21" fill="#FFB3C8"/></g><g transform="rotate('+a+' 80 58)"><ellipse cx="80" cy="30" rx="13" ry="30" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><ellipse cx="80" cy="32" rx="6" ry="21" fill="#FFB3C8"/></g>';
+  s+='<ellipse cx="60" cy="74" rx="48" ry="38" fill="'+b+'" stroke="'+d+'" stroke-width="4"/>';
+  s+=eyes(m,60,68,19,6.5)+blush(m,60,68,19)+'<ellipse cx="60" cy="80" rx="5.5" ry="4" fill="#FF8FB1"/>'+mouthW(m,60,84);
+  if(m==='happy')s+='<rect x="55" y="90" width="10" height="9" rx="2" fill="#fff" stroke="'+d+'" stroke-width="2.5"/>';
+ }else{
+  s+='<path d="M34 38L40 14L52 32Z" fill="'+d+'" stroke="'+d+'" stroke-width="3" '+SW+'/><path d="M50 32L60 6L70 32Z" fill="'+d+'" stroke="'+d+'" stroke-width="3" '+SW+'/><path d="M68 32L80 14L86 38Z" fill="'+d+'" stroke="'+d+'" stroke-width="3" '+SW+'/>';
+  s+='<path d="M8 68Q8 30 60 30Q112 30 112 68Q112 106 60 108Q8 106 8 68Z" fill="'+b+'" stroke="'+d+'" stroke-width="4"/><path d="M22 90Q60 114 98 90Q92 108 60 110Q28 108 22 90Z" fill="'+l+'"/><circle cx="26" cy="46" r="5" fill="'+d+'" opacity=".3"/><circle cx="96" cy="50" r="4" fill="'+d+'" opacity=".3"/>';
+  s+=eyes(m,60,56,21,7)+blush(m,60,56,21)+'<circle cx="52" cy="72" r="2.8" fill="'+d+'"/><circle cx="68" cy="72" r="2.8" fill="'+d+'"/>'+mouthU(m,60,82,14);
+ }
+ return '<svg viewBox="0 0 120 120" aria-hidden="true">'+s+accs(t,acc)+'</svg>';}
+var FOOD={
+fish:'<path d="M8 28Q22 10 38 28Q22 46 8 28Z" fill="#6FB6F2" stroke="#1F78BC" stroke-width="3"/><path d="M38 28L50 16V40Z" fill="#6FB6F2" stroke="#1F78BC" stroke-width="3" stroke-linejoin="round"/><circle cx="18" cy="26" r="2.5" fill="'+INK+'"/>',
+bone:'<path d="M14 40Q6 40 6 33Q6 28 12 27Q8 20 14 16Q20 14 22 20L36 20Q38 14 44 16Q50 20 46 27Q52 28 52 33Q52 40 44 40Q38 40 36 34L22 34Q20 40 14 40Z" fill="#fff" stroke="#B7A07A" stroke-width="3" stroke-linejoin="round"/>',
+bug:'<ellipse cx="30" cy="32" rx="14" ry="12" fill="#8BD65A" stroke="#3C8B21" stroke-width="3"/><circle cx="30" cy="18" r="7" fill="#8BD65A" stroke="#3C8B21" stroke-width="3"/><path d="M26 9L22 3M34 9L38 3M16 30L8 28M16 38L8 42M44 30L52 28M44 38L52 42" stroke="#3C8B21" stroke-width="3" stroke-linecap="round"/>',
+banana:'<path d="M12 14Q16 46 46 48Q54 48 54 42Q36 42 26 12Q16 8 12 14Z" fill="#FFD93D" stroke="#B08A0E" stroke-width="3" stroke-linejoin="round"/><path d="M12 14L16 8" stroke="#6B4A1E" stroke-width="4" stroke-linecap="round"/>',
+berry:'<circle cx="22" cy="36" r="10" fill="#E8456A" stroke="#9E1F3E" stroke-width="3"/><circle cx="38" cy="32" r="10" fill="#E8456A" stroke="#9E1F3E" stroke-width="3"/><path d="M22 26Q24 14 34 12M38 22Q38 14 34 12" fill="none" stroke="#3C8B21" stroke-width="3" stroke-linecap="round"/>',
+carrot:'<path d="M16 24L44 44Q34 54 14 48Q6 38 16 24Z" fill="#FF9A3D" stroke="#C25E0A" stroke-width="3" stroke-linejoin="round" transform="rotate(-20 30 36)"/><path d="M34 10L30 22M42 14L34 24M26 12L28 22" stroke="#3C8B21" stroke-width="4" stroke-linecap="round"/>',
+leaf:'<path d="M10 46Q8 16 44 10Q50 44 18 48Z" fill="#7ED957" stroke="#3C8B21" stroke-width="3" stroke-linejoin="round"/><path d="M12 46L34 24" stroke="#3C8B21" stroke-width="3" stroke-linecap="round"/>',
+apple:'<path d="M30 20Q14 14 10 30Q10 48 24 50Q30 48 36 50Q50 48 50 30Q46 14 30 20Z" fill="#FF5C5C" stroke="#B02A2A" stroke-width="3"/><path d="M30 20Q30 12 36 8" fill="none" stroke="#6B4A1E" stroke-width="3" stroke-linecap="round"/><path d="M36 14Q44 8 48 14Q42 18 36 14Z" fill="#7ED957" stroke="#3C8B21" stroke-width="2"/>',
+cake:'<rect x="10" y="28" width="40" height="20" rx="6" fill="#FFC6D9" stroke="#C0577F" stroke-width="3"/><path d="M10 34Q16 40 22 34Q28 40 34 34Q40 40 50 34" fill="none" stroke="#fff" stroke-width="3"/><rect x="28" y="16" width="4" height="12" rx="2" fill="#7A5AF8"/><path d="M30 6Q35 11 30 15Q25 11 30 6Z" fill="#FFC93C"/>'
+};
+var FNAME={fish:'Fish',bone:'Bone',bug:'Yummy bug',banana:'Banana',berry:'Berries',carrot:'Carrot',leaf:'Leafy greens',apple:'Apple',cake:'Cake'};
+var st={type:null,ci:0,name:'',hunger:80,stars:0,busy:false,owned:[],eq:{},toys:[],tab:'food'};
+try{var _s=JSON.parse(localStorage.getItem('lef_pet_v1')||'null');if(_s&&PETS[_s.type]){st.type=_s.type;st.ci=_s.ci||0;st.name=_s.name||'Pet';st.hunger=_s.hunger;st.stars=_s.stars;st.owned=_s.owned||[];st.eq=_s.eq||{};st.toys=_s.toys||[];}}catch(e){}
+function save(){try{localStorage.setItem('lef_pet_v1',JSON.stringify({type:st.type,ci:st.ci,name:st.name,hunger:st.hunger,stars:st.stars,owned:st.owned,eq:st.eq,toys:st.toys}));}catch(e){}}
+var $=function(i){return document.getElementById(i)};
+var ctx;function snd(kind){try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();var t=ctx.currentTime,fr=kind==='munch'?[260,220,260,220]:[523,659,784];fr.forEach(function(f,i){var o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='munch'?'triangle':'sine';o.frequency.value=f;var s=t+i*(kind==='munch'?.11:.09);g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(.12,s+.02);g.gain.exponentialRampToValueAtTime(.001,s+.25);o.connect(g);g.connect(ctx.destination);o.start(s);o.stop(s+.3);});}catch(e){}}
+var cols=['#FFC93C','#FF8FB1','#3DA5F4','#35B779','#7A5AF8','#FF6B4A'];
+function burst(x,y){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(var i=0;i<14;i++){var d=document.createElement('span'),a=Math.random()*6.283,r=50+Math.random()*80;d.style.cssText='position:fixed;z-index:99;pointer-events:none;width:10px;height:10px;border-radius:'+(i%2?'50%':'3px')+';background:'+cols[i%6]+';left:'+x+'px;top:'+y+'px';document.body.appendChild(d);d.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+Math.cos(a)*r+'px,'+(Math.sin(a)*r-30)+'px) scale(.4)',opacity:0}],{duration:800,easing:'ease-out'}).onfinish=(function(n){return function(){n.remove()}})(d);}}
+var starSvg='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2 6.1 20.5l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#B26A00" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+/* adopt screen */
+var sel=null;
+function renderPicks(){$('pickGrid').innerHTML=Object.keys(PETS).map(function(k){return '<button class="pick'+(sel===k?' sel':'')+'" data-k="'+k+'" aria-label="Adopt a '+PETS[k].name+'">'+draw(k,PETS[k].pal[0],'happy')+'<div class="nm">'+PETS[k].name+'</div></button>';}).join('');
+ Array.prototype.forEach.call(document.querySelectorAll('.pick'),function(b){b.onclick=function(e){sel=b.dataset.k;st.ci=0;snd();burst(e.clientX,e.clientY);renderPicks();renderSetup();var s=document.querySelector('.pick.sel svg');if(s)s.animate([{transform:'translateY(0)'},{transform:'translateY(-18px) rotate(-5deg)'},{transform:'translateY(0)'}],{duration:450});};});}
+function renderSetup(){var su=$('setup');if(!sel){su.classList.remove('on');return;}su.classList.add('on');
+ $('sw').innerHTML=PETS[sel].pal.map(function(c,i){return '<button style="background:'+c.b+'" class="'+(st.ci===i?'on':'')+'" data-i="'+i+'" aria-label="Color '+(i+1)+'"></button>';}).join('');
+ Array.prototype.forEach.call($('sw').children,function(b){b.onclick=function(){st.ci=+b.dataset.i;var p=document.querySelector('.pick.sel');if(p)p.querySelector('svg').outerHTML=draw(sel,PETS[sel].pal[st.ci],'happy');renderSetup();};});
+ $('adoptBtn').disabled=!$('nameIn').value.trim();}
+$('nameIn').oninput=function(){$('adoptBtn').disabled=!sel||!this.value.trim();};
+$('adoptBtn').onclick=function(e){st.type=sel;st.name=$('nameIn').value.trim();st.hunger=80;burst(e.clientX,e.clientY);snd();save();showPetHome("Hi, I'm "+st.name+"! "+PETS[st.type].line);};
+/* home */
+function mood(){return st.hunger>=50?'happy':'sleepy';}
+function say(t){$('bubble').textContent=t;}
+function render(m){m=m||mood();save();renderHomePet();$('petBox').innerHTML='<div style="position:relative;width:260px;margin:0 auto 22px"><div id="pet" class="'+(m==='sleepy'?'sleepy':'bob')+'">'+draw(st.type,PETS[st.type].pal[st.ci],m,st.eq)+'</div>'+toysHTML()+'</div>';
+ Array.prototype.forEach.call(document.querySelectorAll('.toy'),function(b){b.onclick=function(e){playToy(e);};});
+ $('petName').textContent=st.name;var h=Math.max(0,Math.min(100,st.hunger));
+ $('hungerBar').style.width=h+'%';$('hungerBar').style.background=h>=50?'#35B779':(h>=25?'#FFC93C':'#FF6B4A');
+ $('hungerTxt').textContent=h>=80?'Full!':h>=50?'Happy':h>=25?'Sleepy':'Very hungry';
+ $('starBal').innerHTML=starSvg+st.stars;
+ $('topStars').style.display='block';$('topStars').innerHTML='<div class="stars">'+starSvg+st.stars+'</div>';
+ renderShop();}
+function feed(i,e){var c=FCOST[i],g=FGAIN[i];if(st.stars<c||st.busy)return;st.busy=true;st.stars-=c;st.hunger=Math.min(100,st.hunger+g);
+ burst(e.clientX,e.clientY);snd('munch');render('eat');say('Nom nom nom...');var p=$('pet');if(p)p.classList.add('jump');
+ setTimeout(function(){st.busy=false;render('happy');snd();var p2=$('pet');if(p2){p2.classList.remove('bob');p2.classList.add('jump');setTimeout(function(){p2.classList.remove('jump');p2.classList.add('bob')},650);}
+  say(i===0?'My favorite! Thank you, '+'friend!':(i===3?'Wow, a special treat! Yummy!':'Yum! I feel better!'));},1100);}
+function showPetHome(msg){$('adopt').style.display='none';$('petHome').style.display='block';render();say(msg);}
+$('dBack').onclick=function(){showAdopt();};
+
+var EGG='<svg viewBox="0 0 120 120" aria-hidden="true" style="overflow:visible"><path d="M60 14C36 14 20 48 20 72c0 20 18 34 40 34s40-14 40-34C100 48 84 14 60 14z" fill="#FFF6EA" stroke="#A8957A" stroke-width="4"/><circle cx="38" cy="78" r="6" fill="#FFC6D9"/><circle cx="84" cy="86" r="5" fill="#BDEBF2"/><circle cx="80" cy="40" r="4" fill="#FFE3A3"/><text x="60" y="76" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="44" fill="#6A48E8">?</text></svg>';
+var starSvgH='<svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2 6.1 20.5l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#B26A00" stroke-width="1.8" stroke-linejoin="round"/></svg>';
+var bubbleT=null;
+function homeBubble(t){var b=$('heroBubble');if(!b)return;b.textContent=t;}
+function renderHomePet(){
+ var has=!!st.type,m=mood(),svg=has?draw(st.type,PETS[st.type].pal[st.ci],m,st.eq):EGG;
+ var pi=$('petBtnIcon');if(pi){pi.innerHTML=svg;pi.firstChild.style.cssText='width:100%;height:100%;overflow:visible';}
+ var t=$('petBtnText');if(t)t.innerHTML=has?st.name+(m==='sleepy'?' misses you<span style="display:block;font-weight:700;font-size:13px;color:#4A5878">想你了</span>':''):'Adopt a pet<span style="display:block;font-weight:700;font-size:13px;color:#4A5878">领养宠物</span>';
+ var sc=$('petStars');if(sc){sc.style.display=has?'inline-flex':'none';sc.innerHTML=starSvgH.replace('width="26" height="26"','width="20" height="20"')+'<span id="starNum">'+st.stars+'</span>';}
+}
+function showAdopt(){$('petHome').style.display='none';$('adopt').style.display='block';sel=null;$('nameIn').value='';renderPicks();renderSetup();}
+function openPets(){$('viewHome').style.display='none';$('viewShelf').style.display='none';$('viewPets').style.display='block';window.scrollTo(0,0);if(st.type){$('adopt').style.display='none';$('petHome').style.display='block';render();say(mood()==='happy'?"Hi, I'm "+st.name+"! "+PETS[st.type].line:'I miss you! Let’s read a book together?');}else{showAdopt();$('topStars').style.display='none';}}
+function openHome(){$('viewShelf').style.display='none';$('viewPets').style.display='none';$('viewHome').style.display='block';window.scrollTo(0,0);renderHomePet();}
+function readBook(e){st.stars+=3;save();burst(e.clientX,e.clientY);snd();renderHomePet();var c=$('starChip');if(c&&c.firstChild)c.firstChild.animate([{transform:'scale(1)'},{transform:'scale(1.35) rotate(-4deg)'},{transform:'scale(1)'}],{duration:500});
+ if(st.type){homeBubble('Great reading! +3 stars!');clearTimeout(bubbleT);bubbleT=setTimeout(function(){bubbleT=null;renderHomePet();},2500);}}
+document.addEventListener('click',function(e){var a=e.target.closest('a,[data-go],[data-rules],[data-review],[data-guide],[data-shelf],[data-adopt],[data-level]');if(!a)return;if(a.hasAttribute('data-level')){e.preventDefault();snd();burst(e.clientX,e.clientY);openLevel();return;}if(a.hasAttribute('data-adopt')){snd();openAdoptGuide();return;}if(a.hasAttribute('data-shelf')){e.preventDefault();snd();burst(e.clientX,e.clientY);openShelf(a.getAttribute('data-shelf'));return;}if(a.hasAttribute('data-guide')){e.preventDefault();snd();burst(e.clientX,e.clientY);openGuide();return;}if(a.hasAttribute('data-review')){e.preventDefault();snd();burst(e.clientX,e.clientY);openReview();return;}if(a.hasAttribute('data-rules')){snd();openRules();return;}var h=a.getAttribute&&a.getAttribute('href');
+ if(a.tagName==='A'&&!(h&&h.charAt(1)&&h.charAt(0)==='#'&&document.getElementById(h.slice(1))))e.preventDefault();
+ var go=a.getAttribute('data-go');
+ if(go==='pets'){snd();burst(e.clientX,e.clientY);openPets();return;}
+ if(go==='home'){snd();openHome();return;}
+ if(a.classList.contains('read-now')){snd();burst(e.clientX,e.clientY);openReader(todayBook().book);return;}
+ snd();burst(e.clientX,e.clientY);});
+
+
+var BANDS=['Beginning Reader','Early Reader','Growing Reader','Fluent Reader'];
+var SUBJ=['Fiction','Science','SEL','Social Studies','Math','Computer Science'];
+var CAP=10;
+function loadJ(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function dayIdx(){var d=new Date();d.setHours(0,0,0,0);return Math.floor(d.getTime()/86400000);}
+function dayState(){var D=loadJ('lef_day_v1',null),t=todayStr();if(!D||D.date!==t)D={date:t,earned:0,books:[],reviews:0};return D;}
+function bookState(slug){var B=loadJ('lef_books_v1',{});return B[slug]||{fin:0,listen:0,vocab:0,quiz:0};}
+function setBook(slug,v){var B=loadJ('lef_books_v1',{});B[slug]=v;saveJ('lef_books_v1',B);}
+function demoBand(){return loadJ('lef_demo_band',null);}
+
+function hist(){return loadJ('lef_hist_v1',[]);}
+function addHist(b){var H=hist();if(H.some(function(x){return x.slug===b.slug;}))return;H.push({slug:b.slug,subject:b.subject,band:b.band,grade:b.grade,quiz:null,t:Date.now()});saveJ('lef_hist_v1',H.slice(-30));}
+function setQuiz(slug,ok){var H=hist();H.forEach(function(x){if(x.slug===slug)x.quiz=ok;});saveJ('lef_hist_v1',H);}
+function noteOpen(b){var O=loadJ('lef_opens_v1',[]);O.push({subject:b.subject,band:b.band,grade:b.grade});saveJ('lef_opens_v1',O.slice(-30));}
+function inferProfile(){
+ var H=hist(),O=loadJ('lef_opens_v1',[]);if(!H.length&&!O.length)return null;
+ var src=H.length?H:O,rec=src.slice(-5).map(function(x){return BANDS.indexOf(x.band);}).sort(function(p,q){return p-q;}),base=rec[Math.floor(rec.length/2)];
+ var q=H.filter(function(x){return x.quiz===true||x.quiz===false;}).slice(-5),rate=q.length?q.filter(function(x){return x.quiz;}).length/q.length:null,level=base;
+ if(rate!==null&&q.length>=2){if(rate>=.8)level=Math.min(3,base+1);else if(rate<.5)level=Math.max(0,base-1);}
+ var counts={};SUBJ.forEach(function(k){counts[k]=0;});src.forEach(function(x){if(counts[x.subject]!==undefined)counts[x.subject]++;});
+ var fav=SUBJ.slice().sort(function(p,q2){return counts[q2]-counts[p];})[0];
+ return {level:level,base:base,rate:rate,n:src.length,fav:fav,counts:counts,fromOpens:!H.length};}
+function todayBook(){
+ var band=demoBand(),bi=BANDS.indexOf(band),P=null,mode='none',stretch=false,pool,di=dayIdx();
+ if(bi>=0)mode='test';else{P=inferProfile();if(P){mode='habit';bi=P.level;}}
+ if(mode==='none')pool=CAT.filter(function(b){return b.band===BANDS[0]||b.band===BANDS[1];});
+ else{stretch=(di%4===3&&bi<3&&(mode==='test'||(P.n>=3&&(P.rate===null||P.rate>=.6))));pool=CAT.filter(function(b){return b.band===BANDS[stretch?bi+1:bi];});}
+ var order=SUBJ.map(function(x,i){return SUBJ[(di+i)%6];}),variety=false;
+ if(mode==='habit'){variety=(di%3===0&&P.n>=3);order=SUBJ.slice().sort(function(p,q2){return variety?(P.counts[p]-P.counts[q2]):(P.counts[q2]-P.counts[p]);});}
+ var pick=null;
+ for(var k=0;k<order.length&&!pick;k++){var c=pool.filter(function(b){return b.subject===order[k]&&!bookState(b.slug).fin;});if(c.length)pick=c[0];}
+ pick=pick||pool[di%pool.length];
+ var R;
+ if(mode==='none')R={en:'Take the quick reading test and we will pick books at your level.',cn:'先做阅读水平测试，我们会按你的水平选书。',en2:'',cn2:''};
+ else if(mode==='test')R={en:'Picked for your level: '+band,cn:'根据你的阅读水平测试挑选：'+LEVELCN[band],en2:'',cn2:''};
+ else{var sj=pick.subject,scn=SCN[sj][0];
+  var main=stretch?['A little harder, just for you','比你平时读的稍微难一点']:variety?['Something new to try: '+sj,'换个新科目试试：'+scn]:(sj===P.fav&&P.counts[sj]>0)?['Because you enjoy '+sj+' books','因为你喜欢'+scn+'类的书']:['Picked from your reading habits','根据你的阅读习惯挑选'];
+  var src=P.fromOpens?['the shelves you browse','你浏览过的书架']:['the '+P.n+' book'+(P.n>1?'s':'')+' you read','你读过的 '+P.n+' 本书'];
+  R={en:main[0],cn:main[1],en2:'Matched to '+BANDS[bi]+', based on '+src[0]+(P.n<3?'. Read a few more and it gets better!':'.'),cn2:'根据'+src[1]+'匹配：'+LEVELCN[BANDS[bi]]+(P.n<3?'。多读几本，推荐会更准！':'。')};}
+ return {book:pick,stretch:stretch,band:band,mode:mode,reason:R};}
+var simIdx=-1;
+function curBook(){return simIdx<0?todayBook().book:CAT[simIdx];}
+function award(n){var D=dayState(),ok=Math.max(0,Math.min(n,CAP-D.earned));D.earned+=ok;saveJ('lef_day_v1',D);st.stars+=ok;save();return ok;}
+function renderBotd(){
+ var el=$('botd');if(!el)return;var t=todayBook(),b=t.book,bonus=t.stretch?3:2,R=t.reason;
+ var opts=['<option value="">No test yet</option>'].concat(BANDS.map(function(x){return '<option value="'+x+'"'+(demoBand()===x?' selected':'')+'>'+x+'</option>';})).join('');
+ var hs=loadJ('lef_hseed',''),hopts=[['','No history yet'],['science','Likes Science, does well'],['struggling','Reads Math, finds it hard'],['mixed','Mixed stories, does very well']].map(function(x){return '<option value="'+x[0]+'"'+(hs===x[0]?' selected':'')+'>'+x[1]+'</option>';}).join('');
+ var who='<div style="font-weight:800;font-size:17px;color:#1E2A4A;line-height:1.35">'+R.en+'<div style="font-weight:700;font-size:15px;color:#4A5878">'+R.cn+'</div>'+(R.en2?'<div style="font-weight:700;font-size:14px;color:#4A5878;margin-top:4px">'+R.en2+'<br>'+R.cn2+'</div>':'')+(t.mode==='habit'?'<div style="margin-top:6px"><a data-level href="#level" class="rules-link">Want a more exact match? Take the level test 想要更准？做阅读水平测试</a></div>':'')+'</div>';
+ el.innerHTML='<div style="display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px 24px;margin-bottom:26px"><div style="flex:1 1 340px;min-width:0">'+who+'</div><div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end"><label style="font-weight:800;font-size:13px;color:#4A5878">PREVIEW ONLY: pretend test result <select id="demoBand">'+opts+'</select></label><label style="font-weight:800;font-size:13px;color:#4A5878">PREVIEW ONLY: pretend reading history <select id="demoHist">'+hopts+'</select></label></div></div>'
+ +'<div style="background:'+(t.stretch?'#D9CCFF':'#FFE9B0')+';border-radius:44px;padding:28px;display:flex;flex-wrap:wrap;align-items:center;gap:36px;box-shadow:0 8px 0 '+(t.stretch?'#A892EA':'#E8B84A')+';position:relative">'
+ +'<div style="position:absolute;left:22px;top:-18px;background:'+(t.stretch?'#5238C4':'#D93B1E')+';color:#fff;font-weight:800;font-size:15px;padding:9px 20px;border-radius:999px;transform:rotate(-3deg)">'+(t.stretch?'Stretch book':'Book of the day')+'</div>'
+ +'<img src="'+b.cover+'" alt="'+b.title+' cover" style="flex:0 1 380px;width:380px;max-width:100%;aspect-ratio:700/520;object-fit:cover;border-radius:28px;border:6px solid #fff;box-sizing:border-box;transform:rotate(-2deg);box-shadow:0 8px 0 rgba(0,0,0,.12)">'
+ +'<div style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:14px"><h2 style="margin:0;font-family:Fredoka,sans-serif;font-weight:700;font-size:44px;line-height:1.05">'+b.title+'</h2><p style="margin:0;font-size:20px;font-weight:700;color:#3A3A52">'+(b.subtitle||'')+'</p>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:8px"><span class="bp">'+b.subject+' · '+b.grade+'</span><span class="bp">'+b.minutes+'</span><span class="bp">'+b.band+'</span></div>'
+ +'<div style="font-weight:800;font-size:17px">Finish it to earn <span style="background:#fff;border-radius:999px;padding:3px 12px;border:2px solid #FFC93C">+'+bonus+' bonus stars</span></div>'
+ +'<div><a class="btn read-now" href="#book" style="display:inline-flex;align-items:center;gap:10px;background:#D93B1E;color:#fff;font-weight:800;font-size:20px;padding:17px 32px;border-radius:999px;box-shadow:0 6px 0 #9E2810">Read now</a></div></div></div>';
+ Array.prototype.forEach.call(el.querySelectorAll('.bp'),function(x){x.style.cssText='background:#fff;border-radius:999px;padding:8px 16px;font-weight:800';});
+ $('demoBand').onchange=function(){saveJ('lef_demo_band',this.value||null);simIdx=-1;renderBotd();};$('demoHist').onchange=function(){seedHist(this.value);};}
+
+function seedHist(v){
+ var mk=function(sj,band,g,q,n0){return {slug:'seed-'+n0,subject:sj,band:band,grade:g,quiz:q,t:Date.now()};},H=[];
+ if(v==='science')H=[mk('Science','Early Reader','Grade 1',true,1),mk('Science','Early Reader','Grade 1',true,2),mk('Science','Early Reader','Grade 1',true,3),mk('Science','Early Reader','Grade 1',true,4)];
+ else if(v==='struggling')H=[mk('Math','Beginning Reader','Kindergarten',false,1),mk('Math','Beginning Reader','Kindergarten',false,2),mk('Math','Beginning Reader','Kindergarten',true,3)];
+ else if(v==='mixed')H=[mk('Fiction','Growing Reader','Grade 2',true,1),mk('SEL','Growing Reader','Grade 2',true,2),mk('Fiction','Growing Reader','Grade 2',true,3)];
+ saveJ('lef_hist_v1',H);saveJ('lef_hseed',v);saveJ('lef_opens_v1',[]);saveJ('lef_demo_band',null);simIdx=-1;renderBotd();}
+
+function closeModal(){$('modal').style.display='none';$('modal').innerHTML='';renderHomePet();renderBotd();if(window.shelfTop)shelfTop();}
+function openModal(h){var m=$('modal');m.innerHTML='<div class="mp"><button class="x" aria-label="Close" id="mx">&times;</button>'+h+'</div>';m.style.display='flex';$('mx').onclick=closeModal;m.onclick=function(e){if(e.target===m)closeModal();};}
+function row(t,cn,p){return '<div class="row"><div class="t">'+t+'<small>'+cn+'</small></div><div class="pill">'+p+'</div></div>';}
+var STAR='★';
+function openRules(){openModal('<h2>How do stars work? <span style="font-size:22px;color:#4A5878">怎么赚星星？</span></h2>'
+ +'<h3>Earn stars 赚星星</h3>'
+ +row('Finish a book (all 3 practices: Reading, Grammar, Vocabulary)','读完一本书（完成阅读、语法、词汇三个练习）','+1')
+ +row('Finish a Reading, Grammar or Vocabulary practice (up to 2 per book)','完成一个阅读、语法或词汇练习（每本书最多 2 个）','+1 each')
+ +row('Get 80% or more of the questions right on the first try','一次答对 80% 以上的题目','+2')
+ +row('Your first book of the day','今天读的第一本书','+1')
+ +row('Finish the Book of the day','读完“今日一本”','+2')
+ +row('Finish a Stretch book (a bit harder, just for you)','读完“挑战书”（稍微难一点）','+3')
+ +row('Review a question you missed (up to 3 a day)','复习一道错题（每天最多 3 道）','+1 each')
+ +'<div class="note">You can earn up to <b>10 stars a day</b>. Re-reading a book is fine, but it will not give new stars.<small>每天最多能赚 10 颗星。重读一本书可以，但不会再得新的星星。</small></div>'
+ +'<h3>Use stars 花星星</h3>'
+ +row('Feed your pet what its kind loves: favorite 2, everyday snacks 1, special treat 3','给宠物喘它们爱吃的东西：最爱 2 颗，日常零食 1 颗，特别奖励 3 颗','1–3')
+ +row('Clothes and toys: hats 3–6, glasses 4–5, scarves and ties 4–5, toys 5–7','衣服和玩具：帽子 3–6，眼镜 4–5，围巾领结 4–5，玩具 5–7','3–7')
+ +'<div class="note">If you do not read for a few days, your pet gets sleepy and misses you. It never gets sick and never goes away. Read a book and it cheers up right away!<small>几天不读书，宠物会犯困，想你。它不会生病，也不会消失。读一本书，它马上就开心起来！</small></div>');}
+function openReader(b){
+ var D=dayState(),bs=bookState(b.slug),t=todayBook(),isB=b.slug===t.book.slug,log=[];
+ function draw2(){D=dayState();bs=bookState(b.slug);
+  var h='<h2>Pretend reading <span style="font-size:20px;color:#4A5878">模拟阅读</span></h2><p style="margin:4px 0 14px;font-weight:700;color:#4A5878">Preview only. In the real site these happen while a child reads.<br>仅预览用：真实网站里，这些会在孩子阅读时自动发生。</p>'
+  +'<div style="display:flex;gap:14px;align-items:center;margin-bottom:14px"><img src="'+b.cover+'" alt="" style="width:130px;border-radius:16px;border:4px solid #fff;box-shadow:0 0 0 2px #D5E3F0"><div><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:26px;line-height:1.1">'+b.title+'</div><div style="font-weight:700;color:#4A5878">'+b.subject+' · '+b.grade+(isB?' · Book of the day':'')+'</div></div></div>'
+  +'<div style="font-weight:800">Stars today: '+D.earned+' / '+CAP+' <span style="color:#4A5878">今天已得</span></div><div class="bar2"><i style="width:'+(D.earned/CAP*100)+'%"></i></div>'
+  +'<h3 style="margin-top:16px">Do something 试试看</h3>'
+  +act('listen','Finish the Listen activity 完成听力练习',bs.listen,'+1')
+  +act('vocab','Finish the Vocabulary activity 完成词汇练习',bs.vocab,'+1')
+  +act('finish','Finish reading the book 读完这本书',bs.fin,'+1')
+  +act('quiz5','Quiz: 5 of 5 correct 测验：全部答对',bs.quiz,'+2')
+  +act('quiz3','Quiz: 3 of 5 correct (60%) 测验：答对 3 题',0,'try')
+  +act('review','Review a missed question 复习一道错题',D.reviews>=3,'+1 ('+D.reviews+'/3)')
+  +'<div class="log" id="rlog">'+log.join('<br>')+'</div>'
+  +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="rr">How do stars work? 怎么赚星星？</button><button class="rules-btn" id="rn">Try a different book 换一本</button></div>';
+  openModal(h);
+  Array.prototype.forEach.call(document.querySelectorAll('#modal .act'),function(x){x.onclick=function(e){doAct(x.dataset.k,e);};});
+  $('rr').onclick=openRules;
+  $('rn').onclick=function(){var tb=todayBook().book.slug,i=simIdx,n=0;do{i=(i+1)%CAT.length;n++;}while(n<CAT.length&&(CAT[i].slug===tb||bookState(CAT[i].slug).fin));simIdx=i;openReader(CAT[i]);};}
+ function act(k,label,done,p){return '<button class="act" data-k="'+k+'"'+(done?' disabled':'')+'><span>'+(done&&k!=='review'?'✓ ':'')+label+'</span><span class="pill">'+p+'</span></button>';}
+ function say2(t){log.unshift(t);if(log.length>5)log.pop();}
+ function doAct(k,e){var n=0,why='';D=dayState();
+  if(k==='listen'&&!bs.listen){bs.listen=1;n=1;why='Listen activity';}
+  else if(k==='vocab'&&!bs.vocab){bs.vocab=1;n=1;why='Vocabulary activity';}
+  else if(k==='finish'&&!bs.fin){bs.fin=1;n=1;why='Finished the book';addHist(b);if(!D.books.length){n+=1;why+=' + first book today';}
+    if(isB){var x=t.stretch?3:2;n+=x;why+=' + '+(t.stretch?'Stretch book':'Book of the day')+' bonus';}
+    D.books.push(b.slug);saveJ('lef_day_v1',D);}
+  else if(k==='quiz5'&&!bs.quiz){bs.quiz=1;n=2;why='Quiz 80%+';addHist(b);setQuiz(b.slug,true);}
+  else if(k==='quiz3'){addHist(b);setQuiz(b.slug,false);say2('3 of 5 is 60%. Get 80% or more to earn stars! 再试一次吧！');draw2();return;}
+  else if(k==='review'&&D.reviews<3){D.reviews++;saveJ('lef_day_v1',D);n=1;why='Reviewed a question';}
+  setBook(b.slug,bs);
+  var got=award(n);
+  if(n>0&&got<n)say2(got>0?'+'+got+' '+STAR+' ('+why+'). Daily limit reached! 今天的星星已达上限。':'Daily limit reached (10). Come back tomorrow! 今天的星星已达上限，明天再来！');
+  else if(got>0)say2('+'+got+' '+STAR+' '+why);
+  if(got>0){snd();burst(e.clientX,e.clientY);if(st.type){homeBubble('Yay! +'+got+' stars!');clearTimeout(bubbleT);bubbleT=setTimeout(function(){bubbleT=null;renderHomePet();},2500);}}
+  draw2();}
+ draw2();}
+
+FOOD['milk']='<path d="M18 22L22 8H38L42 22Z" fill="#fff" stroke="#4A5878" stroke-width="3" stroke-linejoin="round"/><rect x="16" y="22" width="28" height="30" rx="3" fill="#fff" stroke="#4A5878" stroke-width="3"/><rect x="17.5" y="33" width="25" height="10" fill="#6FB6F2"/>';
+FOOD['chicken']='<ellipse cx="26" cy="26" rx="16" ry="14" fill="#D98A3D" stroke="#8A4F14" stroke-width="3" transform="rotate(-30 26 26)"/><path d="M36 38L47 49" stroke="#F7E8CF" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="51" r="4" fill="#F7E8CF" stroke="#B7A07A" stroke-width="2"/>';
+FOOD['tuna']='<ellipse cx="30" cy="20" rx="20" ry="7" fill="#C9D4EA" stroke="#4A5878" stroke-width="3"/><path d="M10 20V42Q10 49 30 49Q50 49 50 42V20" fill="#8FA6C8" stroke="#4A5878" stroke-width="3"/><path d="M18 33Q30 26 42 33Q30 40 18 33Z" fill="#6FB6F2" stroke="#1F78BC" stroke-width="2"/>';
+FOOD['biscuit']='<circle cx="30" cy="30" r="20" fill="#E0B070" stroke="#9A6B2E" stroke-width="3"/><circle cx="22" cy="24" r="2.5" fill="#9A6B2E"/><circle cx="36" cy="22" r="2.5" fill="#9A6B2E"/><circle cx="26" cy="37" r="2.5" fill="#9A6B2E"/><circle cx="38" cy="34" r="2.5" fill="#9A6B2E"/>';
+FOOD['sausage']='<path d="M10 40Q8 20 24 16Q44 12 50 28Q52 46 32 48Q14 52 10 40Z" fill="#E8715A" stroke="#9E3A28" stroke-width="3"/><path d="M22 25Q28 22 35 26" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6" fill="none"/>';
+FOOD['steak']='<path d="M8 32Q8 14 28 12Q52 12 52 30Q52 50 30 50Q8 50 8 32Z" fill="#D9534F" stroke="#8A2A27" stroke-width="3"/><ellipse cx="32" cy="30" rx="9" ry="7" fill="#F4B6B4" stroke="#8A2A27" stroke-width="2"/>';
+FOOD['worm']='<path d="M10 40Q14 24 24 36Q32 46 40 30Q46 20 52 28" fill="none" stroke="#E98FB1" stroke-width="9" stroke-linecap="round"/><path d="M12 40Q16 28 24 37Q32 45 40 31" fill="none" stroke="#C0577F" stroke-width="2" stroke-dasharray="3 5"/><circle cx="50" cy="26" r="1.8" fill="#1E2A4A"/>';
+FOOD['lettuce']='<path d="M10 40Q6 20 24 14Q36 8 48 18Q56 32 44 46Q28 54 10 40Z" fill="#8BD65A" stroke="#3C8B21" stroke-width="3"/><path d="M14 40Q28 30 44 20M26 36L22 24M34 30L38 40" stroke="#3C8B21" stroke-width="2.5" stroke-linecap="round" fill="none"/>';
+FOOD['nuts']='<path d="M14 24Q8 14 18 10Q28 8 28 20Q34 22 40 18Q50 16 50 26Q50 34 40 36Q36 46 26 46Q14 46 14 34Q10 30 14 24Z" fill="#E0B070" stroke="#9A6B2E" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="27" r="1.8" fill="#9A6B2E"/><circle cx="37" cy="29" r="1.8" fill="#9A6B2E"/>';
+FOOD['grapes']='<path d="M30 6Q30 14 28 18" stroke="#6B4A1E" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30 10Q40 4 46 10Q40 16 30 10Z" fill="#7ED957" stroke="#3C8B21" stroke-width="2"/><circle cx="20" cy="24" r="8" fill="#9B6BDE" stroke="#5B3FA0" stroke-width="2.5"/><circle cx="36" cy="24" r="8" fill="#9B6BDE" stroke="#5B3FA0" stroke-width="2.5"/><circle cx="28" cy="34" r="8" fill="#9B6BDE" stroke="#5B3FA0" stroke-width="2.5"/><circle cx="42" cy="34" r="8" fill="#9B6BDE" stroke="#5B3FA0" stroke-width="2.5"/><circle cx="35" cy="44" r="8" fill="#9B6BDE" stroke="#5B3FA0" stroke-width="2.5"/>';
+FOOD['clover']='<path d="M30 34Q30 48 36 54" stroke="#3C8B21" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="21" cy="28" r="9" fill="#7ED957" stroke="#3C8B21" stroke-width="3"/><circle cx="39" cy="28" r="9" fill="#7ED957" stroke="#3C8B21" stroke-width="3"/><circle cx="30" cy="17" r="9" fill="#7ED957" stroke="#3C8B21" stroke-width="3"/>';
+FOOD['strawberry']='<path d="M30 52Q10 40 12 24Q14 14 30 16Q46 14 48 24Q50 40 30 52Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="3"/><path d="M20 16L26 8L30 14L34 8L40 16Z" fill="#7ED957" stroke="#3C8B21" stroke-width="2.5" stroke-linejoin="round"/><circle cx="24" cy="28" r="1.7" fill="#FFE3A3"/><circle cx="36" cy="30" r="1.7" fill="#FFE3A3"/><circle cx="30" cy="39" r="1.7" fill="#FFE3A3"/>';
+FOOD['fern']='<path d="M30 54Q30 30 36 8" stroke="#3C8B21" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M30 44L18 40M30 44L42 40M31 34L19 29M31 34L43 29M33 24L23 19M33 24L43 19" stroke="#7ED957" stroke-width="5" stroke-linecap="round"/>';
+FOOD['watermelon']='<path d="M6 22Q30 58 54 22Z" fill="#FF6B7A" stroke="#2F8F55" stroke-width="3" stroke-linejoin="round"/><path d="M8 25Q30 58 52 25" fill="none" stroke="#7ED957" stroke-width="5"/><circle cx="22" cy="28" r="1.8" fill="#1E2A4A"/><circle cx="30" cy="34" r="1.8" fill="#1E2A4A"/><circle cx="38" cy="28" r="1.8" fill="#1E2A4A"/>';
+var FCN={"fish": "鱼", "bone": "骨头", "bug": "小虫", "berry": "浆果", "carrot": "胡萝卜", "leaf": "树叶", "apple": "苹果", "cake": "蛋糕", "banana": "香蕉", "milk": "牛奶", "chicken": "鸡腿", "tuna": "金枪鱼罐头", "biscuit": "饼干", "sausage": "香肠", "steak": "牛排", "worm": "蚕蚓", "lettuce": "生菜", "nuts": "花生", "grapes": "葡萄", "clover": "三叶草", "strawberry": "草莓", "fern": "蕨类", "watermelon": "西瓜"};
+Object.assign(FNAME,{"milk": "Milk", "chicken": "Chicken", "tuna": "Tuna can", "biscuit": "Biscuit", "sausage": "Sausage", "steak": "Steak", "worm": "Worm", "lettuce": "Lettuce", "nuts": "Peanuts", "grapes": "Grapes", "clover": "Clover", "strawberry": "Strawberry", "fern": "Fern", "watermelon": "Watermelon"});
+
+var MENU={cat:['fish','milk','chicken','tuna'],dog:['bone','sausage','biscuit','steak'],lizard:['bug','worm','lettuce','berry'],monkey:['banana','apple','nuts','grapes'],bunny:['carrot','lettuce','clover','strawberry'],dino:['leaf','fern','watermelon','berry']};
+var FCOST=[2,1,1,3],FGAIN=[35,20,20,50];
+var LIKES={cat:'Cats love fish, milk and chicken. 猫爱吃鱼、牛奶和鸡肉。',dog:'Dogs love bones, sausages and biscuits. 狗爱吃骨头、香肠和饼干。',lizard:'Lizards love bugs, worms and leafy greens. 蜥蜴爱吃小虫、蚕蚓和绿叶菜。',monkey:'Monkeys love bananas, apples and nuts. 猴子爱吃香蕉、苹果和坚果。',bunny:'Bunnies love carrots, lettuce and clover. 兔子爱吃胡萝卜、生菜和三叶草。',dino:'This plant-eating dino loves leaves, ferns and melon. 这只食草恐龙爱吃树叶、蕨类和西瓜。'};
+var ANC={cat:{hx:60,hy:30,hs:1,ey:62,edx:19,er:10,ny:100},dog:{hx:60,hy:26,hs:1,ey:58,edx:20,er:10,ny:104},lizard:{hx:60,hy:34,hs:.8,ey:40,edx:26,er:12,ny:104},monkey:{hx:60,hy:24,hs:1,ey:62,edx:17,er:9.5,ny:102},bunny:{hx:60,hy:38,hs:.75,ey:68,edx:19,er:10,ny:106},dino:{hx:60,hy:32,hs:1,ey:56,edx:21,er:10,ny:104}};
+function G(a,inner){return '<g transform="translate('+a.hx+','+a.hy+') scale('+a.hs+')">'+inner+'</g>';}
+var ITEMS={
+ party:{slot:'hat',name:'Party hat',cn:'派对帽',price:4,vb:'20 -4 80 54',a:{hx:60,hy:46,hs:1},draw:function(a){return G(a,'<path d="M-16 2L0 -40L16 2Z" fill="#FF6B9A" stroke="#B02A5A" stroke-width="3" stroke-linejoin="round"/><circle cx="-5" cy="-14" r="3" fill="#FFC93C"/><circle cx="5" cy="-8" r="3" fill="#3DA5F4"/><circle cx="0" cy="-42" r="5.5" fill="#FFC93C" stroke="#B26A00" stroke-width="2"/>');}},
+ crown:{slot:'hat',name:'Crown',cn:'王冠',price:6,vb:'20 8 80 46',a:{hx:60,hy:46,hs:1},draw:function(a){return G(a,'<path d="M-18 2L-20 -22L-9 -12L0 -28L9 -12L20 -22L18 2Z" fill="#FFC93C" stroke="#B26A00" stroke-width="3" stroke-linejoin="round"/><circle cx="0" cy="-8" r="3.5" fill="#FF6B9A"/><circle cx="-10" cy="-4" r="2.5" fill="#3DA5F4"/><circle cx="10" cy="-4" r="2.5" fill="#3DA5F4"/>');}},
+ flower:{slot:'hat',name:'Flower',cn:'小花',price:3,vb:'20 14 80 50',a:{hx:36,hy:38,hs:1.2},draw:function(a){var x=a.hx+26*a.hs,y=a.hy+4*a.hs,p='';for(var i=0;i<5;i++){var t=i*1.2566;p+='<circle cx="'+(Math.cos(t)*7).toFixed(1)+'" cy="'+(Math.sin(t)*7).toFixed(1)+'" r="6" fill="#FF8FB1" stroke="#C0577F" stroke-width="2"/>';}return '<g transform="translate('+x+','+y+') scale('+a.hs+')">'+p+'<circle r="5" fill="#FFC93C" stroke="#B26A00" stroke-width="2"/></g>';}},
+ glasses:{slot:'face',name:'Round glasses',cn:'圆眼镜',price:4,vb:'20 20 80 40',a:{ey:40,edx:20,er:10},draw:function(a){var x1=60-a.edx,x2=60+a.edx,r=a.er+2;return '<g stroke="#1E2A4A" stroke-width="3" stroke-linecap="round"><circle cx="'+x1+'" cy="'+a.ey+'" r="'+r+'" fill="rgba(255,255,255,.35)"/><circle cx="'+x2+'" cy="'+a.ey+'" r="'+r+'" fill="rgba(255,255,255,.35)"/><path d="M'+(x1+r)+' '+a.ey+'H'+(x2-r)+'M'+(x1-r)+' '+a.ey+'L'+(x1-r-8)+' '+(a.ey-3)+'M'+(x2+r)+' '+a.ey+'L'+(x2+r+8)+' '+(a.ey-3)+'" fill="none"/></g>';}},
+ shades:{slot:'face',name:'Cool shades',cn:'墙镜',price:5,vb:'20 20 80 40',a:{ey:40,edx:20,er:10},draw:function(a){var x1=60-a.edx,x2=60+a.edx,r=a.er+3,w=r*2.1,h=r*1.5;return '<g><rect x="'+(x1-w/2)+'" y="'+(a.ey-h/2)+'" width="'+w+'" height="'+h+'" rx="'+(r*.6)+'" fill="#1E2A4A"/><rect x="'+(x2-w/2)+'" y="'+(a.ey-h/2)+'" width="'+w+'" height="'+h+'" rx="'+(r*.6)+'" fill="#1E2A4A"/><path d="M'+(x1+w/2)+' '+a.ey+'H'+(x2-w/2)+'" stroke="#1E2A4A" stroke-width="3"/><path d="M'+(x1-w/2+3)+' '+(a.ey-h/2+4)+'l5 -0.5M'+(x2-w/2+3)+' '+(a.ey-h/2+4)+'l5 -0.5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".7"/></g>';}},
+ scarf:{slot:'neck',name:'Scarf',cn:'围巾',price:5,vb:'16 94 90 50',a:{ny:104},draw:function(a){return '<g transform="translate(0,'+(a.ny-104)+')"><path d="M24 102Q60 120 96 102L98 116Q60 134 22 116Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="3" stroke-linejoin="round"/><path d="M40 110L43 124M60 114L62 128M80 110L83 124" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/><path d="M78 120L84 142L98 138L92 116Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="3" stroke-linejoin="round"/></g>';}},
+ bowtie:{slot:'neck',name:'Bow tie',cn:'领结',price:4,vb:'26 98 68 36',a:{ny:104},draw:function(a){return '<g transform="translate(60,'+(a.ny+8)+')"><path d="M0 0L-20 -10V10Z M0 0L20 -10V10Z" fill="#7A5AF8" stroke="#4A2FB8" stroke-width="3" stroke-linejoin="round"/><circle r="5" fill="#A58BF5" stroke="#4A2FB8" stroke-width="3"/></g>';}},
+ bandana:{slot:'neck',name:'Bandana',cn:'头巾',price:4,vb:'20 94 80 50',a:{ny:104},draw:function(a){var y=a.ny;return '<g><path d="M26 '+(y-2)+'Q60 '+(y+10)+' 94 '+(y-2)+'L60 '+(y+30)+'Z" fill="#3DA5F4" stroke="#1F78BC" stroke-width="3" stroke-linejoin="round"/><circle cx="50" cy="'+(y+7)+'" r="2.6" fill="#fff"/><circle cx="70" cy="'+(y+7)+'" r="2.6" fill="#fff"/><circle cx="60" cy="'+(y+17)+'" r="2.6" fill="#fff"/></g>';}},
+ ball:{slot:'toy',name:'Ball',cn:'球',price:5,toy:'<circle cx="30" cy="32" r="22" fill="#FF6B4A" stroke="#B02A12" stroke-width="3"/><path d="M9 26Q30 42 51 26" fill="none" stroke="#fff" stroke-width="4"/><path d="M12 44Q30 30 48 44" fill="none" stroke="#fff" stroke-width="4"/>'},
+ teddy:{slot:'toy',name:'Teddy bear',cn:'小熊',price:7,toy:'<circle cx="14" cy="14" r="8" fill="#B07A4A" stroke="#6B4423" stroke-width="3"/><circle cx="46" cy="14" r="8" fill="#B07A4A" stroke="#6B4423" stroke-width="3"/><circle cx="30" cy="32" r="21" fill="#B07A4A" stroke="#6B4423" stroke-width="3"/><circle cx="30" cy="38" r="9" fill="#F2D3A8"/><circle cx="22" cy="28" r="3" fill="#1E2A4A"/><circle cx="38" cy="28" r="3" fill="#1E2A4A"/><ellipse cx="30" cy="35" rx="3.5" ry="2.6" fill="#1E2A4A"/>'},
+ car:{slot:'toy',name:'Toy car',cn:'玩具车',price:6,toy:'<path d="M16 28L22 14H40L46 28Z" fill="#BDEBF2" stroke="#1F78BC" stroke-width="3" stroke-linejoin="round"/><rect x="6" y="26" width="48" height="16" rx="6" fill="#3DA5F4" stroke="#1F78BC" stroke-width="3"/><circle cx="18" cy="44" r="7" fill="#1E2A4A"/><circle cx="42" cy="44" r="7" fill="#1E2A4A"/><circle cx="18" cy="44" r="2.5" fill="#fff"/><circle cx="42" cy="44" r="2.5" fill="#fff"/>'},
+ balloon:{slot:'toy',name:'Balloon',cn:'气球',price:5,toy:'<ellipse cx="30" cy="22" rx="16" ry="19" fill="#FFC93C" stroke="#B26A00" stroke-width="3"/><path d="M30 41L26 47H34Z" fill="#B26A00"/><path d="M30 47Q22 54 30 60" fill="none" stroke="#4A5878" stroke-width="2.5"/><path d="M22 14Q24 10 28 9" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>'}
+};
+var SLOTORDER=['neck','face','hat'];
+function accs(t,acc){if(!acc)return '';var A=ANC[t],o='';SLOTORDER.forEach(function(sl){var it=ITEMS[acc[sl]];if(it&&it.slot===sl)o+=it.draw(A);});return o;}
+function toysHTML(){var pos=['left:-26px','right:-26px'];return st.toys.slice(0,2).map(function(id,i){var it=ITEMS[id];return it?'<button class="toy" style="'+pos[i]+'" aria-label="Play with '+it.name+'"><svg viewBox="0 0 60 60" aria-hidden="true">'+it.toy+'</svg></button>':'';}).join('');}
+function playToy(e){burst(e.clientX,e.clientY);snd();var p=$('pet');if(p){p.classList.remove('bob');p.classList.add('jump');setTimeout(function(){p.classList.remove('jump');if(mood()==='happy')p.classList.add('bob');},650);}say(mood()==='happy'?'Wheee! Playing is so fun!':'Thanks for playing with me!');}
+function thumb(id){var it=ITEMS[id];if(it.toy)return '<svg viewBox="0 0 60 60" aria-hidden="true">'+it.toy+'</svg>';return '<svg viewBox="'+it.vb+'" aria-hidden="true">'+it.draw(it.a)+'</svg>';}
+var SMALLSTAR=starSvg.replace('width="22" height="22"','width="16" height="16"');
+function renderShop(){
+ Array.prototype.forEach.call(document.querySelectorAll('#shopTabs button'),function(b){b.classList.toggle('on',b.dataset.tab===st.tab);b.onclick=function(){st.tab=b.dataset.tab;renderShop();};});
+ var el=$('foods'),h='';
+ var nt=$('shopNote');if(nt){nt.style.display=st.tab==='food'?'block':'none';nt.textContent=LIKES[st.type]||'';}
+ if(st.tab==='food'){var fl=MENU[st.type];
+  h=fl.map(function(f,i){var c=FCOST[i];return '<button class="food" data-f="'+f+'" data-i="'+i+'" '+(st.stars<c||st.busy?'disabled':'')+'><svg viewBox="0 0 60 60" aria-hidden="true">'+FOOD[f]+'</svg>'+FNAME[f]+(i===0?'<span class="fav">fave</span>':'')+'<div style="font-weight:700;font-size:13px;color:#4A5878">'+FCN[f]+'</div><small>'+SMALLSTAR+c+'</small></button>';}).join('');
+  el.innerHTML=h;Array.prototype.forEach.call(el.querySelectorAll('.food'),function(b){b.onclick=function(e){feed(+b.dataset.i,e);};});return;}
+ var ids=Object.keys(ITEMS).filter(function(k){return st.tab==='toys'?ITEMS[k].slot==='toy':ITEMS[k].slot!=='toy';});
+ h=ids.map(function(id){var it=ITEMS[id],own=st.owned.indexOf(id)>=0,on=it.slot==='toy'?st.toys.indexOf(id)>=0:st.eq[it.slot]===id,dis=!own&&st.stars<it.price;
+  var status=own?(on?'<span class="st" style="color:#2E6B43">Using ✓</span>':'<span class="st">Owned</span>'):'<span class="st">'+SMALLSTAR+it.price+'</span>';
+  return '<button class="food'+(on?' on':'')+'" data-id="'+id+'" '+(dis?'disabled':'')+'>'+thumb(id)+it.name+'<div style="font-weight:700;font-size:13px;color:#4A5878">'+it.cn+'</div>'+status+'</button>';}).join('');
+ el.innerHTML=h;Array.prototype.forEach.call(el.querySelectorAll('.food'),function(b){b.onclick=function(e){buyItem(b.dataset.id,e);};});}
+function buyItem(id,e){var it=ITEMS[id],own=st.owned.indexOf(id)>=0;
+ if(!own){if(st.stars<it.price){say('You need '+(it.price-st.stars)+' more stars. Read a book!');return;}st.stars-=it.price;st.owned.push(id);burst(e.clientX,e.clientY);snd();
+  if(it.slot==='toy'){st.toys.push(id);if(st.toys.length>2)st.toys.shift();}else st.eq[it.slot]=id;
+  render();say(it.slot==='toy'?'A new toy! Let’s play!':'I love it! Do I look cute?');return;}
+ snd();
+ if(it.slot==='toy'){var i=st.toys.indexOf(id);if(i>=0)st.toys.splice(i,1);else{st.toys.push(id);if(st.toys.length>2)st.toys.shift();}}
+ else{if(st.eq[it.slot]===id)delete st.eq[it.slot];else st.eq[it.slot]=id;}
+ render();say('Looking good!');}
+
+
+var RQ=[{q:'Which word means "very big"?',cn:'哪个词的意思是“非常大”？',o:['tiny','huge','quiet'],a:1,tag:'Vocabulary'},
+{q:'Choose the correct sentence.',cn:'选出正确的句子。',o:['She go to school.','She goes to school.','She going to school.'],a:1,tag:'Grammar'},
+{q:'What is the past tense of "jump"?',cn:'“jump”的过去式是什么？',o:['jumpt','jumping','jumped'],a:2,tag:'Grammar'}];
+function openReview(skip){
+ var D=dayState();
+ if(!skip&&D.reviews===0&&!D.introSeen){D.introSeen=1;saveJ('lef_day_v1',D);reviewIntro();return;}
+ if(D.reviews>=3){openModal('<h2>All done for today! <span style="font-size:22px;color:#4A5878">今天的复习完成啦！</span></h2><p style="font-weight:700;font-size:18px;line-height:1.5">Great job. Come back tomorrow for new review cards.<br><span style="color:#4A5878">做得好！明天再来复习新的题目。</span></p><button class="rules-btn" id="rvok">OK</button>');$('rvok').onclick=closeModal;return;}
+ var q=RQ[D.reviews%RQ.length],chosen=-1;
+ function show(fb){
+  var h='<h2>Smart review <span style="font-size:22px;color:#4A5878">智能复习</span></h2><p style="margin:4px 0 14px;font-weight:700;color:#4A5878">Questions you missed before come back here. Question '+(D.reviews+1)+' of 3. <br>之前答错的题目会回到这里。第 '+(D.reviews+1)+' 题，共 3 题。</p>'
+   +'<div style="font-weight:800;color:#6A48E8;text-transform:uppercase;font-size:13px;letter-spacing:.06em">'+q.tag+'</div><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:28px;line-height:1.2;margin:4px 0 2px">'+q.q+'</div><div style="font-weight:700;color:#4A5878;margin-bottom:12px">'+q.cn+'</div>'
+   +q.o.map(function(t,i){var cls='act';return '<button class="'+cls+'" data-i="'+i+'"'+(fb==='ok'?' disabled':'')+'><span>'+t+'</span></button>';}).join('')
+   +'<div class="log" id="rvfb">'+(fb==='ok'?'Correct! 答对了！':fb==='no'?'Not yet. Try again! 再想想，再试一次！':'')+'</div>'
+   +(fb==='ok'?'<button class="rules-btn" id="rvnext">Next 下一题</button>':'')+'<div style="margin-top:12px"><button class="rules-link" id="rvhelp">How smart review works 怎么复习</button></div>';
+  openModal(h);
+  Array.prototype.forEach.call(document.querySelectorAll('#modal .act'),function(b){b.onclick=function(e){pick(+b.dataset.i,e);};});
+  var nx=$('rvnext');if(nx)nx.onclick=function(){openReview();};var hp=$('rvhelp');if(hp)hp.onclick=reviewIntro;
+  if(fb==='ok'){var ch=document.querySelector('#modal .act[data-i="'+q.a+'"]');if(ch)ch.style.borderColor='#35B779';}}
+ function pick(i,e){if(i!==q.a){show('no');return;}
+  var got=award(1);D=dayState();D.reviews++;saveJ('lef_day_v1',D);snd();burst(e.clientX,e.clientY);
+  show('ok');var l=$('rvfb');if(l)l.textContent='Correct! 答对了！ '+(got?'+1 ★':'(daily limit reached 今天已达上限)');
+  var nxt=$('rvnext');if(nxt&&D.reviews>=3)nxt.textContent='Finish 完成';}
+ show('');}
+
+function gstep(n,t,cn,d,dcn){return '<div class="row" style="align-items:flex-start"><div style="flex:none;width:38px;height:38px;border-radius:50%;background:#6A48E8;color:#fff;display:grid;place-items:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:20px">'+n+'</div><div class="t">'+t+' <span style="color:#4A5878">'+cn+'</span><small style="color:#1E2A4A;margin-top:4px">'+d+'</small><small>'+dcn+'</small></div></div>';}
+function openGuide(){openModal('<h2>How to use learningenglishfun <span style="font-size:20px;color:#4A5878">网站使用说明</span></h2><p style="margin:4px 0 6px;font-weight:700;color:#4A5878">Six easy steps. 六个简单步骤。</p>'
+ +gstep(1,'Find your level','阅读水平测试','Take the quick reading test. We will pick books that are just right for you.','做一个快速阅读测验，我们会给你选最合适的书。')
+ +gstep(2,'Pick a book shelf','选一个书架','Tap a subject on the shelf, choose your grade, then choose a book.','点书架上的学科，选年级，再选一本书。')
+ +gstep(3,'Read and practice','读书和练习','Every book has activities. Do them one by one, then take the quiz.','每本书都有练习，一个一个做，最后做测验。')
+ +'<div class="note" style="margin:-2px 0 8px"><b>Listen</b> 听 · <b>Speak</b> 说 · <b>Read</b> 读 · <b>Grammar</b> 语法 · <b>Vocabulary</b> 词汇<small>Listen to the story read aloud, say the words, read on your own, practice sentences, and learn new words.<br>听故事朗读，大声说出来，自己读，练习句子，学新单词。</small></div>'
+ +gstep(4,'Earn stars','赚星星','Finishing books, activities and quizzes earns you stars.','读完书、完成练习和测验都能得星星。')
+ +gstep(5,'Care for your pet','照顾你的宠物','Adopt a pet. Use stars to feed it and buy clothes and toys.','领养一只宠物，用星星给它喘食、买衣服和玩具。')
+ +gstep(6,'Smart review','智能复习','Questions you missed come back so you remember them.','答错的题目会再次出现，帮你记住。')
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="gr">How do stars work? 怎么赚星星？</button><button class="rules-btn" id="gx">Got it! 知道了</button></div>');
+ $('gr').onclick=openRules;$('gx').onclick=closeModal;}
+
+
+var GCN={'Kindergarten':'幼儿园','Grade 1':'一年级','Grade 2':'二年级','Grade 3':'三年级','Grade 4':'四年级','Grade 5':'五年级','Grade 6':'六年级'};
+var GLBL={'Kindergarten':'K','Grade 1':'1','Grade 2':'2','Grade 3':'3','Grade 4':'4','Grade 5':'5','Grade 6':'6'};
+var SCN={'Fiction':['故事','#5B3FC4','#EDE7FF','Adventure, mystery, fantasy and friendship stories.','冒险、推理、奇幻和友情故事。'],'Science':['科学','#1B2766','#DCE6FF','Animals, space, weather, ecosystems and discoveries.','动物、太空、天气、生态系统和发现。'],'SEL':['情感','#C93E74','#FFE0EC','Feelings, kindness, confidence and growth mindset.','情绪、善良、自信和成长思维。'],'Social Studies':['社会','#1F78BC','#D9EFFF','Communities, maps, citizenship, culture and economics.','社区、地图、公民、文化和经济。'],'Math':['数学','#5238C4','#E6DEFF','Fractions, measurement, geometry and problem solving.','分数、测量、几何和解题。'],'Computer Science':['计算机','#C4501F','#FFE3D4','Coding, patterns, and how smart machines (AI) follow steps and learn.','编程、规律，以及智能机器（AI）如何按步骤工作和学习。']};
+var shState={subject:null,grade:null};
+function shelfTop(){var e=$('shelfStars');if(e)e.innerHTML=st.type?'<div style="display:inline-flex;align-items:center;gap:8px;background:#FFF1C2;border:3px solid #FFC93C;border-radius:999px;padding:8px 18px;font-weight:800;font-size:20px">'+starSvgH+st.stars+'</div>':'';}
+
+
+var OL=' stroke="#1E2A4A" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
+function rays(cx,cy,r1,r2,n,col,w){var o='';for(var i=0;i<n;i++){var t=i*6.2832/n;o+='<path d="M'+(cx+Math.cos(t)*r1).toFixed(1)+' '+(cy+Math.sin(t)*r1).toFixed(1)+'L'+(cx+Math.cos(t)*r2).toFixed(1)+' '+(cy+Math.sin(t)*r2).toFixed(1)+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"/>';}return o;}
+function gearSvg(cx,cy,r,col){var o='';for(var i=0;i<8;i++){o+='<rect x="'+(cx-3.2)+'" y="'+(cy-r-4)+'" width="6.4" height="8" rx="1.5" fill="'+col+'"'+OL+' transform="rotate('+(i*45)+' '+cx+' '+cy+')"/>';}return o+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'"'+OL+'/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.42)+'" fill="#fff"'+OL+'/>';}
+function pixHeart(){var rows=['0110110','1111111','1111111','0111110','0011100','0001000'],o='';rows.forEach(function(r,y){for(var x=0;x<7;x++)if(r[x]==='1')o+='<rect x="'+(5+x*7)+'" y="'+(10+y*7)+'" width="7" height="7" fill="#FF4F86" stroke="#B3265C" stroke-width="1.2"/>';});return o;}
+var STARP='M30 6l7.200 15.600 17 2-12.600 11.600 3.400 16.800L30 43l-15 8.600 3.400-16.800L5.800 23.600l17-2z';
+var ICONS={
+'Fiction':[
+ '<path d="M6 16Q19 11 30 17V50Q19 44 6 49Z" fill="#fff"'+OL+'/><path d="M54 16Q41 11 30 17V50Q41 44 54 49Z" fill="#FFF3C4"'+OL+'/><path d="M12 24Q19 22 25 25M12 31Q19 29 25 32M35 25Q41 22 48 24M35 32Q41 29 48 31" fill="none" stroke="#8A7BC4" stroke-width="1.8" stroke-linecap="round"/><path d="M46 6l2 4.600 4.600 2-4.600 2-2 4.600-2-4.600-4.600-2 4.600-2z" fill="#FFC93C" stroke="#B26A00" stroke-width="1.4" stroke-linejoin="round"/>',
+ '<path d="M12 50L38 24" stroke="#8A5A2B" stroke-width="6" stroke-linecap="round"/><path d="M42 8l3.600 8.600 8.600 3.600-8.600 3.600L42 33l-3.600-8.600L30 20.800l8.400-3.600z" fill="#FFC93C"'+OL+'/><circle cx="14" cy="22" r="2.200" fill="#7A5AF8"/><circle cx="50" cy="44" r="2.200" fill="#FF8FB1"/>',
+ '<circle cx="20" cy="22" r="11" fill="#FFC93C"'+OL+'/><circle cx="20" cy="22" r="4" fill="#fff"'+OL+'/><path d="M28 30L46 48M40 42l5-5M45 47l5-5" fill="none" stroke="#1E2A4A" stroke-width="7" stroke-linecap="round"/><path d="M28 30L46 48M40 42l5-5M45 47l5-5" fill="none" stroke="#FFC93C" stroke-width="3.4" stroke-linecap="round"/>',
+ '<rect x="8" y="28" width="44" height="24" rx="4" fill="#B07A4A"'+OL+'/><path d="M8 28Q8 12 30 12Q52 12 52 28Z" fill="#C98B4B"'+OL+'/><rect x="26" y="26" width="8" height="12" rx="2" fill="#FFC93C"'+OL+'/><circle cx="30" cy="31" r="1.600" fill="#1E2A4A"/><path d="M12 8l1.600 3.400 3.400 1.600-3.400 1.600L12 18l-1.600-3.400L7 13l3.400-1.600z" fill="#FFC93C"/>',
+ '<rect x="16" y="24" width="28" height="28" fill="#EDE8FA"'+OL+'/><path d="M16 24V18H22V22H27V18H33V22H38V18H44V24" fill="#EDE8FA"'+OL+'/><path d="M13 24L30 8L47 24Z" fill="#E8456A"'+OL+'/><path d="M30 8V2M30 2L38 5L30 8" fill="#FFC93C" stroke="#1E2A4A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M25 52V42Q30 36 35 42V52Z" fill="#7A5AF8"'+OL+'/>',
+ '<path d="M14 44L32 6L46 44Z" fill="#7A5AF8"'+OL+'/><path d="M32 6Q42 10 44 18" fill="none" stroke="#1E2A4A" stroke-width="2.2" stroke-linecap="round"/><rect x="18" y="34" width="26" height="6" fill="#FFC93C"'+OL+'/><path d="M4 46Q30 36 56 46Q56 54 30 54Q4 54 4 46Z" fill="#5238C4"'+OL+'/><path d="M30 20l1.600 3.600 3.800.4-2.800 2.600.8 3.800L30 28.400l-3.400 2 .8-3.800-2.800-2.600 3.800-.4z" fill="#FFC93C"/>',
+ '<path d="M8 44L6 18L18 30L30 12L42 30L54 18L52 44Z" fill="#FFC93C"'+OL+'/><rect x="8" y="44" width="44" height="8" rx="2" fill="#F5A524"'+OL+'/><circle cx="30" cy="38" r="4" fill="#E8456A"'+OL+'/><circle cx="16" cy="40" r="2.600" fill="#3DA5F4"'+OL+'/><circle cx="44" cy="40" r="2.600" fill="#3DA5F4"'+OL+'/>'],
+'Science':[
+ '<circle cx="25" cy="25" r="15" fill="#BDEBF2"'+OL+'/><path d="M17 20Q20 15 26 14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M37 37L52 52" stroke="#8A5A2B" stroke-width="7" stroke-linecap="round"/>',
+ '<path d="M16 40H44L50 48Q52 54 46 54H14Q8 54 10 48Z" fill="#7FD6E6"/><path d="M22 8H38M24 8V24L10 48Q8 54 14 54H46Q52 54 50 48L36 24V8" fill="none"'+OL+'/><circle cx="26" cy="34" r="2.600" fill="#fff"'+OL+'/><circle cx="35" cy="28" r="2" fill="#fff"'+OL+'/>',
+ '<path d="M12 12V34A18 18 0 0 0 48 34V12H36V34A6 6 0 0 1 24 34V12Z" fill="#E8456A"'+OL+'/><rect x="12" y="12" width="12" height="9" fill="#C9D4EA"'+OL+'/><rect x="36" y="12" width="12" height="9" fill="#C9D4EA"'+OL+'/>',
+ '<rect x="10" y="50" width="38" height="6" rx="2" fill="#7A5AF8"'+OL+'/><path d="M40 50V40Q50 30 40 18" fill="none" stroke="#1E2A4A" stroke-width="5" stroke-linecap="round"/><g transform="rotate(25 26 22)"><rect x="19" y="6" width="14" height="28" rx="3" fill="#C9D4EA"'+OL+'/><rect x="21" y="34" width="10" height="6" rx="1" fill="#4A5878"'+OL+'/></g><rect x="14" y="44" width="22" height="4" rx="1" fill="#C9D4EA"'+OL+'/>',
+ '<g transform="rotate(-20 30 30)"><path d="M4 30A26 8 0 0 1 56 30" fill="none" stroke="#FF8FB1" stroke-width="4"/></g><circle cx="30" cy="30" r="15" fill="#FFC93C"'+OL+'/><path d="M17 26Q30 32 43 25M17 36Q30 41 43 35" fill="none" stroke="#E8A200" stroke-width="2.200"/><g transform="rotate(-20 30 30)"><path d="M4 30A26 8 0 0 0 56 30" fill="none" stroke="#FF8FB1" stroke-width="4"/></g>',
+ '<g transform="translate(30,30) rotate(35)"><path d="M0 -24Q10 -10 8 12L-8 12Q-10 -10 0 -24Z" fill="#fff"'+OL+'/><path d="M0 -24Q4 -19 5 -15L-5 -15Q-4 -19 0 -24Z" fill="#FF5C5C"/><circle cx="0" cy="-3" r="4.500" fill="#3DA5F4"'+OL+'/><path d="M-8 4L-16 16L-8 12Z M8 4L16 16L8 12Z" fill="#FF5C5C"'+OL+'/><path d="M-4 12Q0 26 4 12Z" fill="#FFC93C"'+OL+'/></g>',
+ '<ellipse cx="30" cy="30" rx="25" ry="9" fill="none" stroke="#3DA5F4" stroke-width="2.800"/><ellipse cx="30" cy="30" rx="25" ry="9" transform="rotate(60 30 30)" fill="none" stroke="#7A5AF8" stroke-width="2.800"/><ellipse cx="30" cy="30" rx="25" ry="9" transform="rotate(120 30 30)" fill="none" stroke="#FF8FB1" stroke-width="2.800"/><circle cx="30" cy="30" r="6" fill="#FFC93C"'+OL+'/><circle cx="54" cy="30" r="3" fill="#3DA5F4"'+OL+'/>'],
+'SEL':[
+ '<circle cx="30" cy="30" r="22" fill="#FFD93D"'+OL+'/><circle cx="22" cy="26" r="2.600" fill="#1E2A4A"/><circle cx="38" cy="26" r="2.600" fill="#1E2A4A"/><path d="M20 36Q30 46 40 36" fill="none" stroke="#1E2A4A" stroke-width="2.600" stroke-linecap="round"/><circle cx="15" cy="34" r="3" fill="#FF8FB1" opacity=".6"/><circle cx="45" cy="34" r="3" fill="#FF8FB1" opacity=".6"/>',
+ '<path d="M30 52C6 36 6 14 20 13C25 13 29 16 30 20C31 16 35 13 40 13C54 14 54 36 30 52Z" fill="#FF4F86"'+OL+'/><path d="M16 22Q17 18 21 18" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>',
+ '<path d="M22 50C2 36 2 18 14 17C18 17 21 19 22 23C23 19 26 17 30 17C42 18 42 36 22 50Z" fill="#FF4F86"'+OL+'/><path d="M42 40C28 31 28 20 36 19C39 19 41 21 42 24C43 21 45 19 48 19C56 20 56 31 42 40Z" fill="#FF8FB1"'+OL+'/>',
+ rays(30,30,17,26,10,'#FFB347',3.600)+'<circle cx="30" cy="30" r="14" fill="#FFD93D"'+OL+'/><circle cx="25" cy="28" r="2" fill="#1E2A4A"/><circle cx="35" cy="28" r="2" fill="#1E2A4A"/><path d="M24 34Q30 40 36 34" fill="none" stroke="#1E2A4A" stroke-width="2.200" stroke-linecap="round"/>',
+ '<path d="M6 44A24 24 0 0 1 54 44" fill="none" stroke="#FF5C5C" stroke-width="5"/><path d="M12 44A18 18 0 0 1 48 44" fill="none" stroke="#FFC93C" stroke-width="5"/><path d="M18 44A12 12 0 0 1 42 44" fill="none" stroke="#3DA5F4" stroke-width="5"/><ellipse cx="9" cy="46" rx="8" ry="5" fill="#fff"'+OL+'/><ellipse cx="51" cy="46" rx="8" ry="5" fill="#fff"'+OL+'/>',
+ '<path d="'+STARP+'" fill="#FFD93D"'+OL+'/><circle cx="24" cy="30" r="2.200" fill="#1E2A4A"/><circle cx="36" cy="30" r="2.200" fill="#1E2A4A"/><path d="M25 37Q30 42 35 37" fill="none" stroke="#1E2A4A" stroke-width="2.200" stroke-linecap="round"/>',
+ '<path d="M18 10H42V26Q42 38 30 38Q18 38 18 26Z" fill="#FFC93C"'+OL+'/><path d="M18 14H10Q10 26 20 28M42 14H50Q50 26 40 28" fill="none"'+OL+'/><rect x="26" y="38" width="8" height="8" fill="#F5A524"'+OL+'/><rect x="18" y="46" width="24" height="7" rx="2" fill="#B07A4A"'+OL+'/><path d="M30 14l2 4.400 4.800.6-3.500 3.300.9 4.800L30 24.800 25.800 27l.9-4.800-3.500-3.300 4.800-.6z" fill="#fff"/>'],
+'Social Studies':[
+ '<path d="M8 30L30 10L52 30Z" fill="#E8456A"'+OL+'/><rect x="14" y="30" width="32" height="22" fill="#FFE3A3"'+OL+'/><rect x="25" y="38" width="10" height="14" fill="#7A5AF8"'+OL+'/><rect x="17" y="34" width="6" height="6" fill="#BDEBF2"'+OL+'/>',
+ '<rect x="8" y="26" width="44" height="26" fill="#FFC93C"'+OL+'/><path d="M8 26L30 12L52 26Z" fill="#E8456A"'+OL+'/><path d="M30 12V3L40 6L30 9" fill="#3DA5F4" stroke="#1E2A4A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><rect x="25" y="38" width="10" height="14" fill="#7A5AF8"'+OL+'/><rect x="13" y="32" width="7" height="7" fill="#BDEBF2"'+OL+'/><rect x="40" y="32" width="7" height="7" fill="#BDEBF2"'+OL+'/>',
+ '<rect x="6" y="28" width="16" height="24" fill="#FF8FB1"'+OL+'/><rect x="22" y="12" width="18" height="40" fill="#BDEBF2"'+OL+'/><rect x="40" y="22" width="14" height="30" fill="#FFE3A3"'+OL+'/><path d="M27 20H35M27 28H35M27 36H35M11 34H17M11 42H17M44 28H50M44 36H50" stroke="#1E2A4A" stroke-width="2.200" stroke-linecap="round"/>',
+ '<circle cx="30" cy="30" r="22" fill="#fff"'+OL+'/><circle cx="30" cy="30" r="17" fill="#BDEBF2" stroke="#1E2A4A" stroke-width="1.400"/><path d="M30 14L35 30H25Z" fill="#E8456A"'+OL+'/><path d="M30 46L35 30H25Z" fill="#fff"'+OL+'/><circle cx="30" cy="30" r="2" fill="#1E2A4A"/>',
+ '<circle cx="30" cy="30" r="22" fill="#3DA5F4"'+OL+'/><path d="M16 22Q24 14 31 22Q28 32 19 31Z" fill="#5CC98A"/><path d="M35 36Q46 33 47 42Q40 50 32 45Z" fill="#5CC98A"/><path d="M30 8V52M10 30H50" stroke="#fff" stroke-width="1.600" opacity=".5"/>',
+ '<path d="M14 6V54" stroke="#1E2A4A" stroke-width="3.400" stroke-linecap="round"/><path d="M16 10Q28 4 38 10T56 10V32Q46 38 38 32T16 32Z" fill="#E8456A"'+OL+'/><circle cx="14" cy="6" r="3" fill="#FFC93C"'+OL+'/><path d="M16 21Q28 15 38 21T56 21" fill="none" stroke="#fff" stroke-width="3"/>',
+ '<path d="M6 22L30 8L54 22Z" fill="#E8D5B0"'+OL+'/><rect x="10" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="22" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="34" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="46" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="6" y="46" width="48" height="8" rx="2" fill="#E8D5B0"'+OL+'/>'],
+'Math':[
+ '<circle cx="16" cy="38" r="10" fill="#FF6B4A"'+OL+'/><rect x="28" y="28" width="22" height="22" rx="3" fill="#3DA5F4"'+OL+'/><path d="M22 24L33 6L44 24Z" fill="#FFC93C"'+OL+'/>',
+ '<circle cx="30" cy="30" r="22" fill="#fff"'+OL+'/><path d="M30 17V43M17 30H43" stroke="#E8456A" stroke-width="7" stroke-linecap="round"/>',
+ '<g transform="rotate(-35 30 30)"><rect x="4" y="21" width="52" height="18" rx="3" fill="#FFC93C"'+OL+'/><path d="M12 21V29M20 21V26M28 21V29M36 21V26M44 21V29" stroke="#1E2A4A" stroke-width="2" stroke-linecap="round"/></g>',
+ '<circle cx="30" cy="30" r="22" fill="#fff"'+OL+'/><path d="M30 12V15M30 45V48M12 30H15M45 30H48" stroke="#1E2A4A" stroke-width="2.400" stroke-linecap="round"/><path d="M30 30V18M30 30L40 36" stroke="#1E2A4A" stroke-width="3.400" stroke-linecap="round"/><circle cx="30" cy="30" r="2.600" fill="#E8456A"/>',
+ '<path d="M30 30L30 8A22 22 0 1 1 8.500 35Z" fill="#3DA5F4"'+OL+'/><path d="M30 30L8.500 35A22 22 0 0 1 30 8Z" fill="#FFC93C"'+OL+' transform="translate(-3 -3)"/>',
+ '<path d="M30 8L52 20V42L30 54L8 42V20Z" fill="#A58BFF"'+OL+'/><path d="M30 8L52 20L30 32L8 20Z" fill="#D9CCFF"'+OL+'/><path d="M30 32V54" stroke="#1E2A4A" stroke-width="2.200"/>',
+ '<path d="M10 6V50H56" fill="none"'+OL+'/><rect x="16" y="32" width="9" height="18" fill="#3DA5F4"'+OL+'/><rect x="29" y="20" width="9" height="30" fill="#FFC93C"'+OL+'/><rect x="42" y="10" width="9" height="40" fill="#E8456A"'+OL+'/>'],
+'Computer Science':[
+ '<path d="M30 14V6" stroke="#1E2A4A" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="5" r="3.400" fill="#FFC93C"'+OL+'/><rect x="10" y="14" width="40" height="34" rx="10" fill="#EEF3FA"'+OL+'/><rect x="16" y="22" width="28" height="18" rx="6" fill="#1E2A4A"/><circle cx="24" cy="31" r="3.600" fill="#6FE3FF"/><circle cx="36" cy="31" r="3.600" fill="#6FE3FF"/><rect x="4" y="26" width="6" height="14" rx="3" fill="#FF9B6B"'+OL+'/><rect x="50" y="26" width="6" height="14" rx="3" fill="#FF9B6B"'+OL+'/>',
+ '<rect x="8" y="8" width="44" height="44" rx="10" fill="#FFB48A"'+OL+'/><path d="M18 30H42M33 20L43 30L33 40" fill="none" stroke="#1E2A4A" stroke-width="4.400" stroke-linecap="round" stroke-linejoin="round"/>',
+ pixHeart(),
+ gearSvg(22,34,11,'#C9D4EA')+gearSvg(44,18,8,'#FFC93C'),
+ '<rect x="12" y="12" width="36" height="26" rx="4" fill="#1E2A4A"'+OL+'/><path d="M26 20L20 25L26 30M34 20L40 25L34 30" fill="none" stroke="#6FE3FF" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 44H54L50 50H10Z" fill="#C9D4EA"'+OL+'/>',
+ '<path d="M22 8V14M30 8V14M38 8V14M22 46V52M30 46V52M38 46V52M8 22H14M8 30H14M8 38H14M46 22H52M46 30H52M46 38H52" stroke="#1E2A4A" stroke-width="3" stroke-linecap="round"/><rect x="14" y="14" width="32" height="32" rx="5" fill="#4A5878"'+OL+'/><rect x="22" y="22" width="16" height="16" rx="3" fill="#6FE3FF"'+OL+'/>',
+ '<rect x="8" y="14" width="44" height="34" rx="10" fill="#FF9B6B"'+OL+'/><text x="30" y="40" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#fff" stroke="#1E2A4A" stroke-width="1" paint-order="stroke">AI</text><path d="M50 4l1.800 4.200 4.200 1.800-4.200 1.800L50 16l-1.800-4.200L44 10l4.200-1.800z" fill="#FFC93C"/>']
+};
+var GIDX={'Kindergarten':0,'Grade 1':1,'Grade 2':2,'Grade 3':3,'Grade 4':4,'Grade 5':5,'Grade 6':6};
+function gicon(sj,g){return '<svg viewBox="0 0 60 60" aria-hidden="true" style="width:100%;height:100%;overflow:visible">'+ICONS[sj][GIDX[g]]+'</svg>';}
+var HUE={'Fiction':262,'Science':217,'SEL':335,'Social Studies':150,'Math':252,'Computer Science':20};
+function gcol(sj,i){var h=HUE[sj];return ['hsl('+h+',92%,'+(91-i*2.2)+'%)','hsl('+h+',55%,'+(62-i*3)+'%)'];}
+var INTRO={'Fiction':['Every book opens a new adventure!','每一本书都是一次新的冒险！'],'Science':['Discover something new with every book!','每读一本书，都有新发现！'],'SEL':['Grow your heart with every book!','每读一本书，内心都更强大！'],'Social Studies':['Explore your world, one book at a time!','一本书一本书，探索你的世界！'],'Math':['Count, build and solve with every book!','每读一本书，都能数、搭、解题！'],'Computer Science':['Level up your thinking with every book!','每读一本书，思维升一级！']};
+function gl(t,x,y,sz,rot){return '<div style="position:absolute;left:'+x+';top:'+y+';font-family:Fredoka,sans-serif;font-weight:700;font-size:'+sz+'px;color:#fff;opacity:.2;transform:rotate('+rot+'deg);pointer-events:none">'+t+'</div>';}
+function svgd(inner,x,y,w,o){return '<svg viewBox="0 0 60 60" style="position:absolute;left:'+x+';top:'+y+';width:'+w+'px;height:'+w+'px;opacity:'+o+';pointer-events:none" aria-hidden="true">'+inner+'</svg>';}
+function sparkle(x,y,s,o){return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" style="position:absolute;left:'+x+';top:'+y+';opacity:'+o+'" aria-hidden="true"><path d="M12 2l2.600 6.400L21 11l-6.400 2.600L12 20l-2.600-6.400L3 11l6.400-2.600z" fill="#fff"/></svg>';}
+function deco(sj){
+ var H='<path d="M30 52C6 36 6 14 20 13C25 13 29 16 30 20C31 16 35 13 40 13C54 14 54 36 30 52Z" fill="#fff"/>';
+ if(sj==='Fiction')return sparkle('44%','14%',24,.8)+sparkle('58%','62%',16,.6)+sparkle('30%','80%',14,.5)+'<div style="position:absolute;left:52%;top:10%;width:46px;height:46px;border-radius:50%;background:#FFF3C4;opacity:.85;box-shadow:inset -12px 0 0 0 '+SCN.Fiction[1]+'"></div>';
+ if(sj==='Science')return sparkle('44%','12%',20,.8)+sparkle('62%','60%',14,.6)+svgd('<ellipse cx="30" cy="30" rx="26" ry="9" fill="none" stroke="#fff" stroke-width="2.600"/><ellipse cx="30" cy="30" rx="26" ry="9" transform="rotate(60 30 30)" fill="none" stroke="#fff" stroke-width="2.600"/><ellipse cx="30" cy="30" rx="26" ry="9" transform="rotate(120 30 30)" fill="none" stroke="#fff" stroke-width="2.600"/>','46%','48%',90,.22);
+ if(sj==='SEL')return svgd(H,'44%','10%',40,.28)+svgd(H,'58%','58%',26,.22)+svgd(H,'30%','72%',30,.2)+svgd(H,'66%','12%',22,.2);
+ if(sj==='Social Studies')return svgd('<path d="M30 6C21 6 17 14 20 21L30 40L40 21C43 14 39 6 30 6Z" fill="#fff"/><circle cx="30" cy="17" r="5" fill="#000" opacity=".3"/>','45%','10%',44,.26)+svgd('<ellipse cx="22" cy="38" rx="20" ry="10" fill="#fff"/><ellipse cx="38" cy="32" rx="16" ry="12" fill="#fff"/>','56%','56%',70,.2)+svgd('<path d="M30 6C21 6 17 14 20 21L30 40L40 21C43 14 39 6 30 6Z" fill="#fff"/>','32%','68%',28,.2);
+ if(sj==='Math')return gl('+','44%','8%',54,-10)+gl('×','58%','58%',48,12)+gl('=','34%','66%',44,-6)+gl('7','64%','12%',46,8)+gl('÷','50%','36%',38,-14);
+ return gl('&lt;/&gt;','42%','8%',46,-8)+gl('{ }','60%','56%',44,10)+gl('01','34%','68%',40,-6)+gl('10','66%','14%',38,6)+gl(';','52%','38%',44,12);}
+var GCOL={'Kindergarten':['#FFC1D6','#E0809F'],'Grade 1':['#FFD08A','#D99A2B'],'Grade 2':['#FFEB8A','#D4B31E'],'Grade 3':['#B5EE9A','#6BB84A'],'Grade 4':['#9BE3DE','#3FA9A3'],'Grade 5':['#A9D6FF','#4A94D6'],'Grade 6':['#CDBDFF','#8268E0']};
+function pot(){return '<path d="M20 44H40L37 58H23Z" fill="#E8935A" stroke="#A8582A" stroke-width="2.4" stroke-linejoin="round"/><rect x="18" y="40" width="24" height="6" rx="3" fill="#F2A877" stroke="#A8582A" stroke-width="2.4"/><circle cx="26" cy="51" r="1.5" fill="#1E2A4A"/><circle cx="34" cy="51" r="1.5" fill="#1E2A4A"/><path d="M27 54Q30 56.500 33 54" fill="none" stroke="#1E2A4A" stroke-width="1.6" stroke-linecap="round"/>';}
+var LF='fill="#5CC96A" stroke="#2F8F3F" stroke-width="2" stroke-linejoin="round"';
+function plant(g){var p='';
+ if(g==='Kindergarten')p='<path d="M30 40V33" stroke="#2F8F3F" stroke-width="3" stroke-linecap="round"/><path d="M30 34Q24 30 23 24Q29 25 30 34Z" '+LF+'/><path d="M30 34Q36 30 37 24Q31 25 30 34Z" '+LF+'/>';
+ else if(g==='Grade 1')p='<path d="M30 40V26" stroke="#2F8F3F" stroke-width="3" stroke-linecap="round"/><path d="M30 30Q20 28 18 18Q28 18 30 30Z" '+LF+'/><path d="M30 26Q40 24 42 14Q32 14 30 26Z" '+LF+'/>';
+ else if(g==='Grade 2')p='<path d="M30 40V20" stroke="#2F8F3F" stroke-width="3" stroke-linecap="round"/><path d="M30 34Q19 33 17 23Q28 23 30 34Z" '+LF+'/><path d="M30 30Q41 29 43 19Q32 19 30 30Z" '+LF+'/><path d="M30 24Q22 20 22 12Q30 13 30 24Z" '+LF+'/><path d="M30 22Q38 18 38 10Q30 11 30 22Z" '+LF+'/>';
+ else if(g==='Grade 3')p='<path d="M30 40V22" stroke="#2F8F3F" stroke-width="3" stroke-linecap="round"/><path d="M30 34Q19 33 17 24Q28 24 30 34Z" '+LF+'/><path d="M30 31Q41 30 43 21Q32 21 30 31Z" '+LF+'/><ellipse cx="30" cy="16" rx="6" ry="8" fill="#FF8FB1" stroke="#C0577F" stroke-width="2"/><path d="M30 9Q27 16 30 24" fill="none" stroke="#C0577F" stroke-width="1.5"/>';
+ else if(g==='Grade 4'){var pet='';for(var i=0;i<6;i++){var t=i*1.047;pet+='<circle cx="'+(30+Math.cos(t)*7).toFixed(1)+'" cy="'+(15+Math.sin(t)*7).toFixed(1)+'" r="4.6" fill="#FF8FB1" stroke="#C0577F" stroke-width="1.8"/>';}
+  p='<path d="M30 40V19" stroke="#2F8F3F" stroke-width="3" stroke-linecap="round"/><path d="M30 35Q19 34 17 25Q28 25 30 35Z" '+LF+'/><path d="M30 32Q41 31 43 22Q32 22 30 32Z" '+LF+'/>'+pet+'<circle cx="30" cy="15" r="4.4" fill="#FFC93C" stroke="#B26A00" stroke-width="1.8"/>';}
+ else if(g==='Grade 5'){var f=function(cx,cy,r,col){var o='';for(var i=0;i<6;i++){var t=i*1.047;o+='<circle cx="'+(cx+Math.cos(t)*r*.62).toFixed(1)+'" cy="'+(cy+Math.sin(t)*r*.62).toFixed(1)+'" r="'+(r*.42).toFixed(1)+'" fill="'+col+'" stroke="#8A3A10" stroke-width="1.4"/>';}return o+'<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.38).toFixed(1)+'" fill="#8A5A2B"/>';};
+  p='<path d="M24 40V24M37 40V16" stroke="#2F8F3F" stroke-width="3" stroke-linecap="round"/><path d="M24 34Q14 33 12 26Q22 26 24 34Z" '+LF+'/><path d="M37 32Q47 31 49 24Q39 24 37 32Z" '+LF+'/>'+f(24,20,11,'#FFB347')+f(37,12,13,'#FFD93D');}
+ else p='<rect x="27" y="22" width="6" height="20" rx="2" fill="#B07A4A" stroke="#6B4423" stroke-width="2"/><circle cx="30" cy="16" r="11" '+LF+'/><circle cx="21" cy="22" r="8" '+LF+'/><circle cx="39" cy="22" r="8" '+LF+'/><circle cx="26" cy="14" r="2.2" fill="#FF5C5C"/><circle cx="36" cy="19" r="2.2" fill="#FF5C5C"/><circle cx="22" cy="23" r="2.2" fill="#FF5C5C"/>';
+ return '<svg viewBox="0 0 60 62" aria-hidden="true" style="width:100%;height:100%;overflow:visible">'+p+pot()+'</svg>';}
+function renderShelf(){
+ var sj=shState.subject,g=shState.grade,c=SCN[sj];shelfTop();
+ var head=$('shHead');head.style.cssText='border-radius:44px;padding:30px 36px;color:#fff;position:relative;overflow:hidden;min-height:210px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(115deg,'+c[1]+' 0%,'+c[1]+' 52%,'+c[1]+'cc 100%)';
+ var src=document.querySelector('[data-shelf="'+sj+'"]'),cov='';
+ if(src){var cl=src.cloneNode(true);cl.removeAttribute('href');cl.removeAttribute('data-shelf');cl.removeAttribute('class');cl.style.cssText+=';position:absolute;right:46px;bottom:-34px;width:168px;transform:rotate(6deg);box-shadow:0 8px 0 rgba(0,0,0,.18),8px 12px 18px rgba(0,0,0,.25)';cov=cl.outerHTML;}
+ var pet=st.type?'<div class="bob" style="position:absolute;right:238px;bottom:-4px;width:112px;height:112px">'+draw(st.type,PETS[st.type].pal[st.ci],'happy',st.eq).replace('<svg ','<svg style="width:100%;height:100%;overflow:visible" ')+'</div>':'';
+ var gp=g?'<div style="display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1E2A4A;border-radius:999px;padding:6px 20px 6px 8px;font-weight:800;font-size:20px;margin-top:12px;align-self:flex-start"><span style="width:44px;height:48px;display:block">'+gicon(sj,g)+'</span>'+g+' <span style="color:#4A5878;font-weight:700">'+GCN[g]+'</span></div>':'';
+ head.innerHTML='<div style="position:absolute;right:-70px;top:-90px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.13)"></div><div style="position:absolute;left:36%;bottom:-120px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.09)"></div>'+deco(sj)
+  +'<div style="position:relative;max-width:640px"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:'+(sj.length>10?46:54)+'px;line-height:1.02;text-shadow:0 3px 0 rgba(0,0,0,.18)">'+sj+' <span style="font-size:28px;white-space:nowrap">'+c[0]+'</span></div>'+(sj==='Computer Science'?'<div style="display:inline-block;background:#FFC93C;color:#1E2A4A;border-radius:16px;padding:2px 16px 4px;font-family:Fredoka,sans-serif;font-weight:700;font-size:34px;margin-top:8px;box-shadow:0 4px 0 #B88A00;transform:rotate(-2deg)">AI <span style="font-size:20px;font-weight:700">人工智能</span></div>':'')+'<div style="font-weight:700;font-size:18px;margin-top:10px;line-height:1.4">'+c[3]+'<br><span style="opacity:.92">'+c[4]+'</span></div>'+gp+'</div>'+pet+cov;
+ var b=$('shBody');
+ if(!g){
+  b.innerHTML='<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:32px;margin-bottom:6px">Pick your grade <span style="font-size:19px;color:#4A5878">选一个年级</span></div><div style="font-weight:700;color:#4A5878;margin-bottom:22px">'+INTRO[sj][0]+' <span>'+INTRO[sj][1]+'</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:26px 22px;padding-bottom:10px">'
+   +Object.keys(SHELF[sj]).map(function(k,i){var d=SHELF[sj][k],col=gcol(sj,i);return '<button class="gfold" data-g="'+k+'" style="background:'+col[0]+';box-shadow:0 8px 0 '+col[1]+';transform:rotate('+(i%2?1.4:-1.4)+'deg);min-height:230px;overflow:hidden"><div style="position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.35)"></div><div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start"><div style="width:68px;height:68px;border-radius:50%;background:#fff;display:grid;place-items:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:38px;color:'+col[1]+';box-shadow:0 4px 0 rgba(0,0,0,.12)">'+GLBL[k]+'</div><div style="width:92px;height:92px;background:rgba(255,255,255,.8);border-radius:26px;padding:10px;box-shadow:0 4px 0 rgba(0,0,0,.08)">'+gicon(sj,k)+'</div></div><div style="position:relative"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:25px;line-height:1.05">'+k+'</div><div style="font-weight:700;color:#3A4A6A;font-size:15px">'+GCN[k]+'</div><div style="display:inline-block;margin-top:10px;background:#fff;border-radius:999px;padding:5px 14px;font-weight:800;font-size:14px">'+d.count+' books <span style="font-weight:700;color:#4A5878">'+d.count+' 本书</span></div></div></button>';}).join('')+'</div>';
+  Array.prototype.forEach.call(b.querySelectorAll('.gfold'),function(x){x.onclick=function(e){snd();burst(e.clientX,e.clientY);shState.grade=x.dataset.g;window.scrollTo(0,0);renderShelf();};});
+ }else{
+  var d=SHELF[sj][g],band=demoBand(),books=d.books.slice().sort(function(a,b2){return (b2.band===band)-(a.band===band);});
+  b.innerHTML='<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:32px;margin-bottom:18px">Pick a book <span style="font-size:19px;color:#4A5878">选一本书</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:26px 22px">'
+   +books.map(function(k,i){return '<button class="bk" data-i="'+i+'" style="box-shadow:0 7px 0 '+c[1]+'55;transform:rotate('+(i%2?.8:-.8)+'deg)"><div style="position:relative"><img src="'+k.cover+'" alt="'+k.title+' cover">'+(k.band===band?'<div style="position:absolute;left:10px;top:10px;background:#FFC93C;border-radius:999px;padding:5px 14px;font-weight:800;font-size:13px;box-shadow:0 3px 0 #B88A00">For you 适合你</div>':'')+'</div><div style="padding:14px 16px 18px"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:22px;line-height:1.1">'+k.title+'</div><div style="font-weight:700;color:#4A5878;margin-top:4px;font-size:15px">'+(k.subtitle||'')+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"><span style="background:'+c[2]+';border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">'+k.band+'</span><span style="background:'+c[2]+';border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">'+k.minutes+'</span></div></div></button>';}).join('')
+   +'</div>'+(d.count>books.length?'<div class="note" style="margin-top:26px;background:#FFF6D6;border-radius:18px;padding:12px 16px;font-weight:700;line-height:1.5">Preview shows '+books.length+' of '+d.count+' books in this grade. The real site lists all of them.<br><span style="color:#4A5878">预览里只显示这个年级 '+d.count+' 本书中的 '+books.length+' 本，真实网站会列出全部。</span></div>':'');
+  Array.prototype.forEach.call(b.querySelectorAll('.bk'),function(x){x.onclick=function(e){snd();burst(e.clientX,e.clientY);noteOpen(books[+x.dataset.i]);openReader(books[+x.dataset.i]);};});
+ }}
+function openShelf(sj){$('viewHome').style.display='none';$('viewPets').style.display='none';$('viewShelf').style.display='block';shState={subject:sj,grade:null};window.scrollTo(0,0);renderShelf();}
+$('shBack').onclick=function(){snd();if(shState.grade){shState.grade=null;window.scrollTo(0,0);renderShelf();}else{openHome();}};
+
+function openAdoptGuide(){openModal('<h2>How to adopt a pet <span style="font-size:20px;color:#4A5878">怎么领养宠物</span></h2><p style="margin:4px 0 6px;font-weight:700;color:#4A5878">Four easy steps. 四个简单步骤。</p>'
+ +gstep(1,'Pick a pet','选一只宠物','Tap the pet you like best.','点一点你最喜欢的宠物。')
+ +gstep(2,'Choose a color and a name','选颜色、起名字','Pick a color and give your pet a name, then tap Adopt!','选一种颜色，给宠物起个名字，然后点 Adopt！')
+ +gstep(3,'Read to earn stars','读书赚星星','Finish books, activities and quizzes to get stars.','读完书、练习和测验就能得到星星。')
+ +gstep(4,'Care for your pet','照顾你的宠物','Use stars to buy snacks, clothes and toys.','用星星买零食、衣服和玩具。')
+ +'<div class="note" style="margin-top:6px">Good to know: each pet loves different snacks. Your pet never gets sick and never goes away. If you do not read for a while it gets sleepy, and one book cheers it right up! You can pick a different pet later, and your stars stay with you.<small>小提示：每种宠物爱吃的零食不一样。宠物不会生病，也不会消失。几天不读书它会犯困，读一本书它马上就开心起来！以后可以换一只宠物，你的星星会保留。</small></div>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="ar">How do stars work? 怎么赚星星？</button><button class="rules-btn" id="ax">Got it! 知道了</button></div>');
+ $('ar').onclick=openRules;$('ax').onclick=closeModal;}
+
+function reviewIntro(){openModal('<h2>Smart review <span style="font-size:22px;color:#4A5878">智能复习</span></h2><p style="margin:4px 0 8px;font-weight:700;color:#4A5878">Questions you missed come back here, so you remember them for good.<br>你答错过的题会回到这里，帮你牢牢记住。</p>'
+ +gstep(1,'Answer a question','答一道题','A question you missed in a book shows up. Pick the answer you think is right.','之前在书里答错的题会出现，选出你认为对的答案。')
+ +gstep(2,'Right or not yet','答对或再试','Right answer: you earn 1 star. Not yet? No problem, try again. You never lose stars.','答对得 1 颗星。没答对也没关系，再试一次，不会扣星星。')
+ +gstep(3,'Come back later','过几天再来','Missed questions return over several days, until you really know them.','答错的题会在接下来几天重复出现，直到你真正记住。')
+ +'<div class="note" style="margin:6px 0 0">Up to 3 review questions a day count for stars.<small>每天最多 3 道复习题可以得星星。</small></div>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="rvgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">Start review 开始复习</button><button class="rules-btn" id="rvlater">Later 以后再说</button></div>');
+ $('rvgo').onclick=function(){openReview(true);};$('rvlater').onclick=closeModal;}
+var LEVELCN={'Beginning Reader':'初级读者','Early Reader':'早期读者','Growing Reader':'成长读者','Fluent Reader':'流利读者'};
+function openLevel(){openModal('<h2>Reading level test <span style="font-size:22px;color:#4A5878">阅读水平测试</span></h2><p style="margin:4px 0 8px;font-weight:700;color:#4A5878">A short test that finds the books that are just right for you.<br>一个简短的测验，帮你找到最适合你的书。</p>'
+ +gstep(1,'Pick your grade','选一个年级','Choose the grade you think fits you. The test starts there.','选一个你觉得适合自己的年级，测验会从这里开始。')
+ +gstep(2,'Read and answer','读短文、答题','Read short passages and answer a few questions.','读几篇短文，回答几道题。')
+ +gstep(3,'Harder or easier','变难或变容易','If you do well, the next passage is harder. If it feels tricky, it gets easier.','答得好，下一篇会更难；觉得难，下一篇会更容易。')
+ +gstep(4,'See your level','看你的水平','You get your reading level and a list of books that fit you.','你会看到自己的阅读水平，以及适合你的书单。')
+ +'<div class="note" style="margin:6px 0 0">This is not a school grade. It only helps us pick the right books. Take your time and read carefully!<small>这不是学校成绩，只是帮我们挑合适的书。慢慢来，认真读！</small></div>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="lvgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">Start the test 开始测验</button><button class="rules-btn" id="lvlater">Later 以后再说</button></div>');
+ $('lvgo').onclick=levelPick;$('lvlater').onclick=closeModal;}
+function levelPick(){var G=[['Kindergarten','K','幼儿园'],['Grade 1','1','一年级'],['Grade 2','2','二年级'],['Grade 3','3','三年级'],['Grade 4','4','四年级'],['Grade 5','5','五年级'],['Grade 6','6','六年级']];
+ openModal('<h2>Which grade feels right? <span style="font-size:20px;color:#4A5878">哪个年级适合你？</span></h2><div class="note" style="margin:8px 0 14px">PREVIEW ONLY: the real site asks reading questions here. Tap a grade to see a sample result.<small>仅预览：真实网站会在这里出阅读题。点一个年级，查看示例结果。</small></div>'
+  +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px">'+G.map(function(g,i){return '<button class="act" data-i="'+i+'" style="flex-direction:column;align-items:flex-start;gap:2px"><span style="font-family:Fredoka,sans-serif;font-size:26px;line-height:1">'+g[1]+'</span><span>'+g[0]+'</span><span style="color:#4A5878;font-size:14px">'+g[2]+'</span></button>';}).join('')+'</div>');
+ Array.prototype.forEach.call(document.querySelectorAll('#modal .act'),function(b){b.onclick=function(e){snd();burst(e.clientX,e.clientY);levelResult(+b.dataset.i);};});}
+function levelResult(i){var band=['Beginning Reader','Early Reader','Growing Reader','Growing Reader','Fluent Reader','Fluent Reader','Fluent Reader'][i];saveJ('lef_demo_band',band);simIdx=-1;
+ openModal('<h2>Your reading level <span style="font-size:20px;color:#4A5878">你的阅读水平</span></h2><div style="text-align:center;margin:18px 0 8px"><div style="display:inline-block;background:#FFC93C;border-radius:28px;padding:14px 30px;box-shadow:0 6px 0 #B88A00;transform:rotate(-2deg)"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:34px;line-height:1.1">'+band+'</div><div style="font-weight:800;font-size:18px">'+LEVELCN[band]+'</div></div></div>'
+  +'<p style="text-align:center;font-weight:700;font-size:17px;line-height:1.5;margin:14px 0">We picked books that fit you!<br><span style="color:#4A5878">我们为你挑好了合适的书！</span></p>'
+  +'<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"><button class="rules-btn" id="lrgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">See my book of the day 看今日一本</button></div>');
+ $('lrgo').onclick=function(){closeModal();var b=$('botd');if(b)b.scrollIntoView({behavior:'smooth',block:'start'});};}
+renderPicks();renderHomePet();
+</script>
+<script>
+/* ===== real-site overrides (replace the preview's demo versions) ===== */
+function gradeRank(g){return /kindergarten/i.test(g)?0:(parseInt((String(g).match(/\d+/)||[])[0],10)||0);}
+function placement(){return loadJ('les_placement_v1',null);}
+function openedSet(){var s={};loadJ('lef_opens_v1',[]).forEach(function(x){s[x.file]=1;});return s;}
+function noteOpen(b){var file=b&&(b.file||b);var x=null;ALL.forEach(function(y){if(y.file===file)x=y;});if(!x)return;var O=loadJ('lef_opens_v1',[]);O.push({file:x.file,slug:x.slug,subject:x.subject,grade:x.grade,t:Date.now()});saveJ('lef_opens_v1',O.slice(-60));}
+var _openBookReal=openBook;
+openBook=function(file,title,category){noteOpen({file:file});_openBookReal(file,title,category);};
+window.__openBook=openBook;
+function openReader(b){openBook(b.file,b.title,b.id||b.cat);}
+function habitProfile(){var O=loadJ('lef_opens_v1',[]);if(!O.length)return null;var rec=O.slice(-5).map(function(x){return gradeRank(x.grade);}).sort(function(a,b){return a-b;}),g=rec[Math.floor(rec.length/2)];
+ var counts={};SUBJ.forEach(function(k){counts[k]=0;});O.forEach(function(x){if(counts[x.subject]!==undefined)counts[x.subject]++;});
+ var fav=SUBJ.slice().sort(function(a,b){return counts[b]-counts[a];})[0];return {grade:g,n:O.length,counts:counts,fav:fav};}
+function todayBook(){
+ var R=placement(),P=R?null:habitProfile(),mode=R?'test':(P?'habit':'none'),di=dayIdx(),sig=mode+'|'+(R?(R.primaryGrade+'|'+R.reportedGrade):(P?P.grade:''));
+ var C=loadJ('lef_botd_v1',null);
+ if(C&&C.date===todayStr()&&C.sig===sig){var cb=null;ALL.forEach(function(x){if(x.file===C.file)cb=x;});if(cb)return {book:{slug:cb.slug,title:cb.title,subtitle:cb.subtitle,grade:cb.grade,readingBand:cb.band,minutes:cb.minutes,cover:cb.cover,file:cb.file,id:cb.id,cat:cb.id},cat:cb.id,subject:cb.subject,stretch:C.stretch,mode:mode,reason:C.reason};}
+ var done=openedSet(),stretch=(di%4===3&&(mode==='test'||(mode==='habit'&&P.n>=3))),variety=(mode==='habit'&&di%3===0&&P.n>=3);
+ var order=SUBJ.map(function(x,i){return SUBJ[(di+i)%6];});
+ if(mode==='habit')order=SUBJ.slice().sort(function(a,b){return variety?(P.counts[a]-P.counts[b]):(P.counts[b]-P.counts[a]);});
+ function targetRank(id){var g=mode==='test'?(READING_GATED.indexOf(id)>=0?R.primaryGrade:(R.reportedGrade||R.primaryGrade)):(mode==='habit'?GRADES[P.grade]:null);if(mode==='none')return -1;var r=gradeRank(g);return stretch?Math.min(6,r+1):r;}
+ var pick=null;
+ for(var k=0;k<order.length&&!pick;k++){var id=NAME2ID[order[k]],tr=targetRank(id);
+  var pool=(BOOKS[id]||[]).filter(function(b){var gr=gradeRank(b.grade||'');return mode==='none'?(gr<=1):gr===tr;});
+  var c=pool.filter(function(b){return !done[b.file];});if(c.length)pick={b:c[0],id:id};}
+ if(!pick){var any=ALL.filter(function(b){return gradeRank(b.grade)<=1;});if(!any.length)any=ALL;var b0=any[di%any.length];pick={b:{slug:b0.slug,title:b0.title,subtitle:b0.subtitle,grade:b0.grade,readingBand:b0.band,minutes:b0.minutes,cover:b0.cover,file:b0.file},id:b0.id};}
+ var b=pick.b,sj=ID2NAME[pick.id],scn=SCN[sj][0],R2;
+ if(mode==='none')R2={en:'Take the quick reading test and we will pick books at your level.',cn:'先做阅读水平测试，我们会按你的水平选书。',en2:'',cn2:''};
+ else if(mode==='test')R2={en:'Picked for your level: '+R.primaryGrade,cn:'根据你的阅读水平测试挑选：'+(GCN[R.primaryGrade]||R.primaryGrade),en2:stretch?'Today is a stretch day: one grade up!':'',cn2:stretch?'今天是挑战日：高一个年级的书！':''};
+ else{var main=stretch?['A little harder, just for you','比你平时读的稍微难一点']:variety?['Something new to try: '+sj,'换个新科目试试：'+scn]:(sj===P.fav&&P.counts[sj]>0)?['Because you enjoy '+sj+' books','因为你喜欢'+scn+'类的书']:['Picked from your reading habits','根据你的阅读习惯挑选'];
+  R2={en:main[0],cn:main[1],en2:'Matched to '+GRADES[P.grade]+', based on the '+P.n+' book'+(P.n>1?'s':'')+' you opened'+(P.n<3?'. Read a few more and it gets better!':'.'),cn2:'根据你打开过的 '+P.n+' 本书匹配：'+(GCN[GRADES[P.grade]]||'')+(P.n<3?'。多读几本，推荐会更准！':'。')};}
+ var out={book:{slug:b.slug,title:b.title,subtitle:b.subtitle||'',grade:b.grade,readingBand:b.readingBand,minutes:b.minutes,cover:b.cover,file:b.file,id:pick.id,cat:pick.id},cat:pick.id,subject:sj,stretch:stretch,mode:mode,reason:R2};
+ saveJ('lef_botd_v1',{date:todayStr(),sig:sig,file:b.file,stretch:stretch,reason:R2});
+ return out;}
+function renderBotd(){
+ var el=$('botd');if(!el)return;var t=todayBook(),b=t.book,R=t.reason,bonus=t.stretch?3:2;
+ var who='<div style="font-weight:800;font-size:17px;color:#1E2A4A;line-height:1.35">'+R.en+'<div style="font-weight:700;font-size:15px;color:#4A5878">'+R.cn+'</div>'+(R.en2?'<div style="font-weight:700;font-size:14px;color:#4A5878;margin-top:4px">'+R.en2+'<br>'+R.cn2+'</div>':'')+(t.mode!=='test'?'<div style="margin-top:6px"><a data-level href="#level" class="rules-link">'+(t.mode==='habit'?'Want a more exact match? Take the level test 想要更准？做阅读水平测试':'Take the level test 做阅读水平测试')+'</a></div>':'')+'</div>';
+ el.innerHTML='<div style="margin-bottom:26px">'+who+'</div>'
+ +'<div style="background:'+(t.stretch?'#D9CCFF':'#FFE9B0')+';border-radius:44px;padding:28px;display:flex;flex-wrap:wrap;align-items:center;gap:36px;box-shadow:0 8px 0 '+(t.stretch?'#A892EA':'#E8B84A')+';position:relative">'
+ +'<div style="position:absolute;left:22px;top:-18px;background:'+(t.stretch?'#5238C4':'#D93B1E')+';color:#fff;font-weight:800;font-size:15px;padding:9px 20px;border-radius:999px;transform:rotate(-3deg)">'+(t.stretch?'Stretch book':'Book of the day')+' <span style="font-weight:700">'+(t.stretch?'挑战书':'今日一本')+'</span></div>'
+ +'<img src="'+b.cover+'" alt="'+b.title+' cover" style="flex:0 1 380px;width:380px;max-width:100%;aspect-ratio:700/520;object-fit:cover;border-radius:28px;border:6px solid #fff;box-sizing:border-box;transform:rotate(-2deg);box-shadow:0 8px 0 rgba(0,0,0,.12)">'
+ +'<div style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:14px"><h2 style="margin:0;font-family:Fredoka,sans-serif;font-weight:700;font-size:44px;line-height:1.05">'+b.title+'</h2><p style="margin:0;font-size:20px;font-weight:700;color:#3A3A52">'+(b.subtitle||'')+'</p>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:8px"><span class="bp">'+t.subject+' · '+(b.grade||'')+'</span>'+(b.minutes?'<span class="bp">'+b.minutes+'</span>':'')+(b.readingBand?'<span class="bp">'+b.readingBand+'</span>':'')+'</div>'
+ +'<div style="font-weight:800;font-size:17px">Finish it to earn <span style="background:#fff;border-radius:999px;padding:3px 12px;border:2px solid #FFC93C">+'+bonus+' bonus stars</span> <span style="color:#4A5878;font-weight:700;font-size:15px">读完多得 '+bonus+' 颗星</span></div>'
+ +'<div><a class="btn read-now" href="#book" style="display:inline-flex;align-items:center;gap:10px;background:#D93B1E;color:#fff;font-weight:800;font-size:20px;padding:17px 32px;border-radius:999px;box-shadow:0 6px 0 #9E2810">Read now <span style="font-weight:700;font-size:16px">开始阅读</span></a></div></div></div>';
+ Array.prototype.forEach.call(el.querySelectorAll('.bp'),function(x){x.style.cssText='background:#fff;border-radius:999px;padding:8px 16px;font-weight:800';});}
+/* ---- earning stars from real reading ---- */
+function toast(lines,total,capped){var t=$('toast');if(!t)return;
+ t.innerHTML=lines.map(function(l){return '<div class="tl"><span>'+l[1]+' <small>'+l[2]+'</small></span><span>+'+l[0]+' ★</span></div>';}).join('')+'<div class="tt">'+(total>0?'+'+total+' ★ ':'')+(capped?'Daily limit reached 今天的星星已达上限':'Nice work! 做得好！')+'</div>';
+ t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on');},5200);
+ if(total>0){snd();burst(innerWidth/2,innerHeight-80);}}
+function settleReading(){
+ var file=currentFile;if(!file)return;var b=null;ALL.forEach(function(x){if(x.file===file)b=x;});if(!b)return;
+ var snap;try{snap=JSON.parse($('readerFrame').contentWindow.eval('JSON.stringify({q:quizzes,s:selections,a:attempts})'));}catch(e){return;}
+ var tabs=['comprehension','grammar','vocabulary'],done=0,first=0,totQ=0;
+ tabs.forEach(function(t){var list=snap.q[t]||[],solved=0;list.forEach(function(it,i){var k=t+'-'+i;totQ++;if(snap.s[k]===it.answer){solved++;if((snap.a[k]||0)===1)first++;}});if(list.length&&solved===list.length)done++;});
+ var finished=(done===3),acc=totQ?first/totQ:0,bs=bookState(b.slug),D=dayState(),lines=[],n=0,pre=Math.min(2,done);
+ if(pre>(bs.parts||0)){var add=pre-(bs.parts||0);n+=add;lines.push([add,'Practice finished','练习完成']);bs.parts=pre;}
+ if(finished&&!bs.fin){bs.fin=1;n+=1;lines.push([1,'Finished the book','读完一本书']);
+  if(!D.books.length){n+=1;lines.push([1,'First book today','今天的第一本书']);}
+  var T=todayBook();if(T.book.file===file){var x=T.stretch?3:2;n+=x;lines.push([x,T.stretch?'Stretch book bonus':'Book of the day bonus',T.stretch?'挑战书奖励':'今日一本奖励']);}
+  D.books.push(b.slug);saveJ('lef_day_v1',D);st.hunger=Math.min(100,st.hunger+25);}
+ if(finished&&!bs.quiz&&acc>=.8){bs.quiz=1;n+=2;lines.push([2,'80%+ on the first try','一次答对 80% 以上']);}
+ setBook(b.slug,bs);
+ if(!n){save();return;}
+ var got=award(n);save();toast(lines,got,got<n);}
+function reviewStar(){var D=dayState();if(D.reviews>=3)return;D.reviews++;saveJ('lef_day_v1',D);var got=award(1);if(got){toast([[1,'Reviewed a question','复习了一道题']],got,false);try{renderHomePet();}catch(e){}}}
+window.addEventListener('load',function(){var prev=window.__trackEvent;window.__trackEvent=function(n,p){if(n==='review_correct'){try{reviewStar();}catch(e){}}if(prev){try{return prev.apply(this,arguments);}catch(e){}}};});
+/* ---- pet: gets sleepy over time, saved with a timestamp ---- */
+save=function(){try{localStorage.setItem('lef_pet_v1',JSON.stringify({type:st.type,ci:st.ci,name:st.name,hunger:st.hunger,stars:st.stars,owned:st.owned,eq:st.eq,toys:st.toys,last:Date.now()}));}catch(e){}};
+(function(){try{var raw=JSON.parse(localStorage.getItem('lef_pet_v1')||'null');if(raw&&raw.last&&st.type){var days=(Date.now()-raw.last)/86400000;st.hunger=Math.max(0,st.hunger-6*days);}}catch(e){}save();})();
+(function(){var _a=$('adoptBtn').onclick;$('adoptBtn').onclick=function(e){_a.call(this,e);if(!loadJ('lef_gift',0)){saveJ('lef_gift',1);st.stars+=3;save();render();toast([[3,'Welcome gift','欢迎礼物']],3,false);}};})();
+/* ---- level test + smart review: explain first, then use the original ones ---- */
+function openLevel(){openModal('<h2>Reading level test <span style="font-size:22px;color:#4A5878">阅读水平测试</span></h2><p style="margin:4px 0 8px;font-weight:700;color:#4A5878">A short test that finds the books that are just right for you.<br>一个简短的测验，帮你找到最适合你的书。</p>'
+ +gstep(1,'Pick your grade','选一个年级','Choose the grade you think fits you. The test starts there.','选一个你觉得适合自己的年级，测验会从这里开始。')
+ +gstep(2,'Read and answer','读短文、答题','Read short passages and answer a few questions.','读几篇短文，回答几道题。')
+ +gstep(3,'Harder or easier','变难或变容易','If you do well, the next passage is harder. If it feels tricky, it gets easier.','答得好，下一篇会更难；觉得难，下一篇会更容易。')
+ +gstep(4,'See your level','看你的水平','You get your reading level and a list of books that fit you.','你会看到自己的阅读水平，以及适合你的书单。')
+ +'<div class="note" style="margin:6px 0 0">This is not a school grade. It only helps us pick the right books. Take your time and read carefully!<small>这不是学校成绩，只是帮我们挑合适的书。慢慢来，认真读！</small></div>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="lvgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">Start the test 开始测验</button><button class="rules-btn" id="lvlater">Later 以后再说</button></div>');
+ $('lvgo').onclick=function(){closeModal();var b=$('startPlacement');if(b)b.click();};$('lvlater').onclick=closeModal;}
+function reviewIntro(){openModal('<h2>Smart review <span style="font-size:22px;color:#4A5878">智能复习</span></h2><p style="margin:4px 0 8px;font-weight:700;color:#4A5878">Questions you missed come back here, so you remember them for good.<br>你答错过的题会回到这里，帮你牢牢记住。</p>'
+ +gstep(1,'Answer a question','答一道题','A question you missed in a book shows up. Pick the answer you think is right.','之前在书里答错的题会出现，选出你认为对的答案。')
+ +gstep(2,'Check and learn','检查和学习','See if you are right, and read a short tip to help you remember.','看看对不对，再读一条帮助记忆的小提示。')
+ +gstep(3,'Come back later','过几天再来','Missed questions return over several days, until you really know them.','答错的题会在接下来几天重复出现，直到你真正记住。')
+ +'<div class="note" style="margin:6px 0 0">Every correct review answer earns 1 star (up to 3 a day).<small>每答对一道复习题得 1 颗星（每天最多 3 道）。</small></div>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="rvgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">Start review 开始复习</button><button class="rules-btn" id="rvlater">Later 以后再说</button></div>');
+ $('rvgo').onclick=function(){closeModal();var b=$('startReview');if(b)b.click();};$('rvlater').onclick=closeModal;}
+function openReview(){var d=todayStr();if(loadJ('lef_rv_intro_day','')!==d){saveJ('lef_rv_intro_day',d);reviewIntro();}else{var b=$('startReview');if(b)b.click();}}
+/* ---- Smart Review button counter mirrors the original badge ---- */
+(function(){var src=$('reviewBadge'),dst=$('revBadge');if(!src||!dst)return;function sync(){var mm=(src.textContent||'').match(/\d+/),n=mm?+mm[0]:0,show=src.style.display!=='none'&&n>0;dst.textContent=n;dst.style.display=show?'':'none';}
+ new MutationObserver(sync).observe(src,{childList:true,characterData:true,subtree:true,attributes:true});sync();})();
+/* ---- hero copy comes from catalog.js ---- */
+(function(){var h=$('heroH');if(h&&data.site.heroTitle){h.innerHTML=data.site.heroTitle.replace('reading adventure.','<span style="background: #FFC93C; padding: 0 14px; border-radius: 18px; display: inline-block; transform: rotate(-1.5deg)">reading adventure.</span>');}
+ var p=$('heroP');if(p&&data.site.heroText)p.textContent=data.site.heroText;})();
+renderHomePet();renderBotd();
 </script>
 <script>
 (function(){
