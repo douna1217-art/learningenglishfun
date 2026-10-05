@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>learningenglishfun</title>
+<meta name="description" content="English reading practice for K-6 kids: hundreds of read-aloud stories and nonfiction books across Fiction, Science, Math, SEL, Social Studies, and Computer Science, each with listening, recording, grammar and vocabulary practice, and a placement quiz to find the right level.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet"><style>
+
+:root{--ink:#26372e;--muted:#718077;--line:#dfe8e1;--green:#315f47;--shadow:0 18px 42px rgba(46,66,55,.12)}
+*{box-sizing:border-box}body{margin:0;background:#f5f7f4;color:var(--ink);font-family:Inter,ui-rounded,"Trebuchet MS",Arial,sans-serif}
+a{text-decoration:none;color:inherit}.top{max-width:1260px;margin:auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:13px;align-items:center}.logo{width:54px;height:54px;border-radius:18px;background:var(--green);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:950}
+.brand h1{margin:0;font-size:1.45rem}.brand p{margin:4px 0 0;color:var(--muted);font-weight:700}.teacher{border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px 17px;font-weight:900}
+.wrap{max-width:1260px;margin:auto;padding:5px 24px 55px}.hero{background:linear-gradient(125deg,#315f47,#82aa76);border-radius:0 0 32px 32px;padding:58px 50px;color:white;box-shadow:var(--shadow);position:relative;overflow:hidden;text-align:center;display:flex;flex-direction:column;align-items:center}
+.hero:after{content:"✦";position:absolute;right:65px;top:22px;font-size:170px;opacity:.12}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-weight:950}
+.hero h2{font-size:clamp(2.6rem,5vw,4.7rem);line-height:1.02;margin:19px auto;max-width:1080px}.hero p{max-width:1000px;font-size:1.18rem;line-height:1.65;margin:0 auto}
+.module-caption{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;font-weight:900;opacity:.72;margin-top:28px}
+.module-row{display:flex;flex-wrap:wrap;justify-content:center;column-gap:30px;row-gap:14px;margin:12px auto 0;max-width:920px;padding-top:16px;border-top:1px solid rgba(255,255,255,.28)}
+.module{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1rem}
+.module .m-ic{width:36px;height:36px;flex-shrink:0;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:16px}
+.note{margin:22px auto 0;font-size:.92rem;opacity:.92;max-width:1050px;line-height:1.45}
+.section-title{margin:34px 0 17px}.section-title h2{font-size:2rem;margin:0}.section-title p{color:var(--muted);margin:7px 0 0}.categories{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.cat{border-radius:25px;padding:22px;min-height:220px;box-shadow:var(--shadow);position:relative;transition:.18s transform}.cat:hover{transform:translateY(-3px)}.cat .icon{font-size:48px}.cat h3{font-size:1.55rem;margin:10px 0}.cat p{line-height:1.55;max-width:90%;color:#4f5e55}
+.count{display:inline-block;background:rgba(255,255,255,.62);padding:6px 10px;border-radius:999px;font-size:.78rem;font-weight:900}.go{position:absolute;right:18px;bottom:18px;background:rgba(255,255,255,.82);padding:9px 12px;border-radius:12px;font-weight:950}
+.fiction{background:linear-gradient(145deg,#fff0d6,#f8d8a2)}.science{background:linear-gradient(145deg,#e3f4f5,#bfe3e6)}.sel{background:linear-gradient(145deg,#f3e7f8,#dfc2eb)}.social{background:linear-gradient(145deg,#e8f0fb,#c8d9f1)}.math{background:linear-gradient(145deg,#eaf4df,#cfe5b8)}.history{background:linear-gradient(145deg,#f6eadf,#dfc3a8)}.cs{background:linear-gradient(145deg,#e6eefb,#c2d4f1)}
+.subnav{margin:8px 0 25px}.back{display:inline-block;background:#fff;border-radius:13px;padding:11px 15px;font-weight:950;box-shadow:0 8px 20px rgba(40,60,49,.08)}
+.shelf-head{border-radius:27px;padding:31px;display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.shelf-head h2{font-size:2.35rem;margin:0 0 8px}.shelf-head p{margin:0;font-size:1.02rem}.shelf-head .big{font-size:70px}
+.books{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.book{background:#fff;border-radius:24px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}.cover{height:265px;position:relative;overflow:hidden;background:linear-gradient(145deg,#f6deaf,#b59f7d)}
+.cover img{width:100%;height:100%;object-fit:cover}.cover.placeholder{display:grid;place-items:center;font-size:80px}.cover:after{content:"";position:absolute;inset:40% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.58))}
+.cover-title{position:absolute;left:20px;right:20px;bottom:17px;z-index:1;color:#fff}.cover-title small{font-weight:950;text-transform:uppercase;letter-spacing:.08em}.cover-title h3{font-size:1.6rem;line-height:1.08;margin:6px 0 0}.body{padding:20px;display:flex;flex-direction:column;flex:1}.meta,.skills{display:flex;gap:7px;flex-wrap:wrap}.pill{background:#f1f4f1;border-radius:999px;padding:6px 9px;font-size:.75rem;font-weight:900}.body p{color:var(--muted);line-height:1.55}.skills{margin-top:auto}.skills span{background:#f2f4f2;border-radius:999px;padding:5px 8px;font-size:.75rem}.open{display:block;text-align:center;margin-top:16px;background:var(--green);color:#fff;padding:12px;border-radius:12px;font-weight:950}
+.empty{background:#fff;border-radius:24px;padding:28px;box-shadow:var(--shadow)}.empty code{background:#f1f4f1;padding:3px 6px;border-radius:6px}
+@media(max-width:900px){.categories,.books{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.categories,.books{grid-template-columns:1fr}.hero{padding:36px 24px}.wrap,.top{padding-left:14px;padding-right:14px}.teacher{display:none}.module-row{column-gap:20px}}
+.shelf-head.fiction{background:linear-gradient(135deg,#eef3ff,#fff)}
+.shelf-head.science{background:linear-gradient(135deg,#eafaf1,#fff)}
+.shelf-head.social{background:linear-gradient(135deg,#fef6ec,#fff)}
+.shelf-head.math{background:linear-gradient(135deg,#f2eefe,#fff)}
+.shelf-head.history{background:linear-gradient(135deg,#fdeeee,#fff)}
+.shelf-head.cs{background:linear-gradient(135deg,#eef3fb,#fff)}
+.empty-shelf{padding:40px 18px;text-align:center;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:18px}
+.grade-group-title{font-family:"Fredoka",ui-rounded,"Trebuchet MS",Arial,sans-serif;font-size:1.35rem;margin:0 0 16px;color:var(--ink);display:flex;align-items:center;gap:10px}
+.grade-group-title .tag{background:var(--green);color:#fff;border-radius:999px;padding:5px 13px;font-size:.85rem;font-weight:900;letter-spacing:.02em}
+.grade-group-title .n{color:var(--muted);font-weight:700;font-size:.95rem}
+.folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:22px;margin:6px 0 8px}
+.folder-card{position:relative;border:0;cursor:pointer;text-align:left;font:inherit;border-radius:26px;padding:22px;min-height:200px;display:flex;flex-direction:column;box-shadow:var(--shadow);background:linear-gradient(160deg,var(--body1),var(--body2));transition:transform .18s,box-shadow .18s;overflow:hidden}
+.folder-card:hover{transform:translateY(-7px) scale(1.02);box-shadow:0 26px 52px rgba(46,66,55,.2)}
+.folder-decor{position:absolute;inset:0;pointer-events:none}
+.folder-decor span{position:absolute;color:var(--tab);opacity:.32}
+.folder-decor svg{width:100%;height:100%;display:block}
+.folder-icon{position:relative;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.8);display:grid;place-items:center;box-shadow:0 8px 18px rgba(0,0,0,.08);color:var(--tab);margin-bottom:14px}
+.folder-icon svg{width:32px;height:32px}
+.folder-label{font-family:"Fredoka",ui-rounded,"Trebuchet MS",Arial,sans-serif;font-size:1.55rem;font-weight:800;color:var(--ink);margin-top:auto}
+.folder-count{font-weight:800;color:var(--ink);opacity:.68;font-size:.92rem;margin-top:3px}
+.folder-go{position:absolute;right:16px;bottom:16px;background:rgba(255,255,255,.85);color:var(--ink);padding:8px 11px;border-radius:11px;font-weight:900;font-size:.8rem}
+
+#readerOverlay{position:fixed;inset:0;z-index:2000;background:#fff;display:none;flex-direction:column}
+.reader-bar{display:flex;align-items:center;gap:14px;padding:10px 16px;background:var(--purple,#7254b8);color:#fff}
+.reader-bar button{border:0;background:rgba(255,255,255,.2);color:#fff;font-weight:800;padding:9px 14px;border-radius:10px;cursor:pointer}
+.reader-bar button:hover{background:rgba(255,255,255,.32)}
+.reader-bar .rtitle{font-weight:800;font-size:1rem}
+#readerFrame{flex:1;width:100%;border:0;background:#fff}
+
+#reviewCard{max-width:1260px;margin:26px auto 0;padding:0 24px}
+.rev-hero{background:linear-gradient(120deg,#3a3168,#7254b8);color:#fff;border-radius:22px;padding:22px 26px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow);flex-wrap:wrap}
+.rev-hero .ic{font-size:44px}.rev-hero .tx{flex:1;min-width:200px}.rev-hero .tx h3{margin:0;font-size:1.5rem}.rev-hero .tx p{margin:6px 0 0;opacity:.93;font-weight:600}
+.rev-hero .btn{background:#fff;color:#3a3168;border:0;border-radius:14px;padding:14px 22px;font-weight:950;font-size:1.05rem;cursor:pointer}
+.rev-badge{display:inline-block;margin-left:10px;background:#ffd34d;color:#5a4600;border-radius:999px;padding:4px 10px;font-size:.8rem;font-weight:950;vertical-align:middle}
+#reviewOverlay{position:fixed;inset:0;z-index:2100;background:#f5f7f4;display:none;flex-direction:column}
+.rev-bar{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#3a3168;color:#fff}
+.rev-bar button{border:0;background:rgba(255,255,255,.2);color:#fff;font-weight:800;padding:9px 14px;border-radius:10px;cursor:pointer}
+.rev-bar .ttl{font-weight:900;font-size:1.05rem}.rev-bar .prog{margin-left:auto;font-weight:800;opacity:.9}
+#revContent{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:26px 16px}
+.rev-card{background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:26px;max-width:640px;width:100%}
+.rev-src{font-weight:900;color:#7254b8;text-transform:uppercase;letter-spacing:.06em;font-size:.78rem}
+.rev-card h2{margin:8px 0 16px;font-size:1.5rem;line-height:1.25}
+.rev-opt{display:block;width:100%;text-align:left;border:1.5px solid #ddd4c9;background:#fff;border-radius:13px;padding:13px 14px;margin:9px 0;font-weight:850;cursor:pointer;font-size:1rem}
+.rev-opt:hover{border-color:#baa9db}.rev-opt.sel{border-color:#7254b8;background:#f1ecff}.rev-opt.ok{border-color:#63a453;background:#eff9eb}.rev-opt.no{border-color:#df6a61;background:#fff0ee}
+.rev-fb{margin-top:14px;background:#f4f1fb;border-radius:12px;padding:12px 14px;font-weight:700;line-height:1.5}.rev-fb.good{background:#eef9ea;color:#2f6d33}.rev-fb.bad{background:#fff0ee;color:#b23b34}
+.rev-teach{margin-top:10px;background:#eef4ff;border:1px solid #cfe0ff;border-radius:12px;padding:11px 13px;color:#243b63;font-weight:600;line-height:1.5;font-size:.92rem}
+.rev-teach .cn,.rev-card .cn,#recommendedCard .cn{display:block;margin-top:7px;color:#33507e;font-weight:600;font-size:.9rem}
+.rev-check,.rev-next{margin-top:14px;background:#7254b8;color:#fff;border:0;border-radius:12px;padding:12px 18px;font-weight:950;cursor:pointer;font-size:1rem}.rev-next{background:#315f47}
+
+/* --- kid-friendly refresh --- */
+h1,.hero h2,.cat h3,.section-title h2,.rev-hero h3,.cover-title h3,.brand h1{font-family:"Fredoka",ui-rounded,"Trebuchet MS",Arial,sans-serif;letter-spacing:.3px}
+.hero{background:linear-gradient(125deg,#2f8f6a,#7cc79b)}
+.cat{border-radius:30px;min-height:214px}
+.cat .icon{font-size:46px;width:84px;height:84px;display:grid;place-items:center;background:rgba(255,255,255,.72);border-radius:50%;box-shadow:0 8px 18px rgba(0,0,0,.10);margin-bottom:8px}
+.cat h3{font-size:1.6rem}
+.cat:hover{transform:translateY(-7px) scale(1.02)}
+.cat .count{font-weight:800}
+.book{border-radius:28px}
+.logo{border-radius:16px}
+.section-title h2{font-size:1.7rem}
+
+/* --- reading placement quiz --- */
+.placement-hero{background:linear-gradient(120deg,#1f4d38,#315f47);color:#fff;border-radius:22px;padding:22px 26px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow);flex-wrap:wrap;margin-bottom:16px}
+.placement-hero .ic{font-size:44px}.placement-hero .tx{flex:1;min-width:200px}.placement-hero .tx h3{margin:0;font-size:1.5rem;font-family:"Fredoka",ui-rounded,"Trebuchet MS",Arial,sans-serif}.placement-hero .tx p{margin:6px 0 0;opacity:.93;font-weight:600}
+.placement-hero .btn{background:#fff;color:#1f4d38;border:0;border-radius:14px;padding:14px 22px;font-weight:950;font-size:1.05rem;cursor:pointer}
+#placementOverlay{position:fixed;inset:0;z-index:2100;background:#f5f7f4;display:none;flex-direction:column}
+.plc-bar{display:flex;align-items:center;gap:14px;padding:12px 18px;background:#1f4d38;color:#fff}
+.plc-bar button{border:0;background:rgba(255,255,255,.2);color:#fff;font-weight:800;padding:9px 14px;border-radius:10px;cursor:pointer}
+.plc-bar .ttl{font-weight:900;font-size:1.05rem}.plc-bar .prog{margin-left:auto;font-weight:800;opacity:.9}
+#plcContent{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:26px 16px}
+#recommendedCard{display:none;margin-bottom:8px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+body{background:#F4FAFF;font-family:'Nunito',ui-rounded,"Trebuchet MS",Arial,sans-serif;color:#1E2A4A}
+#v2Home a{color:inherit;text-decoration:none}
+a.card{transition:transform .18s}a.card:hover{transform:translateY(-6px) rotate(-.6deg)}
+a.btn{transition:transform .15s}a.btn:hover{transform:translateY(-2px)}
+.bob{animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@keyframes wiggle{0%,100%{rotate:0deg}25%{rotate:-10deg}75%{rotate:10deg}}
+@media (prefers-reduced-motion:reduce){.bob{animation:none}}
+.rules-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:16px;box-shadow:0 5px 0 #9FB6CC;border:0;cursor:pointer;color:#1E2A4A;font-family:inherit}
+.rules-btn:hover{transform:translateY(-2px)}
+.rules-link{background:none;border:0;padding:0;margin-top:6px;font:inherit;font-weight:800;font-size:15px;color:#4A2FB8;text-decoration:underline;cursor:pointer;text-align:left}
+#modal{position:fixed;inset:0;z-index:3000;background:rgba(30,42,74,.55);display:none;align-items:center;justify-content:center;padding:16px}
+#modal .mp{background:#fff;border-radius:36px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:28px 30px 30px;position:relative;color:#1E2A4A;font-family:'Nunito',sans-serif}
+#modal h2{font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;margin:0 0 4px}
+#modal .x{position:absolute;right:18px;top:16px;width:44px;height:44px;border-radius:50%;background:#EEF3FA;border:0;font-size:22px;font-weight:800;cursor:pointer;color:#1E2A4A}
+#modal .row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#F4FAFF;margin-bottom:8px}
+#modal .row .t{flex:1;font-weight:800;font-size:17px;line-height:1.35}
+#modal .row .t small{display:block;font-weight:700;font-size:15px;color:#4A5878}
+#modal .note{background:#FFF6D6;border-radius:18px;padding:12px 16px;font-weight:700;font-size:16px;line-height:1.5}
+#modal .note small{display:block;color:#4A5878}
+.gfold{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:230px;border-radius:30px;padding:20px 22px;text-align:left;border:0;cursor:pointer;font-family:inherit;color:#1E2A4A;transition:transform .15s}
+.gfold:hover{transform:translateY(-8px) rotate(0deg)!important}
+.gfold .gn{font-family:'Fredoka',sans-serif;font-weight:700;font-size:56px;line-height:1}
+.bk{background:#fff;border-radius:28px;overflow:hidden;border:0;padding:0;text-align:left;cursor:pointer;font-family:inherit;color:#1E2A4A;display:flex;flex-direction:column;transition:transform .15s}
+.bk:hover{transform:translateY(-6px)}
+.bk img{width:100%;aspect-ratio:700/520;object-fit:cover;display:block}
+#v2Shelf button.rules-btn{font-family:inherit}
+#v2Home .wrap2{max-width:1100px;margin:0 auto}
+
+@media (max-width:640px){
+ #v2Home header{padding:14px 16px !important}
+ #v2Home header nav{gap:2px !important;justify-content:flex-start !important}
+ #v2Home header nav a{padding:8px 10px !important}
+ .teacher{margin-top:4px}
+ #top{padding:66px 18px 24px !important;margin:0 10px !important;border-radius:32px !important;gap:20px !important}
+ #heroH{font-size:36px !important}
+ #heroP{font-size:16px !important}
+ #top [data-guide]{right:12px !important;top:12px !important;font-size:14px !important;padding:8px 14px 8px 10px !important}
+ #top > div[style*="min-width: 0"]{flex-basis:100% !important}
+ #topics{flex-basis:100% !important}
+ #topics > div:first-child{padding:0 8px 12px !important}
+ #topics div[style*="grid-template-columns"]{gap:12px !important;padding:16px 12px 0 !important}
+ #botd{padding:56px 14px 0 !important}
+ #botd h2{font-size:32px !important}
+ #botd > div:nth-child(2){padding:20px 16px !important;gap:18px !important}
+ #v2Home footer{padding:24px 18px 26px !important;margin-top:50px !important}
+ #shHead{padding:24px 20px !important;min-height:0 !important}
+ #shHead > a{display:none !important}
+ .gfold{min-height:200px}
+ #modal .mp{padding:22px 16px 24px}
+ #modal h2{font-size:26px}
+}
+@media (min-width:641px){#heroBadge{position:absolute !important;left:44px;top:24px;z-index:3;box-shadow:0 4px 0 #9FB6CC}}
+@media (max-width:640px){#heroBadge{position:static !important}}
+.teacher{white-space:nowrap}
+#recommendedCard .book{border-radius:28px;box-shadow:0 7px 0 #C9D7E8}
+#recommendedCard .open{background:#6A48E8!important;border-radius:999px!important;box-shadow:0 5px 0 #4A2FB8;padding:13px 18px!important}
+#recommendedCard h2{font-family:'Fredoka',sans-serif}
+</style></head>
+<body>
+<div id="v2Home">
+
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column">
+
+<!-- header -->
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 48px">
+<a href="#top" style="display: flex; align-items: center; gap: 12px">
+<div style="width: 52px; height: 52px; border-radius: 18px; background: #FFC93C; color: #1E2A4A; display: grid; place-items: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 30px; transform: rotate(-6deg); box-shadow: 0 6px 0 #E0A800">L</div>
+<div>
+<div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px; line-height: 1">learningenglishfun</div>
+<div style="font-weight: 800; font-size: 14px; color: #4A5878; margin-top: 4px">Read · Think · Discover</div>
+</div>
+</a>
+<nav style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 800; font-size: 16px">
+<a href="#topics" style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">Topics<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">主题</span></span></a>
+
+<a data-level href="#level" style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">Find my level<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">阅读水平测试</span></span></a>
+<a href="#review" data-review style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">Review<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">复习</span></span></a><a href="#guide" data-guide style="padding: 12px 18px; border-radius: 999px"><span style="display: block; text-align: center; line-height: 1.15">How it works<span style="display: block; font-size: 12px; font-weight: 700; color: #4A5878">网站使用说明</span></span></a>
+<div class="teacher" id="syncBox"></div>
+</nav>
+</header>
+
+<!-- hero -->
+<section id="top" style="margin: 0 24px; border-radius: 48px; background: #BFE6FF; position: relative; overflow: hidden; display: flex; flex-wrap: wrap; align-items: center; gap: 28px; padding: 74px 44px 44px">
+<div style="position: absolute; right: -90px; top: -110px; width: 380px; height: 380px; border-radius: 50%; background: #FFD96B"></div>
+<div style="position: absolute; left: -60px; bottom: -120px; width: 280px; height: 280px; border-radius: 50%; background: #9ED8FF"></div><div id="heroBadge" style="background: #fff; border-radius: 999px; padding: 9px 18px; font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 8px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E2A4A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg>
+Grades K–6 · Read-aloud stories
+</div>
+<a class="btn" href="#guide" data-guide style="position: absolute; right: 36px; top: 22px; z-index: 3; background: #fff; color: #1E2A4A; font-weight: 800; font-size: 17px; padding: 10px 20px 10px 14px; border-radius: 999px; box-shadow: 0 5px 0 #E0A800; display: flex; align-items: center; gap: 8px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E2A4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.700M12 17h.01"/></svg>How to use <span style="font-weight: 700; color: #4A5878">网站使用说明</span></a>
+<div style="position: relative; flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 18px">
+<h1 id="heroH" style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 54px; line-height: 1.06; letter-spacing: -.5px">Every subject can become a <span style="background: #FFC93C; padding: 0 14px; border-radius: 18px; display: inline-block; transform: rotate(-1.5deg)">reading adventure.</span></h1>
+<p id="heroP" style="margin: 0; font-size: 18px; line-height: 1.55; font-weight: 700; color: #33415F; max-width: 560px">Explore stories and nonfiction across the elementary grades. Build knowledge, vocabulary, fluency and comprehension, one book at a time.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch">
+
+<a data-level class="btn" href="#level" style="background: #fff; color: #1E2A4A; font-weight: 800; font-size: 17px; padding: 0 20px; min-height: 64px; display: flex; align-items: center; border-radius: 999px; box-shadow: 0 6px 0 #9FB6CC"><span style="display: block; line-height: 1.15; text-align: left">Find my level<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">阅读水平测试</span></span></a><a class="btn" href="#review" data-review style="background: #fff; color: #1E2A4A; font-weight: 800; font-size: 17px; padding: 0 18px; min-height: 64px; border-radius: 999px; box-shadow: 0 6px 0 #9FB6CC; display: flex; align-items: center; gap: 10px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E2A4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg><span style="display: block; line-height: 1.15; text-align: left">Smart review<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">智能复习</span></span><span id="revBadge" style="background: #D93B1E; color: #fff; border-radius: 999px; font-size: 14px; padding: 2px 9px; min-width: 24px; text-align: center">3</span></a>
+</div>
+
+</div>
+<div id="topics" style="position:relative;flex:1 1 520px;min-width:0"><div style="position:relative;border-radius:22px 22px 10px 10px;padding:0 14px 16px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.07) 0 3px,rgba(0,0,0,.05) 3px 7px),#B8783A;box-shadow:0 10px 0 #7E4F22,0 18px 22px rgba(50,25,0,.28)"><div style="padding:12px 8px 12px;text-align:center"><div style="display:inline-block;background:linear-gradient(180deg,#F6DDB0,#EBC88C);border-radius:12px;padding:6px 22px 8px;box-shadow:0 3px 0 #8A5A2B,inset 0 0 0 2px rgba(138,90,43,.35)"><span style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;color:#5A3A12">Pick a book shelf and start!</span> <span style="font-weight:800;font-size:15px;color:#7A5A2B">选一个书架开始吧！</span></div></div><div style="position:relative;border-radius:6px;overflow:hidden;background:repeating-linear-gradient(90deg,rgba(0,0,0,.045) 0 2px,transparent 2px 64px),linear-gradient(180deg,#E9CD9E,#DDBC86);box-shadow:inset 0 9px 14px rgba(60,30,0,.28),inset 9px 0 14px rgba(60,30,0,.16),inset -9px 0 14px rgba(60,30,0,.16)"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:20px 20px 0;align-items:end"><a class="card" href="#fiction" data-shelf="Fiction" aria-label="Fiction books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #5B3FC4 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5B3FC4"/><stop offset="1" stop-color="#FF9E5E"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg1)"/><circle cx="94" cy="62" r="11" fill="#FFF3C4"/><circle cx="20" cy="52" r="1.6" fill="#fff"/><circle cx="50" cy="46" r="1.2" fill="#fff"/><circle cx="72" cy="58" r="1.4" fill="#fff"/><circle cx="108" cy="90" r="1.3" fill="#fff"/><circle cx="10" cy="88" r="1.3" fill="#fff"/><path d="M30 76 L20 62 L38 70Z" fill="#A8E87F"/><ellipse cx="38" cy="78" rx="11" ry="6.5" fill="#7ED957" stroke="#3C8B21" stroke-width="2"/><circle cx="50" cy="74" r="5.2" fill="#7ED957" stroke="#3C8B21" stroke-width="2"/><circle cx="52" cy="73" r="1.2" fill="#1E2A4A"/><path d="M28 80 Q16 86 14 76" fill="none" stroke="#3C8B21" stroke-width="3" stroke-linecap="round"/><path d="M45 68 L47 62 L51 68Z" fill="#E8456A"/><ellipse cx="60" cy="176" rx="86" ry="28" fill="#3FA06A"/><rect x="34" y="120" width="52" height="46" fill="#EDE8FA" stroke="#8A7BC4" stroke-width="2"/><rect x="26" y="106" width="14" height="60" fill="#EDE8FA" stroke="#8A7BC4" stroke-width="2"/><rect x="80" y="106" width="14" height="60" fill="#EDE8FA" stroke="#8A7BC4" stroke-width="2"/><rect x="50" y="98" width="20" height="68" fill="#F6F2FF" stroke="#8A7BC4" stroke-width="2"/><path d="M23 106 L33 88 L43 106Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="2" stroke-linejoin="round"/><path d="M77 106 L87 88 L97 106Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="2" stroke-linejoin="round"/><path d="M47 98 L60 76 L73 98Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="2" stroke-linejoin="round"/><path d="M60 76V64" stroke="#8A7BC4" stroke-width="2"/><path d="M60 64L70 68L60 72Z" fill="#FFC93C"/><path d="M54 166V150Q60 142 66 150V166Z" fill="#7A5AF8"/><rect x="31" y="118" width="4" height="7" rx="2" fill="#FFC93C"/><rect x="85" y="118" width="4" height="7" rx="2" fill="#FFC93C"/><rect x="58" y="108" width="4" height="8" rx="2" fill="#FFC93C"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; right: 16px; top: -2px; width: 14px; height: 26px; background: #D93B1E; clip-path: polygon(0 0,100% 0,100% 100%,50% 78%,0 100%); z-index: 2"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Fiction</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">故事</div></a><a class="card" href="#science" data-shelf="Science" aria-label="Science books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #1B2766 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B2766"/><stop offset="1" stop-color="#4B66E8"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg2)"/><circle cx="16" cy="56" r="1.5" fill="#fff"/><circle cx="40" cy="48" r="1.2" fill="#fff"/><circle cx="104" cy="50" r="1.6" fill="#fff"/><circle cx="20" cy="98" r="1.2" fill="#fff"/><circle cx="62" cy="92" r="1.3" fill="#fff"/><circle cx="108" cy="110" r="1.2" fill="#fff"/><circle cx="30" cy="72" r="1" fill="#fff"/><g transform="rotate(-20 84 84)"><path d="M56 84 A28 8 0 0 1 112 84" fill="none" stroke="#FF8FB1" stroke-width="4"/></g><circle cx="84" cy="84" r="17" fill="#FFC93C" stroke="#B26A00" stroke-width="2.5"/><path d="M69 78Q84 84 99 76M68 90Q84 96 100 88" fill="none" stroke="#E8A200" stroke-width="2.5"/><g transform="rotate(-20 84 84)"><path d="M56 84 A28 8 0 0 0 112 84" fill="none" stroke="#FF8FB1" stroke-width="4"/></g><ellipse cx="60" cy="178" rx="96" ry="28" fill="#C9D4EA"/><circle cx="26" cy="152" r="5" fill="#A9B7D2"/><circle cx="92" cy="158" r="7" fill="#A9B7D2"/><circle cx="62" cy="162" r="4" fill="#A9B7D2"/><g transform="translate(40,116) rotate(28)"><path d="M0 -32 Q11 -15 9 14 L-9 14 Q-11 -15 0 -32Z" fill="#fff" stroke="#4A5878" stroke-width="2.4"/><path d="M0 -32 Q4.5 -26 5.5 -21 L-5.5 -21 Q-4.5 -26 0 -32Z" fill="#FF5C5C"/><circle cx="0" cy="-7" r="5" fill="#3DA5F4" stroke="#4A5878" stroke-width="2"/><path d="M-9 6 L-18 20 L-9 15Z M9 6 L18 20 L9 15Z" fill="#FF5C5C" stroke="#4A5878" stroke-width="2" stroke-linejoin="round"/><path d="M-5 15 Q0 34 5 15Z" fill="#FFC93C" stroke="#FF8A3D" stroke-width="1.5"/></g></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Science</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">科学</div></a><a class="card" href="#sel" data-shelf="SEL" aria-label="SEL books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #C93E74 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF8FB1"/><stop offset="1" stop-color="#FFDCE8"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg3)"/><path d="M60 152 C12 120 12 76 43 74 C54 73 59 79 60 84 C61 79 66 73 77 74 C108 76 108 120 60 152Z" fill="#FF4F86" stroke="#B3265C" stroke-width="3" stroke-linejoin="round"/><path d="M30 92Q32 84 40 83" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/><circle cx="50.879999999999995" cy="105.12" r="3.3600000000000003" fill="#1E2A4A"/><circle cx="69.12" cy="105.12" r="3.3600000000000003" fill="#1E2A4A"/><path d="M50.879999999999995 115.16Q60 128.16 69.12 115.16" fill="none" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="45.120000000000005" cy="112.8" r="3.3600000000000003" fill="#FF6F9C" opacity=".5"/><circle cx="74.88" cy="112.8" r="3.3600000000000003" fill="#FF6F9C" opacity=".5"/><circle cx="20" cy="60" r="12" fill="#FFD93D" stroke="#6B4A6B" stroke-width="2"/><circle cx="15.44" cy="58.56" r="1.6800000000000002" fill="#1E2A4A"/><circle cx="24.560000000000002" cy="58.56" r="1.6800000000000002" fill="#1E2A4A"/><path d="M15.44 63.08Q20 70.08 24.560000000000002 63.08" fill="none" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="12.56" cy="62.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="27.439999999999998" cy="62.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="100" cy="62" r="12" fill="#8FD0FF" stroke="#6B4A6B" stroke-width="2"/><circle cx="95.44" cy="60.56" r="1.6800000000000002" fill="#1E2A4A"/><circle cx="104.56" cy="60.56" r="1.6800000000000002" fill="#1E2A4A"/><path d="M96.16 69.08Q100 63.68 103.84 69.08" fill="none" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="92.56" cy="64.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="107.44" cy="64.4" r="1.6800000000000002" fill="#FF6F9C" opacity=".5"/><circle cx="14" cy="150" r="11" fill="#FFB86B" stroke="#6B4A6B" stroke-width="2"/><circle cx="9.82" cy="148.68" r="1.54" fill="#1E2A4A"/><circle cx="18.18" cy="148.68" r="1.54" fill="#1E2A4A"/><ellipse cx="14" cy="154.84" rx="1.54" ry="2.2" fill="#1E2A4A"/><circle cx="7.18" cy="152.2" r="1.54" fill="#FF6F9C" opacity=".5"/><circle cx="20.82" cy="152.2" r="1.54" fill="#FF6F9C" opacity=".5"/><circle cx="106" cy="152" r="11" fill="#C7B2FF" stroke="#6B4A6B" stroke-width="2"/><circle cx="101.82" cy="150.68" r="1.54" fill="#1E2A4A"/><circle cx="110.18" cy="150.68" r="1.54" fill="#1E2A4A"/><path d="M102.92 156.29000000000002L109.08 156.29000000000002" stroke="#1E2A4A" stroke-width="1.8" stroke-linecap="round"/><circle cx="99.18" cy="154.2" r="1.54" fill="#FF6F9C" opacity=".5"/><circle cx="112.82" cy="154.2" r="1.54" fill="#FF6F9C" opacity=".5"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; right: 16px; top: -2px; width: 14px; height: 26px; background: #D93B1E; clip-path: polygon(0 0,100% 0,100% 100%,50% 78%,0 100%); z-index: 2"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">SEL</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">情感</div></a></div><div style="position:relative;height:20px;margin-top:-1px;background:linear-gradient(180deg,#F0C688 0 4px,#D29A58 4px 13px,#A9712F 13px);box-shadow:0 7px 9px rgba(60,30,0,.32);z-index:2"></div><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;padding:20px 20px 0;align-items:end"><a class="card" href="#social" data-shelf="Social Studies" aria-label="Social Studies books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #1F78BC 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7FD3FF"/><stop offset="1" stop-color="#E4F7FF"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg4)"/><ellipse cx="26" cy="60" rx="14" ry="5" fill="#fff" opacity=".8"/><ellipse cx="98" cy="70" rx="12" ry="4.5" fill="#fff" opacity=".8"/><circle cx="60" cy="92" r="30" fill="#3DA5F4" stroke="#1F78BC" stroke-width="3"/><path d="M42 78Q54 68 62 78Q58 92 46 90Z" fill="#5CC98A"/><path d="M68 98Q84 94 86 108Q76 120 64 112Z" fill="#5CC98A"/><path d="M50 106Q56 102 60 108Q56 116 50 114Z" fill="#5CC98A"/><ellipse cx="60" cy="92" rx="13" ry="30" fill="none" stroke="#fff" stroke-width="1.6" opacity=".5"/><path d="M30 92H90" stroke="#fff" stroke-width="1.6" opacity=".5"/><path d="M76 64 C69 64 67 71 69 75 L76 86 L83 75 C85 71 83 64 76 64Z" fill="#E8456A" stroke="#9E1F3E" stroke-width="1.8"/><circle cx="76" cy="71" r="3" fill="#fff"/><rect y="140" width="120" height="30" fill="#7ED957"/><rect x="6" y="124" width="22" height="22" fill="#FF8FB1" stroke="#4A5878" stroke-width="1.8"/><path d="M4 124 L17.0 110 L30 124Z" fill="#E8456A" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="14.5" y="134" width="5" height="12" fill="#7A5AF8"/><rect x="34" y="124" width="20" height="22" fill="#FFC93C" stroke="#4A5878" stroke-width="1.8"/><path d="M32 124 L44.0 110 L56 124Z" fill="#D93B1E" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="41.5" y="134" width="5" height="12" fill="#7A5AF8"/><rect x="62" y="124" width="22" height="22" fill="#BDEBF2" stroke="#4A5878" stroke-width="1.8"/><path d="M60 124 L73.0 110 L86 124Z" fill="#3DA5F4" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="70.5" y="134" width="5" height="12" fill="#7A5AF8"/><rect x="90" y="124" width="22" height="22" fill="#FFE3A3" stroke="#4A5878" stroke-width="1.8"/><path d="M88 124 L101.0 110 L114 124Z" fill="#8F6CF5" stroke="#4A5878" stroke-width="1.8" stroke-linejoin="round"/><rect x="98.5" y="134" width="5" height="12" fill="#7A5AF8"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 17px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Social Studies</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">社会</div></a><a class="card" href="#math" data-shelf="Math" aria-label="Math books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #5238C4 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A58BFF"/><stop offset="1" stop-color="#E9E0FF"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg5)"/><g transform="rotate(-3 27 152)"><rect x="12" y="138" width="30" height="28" rx="6" fill="#FFC93C" stroke="#1E2A4A" stroke-width="2.4"/><text x="27" y="159" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#1E2A4A">1</text></g><g transform="rotate(4 27 124)"><rect x="12" y="110" width="30" height="28" rx="6" fill="#FF8FB1" stroke="#1E2A4A" stroke-width="2.4"/><text x="27" y="131" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#1E2A4A">2</text></g><g transform="rotate(-5 27 96)"><rect x="12" y="82" width="30" height="28" rx="6" fill="#3DA5F4" stroke="#1E2A4A" stroke-width="2.4"/><text x="27" y="103" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#1E2A4A">3</text></g><circle cx="86" cy="94" r="21" fill="#fff" stroke="#1E2A4A" stroke-width="2.6"/><path d="M86 82V106M74 94H98" stroke="#E8456A" stroke-width="6" stroke-linecap="round"/><path d="M52 160L106 160L52 124Z" fill="#7ED957" stroke="#2F8F55" stroke-width="2.6" stroke-linejoin="round"/><path d="M60 160V154M68 160V156M76 160V154M84 160V156M92 160V154" stroke="#2F8F55" stroke-width="2"/><circle cx="98" cy="132" r="8" fill="#FF6B4A" stroke="#1E2A4A" stroke-width="2.2"/><path d="M60 52L66 60L60 68" fill="none" stroke="none"/></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; right: 16px; top: -2px; width: 14px; height: 26px; background: #D93B1E; clip-path: polygon(0 0,100% 0,100% 100%,50% 78%,0 100%); z-index: 2"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.02; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Math</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">数学</div></a><a class="card" href="#cs" data-shelf="Computer Science" aria-label="Computer Science and AI books" style="position: relative; display: block; aspect-ratio: 6 / 7; border-radius: 5px 14px 14px 5px; background: linear-gradient(90deg, #C4501F 0 15px, rgba(255,255,255,.35) 15px 17px, #fff 17px); box-shadow: 0 5px 0 rgba(0,0,0,.14), 6px 8px 14px rgba(30,42,74,.2); overflow: hidden"><svg viewBox="0 0 120 168" preserveAspectRatio="xMidYMid slice" style="position: absolute; left: 17px; top: 0; width: calc(100% - 24px); height: 100%; display: block" aria-hidden="true"><defs><linearGradient id="cg6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF9B6B"/><stop offset="1" stop-color="#FFDCC6"/></linearGradient></defs><rect width="120" height="168" fill="url(#cg6)"/><path d="M0 60H40V80H70M120 70H92V96M0 120H22V140M120 130H100" fill="none" stroke="#E8693A" stroke-width="2" opacity=".5"/><circle cx="40" cy="80" r="2.6" fill="#E8693A" opacity=".6"/><circle cx="92" cy="96" r="2.6" fill="#E8693A" opacity=".6"/><g transform="translate(-15 -2) scale(1.25)"><path d="M60 56V46" stroke="#4A5878" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="43" r="5" fill="#FFC93C" stroke="#4A5878" stroke-width="2"/><rect x="38" y="56" width="44" height="36" rx="11" fill="#EEF3FA" stroke="#4A5878" stroke-width="2.6"/><rect x="45" y="63" width="30" height="20" rx="7" fill="#1E2A4A"/><circle cx="53" cy="73" r="4.2" fill="#6FE3FF"/><circle cx="67" cy="73" r="4.2" fill="#6FE3FF"/><path d="M55 80Q60 84 65 80" fill="none" stroke="#6FE3FF" stroke-width="2" stroke-linecap="round"/><rect x="28" y="64" width="8" height="18" rx="4" fill="#FF9B6B" stroke="#4A5878" stroke-width="2"/><rect x="84" y="64" width="8" height="18" rx="4" fill="#FF9B6B" stroke="#4A5878" stroke-width="2"/></g><g stroke="#E8693A" stroke-width="1.6" opacity=".85"><path d="M12 60L26 72L12 86M26 72L40 66" fill="none"/><circle cx="12" cy="60" r="3.2" fill="#fff"/><circle cx="12" cy="86" r="3.2" fill="#fff"/><circle cx="26" cy="72" r="3.6" fill="#FFC93C"/></g><g transform="rotate(12 96 62)"><rect x="82" y="52" width="26" height="20" rx="6" fill="#FFC93C" stroke="#1E2A4A" stroke-width="2.2"/><text x="95" y="67" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">AI</text></g><path d="M106 84l1.6 3.600 3.600 1.600-3.600 1.600-1.600 3.600-1.600-3.600-3.600-1.600 3.600-1.600z" fill="#fff"/><g transform="translate(0 -12) scale(1 .92)"><path d="M24 118L10 134L24 150" fill="none" stroke="#1E2A4A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M96 118L110 134L96 150" fill="none" stroke="#1E2A4A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M68 112L52 156" stroke="#fff" stroke-width="6" stroke-linecap="round"/></g></svg><div style="position: absolute; right: 0; top: 5px; bottom: 5px; width: 7px; background: repeating-linear-gradient(180deg,#fff 0 2px,#DDE3EC 2px 3px); border-radius: 0 6px 6px 0; z-index: 1"></div><div style="position: absolute; left: 20px; right: 12px; top: 9px; text-align: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 14px; line-height: 1.05; color: #fff; text-shadow: 0 2px 0 rgba(30,42,74,.55), 0 0 8px rgba(30,42,74,.45); z-index: 1">Computer Science<br>AI</div><div style="position: absolute; left: 24px; right: 14px; bottom: 9px; text-align: center; background: rgba(255,255,255,.92); border-radius: 999px; padding: 2px 0 3px; font-weight: 800; font-size: 13px; color: #1E2A4A; z-index: 1; box-shadow: 0 2px 0 rgba(30,42,74,.15)">计算机 · 人工智能</div></a></div><div style="position:relative;height:20px;margin-top:-1px;background:linear-gradient(180deg,#F0C688 0 4px,#D29A58 4px 13px,#A9712F 13px);box-shadow:0 7px 9px rgba(60,30,0,.32);z-index:2"></div></div><div style="position:absolute;left:34px;bottom:-28px;width:36px;height:18px;border-radius:0 0 8px 8px;background:#7E4F22"></div><div style="position:absolute;right:34px;bottom:-28px;width:36px;height:18px;border-radius:0 0 8px 8px;background:#7E4F22"></div></div><div style="margin:40px 6px 0;text-align:center;font-weight:700;font-size:14px;line-height:1.5;color:#33415F">Every book is created to align with California’s academic standards.<br><span style="color:#4A5878;font-size:13.5px">所有书籍均依据加州课程标准编写。</span></div></div></section>
+
+<!-- topics -->
+
+
+
+<!-- popular -->
+<section id="botd" style="padding: 70px 48px 0"></section>
+
+
+<!-- level -->
+
+
+<!-- review + what you get -->
+
+
+<!-- footer -->
+<footer style="margin-top: 70px; background: #DCEEFF; color: #1E2A4A; border-radius: 48px 48px 0 0; padding: 30px 48px 32px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px">
+<div style="display: flex; align-items: center; gap: 12px">
+<div style="width: 44px; height: 44px; border-radius: 15px; background: #FFC93C; box-shadow: 0 4px 0 #E0A800; color: #1E2A4A; display: grid; place-items: center; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 26px; transform: rotate(-6deg)">L</div>
+<div style="font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 22px">learningenglishfun</div>
+</div>
+<div style="font-weight: 800; font-size: 16px; color: #4A5878">English reading practice for K–6.</div>
+</footer>
+
+</div>
+
+<div class="wrap" id="recWrap" style="padding-top:0"><div id="recommendedCard"></div></div></div>
+<div id="v2Shelf" style="display:none;background:#F4FAFF;min-height:100vh"><div style="max-width:1100px;margin:0 auto;padding:20px 24px 60px">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 18px"><button class="rules-btn" id="shBack">&larr; Back <span style="font-weight:700">返回</span></button></div>
+<section id="shHead" style="border-radius:40px;padding:28px 34px;color:#fff;position:relative;overflow:hidden"></section>
+<div id="shBody" style="margin-top:26px"></div></div></div>
+<div id="legacy" style="display:none">
+<div id="placementCard"><div class="placement-hero"><div class="ic">🎯</div><div class="tx"><h3>Not sure what to read?</h3><p id="placementSub">Take a quick placement quiz and we'll suggest a grade level to start with.</p></div><button class="btn" id="startPlacement">Take the quiz →</button></div></div>
+<div id="reviewCard"><div class="rev-hero"><div class="ic">🧠</div><div class="tx"><h3>Smart Review <span class="rev-badge" id="reviewBadge" style="display:none"></span></h3><p id="reviewSub">Practice the questions you missed — spaced out over days so you remember.</p></div><button class="btn" id="startReview">Start review →</button></div></div>
+</div>
+<div id="readerOverlay">
+  <div class="reader-bar"><button id="readerBack">← Back</button><span class="rtitle" id="readerTitle"></span></div>
+  <iframe id="readerFrame" title="Book reader" allow="microphone; autoplay" allowfullscreen></iframe>
+</div>
+<div id="placementOverlay"><div class="plc-bar"><button id="placementBack">← Back</button><span class="ttl">🎯 Placement Quiz</span><span class="prog" id="plcProgress"></span></div><div id="plcContent"></div></div>
+
+<div id="reviewOverlay"><div class="rev-bar"><button id="reviewBack">← Back</button><span class="ttl">🧠 Smart Review</span><span class="prog" id="revProgress"></span></div><div id="revContent"></div></div>
+<div id="modal" role="dialog" aria-modal="true"></div>
+<script src="catalog.js"></script>
+<script src="books/fiction/books.js"></script>
+<script src="books/science/books.js"></script>
+<script src="books/sel/books.js"></script>
+<script src="books/social-studies/books.js"></script>
+<script src="books/math-stories/books.js"></script>
+<script src="books/cs/books.js"></script>
+<script>
+const data = window.READIVERSE_CATALOG;
+const BOOKS = window.RV_BOOKS || {};
+const $=function(i){return document.getElementById(i);};
+function openBook(file,title,category){
+  document.getElementById("readerTitle").textContent = title || "";
+  document.getElementById("readerFrame").src = file;
+  document.getElementById("readerOverlay").style.display = "flex";
+  document.body.style.overflow = "hidden";
+  if(window.__trackEvent)window.__trackEvent("book_open",{book_id:file,book_title:title||"",category:category||""});
+}
+window.__openBook = openBook;
+function closeBook(){
+  document.getElementById("readerFrame").src = "about:blank"; /* stops any narration */
+  document.getElementById("readerOverlay").style.display = "none";
+  document.body.style.overflow = "";
+  if(window.__updateReviewBadge)window.__updateReviewBadge();
+}
+document.getElementById("readerBack").addEventListener("click", closeBook);
+
+function gradeGroupsFor(books){
+  const groups = {};
+  books.forEach(b=>{ const g = b.grade || "More Books"; (groups[g] = groups[g] || []).push(b); });
+  const gradeRank = g => /kindergarten/i.test(g) ? 0 : parseInt((g.match(/\d+/)||[])[0], 10);
+  const gradeKeys = Object.keys(groups).sort((ga,gb)=>{
+    const na = gradeRank(ga), nb = gradeRank(gb);
+    if(!isNaN(na) && !isNaN(nb)) return na - nb;
+    if(!isNaN(na)) return -1;
+    if(!isNaN(nb)) return 1;
+    return ga.localeCompare(gb);
+  });
+  return {groups, gradeKeys};
+}
+
+
+/* ---- small helpers ---- */
+function loadJ(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
+function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+var ACTX;function snd(){try{ACTX=ACTX||new (window.AudioContext||window.webkitAudioContext)();var t=ACTX.currentTime;[523,659,784].forEach(function(f,i){var o=ACTX.createOscillator(),g=ACTX.createGain();o.type='sine';o.frequency.value=f;var s=t+i*.09;g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(.1,s+.02);g.gain.exponentialRampToValueAtTime(.001,s+.25);o.connect(g);g.connect(ACTX.destination);o.start(s);o.stop(s+.3);});}catch(e){}}
+var CONF=['#FFC93C','#FF8FB1','#3DA5F4','#35B779','#7A5AF8','#FF6B4A'];
+function burst(x,y){if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;for(var i=0;i<14;i++){var d=document.createElement('span'),a=Math.random()*6.283,r=50+Math.random()*80;d.style.cssText='position:fixed;z-index:99;pointer-events:none;width:10px;height:10px;border-radius:'+(i%2?'50%':'3px')+';background:'+CONF[i%6]+';left:'+x+'px;top:'+y+'px';document.body.appendChild(d);d.animate([{transform:'translate(0,0)',opacity:1},{transform:'translate('+Math.cos(a)*r+'px,'+(Math.sin(a)*r-30)+'px) scale(.4)',opacity:0}],{duration:800,easing:'ease-out'}).onfinish=(function(n){return function(){n.remove()}})(d);}}
+function dayIdx(){var d=new Date();d.setHours(0,0,0,0);return Math.floor(d.getTime()/86400000);}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+
+/* ---- design data (icons, names) ---- */
+var OL=' stroke="#1E2A4A" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
+function rays(cx,cy,r1,r2,n,col,w){var o='';for(var i=0;i<n;i++){var t=i*6.2832/n;o+='<path d="M'+(cx+Math.cos(t)*r1).toFixed(1)+' '+(cy+Math.sin(t)*r1).toFixed(1)+'L'+(cx+Math.cos(t)*r2).toFixed(1)+' '+(cy+Math.sin(t)*r2).toFixed(1)+'" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round"/>';}return o;}
+function gearSvg(cx,cy,r,col){var o='';for(var i=0;i<8;i++){o+='<rect x="'+(cx-3.2)+'" y="'+(cy-r-4)+'" width="6.4" height="8" rx="1.5" fill="'+col+'"'+OL+' transform="rotate('+(i*45)+' '+cx+' '+cy+')"/>';}return o+'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+col+'"'+OL+'/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.42)+'" fill="#fff"'+OL+'/>';}
+function pixHeart(){var rows=['0110110','1111111','1111111','0111110','0011100','0001000'],o='';rows.forEach(function(r,y){for(var x=0;x<7;x++)if(r[x]==='1')o+='<rect x="'+(5+x*7)+'" y="'+(10+y*7)+'" width="7" height="7" fill="#FF4F86" stroke="#B3265C" stroke-width="1.2"/>';});return o;}
+var STARP='M30 6l7.200 15.600 17 2-12.600 11.600 3.400 16.800L30 43l-15 8.600 3.400-16.800L5.800 23.600l17-2z';
+var ICONS={
+'Fiction':[
+ '<path d="M6 16Q19 11 30 17V50Q19 44 6 49Z" fill="#fff"'+OL+'/><path d="M54 16Q41 11 30 17V50Q41 44 54 49Z" fill="#FFF3C4"'+OL+'/><path d="M12 24Q19 22 25 25M12 31Q19 29 25 32M35 25Q41 22 48 24M35 32Q41 29 48 31" fill="none" stroke="#8A7BC4" stroke-width="1.8" stroke-linecap="round"/><path d="M46 6l2 4.600 4.600 2-4.600 2-2 4.600-2-4.600-4.600-2 4.600-2z" fill="#FFC93C" stroke="#B26A00" stroke-width="1.4" stroke-linejoin="round"/>',
+ '<path d="M12 50L38 24" stroke="#8A5A2B" stroke-width="6" stroke-linecap="round"/><path d="M42 8l3.600 8.600 8.600 3.600-8.600 3.600L42 33l-3.600-8.600L30 20.800l8.400-3.600z" fill="#FFC93C"'+OL+'/><circle cx="14" cy="22" r="2.200" fill="#7A5AF8"/><circle cx="50" cy="44" r="2.200" fill="#FF8FB1"/>',
+ '<circle cx="20" cy="22" r="11" fill="#FFC93C"'+OL+'/><circle cx="20" cy="22" r="4" fill="#fff"'+OL+'/><path d="M28 30L46 48M40 42l5-5M45 47l5-5" fill="none" stroke="#1E2A4A" stroke-width="7" stroke-linecap="round"/><path d="M28 30L46 48M40 42l5-5M45 47l5-5" fill="none" stroke="#FFC93C" stroke-width="3.4" stroke-linecap="round"/>',
+ '<rect x="8" y="28" width="44" height="24" rx="4" fill="#B07A4A"'+OL+'/><path d="M8 28Q8 12 30 12Q52 12 52 28Z" fill="#C98B4B"'+OL+'/><rect x="26" y="26" width="8" height="12" rx="2" fill="#FFC93C"'+OL+'/><circle cx="30" cy="31" r="1.600" fill="#1E2A4A"/><path d="M12 8l1.600 3.400 3.400 1.600-3.400 1.600L12 18l-1.600-3.400L7 13l3.400-1.600z" fill="#FFC93C"/>',
+ '<rect x="16" y="24" width="28" height="28" fill="#EDE8FA"'+OL+'/><path d="M16 24V18H22V22H27V18H33V22H38V18H44V24" fill="#EDE8FA"'+OL+'/><path d="M13 24L30 8L47 24Z" fill="#E8456A"'+OL+'/><path d="M30 8V2M30 2L38 5L30 8" fill="#FFC93C" stroke="#1E2A4A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M25 52V42Q30 36 35 42V52Z" fill="#7A5AF8"'+OL+'/>',
+ '<path d="M14 44L32 6L46 44Z" fill="#7A5AF8"'+OL+'/><path d="M32 6Q42 10 44 18" fill="none" stroke="#1E2A4A" stroke-width="2.2" stroke-linecap="round"/><rect x="18" y="34" width="26" height="6" fill="#FFC93C"'+OL+'/><path d="M4 46Q30 36 56 46Q56 54 30 54Q4 54 4 46Z" fill="#5238C4"'+OL+'/><path d="M30 20l1.600 3.600 3.800.4-2.800 2.600.8 3.800L30 28.400l-3.400 2 .8-3.800-2.800-2.600 3.800-.4z" fill="#FFC93C"/>',
+ '<path d="M8 44L6 18L18 30L30 12L42 30L54 18L52 44Z" fill="#FFC93C"'+OL+'/><rect x="8" y="44" width="44" height="8" rx="2" fill="#F5A524"'+OL+'/><circle cx="30" cy="38" r="4" fill="#E8456A"'+OL+'/><circle cx="16" cy="40" r="2.600" fill="#3DA5F4"'+OL+'/><circle cx="44" cy="40" r="2.600" fill="#3DA5F4"'+OL+'/>'],
+'Science':[
+ '<circle cx="25" cy="25" r="15" fill="#BDEBF2"'+OL+'/><path d="M17 20Q20 15 26 14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M37 37L52 52" stroke="#8A5A2B" stroke-width="7" stroke-linecap="round"/>',
+ '<path d="M16 40H44L50 48Q52 54 46 54H14Q8 54 10 48Z" fill="#7FD6E6"/><path d="M22 8H38M24 8V24L10 48Q8 54 14 54H46Q52 54 50 48L36 24V8" fill="none"'+OL+'/><circle cx="26" cy="34" r="2.600" fill="#fff"'+OL+'/><circle cx="35" cy="28" r="2" fill="#fff"'+OL+'/>',
+ '<path d="M12 12V34A18 18 0 0 0 48 34V12H36V34A6 6 0 0 1 24 34V12Z" fill="#E8456A"'+OL+'/><rect x="12" y="12" width="12" height="9" fill="#C9D4EA"'+OL+'/><rect x="36" y="12" width="12" height="9" fill="#C9D4EA"'+OL+'/>',
+ '<rect x="10" y="50" width="38" height="6" rx="2" fill="#7A5AF8"'+OL+'/><path d="M40 50V40Q50 30 40 18" fill="none" stroke="#1E2A4A" stroke-width="5" stroke-linecap="round"/><g transform="rotate(25 26 22)"><rect x="19" y="6" width="14" height="28" rx="3" fill="#C9D4EA"'+OL+'/><rect x="21" y="34" width="10" height="6" rx="1" fill="#4A5878"'+OL+'/></g><rect x="14" y="44" width="22" height="4" rx="1" fill="#C9D4EA"'+OL+'/>',
+ '<g transform="rotate(-20 30 30)"><path d="M4 30A26 8 0 0 1 56 30" fill="none" stroke="#FF8FB1" stroke-width="4"/></g><circle cx="30" cy="30" r="15" fill="#FFC93C"'+OL+'/><path d="M17 26Q30 32 43 25M17 36Q30 41 43 35" fill="none" stroke="#E8A200" stroke-width="2.200"/><g transform="rotate(-20 30 30)"><path d="M4 30A26 8 0 0 0 56 30" fill="none" stroke="#FF8FB1" stroke-width="4"/></g>',
+ '<g transform="translate(30,30) rotate(35)"><path d="M0 -24Q10 -10 8 12L-8 12Q-10 -10 0 -24Z" fill="#fff"'+OL+'/><path d="M0 -24Q4 -19 5 -15L-5 -15Q-4 -19 0 -24Z" fill="#FF5C5C"/><circle cx="0" cy="-3" r="4.500" fill="#3DA5F4"'+OL+'/><path d="M-8 4L-16 16L-8 12Z M8 4L16 16L8 12Z" fill="#FF5C5C"'+OL+'/><path d="M-4 12Q0 26 4 12Z" fill="#FFC93C"'+OL+'/></g>',
+ '<ellipse cx="30" cy="30" rx="25" ry="9" fill="none" stroke="#3DA5F4" stroke-width="2.800"/><ellipse cx="30" cy="30" rx="25" ry="9" transform="rotate(60 30 30)" fill="none" stroke="#7A5AF8" stroke-width="2.800"/><ellipse cx="30" cy="30" rx="25" ry="9" transform="rotate(120 30 30)" fill="none" stroke="#FF8FB1" stroke-width="2.800"/><circle cx="30" cy="30" r="6" fill="#FFC93C"'+OL+'/><circle cx="54" cy="30" r="3" fill="#3DA5F4"'+OL+'/>'],
+'SEL':[
+ '<circle cx="30" cy="30" r="22" fill="#FFD93D"'+OL+'/><circle cx="22" cy="26" r="2.600" fill="#1E2A4A"/><circle cx="38" cy="26" r="2.600" fill="#1E2A4A"/><path d="M20 36Q30 46 40 36" fill="none" stroke="#1E2A4A" stroke-width="2.600" stroke-linecap="round"/><circle cx="15" cy="34" r="3" fill="#FF8FB1" opacity=".6"/><circle cx="45" cy="34" r="3" fill="#FF8FB1" opacity=".6"/>',
+ '<path d="M30 52C6 36 6 14 20 13C25 13 29 16 30 20C31 16 35 13 40 13C54 14 54 36 30 52Z" fill="#FF4F86"'+OL+'/><path d="M16 22Q17 18 21 18" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/>',
+ '<path d="M22 50C2 36 2 18 14 17C18 17 21 19 22 23C23 19 26 17 30 17C42 18 42 36 22 50Z" fill="#FF4F86"'+OL+'/><path d="M42 40C28 31 28 20 36 19C39 19 41 21 42 24C43 21 45 19 48 19C56 20 56 31 42 40Z" fill="#FF8FB1"'+OL+'/>',
+ rays(30,30,17,26,10,'#FFB347',3.600)+'<circle cx="30" cy="30" r="14" fill="#FFD93D"'+OL+'/><circle cx="25" cy="28" r="2" fill="#1E2A4A"/><circle cx="35" cy="28" r="2" fill="#1E2A4A"/><path d="M24 34Q30 40 36 34" fill="none" stroke="#1E2A4A" stroke-width="2.200" stroke-linecap="round"/>',
+ '<path d="M6 44A24 24 0 0 1 54 44" fill="none" stroke="#FF5C5C" stroke-width="5"/><path d="M12 44A18 18 0 0 1 48 44" fill="none" stroke="#FFC93C" stroke-width="5"/><path d="M18 44A12 12 0 0 1 42 44" fill="none" stroke="#3DA5F4" stroke-width="5"/><ellipse cx="9" cy="46" rx="8" ry="5" fill="#fff"'+OL+'/><ellipse cx="51" cy="46" rx="8" ry="5" fill="#fff"'+OL+'/>',
+ '<path d="'+STARP+'" fill="#FFD93D"'+OL+'/><circle cx="24" cy="30" r="2.200" fill="#1E2A4A"/><circle cx="36" cy="30" r="2.200" fill="#1E2A4A"/><path d="M25 37Q30 42 35 37" fill="none" stroke="#1E2A4A" stroke-width="2.200" stroke-linecap="round"/>',
+ '<path d="M18 10H42V26Q42 38 30 38Q18 38 18 26Z" fill="#FFC93C"'+OL+'/><path d="M18 14H10Q10 26 20 28M42 14H50Q50 26 40 28" fill="none"'+OL+'/><rect x="26" y="38" width="8" height="8" fill="#F5A524"'+OL+'/><rect x="18" y="46" width="24" height="7" rx="2" fill="#B07A4A"'+OL+'/><path d="M30 14l2 4.400 4.800.6-3.500 3.300.9 4.800L30 24.800 25.800 27l.9-4.800-3.500-3.300 4.800-.6z" fill="#fff"/>'],
+'Social Studies':[
+ '<path d="M8 30L30 10L52 30Z" fill="#E8456A"'+OL+'/><rect x="14" y="30" width="32" height="22" fill="#FFE3A3"'+OL+'/><rect x="25" y="38" width="10" height="14" fill="#7A5AF8"'+OL+'/><rect x="17" y="34" width="6" height="6" fill="#BDEBF2"'+OL+'/>',
+ '<rect x="8" y="26" width="44" height="26" fill="#FFC93C"'+OL+'/><path d="M8 26L30 12L52 26Z" fill="#E8456A"'+OL+'/><path d="M30 12V3L40 6L30 9" fill="#3DA5F4" stroke="#1E2A4A" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><rect x="25" y="38" width="10" height="14" fill="#7A5AF8"'+OL+'/><rect x="13" y="32" width="7" height="7" fill="#BDEBF2"'+OL+'/><rect x="40" y="32" width="7" height="7" fill="#BDEBF2"'+OL+'/>',
+ '<rect x="6" y="28" width="16" height="24" fill="#FF8FB1"'+OL+'/><rect x="22" y="12" width="18" height="40" fill="#BDEBF2"'+OL+'/><rect x="40" y="22" width="14" height="30" fill="#FFE3A3"'+OL+'/><path d="M27 20H35M27 28H35M27 36H35M11 34H17M11 42H17M44 28H50M44 36H50" stroke="#1E2A4A" stroke-width="2.200" stroke-linecap="round"/>',
+ '<circle cx="30" cy="30" r="22" fill="#fff"'+OL+'/><circle cx="30" cy="30" r="17" fill="#BDEBF2" stroke="#1E2A4A" stroke-width="1.400"/><path d="M30 14L35 30H25Z" fill="#E8456A"'+OL+'/><path d="M30 46L35 30H25Z" fill="#fff"'+OL+'/><circle cx="30" cy="30" r="2" fill="#1E2A4A"/>',
+ '<circle cx="30" cy="30" r="22" fill="#3DA5F4"'+OL+'/><path d="M16 22Q24 14 31 22Q28 32 19 31Z" fill="#5CC98A"/><path d="M35 36Q46 33 47 42Q40 50 32 45Z" fill="#5CC98A"/><path d="M30 8V52M10 30H50" stroke="#fff" stroke-width="1.600" opacity=".5"/>',
+ '<path d="M14 6V54" stroke="#1E2A4A" stroke-width="3.400" stroke-linecap="round"/><path d="M16 10Q28 4 38 10T56 10V32Q46 38 38 32T16 32Z" fill="#E8456A"'+OL+'/><circle cx="14" cy="6" r="3" fill="#FFC93C"'+OL+'/><path d="M16 21Q28 15 38 21T56 21" fill="none" stroke="#fff" stroke-width="3"/>',
+ '<path d="M6 22L30 8L54 22Z" fill="#E8D5B0"'+OL+'/><rect x="10" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="22" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="34" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="46" y="25" width="6" height="21" fill="#F6ECD6"'+OL+'/><rect x="6" y="46" width="48" height="8" rx="2" fill="#E8D5B0"'+OL+'/>'],
+'Math':[
+ '<circle cx="16" cy="38" r="10" fill="#FF6B4A"'+OL+'/><rect x="28" y="28" width="22" height="22" rx="3" fill="#3DA5F4"'+OL+'/><path d="M22 24L33 6L44 24Z" fill="#FFC93C"'+OL+'/>',
+ '<circle cx="30" cy="30" r="22" fill="#fff"'+OL+'/><path d="M30 17V43M17 30H43" stroke="#E8456A" stroke-width="7" stroke-linecap="round"/>',
+ '<g transform="rotate(-35 30 30)"><rect x="4" y="21" width="52" height="18" rx="3" fill="#FFC93C"'+OL+'/><path d="M12 21V29M20 21V26M28 21V29M36 21V26M44 21V29" stroke="#1E2A4A" stroke-width="2" stroke-linecap="round"/></g>',
+ '<circle cx="30" cy="30" r="22" fill="#fff"'+OL+'/><path d="M30 12V15M30 45V48M12 30H15M45 30H48" stroke="#1E2A4A" stroke-width="2.400" stroke-linecap="round"/><path d="M30 30V18M30 30L40 36" stroke="#1E2A4A" stroke-width="3.400" stroke-linecap="round"/><circle cx="30" cy="30" r="2.600" fill="#E8456A"/>',
+ '<path d="M30 30L30 8A22 22 0 1 1 8.500 35Z" fill="#3DA5F4"'+OL+'/><path d="M30 30L8.500 35A22 22 0 0 1 30 8Z" fill="#FFC93C"'+OL+' transform="translate(-3 -3)"/>',
+ '<path d="M30 8L52 20V42L30 54L8 42V20Z" fill="#A58BFF"'+OL+'/><path d="M30 8L52 20L30 32L8 20Z" fill="#D9CCFF"'+OL+'/><path d="M30 32V54" stroke="#1E2A4A" stroke-width="2.200"/>',
+ '<path d="M10 6V50H56" fill="none"'+OL+'/><rect x="16" y="32" width="9" height="18" fill="#3DA5F4"'+OL+'/><rect x="29" y="20" width="9" height="30" fill="#FFC93C"'+OL+'/><rect x="42" y="10" width="9" height="40" fill="#E8456A"'+OL+'/>'],
+'Computer Science':[
+ '<path d="M30 14V6" stroke="#1E2A4A" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="5" r="3.400" fill="#FFC93C"'+OL+'/><rect x="10" y="14" width="40" height="34" rx="10" fill="#EEF3FA"'+OL+'/><rect x="16" y="22" width="28" height="18" rx="6" fill="#1E2A4A"/><circle cx="24" cy="31" r="3.600" fill="#6FE3FF"/><circle cx="36" cy="31" r="3.600" fill="#6FE3FF"/><rect x="4" y="26" width="6" height="14" rx="3" fill="#FF9B6B"'+OL+'/><rect x="50" y="26" width="6" height="14" rx="3" fill="#FF9B6B"'+OL+'/>',
+ '<rect x="8" y="8" width="44" height="44" rx="10" fill="#FFB48A"'+OL+'/><path d="M18 30H42M33 20L43 30L33 40" fill="none" stroke="#1E2A4A" stroke-width="4.400" stroke-linecap="round" stroke-linejoin="round"/>',
+ pixHeart(),
+ gearSvg(22,34,11,'#C9D4EA')+gearSvg(44,18,8,'#FFC93C'),
+ '<rect x="12" y="12" width="36" height="26" rx="4" fill="#1E2A4A"'+OL+'/><path d="M26 20L20 25L26 30M34 20L40 25L34 30" fill="none" stroke="#6FE3FF" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 44H54L50 50H10Z" fill="#C9D4EA"'+OL+'/>',
+ '<path d="M22 8V14M30 8V14M38 8V14M22 46V52M30 46V52M38 46V52M8 22H14M8 30H14M8 38H14M46 22H52M46 30H52M46 38H52" stroke="#1E2A4A" stroke-width="3" stroke-linecap="round"/><rect x="14" y="14" width="32" height="32" rx="5" fill="#4A5878"'+OL+'/><rect x="22" y="22" width="16" height="16" rx="3" fill="#6FE3FF"'+OL+'/>',
+ '<rect x="8" y="14" width="44" height="34" rx="10" fill="#FF9B6B"'+OL+'/><text x="30" y="40" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="22" fill="#fff" stroke="#1E2A4A" stroke-width="1" paint-order="stroke">AI</text><path d="M50 4l1.800 4.200 4.200 1.800-4.200 1.800L50 16l-1.800-4.200L44 10l4.200-1.800z" fill="#FFC93C"/>']
+};
+var GIDX={'Kindergarten':0,'Grade 1':1,'Grade 2':2,'Grade 3':3,'Grade 4':4,'Grade 5':5,'Grade 6':6};
+function gicon(sj,g){return '<svg viewBox="0 0 60 60" aria-hidden="true" style="width:100%;height:100%;overflow:visible">'+ICONS[sj][GIDX[g]]+'</svg>';}
+var HUE={'Fiction':262,'Science':217,'SEL':335,'Social Studies':150,'Math':252,'Computer Science':20};
+function gcol(sj,i){var h=HUE[sj];return ['hsl('+h+',92%,'+(91-i*2.2)+'%)','hsl('+h+',55%,'+(62-i*3)+'%)'];}
+var INTRO={'Fiction':['Every book opens a new adventure!','每一本书都是一次新的冒险！'],'Science':['Discover something new with every book!','每读一本书，都有新发现！'],'SEL':['Grow your heart with every book!','每读一本书，内心都更强大！'],'Social Studies':['Explore your world, one book at a time!','一本书一本书，探索你的世界！'],'Math':['Count, build and solve with every book!','每读一本书，都能数、搭、解题！'],'Computer Science':['Level up your thinking with every book!','每读一本书，思维升一级！']};
+function gl(t,x,y,sz,rot){return '<div style="position:absolute;left:'+x+';top:'+y+';font-family:Fredoka,sans-serif;font-weight:700;font-size:'+sz+'px;color:#fff;opacity:.2;transform:rotate('+rot+'deg);pointer-events:none">'+t+'</div>';}
+function svgd(inner,x,y,w,o){return '<svg viewBox="0 0 60 60" style="position:absolute;left:'+x+';top:'+y+';width:'+w+'px;height:'+w+'px;opacity:'+o+';pointer-events:none" aria-hidden="true">'+inner+'</svg>';}
+function sparkle(x,y,s,o){return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" style="position:absolute;left:'+x+';top:'+y+';opacity:'+o+'" aria-hidden="true"><path d="M12 2l2.600 6.400L21 11l-6.400 2.600L12 20l-2.600-6.400L3 11l6.400-2.600z" fill="#fff"/></svg>';}
+function deco(sj){
+ var H='<path d="M30 52C6 36 6 14 20 13C25 13 29 16 30 20C31 16 35 13 40 13C54 14 54 36 30 52Z" fill="#fff"/>';
+ if(sj==='Fiction')return sparkle('44%','14%',24,.8)+sparkle('58%','62%',16,.6)+sparkle('30%','80%',14,.5)+'<div style="position:absolute;left:52%;top:10%;width:46px;height:46px;border-radius:50%;background:#FFF3C4;opacity:.85;box-shadow:inset -12px 0 0 0 '+SCN.Fiction[1]+'"></div>';
+ if(sj==='Science')return sparkle('44%','12%',20,.8)+sparkle('62%','60%',14,.6)+svgd('<ellipse cx="30" cy="30" rx="26" ry="9" fill="none" stroke="#fff" stroke-width="2.600"/><ellipse cx="30" cy="30" rx="26" ry="9" transform="rotate(60 30 30)" fill="none" stroke="#fff" stroke-width="2.600"/><ellipse cx="30" cy="30" rx="26" ry="9" transform="rotate(120 30 30)" fill="none" stroke="#fff" stroke-width="2.600"/>','46%','48%',90,.22);
+ if(sj==='SEL')return svgd(H,'44%','10%',40,.28)+svgd(H,'58%','58%',26,.22)+svgd(H,'30%','72%',30,.2)+svgd(H,'66%','12%',22,.2);
+ if(sj==='Social Studies')return svgd('<path d="M30 6C21 6 17 14 20 21L30 40L40 21C43 14 39 6 30 6Z" fill="#fff"/><circle cx="30" cy="17" r="5" fill="#000" opacity=".3"/>','45%','10%',44,.26)+svgd('<ellipse cx="22" cy="38" rx="20" ry="10" fill="#fff"/><ellipse cx="38" cy="32" rx="16" ry="12" fill="#fff"/>','56%','56%',70,.2)+svgd('<path d="M30 6C21 6 17 14 20 21L30 40L40 21C43 14 39 6 30 6Z" fill="#fff"/>','32%','68%',28,.2);
+ if(sj==='Math')return gl('+','44%','8%',54,-10)+gl('×','58%','58%',48,12)+gl('=','34%','66%',44,-6)+gl('7','64%','12%',46,8)+gl('÷','50%','36%',38,-14);
+ return gl('&lt;/&gt;','42%','8%',46,-8)+gl('{ }','60%','56%',44,10)+gl('01','34%','68%',40,-6)+gl('10','66%','14%',38,6)+gl(';','52%','38%',44,12);}
+var GCN={'Kindergarten':'幼儿园','Grade 1':'一年级','Grade 2':'二年级','Grade 3':'三年级','Grade 4':'四年级','Grade 5':'五年级','Grade 6':'六年级'};
+var GLBL={'Kindergarten':'K','Grade 1':'1','Grade 2':'2','Grade 3':'3','Grade 4':'4','Grade 5':'5','Grade 6':'6'};
+var SCN={'Fiction':['故事','#5B3FC4','#EDE7FF','Adventure, mystery, fantasy and friendship stories.','冒险、推理、奇幻和友情故事。'],'Science':['科学','#1B2766','#DCE6FF','Animals, space, weather, ecosystems and discoveries.','动物、太空、天气、生态系统和发现。'],'SEL':['情感','#C93E74','#FFE0EC','Feelings, kindness, confidence and growth mindset.','情绪、善良、自信和成长思维。'],'Social Studies':['社会','#1F78BC','#D9EFFF','Communities, maps, citizenship, culture and economics.','社区、地图、公民、文化和经济。'],'Math':['数学','#5238C4','#E6DEFF','Fractions, measurement, geometry and problem solving.','分数、测量、几何和解题。'],'Computer Science':['计算机','#C4501F','#FFE3D4','Coding, patterns, and how smart machines (AI) follow steps and learn.','编程、规律，以及智能机器（AI）如何按步骤工作和学习。']};
+
+var LEVELCN={'Beginning Reader':'初级读者','Early Reader':'早期读者','Growing Reader':'成长读者','Fluent Reader':'流利读者'};
+var ID2NAME={'fiction':'Fiction','science':'Science','sel':'SEL','social-studies':'Social Studies','math-stories':'Math','cs':'Computer Science'};
+var NAME2ID={};Object.keys(ID2NAME).forEach(function(k){NAME2ID[ID2NAME[k]]=k;});
+var SUBJ=['Fiction','Science','SEL','Social Studies','Math','Computer Science'];
+var READING_GATED=['fiction','sel','social-studies'];
+var GRADES=['Kindergarten','Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6'];
+
+/* ---- real library, shaped for the design ---- */
+var SHELF={},ALL=[];
+(function(){Object.keys(ID2NAME).forEach(function(id){var books=BOOKS[id]||[],gg=gradeGroupsFor(books),sj=ID2NAME[id];SHELF[sj]={};
+ gg.gradeKeys.forEach(function(g){SHELF[sj][g]={count:gg.groups[g].length,books:gg.groups[g].map(function(b){var o={slug:b.slug,title:b.title,subtitle:b.subtitle||'',grade:b.grade||g,band:b.readingBand||'',minutes:b.minutes||'',subject:sj,id:id,cover:b.cover,file:b.file};ALL.push(o);return o;})};});});})();
+
+/* ---- reading habits (which books the child opened) ---- */
+var _openBook=openBook;
+openBook=function(file,title,category){_openBook(file,title,category);noteOpen(file,category);};
+window.__openBook=openBook;
+function noteOpen(file,cat){var b=null;ALL.forEach(function(x){if(x.file===file)b=x;});if(!b)return;var O=loadJ('lef_opens_v1',[]);O.push({file:file,slug:b.slug,subject:b.subject,grade:b.grade,t:Date.now()});saveJ('lef_opens_v1',O.slice(-60));}
+function gradeRank(g){return /kindergarten/i.test(g)?0:(parseInt((String(g).match(/\d+/)||[])[0],10)||0);}
+function placement(){return loadJ('les_placement_v1',null);}
+function habit(){var O=loadJ('lef_opens_v1',[]);if(!O.length)return null;var rec=O.slice(-5).map(function(x){return gradeRank(x.grade);}).sort(function(a,b){return a-b;}),g=rec[Math.floor(rec.length/2)];
+ var counts={};SUBJ.forEach(function(k){counts[k]=0;});O.forEach(function(x){if(counts[x.subject]!==undefined)counts[x.subject]++;});
+ var fav=SUBJ.slice().sort(function(a,b){return counts[b]-counts[a];})[0];return {grade:g,n:O.length,counts:counts,fav:fav};}
+function openedSet(){var s={};loadJ('lef_opens_v1',[]).forEach(function(x){s[x.file]=1;});return s;}
+function todayBook(){
+ var R=placement(),P=R?null:habit(),mode=R?'test':(P?'habit':'none'),di=dayIdx(),done=openedSet();
+ var stretch=(di%4===3&&(mode==='test'||(mode==='habit'&&P.n>=3))),variety=(mode==='habit'&&di%3===0&&P.n>=3);
+ var order=SUBJ.map(function(x,i){return SUBJ[(di+i)%6];});
+ if(mode==='habit')order=SUBJ.slice().sort(function(a,b){return variety?(P.counts[a]-P.counts[b]):(P.counts[b]-P.counts[a]);});
+ function targetRank(id){var g=mode==='test'?(READING_GATED.indexOf(id)>=0?R.primaryGrade:(R.reportedGrade||R.primaryGrade)):(mode==='habit'?GRADES[P.grade]:null);if(mode==='none')return -1;var r=gradeRank(g);return stretch?Math.min(6,r+1):r;}
+ var pick=null;
+ for(var k=0;k<order.length&&!pick;k++){var id=NAME2ID[order[k]],tr=targetRank(id);
+  var pool=(BOOKS[id]||[]).filter(function(b){var gr=gradeRank(b.grade||'');return mode==='none'?(gr<=1):gr===tr;});
+  var c=pool.filter(function(b){return !done[b.file];});if(c.length)pick={b:c[0],id:id};}
+ if(!pick){var any=ALL.filter(function(b){return gradeRank(b.grade)<=1;});if(!any.length)any=ALL;var b0=any[di%any.length];pick={b:{slug:b0.slug,title:b0.title,subtitle:b0.subtitle,grade:b0.grade,readingBand:b0.band,minutes:b0.minutes,cover:b0.cover,file:b0.file},id:b0.id};}
+ var b=pick.b,sj=ID2NAME[pick.id],scn=SCN[sj][0],R2;
+ if(mode==='none')R2={en:'Take the quick reading test and we will pick books at your level.',cn:'先做阅读水平测试，我们会按你的水平选书。',en2:'',cn2:''};
+ else if(mode==='test')R2={en:'Picked for your level: '+R.primaryGrade,cn:'根据你的阅读水平测试挑选：'+(GCN[R.primaryGrade]||R.primaryGrade),en2:stretch?'Today is a stretch day: one grade up!':'',cn2:stretch?'今天是挑战日：高一个年级的书！':''};
+ else{var main=stretch?['A little harder, just for you','比你平时读的稍微难一点']:variety?['Something new to try: '+sj,'换个新科目试试：'+scn]:(sj===P.fav&&P.counts[sj]>0)?['Because you enjoy '+sj+' books','因为你喜欢'+scn+'类的书']:['Picked from your reading habits','根据你的阅读习惯挑选'];
+  R2={en:main[0],cn:main[1],en2:'Matched to '+GRADES[P.grade]+', based on the '+P.n+' book'+(P.n>1?'s':'')+' you opened'+(P.n<3?'. Read a few more and it gets better!':'.'),cn2:'根据你打开过的 '+P.n+' 本书匹配：'+(GCN[GRADES[P.grade]]||'')+(P.n<3?'。多读几本，推荐会更准！':'。')};}
+ return {book:b,cat:pick.id,subject:sj,stretch:stretch,mode:mode,reason:R2};}
+function renderBotd(){
+ var el=$('botd');if(!el)return;var t=todayBook(),b=t.book,R=t.reason;
+ var who='<div style="font-weight:800;font-size:17px;color:#1E2A4A;line-height:1.35">'+R.en+'<div style="font-weight:700;font-size:15px;color:#4A5878">'+R.cn+'</div>'+(R.en2?'<div style="font-weight:700;font-size:14px;color:#4A5878;margin-top:4px">'+R.en2+'<br>'+R.cn2+'</div>':'')+(t.mode!=='test'?'<div style="margin-top:6px"><a data-level href="#level" class="rules-link">'+(t.mode==='habit'?'Want a more exact match? Take the level test 想要更准？做阅读水平测试':'Take the level test 做阅读水平测试')+'</a></div>':'')+'</div>';
+ el.innerHTML='<div style="margin-bottom:26px">'+who+'</div>'
+ +'<div style="background:'+(t.stretch?'#D9CCFF':'#FFE9B0')+';border-radius:44px;padding:28px;display:flex;flex-wrap:wrap;align-items:center;gap:36px;box-shadow:0 8px 0 '+(t.stretch?'#A892EA':'#E8B84A')+';position:relative">'
+ +'<div style="position:absolute;left:22px;top:-18px;background:'+(t.stretch?'#5238C4':'#D93B1E')+';color:#fff;font-weight:800;font-size:15px;padding:9px 20px;border-radius:999px;transform:rotate(-3deg)">'+(t.stretch?'Stretch book':'Book of the day')+' <span style="font-weight:700">'+(t.stretch?'挑战书':'今日一本')+'</span></div>'
+ +'<img src="'+b.cover+'" alt="'+b.title+' cover" style="flex:0 1 380px;width:380px;max-width:100%;aspect-ratio:700/520;object-fit:cover;border-radius:28px;border:6px solid #fff;box-sizing:border-box;transform:rotate(-2deg);box-shadow:0 8px 0 rgba(0,0,0,.12)">'
+ +'<div style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:14px"><h2 style="margin:0;font-family:Fredoka,sans-serif;font-weight:700;font-size:44px;line-height:1.05">'+b.title+'</h2><p style="margin:0;font-size:20px;font-weight:700;color:#3A3A52">'+(b.subtitle||'')+'</p>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:8px"><span class="bp">'+t.subject+' · '+(b.grade||'')+'</span>'+(b.minutes?'<span class="bp">'+b.minutes+'</span>':'')+(b.readingBand?'<span class="bp">'+b.readingBand+'</span>':'')+'</div>'
+ +'<div><a class="btn read-now" href="#book" data-file="'+b.file+'" data-title="'+b.title.replace(/"/g,'&quot;')+'" data-cat="'+t.cat+'" style="display:inline-flex;align-items:center;gap:10px;background:#D93B1E;color:#fff;font-weight:800;font-size:20px;padding:17px 32px;border-radius:999px;box-shadow:0 6px 0 #9E2810">Read now <span style="font-weight:700;font-size:16px">开始阅读</span></a></div></div></div>';
+ Array.prototype.forEach.call(el.querySelectorAll('.bp'),function(x){x.style.cssText='background:#fff;border-radius:999px;padding:8px 16px;font-weight:800';});}
+
+/* ---- the subject -> grade -> books pages ---- */
+function renderShelf(){
+ var sj=shState.subject,g=shState.grade,c=SCN[sj];
+ var head=$('shHead');head.style.cssText='border-radius:44px;padding:30px 36px;color:#fff;position:relative;overflow:hidden;min-height:210px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(115deg,'+c[1]+' 0%,'+c[1]+' 52%,'+c[1]+'cc 100%)';
+ var src=document.querySelector('[data-shelf="'+sj+'"]'),cov='';
+ if(src){var cl=src.cloneNode(true);cl.removeAttribute('href');cl.removeAttribute('data-shelf');cl.removeAttribute('class');cl.style.cssText+=';position:absolute;right:46px;bottom:-34px;width:168px;transform:rotate(6deg);box-shadow:0 8px 0 rgba(0,0,0,.18),8px 12px 18px rgba(0,0,0,.25)';cov=cl.outerHTML;}
+ var pet='';
+ var gp=g?'<div style="display:inline-flex;align-items:center;gap:10px;background:#fff;color:#1E2A4A;border-radius:999px;padding:6px 20px 6px 8px;font-weight:800;font-size:20px;margin-top:12px;align-self:flex-start"><span style="width:44px;height:48px;display:block">'+gicon(sj,g)+'</span>'+g+' <span style="color:#4A5878;font-weight:700">'+GCN[g]+'</span></div>':'';
+ head.innerHTML='<div style="position:absolute;right:-70px;top:-90px;width:300px;height:300px;border-radius:50%;background:rgba(255,255,255,.13)"></div><div style="position:absolute;left:36%;bottom:-120px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.09)"></div>'+deco(sj)
+  +'<div style="position:relative;max-width:640px"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:'+(innerWidth<640?34:(sj.length>10?46:54))+'px;line-height:1.02;text-shadow:0 3px 0 rgba(0,0,0,.18)">'+sj+' <span style="font-size:28px;white-space:nowrap">'+c[0]+'</span></div>'+(sj==='Computer Science'?'<div style="display:inline-block;background:#FFC93C;color:#1E2A4A;border-radius:16px;padding:2px 16px 4px;font-family:Fredoka,sans-serif;font-weight:700;font-size:34px;margin-top:8px;box-shadow:0 4px 0 #B88A00;transform:rotate(-2deg)">AI <span style="font-size:20px;font-weight:700">人工智能</span></div>':'')+'<div style="font-weight:700;font-size:18px;margin-top:10px;line-height:1.4">'+c[3]+'<br><span style="opacity:.92">'+c[4]+'</span></div>'+gp+'</div>'+pet+cov;
+ var b=$('shBody');
+ if(!g){
+  b.innerHTML='<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:32px;margin-bottom:6px">Pick your grade <span style="font-size:19px;color:#4A5878">选一个年级</span></div><div style="font-weight:700;color:#4A5878;margin-bottom:22px">'+INTRO[sj][0]+' <span>'+INTRO[sj][1]+'</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:26px 22px;padding-bottom:10px">'
+   +Object.keys(SHELF[sj]).map(function(k,i){var d=SHELF[sj][k],col=gcol(sj,i);return '<button class="gfold" data-g="'+k+'" style="background:'+col[0]+';box-shadow:0 8px 0 '+col[1]+';transform:rotate('+(i%2?1.4:-1.4)+'deg);min-height:230px;overflow:hidden"><div style="position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.35)"></div><div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start"><div style="width:68px;height:68px;border-radius:50%;background:#fff;display:grid;place-items:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:38px;color:'+col[1]+';box-shadow:0 4px 0 rgba(0,0,0,.12)">'+GLBL[k]+'</div><div style="width:92px;height:92px;background:rgba(255,255,255,.8);border-radius:26px;padding:10px;box-shadow:0 4px 0 rgba(0,0,0,.08)">'+gicon(sj,k)+'</div></div><div style="position:relative"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:25px;line-height:1.05">'+k+'</div><div style="font-weight:700;color:#3A4A6A;font-size:15px">'+GCN[k]+'</div><div style="display:inline-block;margin-top:10px;background:#fff;border-radius:999px;padding:5px 14px;font-weight:800;font-size:14px">'+d.count+' books <span style="font-weight:700;color:#4A5878">'+d.count+' 本书</span></div></div></button>';}).join('')+'</div>';
+  Array.prototype.forEach.call(b.querySelectorAll('.gfold'),function(x){x.onclick=function(e){snd();burst(e.clientX,e.clientY);shState.grade=x.dataset.g;window.scrollTo(0,0);renderShelf();};});
+ }else{
+  var d=SHELF[sj][g],books=d.books.slice();
+  b.innerHTML='<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:32px;margin-bottom:18px">Pick a book <span style="font-size:19px;color:#4A5878">选一本书</span></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:26px 22px">'
+   +books.map(function(k,i){return '<button class="bk" data-i="'+i+'" style="box-shadow:0 7px 0 '+c[1]+'55;transform:rotate('+(i%2?.8:-.8)+'deg)"><div style="position:relative"><img src="'+k.cover+'" alt="'+k.title+' cover">'+(false?'<div style="position:absolute;left:10px;top:10px;background:#FFC93C;border-radius:999px;padding:5px 14px;font-weight:800;font-size:13px;box-shadow:0 3px 0 #B88A00">For you 适合你</div>':'')+'</div><div style="padding:14px 16px 18px"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:22px;line-height:1.1">'+k.title+'</div><div style="font-weight:700;color:#4A5878;margin-top:4px;font-size:15px">'+(k.subtitle||'')+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"><span style="background:'+c[2]+';border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">'+k.band+'</span><span style="background:'+c[2]+';border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">'+k.minutes+'</span></div></div></button>';}).join('')
+   +'</div>'+(d.count>books.length?'<div class="note" style="margin-top:26px;background:#FFF6D6;border-radius:18px;padding:12px 16px;font-weight:700;line-height:1.5">Preview shows '+books.length+' of '+d.count+' books in this grade. The real site lists all of them.<br><span style="color:#4A5878">预览里只显示这个年级 '+d.count+' 本书中的 '+books.length+' 本，真实网站会列出全部。</span></div>':'');
+  Array.prototype.forEach.call(b.querySelectorAll('.bk'),function(x){x.onclick=function(e){snd();burst(e.clientX,e.clientY);var bk=books[+x.dataset.i];openBook(bk.file,bk.title,bk.id);};});
+ }}
+
+function openShelf(sj){$('v2Home').style.display='none';$('v2Shelf').style.display='block';shState={subject:sj,grade:null};window.scrollTo(0,0);renderShelf();}
+function openHome(){$('v2Shelf').style.display='none';$('v2Home').style.display='block';window.scrollTo(0,0);renderBotd();}
+function backFromShelf(){if(shState.grade){shState.grade=null;window.scrollTo(0,0);renderShelf();}else{openHome();}}
+var shState={subject:null,grade:null};
+$('shBack').onclick=function(){snd();backFromShelf();};
+
+/* ---- popups ---- */
+function openModal(h){var m=$('modal');m.innerHTML='<div class="mp"><button class="x" aria-label="Close" id="mx">&times;</button>'+h+'</div>';m.style.display='flex';$('mx').onclick=closeModal;m.onclick=function(e){if(e.target===m)closeModal();};}
+function closeModal(){$('modal').style.display='none';$('modal').innerHTML='';}
+function gstep(n,t,cn,d,dcn){return '<div class="row" style="align-items:flex-start"><div style="flex:none;width:38px;height:38px;border-radius:50%;background:#6A48E8;color:#fff;display:grid;place-items:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:20px">'+n+'</div><div class="t">'+t+' <span style="color:#4A5878">'+cn+'</span><small style="color:#1E2A4A;margin-top:4px">'+d+'</small><small>'+dcn+'</small></div></div>';}
+function openGuide(){openModal('<h2>How to use learningenglishfun <span style="font-size:20px;color:#4A5878">网站使用说明</span></h2><p style="margin:4px 0 6px;font-weight:700;color:#4A5878">Four easy steps. 四个简单步骤。</p>'
+ +gstep(1,'Find your level','阅读水平测试','Take the quick reading test. We will pick books that are just right for you.','做一个快速阅读测验，我们会给你选最合适的书。')
+ +gstep(2,'Pick a book shelf','选一个书架','Tap a subject on the shelf, choose your grade, then choose a book.','点书架上的学科，选年级，再选一本书。')
+ +gstep(3,'Read and practice','读书和练习','Every book has activities. Do them one by one, then take the quiz.','每本书都有练习，一个一个做，最后做测验。')
+ +'<div class="note" style="margin:-2px 0 8px"><b>Listen</b> 听 · <b>Speak</b> 说 · <b>Read</b> 读 · <b>Grammar</b> 语法 · <b>Vocabulary</b> 词汇<small>Listen to the story read aloud, say the words, read on your own, practice sentences, and learn new words.<br>听故事朗读，大声说出来，自己读，练习句子，学新单词。</small></div>'
+ +gstep(4,'Smart review','智能复习','Questions you missed come back so you remember them.','答错的题目会再次出现，帮你记住。')
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="gx">Got it! 知道了</button></div>');$('gx').onclick=closeModal;}
+function openLevel(){openModal('<h2>Reading level test <span style="font-size:22px;color:#4A5878">阅读水平测试</span></h2><p style="margin:4px 0 8px;font-weight:700;color:#4A5878">A short test that finds the books that are just right for you.<br>一个简短的测验，帮你找到最适合你的书。</p>'
+ +gstep(1,'Pick your grade','选一个年级','Choose the grade you think fits you. The test starts there.','选一个你觉得适合自己的年级，测验会从这里开始。')
+ +gstep(2,'Read and answer','读短文、答题','Read short passages and answer a few questions.','读几篇短文，回答几道题。')
+ +gstep(3,'Harder or easier','变难或变容易','If you do well, the next passage is harder. If it feels tricky, it gets easier.','答得好，下一篇会更难；觉得难，下一篇会更容易。')
+ +gstep(4,'See your level','看你的水平','You get your reading level and a list of books that fit you.','你会看到自己的阅读水平，以及适合你的书单。')
+ +'<div class="note" style="margin:6px 0 0">This is not a school grade. It only helps us pick the right books. Take your time and read carefully!<small>这不是学校成绩，只是帮我们挑合适的书。慢慢来，认真读！</small></div>'
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="lvgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">Start the test 开始测验</button><button class="rules-btn" id="lvlater">Later 以后再说</button></div>');
+ $('lvgo').onclick=function(){closeModal();var b=$('startPlacement');if(b)b.click();};$('lvlater').onclick=closeModal;}
+function reviewIntro(){openModal('<h2>Smart review <span style="font-size:22px;color:#4A5878">智能复习</span></h2><p style="margin:4px 0 8px;font-weight:700;color:#4A5878">Questions you missed come back here, so you remember them for good.<br>你答错过的题会回到这里，帮你牢牢记住。</p>'
+ +gstep(1,'Answer a question','答一道题','A question you missed in a book shows up. Pick the answer you think is right.','之前在书里答错的题会出现，选出你认为对的答案。')
+ +gstep(2,'Check and learn','检查和学习','See if you are right, and read a short tip to help you remember.','看看对不对，再读一条帮助记忆的小提示。')
+ +gstep(3,'Come back later','过几天再来','Missed questions return over several days, until you really know them.','答错的题会在接下来几天重复出现，直到你真正记住。')
+ +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="rvgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">Start review 开始复习</button><button class="rules-btn" id="rvlater">Later 以后再说</button></div>');
+ $('rvgo').onclick=function(){closeModal();var b=$('startReview');if(b)b.click();};$('rvlater').onclick=closeModal;}
+function openReview(){var d=todayStr();if(loadJ('lef_rv_intro_day','')!==d){saveJ('lef_rv_intro_day',d);reviewIntro();}else{var b=$('startReview');if(b)b.click();}}
+
+/* ---- wiring ---- */
+document.addEventListener('click',function(e){var a=e.target.closest('a,[data-shelf],[data-level],[data-review],[data-guide]');if(!a)return;
+ var h=a.getAttribute&&a.getAttribute('href');
+ if(a.hasAttribute('data-shelf')){e.preventDefault();snd();burst(e.clientX,e.clientY);openShelf(a.getAttribute('data-shelf'));return;}
+ if(a.hasAttribute('data-level')){e.preventDefault();snd();burst(e.clientX,e.clientY);openLevel();return;}
+ if(a.hasAttribute('data-review')){e.preventDefault();snd();burst(e.clientX,e.clientY);openReview();return;}
+ if(a.hasAttribute('data-guide')){e.preventDefault();snd();burst(e.clientX,e.clientY);openGuide();return;}
+ if(a.classList&&a.classList.contains('read-now')){e.preventDefault();snd();burst(e.clientX,e.clientY);openBook(a.dataset.file,a.dataset.title,a.dataset.cat);return;}
+ if(a.tagName==='A'&&!(h&&h.charAt(0)==='#'&&h.length>1&&document.getElementById(h.slice(1))))e.preventDefault();});
+/* mirror the original Smart Review counter onto the new button */
+(function(){var src=$('reviewBadge'),dst=$('revBadge');if(!src||!dst)return;function sync(){var m=(src.textContent||'').match(/\d+/),n=m?+m[0]:0,show=src.style.display!=='none'&&n>0;dst.textContent=n;dst.style.display=show?'':'none';}
+ new MutationObserver(sync).observe(src,{childList:true,characterData:true,subtree:true,attributes:true});sync();})();
+/* hero copy comes from catalog.js */
+(function(){var h=$('heroH');if(h&&data.site.heroTitle){h.innerHTML=data.site.heroTitle.replace('reading adventure.','<span style="background: #FFC93C; padding: 0 14px; border-radius: 18px; display: inline-block; transform: rotate(-1.5deg)">reading adventure.</span>');}
+ var p=$('heroP');if(p&&data.site.heroText)p.textContent=data.site.heroText;})();
+renderBotd();
+</script>
+<script>
+(function(){
+  var K="les_review_v1", INT={1:1,2:2,3:4,4:7,5:15};
+  function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+  function addDays(n){var d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+  function load(){try{var db=JSON.parse(localStorage.getItem(K)||"{}");db.items=db.items||{};return db;}catch(e){return {items:{}};}}
+  function save(db){try{localStorage.setItem(K,JSON.stringify(db));}catch(e){}}
+  function all(){var db=load();return Object.keys(db.items).map(function(k){return db.items[k];});}
+  function due(){var t=today();return all().filter(function(it){return (it.due||t)<=t;});}
+  function nextDue(){var ds=all().map(function(it){return it.due;}).filter(Boolean).sort();return ds.length?ds[0]:null;}
+  var queue=[], qi=0, sel=null;
+  var TAB={comprehension:"Reading",grammar:"Grammar",vocabulary:"Vocabulary"};
+
+  function updateBadge(){
+    var badge=document.getElementById("reviewBadge"), sub=document.getElementById("reviewSub");
+    var n=due().length, total=all().length;
+    if(badge){ if(total===0){badge.style.display="none";} else {badge.style.display="inline-block";badge.textContent=n>0?(n+" to review"):"0 due";} }
+    if(sub){ if(total===0)sub.textContent="Answer the questions in a book — anything you miss shows up here to review."; else if(n>0)sub.textContent=n+" card"+(n>1?"s":"")+" ready today · 今天有 "+n+" 题待复习"; else sub.textContent="All caught up! Next review: "+(nextDue()||"—")+" · 已全部复习完"; }
+  }
+  function setProg(){var el=document.getElementById("revProgress");if(el)el.textContent=queue.length?("Card "+Math.min(qi+1,queue.length)+" of "+queue.length):"";}
+  function open_(){queue=due();qi=0;sel=null;document.getElementById("reviewOverlay").style.display="flex";document.body.style.overflow="hidden";render();}
+  function close_(){document.getElementById("reviewOverlay").style.display="none";document.body.style.overflow="";updateBadge();}
+  function done(){
+    var el=document.getElementById("revContent"), total=all().length, nd=nextDue();
+    if(total===0){el.innerHTML='<div class="rev-card"><h2>No review cards yet</h2><p>Read a book and answer the questions. Any you miss are saved here and come back over several days so you remember them.<span class="cn">读一本书并答题，答错的题会自动收进来，并在接下来几天重复出现，帮你记牢。</span></p></div>';}
+    else{el.innerHTML='<div class="rev-card"><h2>All done for today! 🎉</h2><p>Great job. Come back'+(nd?(" on <b>"+nd+"</b>"):" tomorrow")+' for your next review.<span class="cn">今天的复习完成啦！'+(nd?("下次复习："+nd):"明天再来")+'。</span></p></div>';}
+    setProg();
+  }
+  function render(){
+    setProg();
+    if(qi>=queue.length){done();return;}
+    var it=queue[qi]; sel=null;
+    var el=document.getElementById("revContent");
+    var opts=it.choices.map(function(c,i){return '<button class="rev-opt" data-i="'+i+'">'+String.fromCharCode(65+i)+". "+c+"</button>";}).join("");
+    el.innerHTML='<div class="rev-card"><div class="rev-src">'+it.bookTitle+" · "+(TAB[it.tab]||it.tab)+'</div><h2>'+it.q+'</h2><div>'+opts+'</div><div class="rev-fb" id="revFb">Choose an answer, then check it. 选一个答案，再检查。</div><button class="rev-check" id="revCheck">Check Answer</button></div>';
+    el.querySelectorAll(".rev-opt").forEach(function(o){o.addEventListener("click",function(){sel=+o.dataset.i;el.querySelectorAll(".rev-opt").forEach(function(x){x.classList.remove("sel");});o.classList.add("sel");});});
+    document.getElementById("revCheck").addEventListener("click",check);
+  }
+  function check(){
+    var it=queue[qi], fb=document.getElementById("revFb");
+    if(sel===null){fb.textContent="Please choose an answer first. 请先选一个答案。";return;}
+    document.querySelectorAll(".rev-opt").forEach(function(o,i){o.classList.remove("ok","no");if(i===sel)o.classList.add(i===it.answer?"ok":"no");});
+    var db=load(), id=it.book+"::"+it.tab+"-"+it.idx, rec=db.items[id]||it;
+    if(sel===it.answer){var nb=Math.min(5,(rec.box||1)+1);rec.box=nb;rec.due=addDays(INT[nb]);rec.lastResult="correct";db.items[id]=rec;save(db);
+      if(window.__trackEvent)window.__trackEvent("review_correct",{book_id:it.book,book_title:it.bookTitle||""});
+      fb.className="rev-fb good";fb.innerHTML="✓ Correct! "+(it.explain||"")+(it.teach?'<div class="rev-teach">💡 <b>Let’s learn:</b><br>'+it.teach+'</div>':"")+'<br><button class="rev-next" id="revNext">Next →</button>';}
+    else{rec.box=1;rec.due=addDays(1);rec.lastResult="wrong";db.items[id]=rec;save(db);
+      if(window.__trackEvent)window.__trackEvent("review_wrong",{book_id:it.book,book_title:it.bookTitle||""});
+      fb.className="rev-fb bad";fb.innerHTML="Not yet. "+(it.hint||"Try again.")+(it.teach?'<div class="rev-teach">💡 <b>Let’s learn:</b><br>'+it.teach+'</div>':"")+'<br><button class="rev-next" id="revNext">Next →</button>';}
+    document.getElementById("revNext").addEventListener("click",function(){qi++;render();});
+  }
+  var sb=document.getElementById("startReview"); if(sb)sb.addEventListener("click",open_);
+  var bk=document.getElementById("reviewBack"); if(bk)bk.addEventListener("click",close_);
+  window.__updateReviewBadge=updateBadge;
+  updateBadge();
+})();
+</script>
+<!-- Cloud sync (optional): fill in supabase-config.js with your own project to turn this on.
+     Until then these two scripts quietly do nothing and the site keeps working 100% locally. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="sync.js"></script>
+<script src="stats.js"></script>
+<script src="feedback.js"></script>
+<script src="placement-data.js"></script>
+<script src="placement-sync.js"></script>
+<script src="placement.js"></script>
+</body></html>
