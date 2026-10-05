@@ -613,6 +613,116 @@ a.card:hover .mascot{animation:wiggle .6s ease-in-out}
 #toast .tl{display:flex;justify-content:space-between;gap:14px;font-size:15px;line-height:1.4}
 #toast .tl small{color:#4A5878;font-weight:700}
 #toast .tt{margin-top:6px;padding-top:6px;border-top:2px dashed #F0DFA0;font-family:'Fredoka',sans-serif;font-size:20px}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F4FAFF;font-family:'Nunito',ui-rounded,sans-serif;color:#1E2A4A}
+a{color:inherit;text-decoration:none}
+a.card{transition:transform .18s}
+a.card:hover{transform:translateY(-6px) rotate(-.6deg)}
+a.btn{transition:transform .15s}
+a.btn:hover{transform:translateY(-2px)}
+a.card:hover .mascot{animation:wiggle .6s ease-in-out}
+.mascot{animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -8px}}
+@keyframes wiggle{0%,100%{rotate:0deg}25%{rotate:-10deg}75%{rotate:10deg}}
+@media (prefers-reduced-motion:reduce){.mascot,a.card:hover .mascot{animation:none}}
+
+#viewPets{--ink:#1E2A4A;--muted:#4A5878;--bg:#F4FAFF}#viewPets *{box-sizing:border-box}#viewPets{margin:0;background:var(--bg);font-family:'Nunito',ui-rounded,sans-serif;color:var(--ink)}#viewPets h1,#viewPets h2,#viewPets h3,#viewPets .fd{font-family:'Fredoka',sans-serif;font-weight:700;margin:0}#viewPets button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}#viewPets .wrap{max-width:1100px;margin:0 auto;padding:20px 24px 60px}#viewPets .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0 18px}#viewPets .logo{display:flex;align-items:center;gap:12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px}#viewPets .logo i{width:46px;height:46px;border-radius:16px;background:#FFC93C;box-shadow:0 5px 0 #E0A800;display:grid;place-items:center;font-style:normal;font-size:28px;transform:rotate(-6deg)}#viewPets .panel{background:#BFE6FF;border-radius:44px;padding:36px;position:relative;overflow:hidden}#viewPets .panel:before{content:"";position:absolute;right:-80px;top:-100px;width:320px;height:320px;border-radius:50%;background:#FFD96B}#viewPets .panel>*{position:relative}#viewPets .sub{font-size:19px;font-weight:700;color:#33415F;margin:8px 0 26px}#viewPets .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:780px;margin:0 auto}#viewPets .pick{background:#fff;border-radius:30px;padding:14px 12px 16px;box-shadow:0 6px 0 #9FB6CC;text-align:center;border:4px solid transparent;transition:transform .15s}#viewPets .pick:hover{transform:translateY(-5px)}#viewPets .pick.sel{border-color:#6A48E8;box-shadow:0 6px 0 #4A2FB8}#viewPets .pick svg{overflow:visible;width:100%;max-width:130px;height:auto}#viewPets .pick .nm{font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;margin-top:4px}#viewPets .setup{margin-top:26px;background:#fff;border-radius:32px;padding:24px 26px;display:none;flex-wrap:wrap;gap:22px;align-items:flex-end;box-shadow:0 6px 0 #9FB6CC}#viewPets .setup.on{display:flex}#viewPets .lbl{font-weight:800;font-size:15px;color:var(--muted);margin-bottom:8px;display:block}#viewPets .sw{display:flex;gap:10px}#viewPets .sw button{width:44px;height:44px;border-radius:50%;border:4px solid #fff;box-shadow:0 0 0 3px #B7C6DD}#viewPets .sw button.on{box-shadow:0 0 0 4px #6A48E8}#viewPets input[type=text]{font:inherit;font-weight:800;font-size:20px;border:3px solid #B7C6DD;border-radius:18px;padding:12px 16px;width:230px;color:var(--ink)}#viewPets input[type=text]:focus{outline:none;border-color:#6A48E8}#viewPets .cta{background:#6A48E8;color:#fff;font-weight:800;font-size:20px;padding:15px 32px;border-radius:999px;box-shadow:0 6px 0 #4A2FB8;transition:transform .15s}#viewPets .cta:hover{transform:translateY(-2px)}#viewPets .cta:disabled{background:#B7C6DD;box-shadow:0 6px 0 #93A5C2;cursor:not-allowed}#viewPets .ghost{background:#fff;font-weight:800;padding:12px 22px;border-radius:999px;box-shadow:0 5px 0 #9FB6CC}#viewPets #home{display:none}#viewPets .phome{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px}@media(max-width:820px){#viewPets .phome{grid-template-columns:1fr}#viewPets .panel{padding:24px 18px}}#viewPets .stage{background:#fff;border-radius:36px;padding:22px;text-align:center;box-shadow:0 6px 0 #9FB6CC;display:flex;flex-direction:column;align-items:center}#viewPets .bubble{background:#FFF6D6;border-radius:22px;padding:12px 18px;font-weight:800;font-size:17px;min-height:48px;display:flex;align-items:center;margin-bottom:6px}#viewPets #petBox svg{width:260px;height:260px;display:block;overflow:visible}#viewPets .bob{animation:bob 3s ease-in-out infinite}#viewPets .sleepy{animation:none}#viewPets .jump{animation:jump .6s ease-out}@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -9px}}@keyframes jump{0%{translate:0 0}35%{translate:0 -34px;rotate:-6deg}70%{translate:0 0;rotate:5deg}100%{translate:0 0}}@media(prefers-reduced-motion:reduce){#viewPets .bob,#viewPets .jump{animation:none}}#viewPets .bar{height:22px;border-radius:999px;background:#E6EEF7;overflow:hidden;width:100%;border:3px solid #fff;box-shadow:0 0 0 2px #C9D7E8}#viewPets .bar i{display:block;height:100%;border-radius:999px;transition:width .5s}#viewPets .card{background:#fff;border-radius:36px;padding:24px;box-shadow:0 6px 0 #9FB6CC}#viewPets .stars{display:inline-flex;align-items:center;gap:8px;background:#FFF1C2;border:3px solid #FFC93C;border-radius:999px;padding:8px 18px;font-weight:800;font-size:20px}#viewPets .foods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}#viewPets .food{background:#F4FAFF;border:3px solid #D5E3F0;border-radius:24px;padding:12px 6px 10px;text-align:center;font-weight:800;transition:transform .15s}#viewPets .foods{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))!important}
+.food:hover{transform:translateY(-4px);border-color:#6A48E8}#viewPets .food:disabled{opacity:.45;cursor:not-allowed;transform:none}#viewPets .food>svg{width:54px;height:54px;display:block;margin:0 auto 4px}#viewPets .food small{display:flex;align-items:center;justify-content:center;gap:4px;color:var(--muted);font-size:15px}#viewPets .demo{margin-top:18px;border-top:3px dashed #D5E3F0;padding-top:14px}#viewPets .demo .row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}#viewPets .demo button{background:#EEF3FA;border-radius:14px;padding:10px 14px;font-weight:800;font-size:15px}#viewPets .fav{display:inline-block;background:#FF8FB1;color:#4A1226;border-radius:999px;font-size:12px;padding:2px 8px;margin-left:4px}
+
+.rules-btn{display:inline-flex;align-items:center;gap:8px;background:#fff;border-radius:999px;padding:10px 18px;font-weight:800;font-size:16px;box-shadow:0 5px 0 #9FB6CC;border:0;cursor:pointer;color:#1E2A4A;font-family:inherit}
+.rules-btn:hover{transform:translateY(-2px)}
+.rules-link{background:none;border:0;padding:0;margin-top:6px;font:inherit;font-weight:800;font-size:15px;color:#4A2FB8;text-decoration:underline;cursor:pointer;text-align:left}
+#modal{position:fixed;inset:0;z-index:300;background:rgba(30,42,74,.55);display:none;align-items:center;justify-content:center;padding:16px}
+#modal .mp{background:#fff;border-radius:36px;max-width:760px;width:100%;max-height:90vh;overflow:auto;padding:28px 30px 30px;position:relative;color:#1E2A4A;font-family:'Nunito',sans-serif}
+#modal h2{font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;margin:0 0 4px}
+#modal h3{font-family:'Fredoka',sans-serif;font-weight:700;font-size:22px;margin:22px 0 10px}
+#modal .x{position:absolute;right:18px;top:16px;width:44px;height:44px;border-radius:50%;background:#EEF3FA;border:0;font-size:22px;font-weight:800;cursor:pointer;color:#1E2A4A}
+#modal .row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#F4FAFF;margin-bottom:8px}
+#modal .row .t{flex:1;font-weight:800;font-size:17px;line-height:1.35}
+#modal .row .t small{display:block;display:block;font-weight:700;font-size:13px;color:#4A5878}
+#modal .pill{background:#FFF1C2;border:2px solid #FFC93C;border-radius:999px;padding:4px 12px;font-weight:800;white-space:nowrap}
+#modal .note{background:#FFF6D6;border-radius:18px;padding:12px 16px;font-weight:700;font-size:16px;line-height:1.5}
+#modal .note small{display:block;color:#4A5878}
+#modal .act{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:#F4FAFF;border:3px solid #D5E3F0;border-radius:18px;padding:12px 16px;font:inherit;font-weight:800;font-size:16px;margin-bottom:8px;cursor:pointer;color:#1E2A4A}
+#modal .act:hover:not(:disabled){border-color:#6A48E8}
+#modal .act:disabled{background:#E8F7EC;border-color:#9AD7AE;cursor:default}
+#modal .log{margin-top:10px;font-weight:800;min-height:24px;color:#2E6B43}
+#modal .bar2{height:18px;border-radius:999px;background:#E6EEF7;overflow:hidden;margin:6px 0 4px}
+#modal .bar2 i{display:block;height:100%;background:#FFC93C;border-radius:999px;transition:width .4s}
+#demoBand{font:inherit;font-weight:800;border:3px solid #D8B25A;border-radius:14px;padding:8px 12px;background:#fff;color:#1E2A4A}
+
+.tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tabs button,#viewPets .tabs button{background:#EEF3FA;border-radius:999px;padding:10px 18px;font-weight:800;font-size:16px;border:3px solid transparent;color:#1E2A4A;cursor:pointer;font-family:inherit}
+.tabs button.on,#viewPets .tabs button.on{background:#6A48E8;color:#fff}
+#viewPets #petBox .toy{position:absolute;bottom:0;width:78px;height:78px;background:none;border:0;padding:0}
+#viewPets #petBox .toy svg{width:100%;height:100%;display:block;overflow:visible}
+.toy{position:absolute;bottom:0;width:78px;height:78px;cursor:pointer;background:none;border:0;padding:0;transition:transform .15s}
+.toy:hover{transform:translateY(-6px) rotate(-6deg)}
+.toy svg{width:100%;height:100%;display:block;overflow:visible}
+.tag{display:inline-block;border-radius:999px;font-size:12px;padding:2px 8px;margin-left:4px;font-weight:800}
+.food .st{display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;color:#4A5878;font-weight:800;min-height:20px}
+.food.on{border-color:#6A48E8;background:#EFEAFF}
+
+.gfold{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:230px;border-radius:30px;padding:20px 22px;text-align:left;border:0;cursor:pointer;font-family:inherit;color:#1E2A4A;transition:transform .15s}
+.gfold:hover{transform:translateY(-8px) rotate(0deg)!important}
+.gfold .gn{font-family:'Fredoka',sans-serif;font-weight:700;font-size:56px;line-height:1}
+.bk{background:#fff;border-radius:28px;overflow:hidden;box-shadow:0 6px 0 #C9D7E8;border:0;padding:0;text-align:left;cursor:pointer;font-family:inherit;color:#1E2A4A;display:flex;flex-direction:column;transition:transform .15s}
+.bk:hover{transform:translateY(-6px)}
+.bk img{width:100%;aspect-ratio:700/520;object-fit:cover;display:block}
+@media (min-width:641px){#heroBadge{position:absolute !important;left:44px;top:24px;z-index:3;box-shadow:0 4px 0 #9FB6CC}}
+@media (max-width:640px){#heroBadge{position:static !important}}
+
+@media (min-width:641px){#heroBadge{position:absolute !important;left:44px;top:24px;z-index:3;box-shadow:0 4px 0 #9FB6CC}}
+@media (max-width:640px){
+ #heroBadge{position:relative !important;z-index:3;align-self:flex-start}
+ #viewHome header{padding:14px 16px !important}
+ #viewHome header nav{gap:2px !important;justify-content:flex-start !important}
+ #viewHome header nav a{padding:8px 10px !important}
+ #top{padding:66px 18px 24px !important;margin:0 10px !important;border-radius:32px !important;gap:20px !important}
+ #heroH{font-size:36px !important}
+ #heroP{font-size:16px !important}
+ #top [data-guide]{right:12px !important;top:12px !important;font-size:14px !important;padding:8px 14px 8px 10px !important}
+ #top > div[style*="min-width: 0"]{flex-basis:100% !important}
+ #topics{flex-basis:100% !important}
+ #topics a[data-shelf] > div[style*="999px"]{left:18px !important;right:6px !important;font-size:11px !important;white-space:nowrap !important;padding:2px 0 3px !important}
+ #topics a[data-shelf] > div[style*="Fredoka"]{font-size:19px !important}
+ #topics a[href="#cs"] > div[style*="Fredoka"]{font-size:14.5px !important}
+ #botd{padding:56px 14px 0 !important}
+ #botd h2{font-size:32px !important}
+ #botd > div:nth-child(2){padding:20px 16px !important;gap:18px !important}
+ #viewHome footer{padding:24px 18px 26px !important;margin-top:50px !important}
+ #shHead{padding:24px 20px !important;min-height:0 !important}
+ #shHead > a{display:none !important}
+ #shHead .bob{display:none !important}
+ #shBody > div:first-child span{white-space:nowrap}
+ #shBody > div[style*="minmax(230px"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:18px 12px !important}
+ #shBody > div[style*="minmax(240px"]{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:16px 12px !important}
+ .gfold{min-height:176px !important;padding:12px 12px 14px !important;border-radius:24px !important}
+ .gfold > div:nth-child(2) > div:first-child{width:46px !important;height:46px !important;font-size:24px !important}
+ .gfold > div:nth-child(2) > div:last-child{width:62px !important;height:62px !important;padding:7px !important;border-radius:18px !important}
+ .gfold > div:nth-child(3) > div:first-child{font-size:18px !important}
+ .gfold > div:nth-child(3) > div:last-child{font-size:12px !important;padding:3px 10px !important}
+ .bk > div:last-child{padding:10px 12px 14px !important}
+ .bk > div:last-child > div:first-child{font-size:16px !important}
+ .bk > div:last-child > div:nth-child(2){font-size:12.5px !important}
+ #modal .mp{padding:22px 16px 24px}
+ .tabs{gap:6px !important}
+ .tabs button,#viewPets .tabs button{padding:8px 12px !important;font-size:14px !important}
+ #modal h2{font-size:26px}
+}
+#recommendedCard .book{border-radius:28px;box-shadow:0 7px 0 #C9D7E8}
+#recommendedCard .open{background:#6A48E8!important;border-radius:999px!important;box-shadow:0 5px 0 #4A2FB8;padding:13px 18px!important}
+#recommendedCard h2{font-family:'Fredoka',sans-serif}
+.teacher{white-space:nowrap}
+.rules-btn{display:inline-block !important;text-align:center;line-height:1.35}
+#modal{z-index:3000}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(30px);opacity:0;z-index:3500;pointer-events:none;background:#fff;border:3px solid #FFC93C;border-radius:24px;padding:14px 20px;box-shadow:0 8px 0 #E0A800,0 14px 30px rgba(30,42,74,.25);max-width:min(92vw,460px);font-weight:800;color:#1E2A4A;transition:all .35s}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast .tl{display:flex;justify-content:space-between;gap:14px;font-size:15px;line-height:1.4}
+#toast .tl small{color:#4A5878;font-weight:700}
+#toast .tt{margin-top:6px;padding-top:6px;border-top:2px dashed #F0DFA0;font-family:'Fredoka',sans-serif;font-size:20px}
 </style></head>
 <body>
 <div id="viewHome">
@@ -722,6 +832,8 @@ Grades K–6 · Read-aloud stories
 <div id="placementOverlay"><div class="plc-bar"><button id="placementBack">← Back</button><span class="ttl">🎯 Placement Quiz</span><span class="prog" id="plcProgress"></span></div><div id="plcContent"></div></div>
 
 <div id="reviewOverlay"><div class="rev-bar"><button id="reviewBack">← Back</button><span class="ttl">🧠 Smart Review</span><span class="prog" id="revProgress"></span></div><div id="revContent"></div></div>
+<div id="modal" role="dialog" aria-modal="true"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <div id="modal" role="dialog" aria-modal="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="modal" role="dialog" aria-modal="true"></div>
@@ -1260,7 +1372,7 @@ function openAdoptGuide(){openModal('<h2>How to adopt a pet <span style="font-si
  +gstep(2,'Choose a color and a name','选颜色、起名字','Pick a color and give your pet a name, then tap Adopt!','选一种颜色，给宠物起个名字，然后点 Adopt！')
  +gstep(3,'Read to earn stars','读书赚星星','Finish books, activities and quizzes to get stars.','读完书、练习和测验就能得到星星。')
  +gstep(4,'Care for your pet','照顾你的宠物','Use stars to buy snacks, clothes and toys.','用星星买零食、衣服和玩具。')
- +'<div class="note" style="margin-top:6px">Good to know: each pet loves different snacks. Your pet never gets sick and never goes away. If you do not read for a while it gets sleepy, and one book cheers it right up! You can pick a different pet later, and your stars stay with you.<small>小提示：每种宠物爱吃的零食不一样。宠物不会生病，也不会消失。几天不读书它会犯困，读一本书它马上就开心起来！以后可以换一只宠物，你的星星会保留。</small></div>'
+ +'<div class="note" style="margin-top:6px">Good to know: each pet loves different snacks. Your pet never gets sick and never goes away. But if you do not read for a while, it gets sleepy, and one book cheers it right up! You can pick a different pet later, and your stars stay with you.<small>小提示：每种宠物爱吃的零食不一样。宠物不会生病，也不会消失。但几天不读书它会犯困，读一本书它马上就开心起来！以后可以换一只宠物，你的星星会保留。</small></div>'
  +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="ar">How do stars work? 怎么赚星星？</button><button class="rules-btn" id="ax">Got it! 知道了</button></div>');
  $('ar').onclick=openRules;$('ax').onclick=closeModal;}
 
