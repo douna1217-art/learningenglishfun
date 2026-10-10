@@ -1,17 +1,17 @@
-// Cloud sync for Smart Review progress (optional).
+// Sign-in box (optional): email link or 6-digit code, via Supabase.
 //
 // How it works:
-// - Review progress is always kept in localStorage under the key "les_review_v1"
-//   (same as before — nothing about that changes, the site still works offline).
-// - If supabase-config.js has real project values, signing in with an email link
-//   will additionally back up that data to Supabase and pull it back down on any
-//   other device signed in with the same email — so progress follows the reader.
+// - One compact button, "Save progress 保存进度", opens a short explanation and the
+//   email form. After sign-in, account.js takes over the box (the child's name,
+//   a switcher between the 2 children, the parent area).
+// - What gets synced (pet, stars, book progress, Smart Review, level test) lives
+//   in state-sync.js and is stored per child. This file no longer syncs anything.
 // - If supabase-config.js still has placeholder values, this file quietly does
 //   nothing (no errors, no UI, no network calls).
 //
-// 中文说明：登录后会把本地的复习进度（les_review_v1）同步到 Supabase，换设备用同一个
-// 邮箱登录也能看到一样的复习进度。没配置 Supabase 项目之前，这个文件什么都不做，
-// 网站照常只用本地浏览器存储，不受任何影响。
+// 中文说明：这个文件只负责首页右上角的登录框（邮箱链接或 6 位验证码）。登录之后，孩子档案和
+// 切换由 account.js 负责，宠物、星星、进度、复习记录的同步由 state-sync.js 负责（按孩子分开存）。
+// 没配置 Supabase 项目之前，这个文件什么都不做。
 (function () {
   var cfg = window.SUPABASE_CONFIG;
   var configured =
@@ -26,83 +26,6 @@
 
   // Shared with stats.js so the page only ever creates one GoTrueClient.
   var sb = window.__lesSupabaseClient || (window.__lesSupabaseClient = window.supabase.createClient(cfg.url, cfg.anonKey));
-  var K = "les_review_v1";
-  var pushTimer = null;
-
-  function loadLocal() {
-    try {
-      var db = JSON.parse(localStorage.getItem(K) || "{}");
-      db.items = db.items || {};
-      return db;
-    } catch (e) {
-      return { items: {} };
-    }
-  }
-  function saveLocal(db) {
-    try {
-      localStorage.setItem(K, JSON.stringify(db));
-    } catch (e) {}
-  }
-
-  function schedulePush() {
-    if (pushTimer) clearTimeout(pushTimer);
-    pushTimer = setTimeout(pushNow, 1500);
-  }
-
-  async function pushNow() {
-    var session = (await sb.auth.getSession()).data.session;
-    if (!session) return;
-    var db = loadLocal();
-    await sb.from("review_progress").upsert({
-      user_id: session.user.id,
-      items: db.items,
-      updated_at: new Date().toISOString(),
-    });
-  }
-
-  // Keep whichever copy of each card shows more progress (higher box number).
-  function mergeItems(localItems, remoteItems) {
-    var out = {},
-      k;
-    for (k in remoteItems) out[k] = remoteItems[k];
-    for (k in localItems) {
-      var l = localItems[k],
-        r = out[k];
-      if (!r || (l.box || 1) >= (r.box || 1)) out[k] = l;
-    }
-    return out;
-  }
-
-  async function pullAndMerge() {
-    var session = (await sb.auth.getSession()).data.session;
-    if (!session) return;
-    var res = await sb
-      .from("review_progress")
-      .select("items")
-      .eq("user_id", session.user.id)
-      .maybeSingle();
-    var db = loadLocal();
-    var remoteItems = (res.data && res.data.items) || {};
-    db.items = mergeItems(db.items, remoteItems);
-    saveLocal(db);
-    if (window.__updateReviewBadge) window.__updateReviewBadge();
-    await pushNow(); // write the merged result back so both sides match
-  }
-
-  // Catch writes made by index.html's own review script (same document —
-  // the native "storage" event does NOT fire for same-document writes).
-  var origSetItem = localStorage.setItem.bind(localStorage);
-  localStorage.setItem = function (key, value) {
-    origSetItem(key, value);
-    if (key === K) schedulePush();
-  };
-
-  // Catch writes made inside a book page's <iframe> — same-origin iframes
-  // DO fire a native "storage" event on the parent window automatically.
-  window.addEventListener("storage", function (e) {
-    if (e.key === K) schedulePush();
-  });
-
   // Sign-in box. By default it is one compact button, "Save progress 保存进度";
   // clicking it opens a short explanation and the email form. A small red dot
   // on the button nudges the reader once the child has something worth saving
@@ -251,6 +174,10 @@
     box.classList.add("sync2");
 
     if (session) {
+      if (window.__lesAccount && window.__lesAccount.renderHeader) {
+        window.__lesAccount.renderHeader(box, session);
+        return;
+      }
       var email = esc(session.user.email || "Signed in");
       box.innerHTML =
         '<div class="sy-pill sy-static">' + ICON_CHECK +
@@ -350,7 +277,6 @@
 
   sb.auth.onAuthStateChange(function (event, session) {
     renderAuthUI(session);
-    if (session) pullAndMerge();
   });
 
   // Adopting a pet during this visit should light the dot straight away, not on
@@ -362,6 +288,5 @@
   document.addEventListener("DOMContentLoaded", async function () {
     var session = (await sb.auth.getSession()).data.session;
     renderAuthUI(session);
-    if (session) pullAndMerge();
   });
 })();

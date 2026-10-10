@@ -1,5 +1,9 @@
 // Cross-device sync for pets, stars, reading progress and history (optional).
 //
+// Data is kept PER CHILD: a parent account has up to 2 child profiles (see
+// account.js) and every row is stored under the key "<child id>:<name>". Nothing is
+// synced until a child profile is active on this device.
+//
 // What this does:
 // - Everything below is ALWAYS kept in localStorage first (the site still works
 //   offline and without signing in). When a reader is signed in by email link,
@@ -12,9 +16,9 @@
 //     lef_hist_v1    recent reading history
 //     lef_opens_v1   recently opened books
 //     lef_gift       welcome-gift flag
+//     les_review_v1  Smart Review records (merge: the higher box of each card wins)
+//     les_placement_v1  level-test result (merge: the newer test wins)
 //     les-<slug>-v1  one entry per book: which tabs are finished, answers
-//   (Smart Review records and the level-test result have their own sync files:
-//   sync.js and placement-sync.js.)
 // - Two devices never silently overwrite each other. Every row has a version
 //   number `rev` that the database raises on each change. This device remembers
 //   which version it last saw; if the cloud copy changed since and this device
@@ -42,7 +46,9 @@
   var HIST = "lef_hist_v1";
   var OPENS = "lef_opens_v1";
   var GIFT = "lef_gift";
-  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT];
+  var REVIEW = "les_review_v1";
+  var PLACEMENT = "les_placement_v1";
+  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT];
   var BOOK_RE = /^les-.+-v1$/;
 
   function isHomeKey(k) {
@@ -214,7 +220,34 @@
     return union(b, a).slice(-30);
   }
 
+  // Smart Review: every card (one wrong answer) keeps whichever copy has the
+  // higher box; on a tie the local copy stays.
+  function mergeReview(a, b) {
+    var la = isObj(a) && isObj(a.items) ? a.items : {};
+    var lb = isObj(b) && isObj(b.items) ? b.items : {};
+    var out = isObj(a) ? clone(a) : isObj(b) ? clone(b) : {};
+    var items = {};
+    Object.keys(lb).forEach(function (id) {
+      items[id] = clone(lb[id]);
+    });
+    Object.keys(la).forEach(function (id) {
+      var l = la[id],
+        r = items[id];
+      if (!r || ((isObj(l) && l.box) || 1) >= ((isObj(r) && r.box) || 1)) items[id] = clone(l);
+    });
+    out.items = items;
+    return out;
+  }
+  // Level test: the newer result wins; on a tie the local one stays.
+  function mergePlacement(a, b) {
+    if (!isObj(a)) return clone(b);
+    if (!isObj(b)) return clone(a);
+    return clone((b.takenAt || 0) > (a.takenAt || 0) ? b : a);
+  }
+
   function mergeValue(key, local, remote) {
+    if (key === REVIEW) return mergeReview(local, remote);
+    if (key === PLACEMENT) return mergePlacement(local, remote);
     if (key === PET) return mergePet(local, remote);
     if (key === DAY) return mergeDay(local, remote);
     if (key === HIST) return mergeHist(local, remote);
@@ -256,6 +289,8 @@
     mergeDay: mergeDay,
     mergeHist: mergeHist,
     mergeOpens: mergeOpens,
+    mergeReview: mergeReview,
+    mergePlacement: mergePlacement,
     mergeDeep: mergeDeep,
     decide: decide,
   };
@@ -280,6 +315,9 @@
   var ls = root.localStorage;
   var TABLE = "user_state";
   var META_KEY = "les_state_sync_meta_v1";
+  var PROFILE_KEY = "les_profile_v1"; // {uid, id}: which child is active on this device (set by account.js)
+  var CACHE_KEYS = ["lef_botd_v1"]; // derived caches that must not leak from one child to the next
+  var UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   var POLL_MS = 4000;
   var uid = null;
   var chain = Promise.resolve();
@@ -310,13 +348,30 @@
     } catch (e) {}
     return out;
   }
-  function loadMeta(forUid) {
+  // the child whose data this device should be syncing (null = nobody yet)
+  function activeProfile() {
+    try {
+      var p = JSON.parse(ls.getItem(PROFILE_KEY) || "null");
+      return p && p.uid === uid && typeof p.id === "string" && UUID_RE.test(p.id) ? p.id : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function rkey(pid, k) {
+    return pid + ":" + k;
+  }
+  // Meta = what this device last synced for this child (cloud version + a
+  // fingerprint of the data). null = this device holds ANOTHER child's data:
+  // never mix the two, wait for account.js to switch children properly.
+  function loadMeta(forUid, pid) {
     var m = null;
     try {
       m = JSON.parse(ls.getItem(META_KEY) || "null");
     } catch (e) {}
-    // a different account on this browser: start fresh, so it is treated as a first link
-    if (!m || m.uid !== forUid || !isObj(m.rev) || !isObj(m.fp)) m = { uid: forUid, rev: {}, fp: {} };
+    if (m && m.uid === forUid && m.pid && m.pid !== pid) return null;
+    // another account, or a pre-profile meta: the local data is unclaimed, so it
+    // is treated as the first link of this child
+    if (!m || m.uid !== forUid || m.pid !== pid || !isObj(m.rev) || !isObj(m.fp)) m = { uid: forUid, pid: pid, rev: {}, fp: {} };
     return m;
   }
   function saveMeta(m) {
@@ -329,19 +384,40 @@
     if (isHomeKey(k) && k !== GIFT && typeof v !== "object") return false;
     return true;
   }
+  // a blank pet (not adopted yet) is nothing to back up and never counts as a change
+  function nothingToSync(k, v) {
+    return v === undefined || (k === PET && isObj(v) && !v.type);
+  }
+  function dirtyKeys(meta) {
+    return localSyncKeys().filter(function (k) {
+      var v = readLocal(k);
+      if (nothingToSync(k, v)) return false;
+      return fingerprint(k, v) !== meta.fp[k];
+    });
+  }
 
-  async function fetchRemote(keys) {
+  async function fetchRemote(pid, keys) {
     var rows = {},
       from = 0,
-      page = 500;
+      page = 500,
+      prefix = pid + ":";
     for (;;) {
       var q = sb.from(TABLE).select("key,value,rev").eq("user_id", uid);
-      if (keys) q = q.in("key", keys);
+      if (keys) {
+        q = q.in(
+          "key",
+          keys.map(function (k) {
+            return rkey(pid, k);
+          })
+        );
+      } else {
+        q = q.like("key", prefix + "%");
+      }
       var res = await q.range(from, from + page - 1);
       if (res.error) throw res.error;
       var data = res.data || [];
       data.forEach(function (r) {
-        rows[r.key] = r;
+        if (typeof r.key === "string" && r.key.indexOf(prefix) === 0) rows[r.key.slice(prefix.length)] = r;
       });
       if (data.length < page) break;
       from += page;
@@ -351,16 +427,20 @@
 
   // One pass. full=true looks at every row in the cloud (page load / sign in);
   // otherwise only the keys that changed on this device since the last sync.
-  async function reconcile(full) {
+  async function reconcile(full, opts) {
+    opts = opts || {};
     var session = (await sb.auth.getSession()).data.session;
     uid = session ? session.user.id : null;
-    if (!uid) return;
-    var meta = loadMeta(uid);
+    if (!uid) return { skipped: "signed-out" };
+    var pid = activeProfile();
+    if (!pid) return { skipped: "no-child" };
+    var meta = loadMeta(uid, pid);
+    if (!meta) return { skipped: "other-child" };
 
     var candidates;
     var remote;
     if (full) {
-      remote = await fetchRemote(null);
+      remote = await fetchRemote(pid, null);
       var set = {};
       localSyncKeys().forEach(function (k) {
         set[k] = 1;
@@ -370,15 +450,11 @@
       });
       candidates = Object.keys(set);
     } else {
-      candidates = localSyncKeys().filter(function (k) {
-        var v = readLocal(k);
-        if (v === undefined) return false;
-        return fingerprint(k, v) !== meta.fp[k];
-      });
-      if (!candidates.length) return;
+      candidates = dirtyKeys(meta);
+      if (!candidates.length) return { ok: true };
       remote = {};
       for (var i = 0; i < candidates.length; i += 80) {
-        Object.assign(remote, await fetchRemote(candidates.slice(i, i + 80)));
+        Object.assign(remote, await fetchRemote(pid, candidates.slice(i, i + 80)));
       }
     }
 
@@ -426,7 +502,7 @@
         .from(TABLE)
         .upsert(
           chunk.map(function (x) {
-            return { user_id: uid, key: x.key, value: x.value };
+            return { user_id: uid, key: rkey(pid, x.key), value: x.value };
           }),
           { onConflict: "user_id,key", ignoreDuplicates: true }
         )
@@ -434,11 +510,11 @@
       if (res.error) throw res.error;
       (res.data || []).forEach(function (row) {
         var x = chunk.filter(function (c) {
-          return c.key === row.key;
+          return rkey(pid, c.key) === row.key;
         })[0];
         if (x) {
-          meta.rev[row.key] = row.rev;
-          meta.fp[row.key] = x.fp;
+          meta.rev[x.key] = row.rev;
+          meta.fp[x.key] = x.fp;
         }
       });
     }
@@ -450,7 +526,7 @@
         .from(TABLE)
         .update({ value: p.value })
         .eq("user_id", uid)
-        .eq("key", p.key)
+        .eq("key", rkey(pid, p.key))
         .eq("rev", p.rev)
         .select("rev");
       if (up.error) throw up.error;
@@ -464,7 +540,8 @@
 
     // The homepage already drew its pet and stars from the OLD local values, so
     // after pulling newer ones, reload once (not while a book is being read).
-    if (full && homeChanged) reloadOnce();
+    if (full && homeChanged && !opts.noReload) reloadOnce();
+    return { ok: true };
   }
 
   function reloadOnce() {
@@ -480,16 +557,23 @@
     } catch (e) {}
   }
 
+  // all work runs one at a time
+  function exclusive(fn) {
+    var p = chain.then(fn);
+    chain = p.then(
+      function () {},
+      function () {}
+    );
+    return p;
+  }
+
   function enqueue(full) {
-    chain = chain
-      .then(function () {
-        if (!full && Date.now() < backoffUntil) return;
-        return reconcile(full);
-      })
-      .catch(function () {
-        backoffUntil = Date.now() + 30000; // offline or a temporary error: try again in a while
-      });
-    return chain;
+    return exclusive(function () {
+      if (!full && Date.now() < backoffUntil) return;
+      return reconcile(full);
+    }).catch(function () {
+      backoffUntil = Date.now() + 30000; // offline or a temporary error: try again in a while
+    });
   }
 
   function fullSoon() {
@@ -499,6 +583,43 @@
     lastFull = Date.now();
     lastFullUid = uid;
     enqueue(true);
+  }
+
+  // Used by account.js before it switches children: sync everything for the
+  // active child right now and say whether the cloud really has all of it.
+  // Never reloads the page.
+  function flush() {
+    return exclusive(async function () {
+      var r = await reconcile(true, { noReload: true });
+      if (r.skipped === "no-child" || r.skipped === "signed-out") return true; // nothing is being synced, nothing to lose
+      if (r.skipped) return false;
+      var pid = activeProfile();
+      var meta = pid && loadMeta(uid, pid);
+      return !!meta && dirtyKeys(meta).length === 0;
+    }).then(
+      function (v) {
+        return v;
+      },
+      function () {
+        return false;
+      }
+    );
+  }
+
+  // Remove the active child's data from this device (after flush() succeeded),
+  // so the next child starts from a clean slate. Returns how many items went.
+  function clearLocal() {
+    var keys = localSyncKeys(),
+      n = 0;
+    keys.concat(CACHE_KEYS, [META_KEY]).forEach(function (k) {
+      try {
+        if (ls.getItem(k) !== null) {
+          ls.removeItem(k);
+          n++;
+        }
+      } catch (e) {}
+    });
+    return n;
   }
 
   sb.auth.onAuthStateChange(function (event, session) {
@@ -525,5 +646,11 @@
     root.addEventListener("pagehide", pollSoon);
   } catch (e) {}
 
-  root.__lesStateSync = { syncNow: function () { return enqueue(true); } };
+  root.__lesStateSync = {
+    syncNow: function () {
+      return enqueue(true);
+    },
+    flush: flush,
+    clearLocal: clearLocal,
+  };
 })(typeof window !== "undefined" ? window : globalThis);
