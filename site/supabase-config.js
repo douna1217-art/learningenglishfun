@@ -13,5 +13,8 @@
 // 不会报错，也不会影响看书、答题、复习等任何现有功能。
 window.SUPABASE_CONFIG = {
   url: "https://thdktsiyuelogqqgzbex.supabase.co",
-  anonKey: "sb_publishable_DyvuuXQL2Qq8d7UaT2ODYg_HpeU9VG3"
+  anonKey: "sb_publishable_DyvuuXQL2Qq8d7UaT2ODYg_HpeU9VG3",
+  // true because the Supabase "Magic link or OTP" email template now contains {{ .Token }} (2026-10-10);
+  // the sign-in box then also asks for the 6-digit code from the email. Set false only if the template loses it.
+  emailCode: true,
 };

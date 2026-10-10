@@ -249,6 +249,64 @@ grant execute on function public.get_public_stats() to anon, authenticated;
 **测试**：`node tools/state_sync_test.js` 跑 61 项检查，包括两台设备先后改动、同时改动、
 并发写入被拒、离线、换账号、异常云端数据等场景，不连真实数据库。
 
+## 账号数量（Stats 页 "Accounts"）
+
+Stats 页的 "Accounts (email sign-ins)" 显示真实的邮箱账号数：已确认的账号、近 7 天新增、
+近 7 天活跃（登录且有新数据同步）、已备份宠物的人数，以及"输入了邮箱但没点登录链接"的人数。
+只显示汇总数字，不返回任何邮箱。
+
+先在 Supabase 的 SQL Editor 里运行一次 `supabase/account_stats.sql`（只创建一个函数
+`get_account_stats()`，可重复运行）。没运行之前，Stats 页这一块只显示一条提示。
+
+也可以直接在 Supabase 后台 **Authentication → Users** 里看账号列表。
+
+## 让登录邮件可靠：自定义发件服务 + 验证码登录
+
+**为什么要做**：Supabase 自带的邮件服务只是用来试用的。2026-10-10 在后台查到
+Authentication → Rate Limits 里 "Rate limit for sending emails" 是 **2 封/小时**（整个项目共用，
+灰色，不接自己的发件服务就改不了）；邮件模板也要先接自己的发件服务才能编辑（现在的模板只有
+一个英文链接，没有验证码）。要收费、要让家长可靠登录，必须换成自己的发件服务。
+
+**现状**：域名 `learning-english-fun.com` 的注册商和 DNS 都在 Cloudflare（没有 MX 记录，
+目前没有收邮件）。
+
+**步骤**（Resend 为例，具体界面以服务商当前文档为准；其他服务商如 Brevo、Postmark 同理）：
+1. 注册发件服务（需要你本人注册，我不能代注册）；添加发件域名 `learning-english-fun.com`。
+   服务商会给几条 DNS 记录（SPF、DKIM，建议再加 DMARC），去 Cloudflare 的 DNS 页面添加，
+   等服务商显示 "Verified"。
+2. 在服务商创建一个 SMTP 密码（Resend 是 API Key，用户名固定为 `resend`，主机
+   `smtp.resend.com`，端口 465）。**这串密钥只填在 Supabase 的表单里，不要发在聊天里、
+   不要写进代码。**
+3. Supabase → Authentication → Emails → **SMTP Settings** → 打开 "Enable custom SMTP"，
+   发件人填 `login@learning-english-fun.com`（名字 `learningenglishfun`），再填上一步的
+   主机、端口、用户名、密码。
+4. Authentication → Rate Limits：自定义 SMTP 之后 "emails per hour" 才能修改，调大。
+5. Authentication → Emails → Templates → **Magic link or OTP**：主题用
+   `supabase/email_templates/magic_link_subject.txt`，正文用 `magic_link.html`
+   （中英文，同时有 6 位验证码 `{{ .Token }}` 和一键登录按钮 `{{ .ConfirmationURL }}`）。
+6. 把 `site/supabase-config.js` 里的 `emailCode` 改成 `true` 并推送。此后点 "Send link" 会
+   同时出现 6 位验证码输入框：在微信等内置浏览器里点邮件链接会跳到别的浏览器、登录状态接不上，
+   输入验证码就不受影响。**第 5 步之前不要打开这个开关**，否则邮件里没有验证码。
+7. 用你自己的邮箱试一次完整流程，再分别试 Gmail 和 QQ/163 邮箱，确认收得到、不在垃圾箱。
+
+**没配好之前**：登录框遇到发送太频繁（2 封/小时的限制）会显示中英文的友好提示，不再显示
+英文报错原文。
+
+## 首页的登录按钮
+
+首页导航栏最右边是一个紧凑的中英文按钮 **Save progress 保存进度**，点开才显示一句话说明和邮箱框，
+不再常驻一大块输入框和提示：
+
+- 说明："Keep your pet, stars and progress on every device. 换手机、换电脑，宠物、星星和进度都不会丢。"
+- 输入框 "Parent email 家长邮箱"，按钮 **Send link 发送登录链接**（点它只是往邮箱发一封登录链接，
+  点开邮件里的链接后同步才开始，所以按钮不再叫 Sync）。
+- 孩子领养了宠物，或读完 3 本书之后，按钮右上角出现一个**小红点**；领养宠物的同一次访问里就会出现，
+  不用刷新；点开面板后小红点消失，不再出现。
+- 点按钮外面或按 Esc 关闭面板。
+- 登录后按钮变成：云朵打勾 + 邮箱，下面一行小字 "已登录，自动同步 · Sign out 退出"。
+- 手机宽度（≤620px）以前把整个登录框隐藏了，手机上根本没法登录；现在手机上也显示，是一行
+  全宽的细条，点开后面板在条下面展开。
+
 ## 访客地区（时区 / 语言 / 设备）
 
 每条 `app_events` 记录还会带三个很粗的字段：设备时区 `tz`（如 `Asia/Shanghai`）、

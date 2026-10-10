@@ -43,6 +43,7 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
 <h1>📊 Site stats</h1>
 <p class="sub">Aggregated usage numbers only — no individual visitor data. <button id="reload">Refresh</button></p>
 <div id="content">Loading…</div>
+<div id="accountContent"></div>
 <div id="regionContent"></div>
 <div class="section"><h2>💬 Feedback</h2><div id="fbContent">Loading…</div></div>
 </div>
@@ -94,6 +95,33 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
       '<div class="section"><h2>🗂️ Most-read topics</h2>'+ table(cats, function(r){return [r.category, r.opens];}, ["Topic","Opens"]) +'</div>'+
       '<p class="muted">Last updated: '+(d.last_updated||"")+'</p>';
     loadRegions();
+    loadAccounts();
+  }
+
+  // Real accounts (email sign-ins), from its own database function
+  // get_account_stats(): counts only, never an email address. Until the SQL in
+  // supabase/account_stats.sql has been run this just shows a hint.
+  var accEl = document.getElementById("accountContent");
+  async function loadAccounts(){
+    var res = await sb.rpc("get_account_stats");
+    if(res.error){
+      accEl.innerHTML = '<div class="section"><h2>👤 Accounts</h2><p class="muted">账号统计还没启用：请先在 Supabase 的 SQL Editor 里运行 supabase/account_stats.sql。<br><span style="font-size:.8rem">'+esc(res.error.message)+'</span></p></div>';
+      return;
+    }
+    var a = res.data || {};
+    var daily = (a.daily_new||[]).map(function(r){return {date:r.date, visits:r.accounts};});
+    accEl.innerHTML =
+      '<div class="section"><h2>👤 Accounts (email sign-ins)</h2>'+
+        '<div class="grid" style="margin-bottom:14px">'+
+          card(a.total_accounts, "Accounts (email confirmed)")+
+          card(a.new_7d, "New in the last 7 days")+
+          card(a.active_7d, "Active in the last 7 days")+
+          card(a.synced_pets, "Pets saved to the cloud")+
+          card(a.pending, "Typed an email, never clicked the link")+
+        '</div>'+
+        '<h2 style="font-size:.95rem">New accounts, last 14 days</h2>'+ bars(daily) +
+        '<p class="muted" style="font-size:.8rem;margin:10px 0 0">Active = signed in and the site backed up new data in the last 7 days. 活跃 = 已登录且最近 7 天有新数据同步。</p>'+
+      '</div>';
   }
 
   // Where visitors come from, estimated from each browser's time zone (no IP
