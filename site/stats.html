@@ -43,6 +43,7 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
 <h1>📊 Site stats</h1>
 <p class="sub">Aggregated usage numbers only — no individual visitor data. <button id="reload">Refresh</button></p>
 <div id="content">Loading…</div>
+<div id="regionContent"></div>
 <div class="section"><h2>💬 Feedback</h2><div id="fbContent">Loading…</div></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -92,6 +93,31 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
       '<div class="section"><h2>📚 Most-read books</h2>'+ table(books, function(r){return [r.book_title||r.book_id, r.opens];}, ["Book","Opens"]) +'</div>'+
       '<div class="section"><h2>🗂️ Most-read topics</h2>'+ table(cats, function(r){return [r.category, r.opens];}, ["Topic","Opens"]) +'</div>'+
       '<p class="muted">Last updated: '+(d.last_updated||"")+'</p>';
+    loadRegions();
+  }
+
+  // Where visitors come from, estimated from each browser's time zone (no IP
+  // is stored). Comes from its own database function, get_region_stats(),
+  // so the existing get_public_stats() is left untouched. Until the SQL in
+  // SUPABASE_SETUP.md has been run, this just shows a hint.
+  var regEl = document.getElementById("regionContent");
+  async function loadRegions(){
+    var res = await sb.rpc("get_region_stats");
+    if(res.error){
+      regEl.innerHTML = '<div class="section"><h2>🌏 Regions</h2><p class="muted">地区统计还没启用：请先在 Supabase 的 SQL Editor 里运行 SUPABASE_SETUP.md 中“访客地区”那一段 SQL。<br><span style="font-size:.8rem">'+esc(res.error.message)+'</span></p></div>';
+      return;
+    }
+    var r = res.data || {};
+    var since = r.tracked_since ? new Date(r.tracked_since).toLocaleDateString() : null;
+    var note = since
+      ? 'Estimated from each browser\'s time zone (no IP address is stored). Region tracking started '+esc(since)+'; earlier visits show as 未知.'
+      : 'No visit with a time zone has been recorded yet — region tracking starts once the new site version is live.';
+    regEl.innerHTML =
+      '<div class="section"><h2>🌏 Where visitors come from</h2>'+
+        table(r.regions||[], function(x){return [x.region, x.visitors, x.visits, x.readers, x.book_opens];}, ["Region","Visitors","Visits","Readers","Books opened"])+
+        '<p class="muted" style="font-size:.8rem;margin:10px 0 0">'+note+'</p></div>'+
+      '<div class="section"><h2>📱 Devices</h2>'+
+        table(r.devices||[], function(x){return [x.device, x.visitors, x.visits];}, ["Device","Visitors","Visits"])+'</div>';
   }
 
   function shortDate(iso){
@@ -118,10 +144,17 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
   function card(n, label){
     return '<div class="card"><div class="n">'+(n===undefined||n===null?"—":n)+'</div><div class="l">'+label+'</div></div>';
   }
+  // Table cells can hold visitor-supplied text (traffic source from ?src=,
+  // time zone, ...) so every value is HTML-escaped before it is rendered.
+  function esc(v){
+    return String(v===undefined||v===null?"":v).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
   function table(rows, mapper, headers){
     if(!rows || !rows.length) return '<p class="muted">No data yet.</p>';
     return '<table><tr>'+headers.map(function(h){return '<th>'+h+'</th>';}).join("")+'</tr>'+
-      rows.map(function(r){var c=mapper(r);return '<tr>'+c.map(function(v){return '<td>'+v+'</td>';}).join("")+'</tr>';}).join("")+
+      rows.map(function(r){var c=mapper(r);return '<tr>'+c.map(function(v){return '<td>'+esc(v)+'</td>';}).join("")+'</tr>';}).join("")+
       '</table>';
   }
 
