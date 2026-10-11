@@ -58,10 +58,10 @@
 
   var css =
     "#lesFbBtn{position:fixed;right:18px;bottom:18px;z-index:999;border:0;border-radius:999px;" +
-    "background:#e2483f;color:#fff;font-weight:900;font-family:Inter,ui-rounded,\"Trebuchet MS\",Arial,sans-serif;" +
-    "padding:13px 18px;font-size:.92rem;cursor:pointer;box-shadow:0 10px 28px rgba(226,72,63,.38);" +
-    "display:flex;align-items:center;gap:7px;transition:transform .15s}" +
-    "#lesFbBtn:hover{transform:translateY(-2px)}" +
+    "background:#fde7e4;color:#a8231b;font-weight:900;font-family:Inter,ui-rounded,\"Trebuchet MS\",Arial,sans-serif;" +
+    "padding:13px 18px;font-size:.92rem;cursor:pointer;box-shadow:inset 0 0 0 1px #f3bdb6,0 8px 22px rgba(168,35,27,.2);" +
+    "display:flex;align-items:center;gap:7px;transition:transform .15s,background .15s}" +
+    "#lesFbBtn:hover{background:#fbd8d3;transform:translateY(-2px)}" +
     "#lesFbOverlay{position:fixed;inset:0;z-index:3000;background:rgba(30,20,20,.4);display:none;" +
     "align-items:center;justify-content:center;padding:18px;font-family:Inter,ui-rounded,\"Trebuchet MS\",Arial,sans-serif}" +
     "#lesFbCard{background:#fff;border-radius:22px;max-width:420px;width:100%;padding:24px;" +

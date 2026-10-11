@@ -1,0 +1,50 @@
+<style>/*les-button-layout-css*/
+/* Buttons: all in one row beside the story text, Record turns into Play once the page has a recording.
+   Soft colour = you can tap it, solid colour = it is happening now.
+   Every rule hangs on .les-btnrow, which the button script adds to <body> only after it has set up successfully,
+   so a page where the script could not run keeps the original look. */
+.les-btnrow .audio-bar{display:none!important}
+.les-btnrow .story-head{display:flex;align-items:center;justify-content:space-between;gap:10px 16px;flex-wrap:wrap;margin-bottom:14px}
+.les-btnrow .story-head .kicker{margin:0!important}
+.les-btnrow .tools{display:flex;align-items:stretch;flex-wrap:wrap;gap:8px 18px}
+.les-btnrow .tgroup{display:flex;align-items:stretch;gap:8px}
+.les-btnrow .tools .audio-btn{padding:9px 15px;border:0}
+.les-btnrow .story-head .rec-status{flex:1 1 100%;margin:0;min-height:0}
+.les-btnrow .story-head .rec-status:empty{display:none}
+.les-btnrow #playRecordingBtn{display:none!important}
+.les-btnrow .audio-btn.listen,.les-btnrow .audio-btn.rec-idle{background:#fde7e4;color:#a8231b;box-shadow:inset 0 0 0 1px #f3bdb6}
+.les-btnrow .audio-btn.listen:hover,.les-btnrow .audio-btn.rec-idle:hover{background:#fbd8d3}
+.les-btnrow .audio-btn.rec-ready{background:#e3eefb;color:#1b4f93;box-shadow:inset 0 0 0 1px #b5cdee}
+.les-btnrow .audio-btn.rec-ready:hover{background:#d3e4f8}
+.les-btnrow .audio-btn.listen.paused,.les-btnrow .audio-btn.rec-paused{background:#fff1d6;color:#7a4a00;box-shadow:inset 0 0 0 1px #f0cd88}
+.les-btnrow .audio-btn.listen.active,.les-btnrow .audio-btn.rec-playing{background:#1f8f4d;color:#fff;box-shadow:inset 0 3px 8px rgba(0,0,0,.25);transform:translateY(1px)}
+.les-btnrow .audio-btn.rec-live{background:#d92d20;color:#fff;box-shadow:none;animation:lesrecpulse 1.3s ease-in-out infinite}
+.les-btnrow .tools .audio-btn:disabled{background:#f1eef5;color:#8f879c;box-shadow:inset 0 0 0 1px #e3deea;opacity:1;cursor:not-allowed;animation:none}
+.les-btnrow #deleteRecordingBtn{align-self:center;background:#fff;color:#7a7285;border:1px solid #d9d2e6;box-shadow:none;padding:7px 10px;font-size:.9rem;border-radius:10px}
+@keyframes lesrecpulse{0%,100%{box-shadow:0 0 0 0 rgba(217,45,32,.45)}50%{box-shadow:0 0 0 7px rgba(217,45,32,0)}}
+@media (prefers-reduced-motion:reduce){.les-btnrow .audio-btn.rec-live{animation:none}}
+.les-btnrow .reader{overflow:clip}
+.les-btnrow .controls{position:sticky;bottom:0;z-index:1000;background:#fff;box-shadow:0 -6px 14px rgba(74,57,104,.08)}
+/* z-index 1000 puts the bar above the floating Feedback button (999) so Next is never covered when the two meet */
+.les-btnrow .key-hint{color:var(--muted);font-size:.78rem;font-weight:700}
+.les-btnrow .evidence-banner{bottom:84px!important}
+/* the floating Feedback button (feedback.js) gets the same soft coral as This Page; shadow keeps it visible over the page */
+.les-btnrow #lesFbBtn{background:#fde7e4;color:#a8231b;box-shadow:inset 0 0 0 1px #f3bdb6,0 8px 22px rgba(168,35,27,.2)}
+.les-btnrow #lesFbBtn:hover{background:#fbd8d3}
+@media(max-width:1000px){.les-btnrow .key-hint{display:none}
+.les-btnrow #lesFbBtn{bottom:84px}}
+@media(max-width:680px){
+.les-btnrow .story{padding-left:22px!important;padding-right:22px!important}
+.les-btnrow .tools{flex:1 1 100%;flex-wrap:nowrap;gap:6px}
+.les-btnrow .tools .tgroup{gap:6px;position:relative}
+.les-btnrow .tools .tgroup:first-child{flex:2 1 0}
+.les-btnrow .tools .tgroup:last-child{flex:1 1 0}
+.les-btnrow .tools .audio-btn{flex:1 1 0;min-width:0;padding:9px 4px;font-size:.8rem;font-size:clamp(.7rem,3.4vw,.88rem);white-space:nowrap;overflow:hidden;text-align:center}
+.les-btnrow #deleteRecordingBtn{position:absolute;top:-11px;right:-5px;flex:0 0 auto;width:26px;height:26px;padding:0;border-radius:50%;font-size:.8rem;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.18);z-index:2;overflow:visible}
+.les-btnrow #deleteRecordingBtn::after{content:"";position:absolute;top:-9px;right:-9px;bottom:-9px;left:-9px}
+.les-btnrow .progress{display:none}
+.les-btnrow .controls{flex-direction:row!important;align-items:center!important;padding:10px 14px!important}
+.les-btnrow .nav{width:100%}
+.les-btnrow .nav button{flex:1;padding:13px 10px}
+}
+</style>

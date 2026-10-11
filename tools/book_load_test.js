@@ -27,7 +27,8 @@ function pagesToTest(args) {
 }
 
 // mode: "nospeech" (no speechSynthesis / utterance / MediaRecorder), "normal", "broken"
-function open(file, mode) {
+function open(file, mode, opts) {
+  opts = opts || {};
   const html = fs.readFileSync(file, "utf8");
   const errors = [];
   const vc = new VirtualConsole();
@@ -47,6 +48,19 @@ function open(file, mode) {
       w.Element.prototype.scrollIntoView = function () {};
       w.scrollTo = function () {};
       w.fetch = () => Promise.reject(new Error("offline"));
+      if (opts.mic) {
+        w.__mic = { stops: 0 };
+        Object.defineProperty(w.navigator, "mediaDevices", { configurable: true, value: {
+          getUserMedia() { return Promise.resolve({ getTracks() { return [{ stop() { w.__mic.stops++; } }]; } }); } } });
+        w.MediaRecorder = function () {
+          const self = this; this.state = "inactive"; this.mimeType = "audio/webm";
+          this.start = function () { self.state = "recording"; };
+          this.stop = function () { self.state = "inactive"; setTimeout(function () {
+            self.ondataavailable && self.ondataavailable({ data: new w.Blob(["x"]) }); self.onstop && self.onstop(); }, 5); };
+        };
+        w.MediaRecorder.isTypeSupported = function () { return false; };
+        let n = 0; w.URL.createObjectURL = function () { return "blob:fake-" + (++n); }; w.URL.revokeObjectURL = function () {};
+      }
       if (mode === "normal") {
         w.__real = { cancel: 0, speak: 0 };
         w.speechSynthesis = {
@@ -77,9 +91,18 @@ async function checkPage(file) {
     const total = w.eval("pages.length");
     need(d.querySelectorAll("#progress .dot").length === total, tag + "page dots missing");
     need(d.getElementById("panelContent").innerHTML.length > 50, tag + "first question not drawn");
+    need(d.body.classList.contains("les-btnrow"), tag + "button layout script did not finish its setup");
+    const inHead = (id) => !!d.querySelector("#pageView .story .story-head #" + id);
+    need(inHead("listenPageBtn") && inHead("listenStoryBtn") && inHead("recordPageBtn") && inHead("recStatus"), tag + "buttons are not in the row beside the story text");
+    need(!!d.querySelector(".controls .key-hint"), tag + "keyboard hint missing");
     try {
       d.getElementById("nextBtn").click();
       need(w.eval("page") === 1, tag + "Next did not turn the page");
+      need(inHead("listenPageBtn") && inHead("recordPageBtn"), tag + "buttons did not follow to the next page");
+      d.dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+      need(w.eval("page") === 2, tag + "right arrow key did not turn the page");
+      d.dispatchEvent(new w.KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+      need(w.eval("page") === 1, tag + "left arrow key did not turn the page back");
       need(!!d.querySelector("#pageView .story-word"), tag + "page 1 has no story text");
       d.getElementById("prevBtn").click();
       need(w.eval("page") === 0, tag + "Back did not turn the page");
@@ -140,6 +163,54 @@ async function checkPage(file) {
   return { rel, fails };
 }
 
+async function checkRecording(file) {
+  const fails = [];
+  const need = (cond, msg) => { if (!cond) fails.push("[recording] " + msg); };
+  const { dom, errors } = open(file, "normal", { mic: true });
+  const w = dom.window, d = w.document;
+  await wait(40);
+  const lp = d.getElementById("listenPageBtn"), ls = d.getElementById("listenStoryBtn");
+  const rec = d.getElementById("recordPageBtn"), del = d.getElementById("deleteRecordingBtn");
+  const label = () => rec.textContent.trim();
+  const trash = () => del.style.display !== "none";
+  try {
+    d.getElementById("nextBtn").click();                       // page 1
+    need(label() === "\uD83C\uDF99 Record" && !trash(), "idle state wrong: " + label());
+    lp.click(); await wait(40);                                // narration running
+    need(lp.classList.contains("active"), "narration did not start");
+    rec.click(); await wait(40);                               // Record while narration plays
+    need(label() === "\u25A0 Stop", "Record did not turn into Stop: " + label());
+    need(!lp.classList.contains("active") && !lp.classList.contains("paused"), "starting to record did not stop the narration");
+    need(lp.disabled && ls.disabled, "listen buttons should be disabled while recording");
+    d.dispatchEvent(new w.KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    need(!lp.classList.contains("active"), "Space started narration while recording");
+    rec.click(); await wait(40);                               // Stop
+    need(label() === "\u25B6 Play" && trash(), "after Stop the button should be Play with the trash can: " + label());
+    need(!lp.disabled && !ls.disabled, "listen buttons should be enabled again after recording");
+    need(w.__mic.stops >= 1, "microphone was not released");
+    rec.click(); await wait(20);                               // Play
+    need(label() === "\u23F8 Pause", "Play did not start my recording: " + label());
+    lp.click(); await wait(40);                                // narration takes over
+    need(label() === "\u25B6 Play" && lp.classList.contains("active"), "narration should stop my recording playback");
+    rec.click(); await wait(20);                               // my recording takes over
+    need(label() === "\u23F8 Pause" && !lp.classList.contains("active"), "my recording should stop the narration");
+    d.getElementById("nextBtn").click();                       // page 2: nothing recorded here
+    need(label() === "\uD83C\uDF99 Record" && !trash(), "recording must stay on page 1, page 2 shows: " + label());
+    d.getElementById("prevBtn").click();
+    need(label() === "\u25B6 Play" && trash(), "page 1 lost its recording: " + label());
+    del.click();
+    need(label() === "\uD83C\uDF99 Record" && !trash(), "trash can did not delete the recording: " + label());
+    rec.click(); await wait(40);                               // record again, turn the page while recording
+    d.getElementById("nextBtn").click(); await wait(40);
+    need(label() === "\uD83C\uDF99 Record" && !lp.disabled, "turning the page while recording must stop it: " + label());
+    d.getElementById("prevBtn").click();
+    need(label() === "\u25B6 Play" && trash(), "a recording stopped by turning the page must be kept on its own page: " + label());
+    need(errors.length === 0, "errors: " + errors.slice(0, 2).join(" | "));
+  } catch (e) { fails.push("[recording] exception: " + e.message); }
+  w.close();
+  return fails;
+}
+
 async function checkBroken(file) {
   const fails = [];
   const { dom } = open(file, "broken");
@@ -161,6 +232,7 @@ async function checkBroken(file) {
   const t0 = Date.now();
   for (let i = 0; i < files.length; i++) {
     const r = await checkPage(files[i]);
+    r.fails.push(...await checkRecording(files[i]));
     if (r.fails.length) {
       bad++;
       if (bad <= 12) console.log("FAIL", r.rel, "\n   " + r.fails.slice(0, 3).join("\n   "));

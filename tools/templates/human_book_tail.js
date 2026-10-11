@@ -34,6 +34,93 @@ function setListenActive(id){if(__nPaused){try{speechSynthesis.resume();}catch(e
 (function(){function toggle(){if(__nPaused){if(__rvAudio){var p=__rvAudio.play();if(p&&p.catch)p.catch(function(){});}else{try{speechSynthesis.resume();}catch(e){}}__nPaused=false;}else{if(__rvAudio){try{__rvAudio.pause();}catch(e){}}else{try{speechSynthesis.pause();}catch(e){}}__nPaused=true;}narrUI();}[["listenPageBtn","page"],["listenStoryBtn","story"]].forEach(function(r){var b=document.getElementById(r[0]);if(!b)return;var orig=b.onclick;b.onclick=function(ev){if(__nOwner===r[1]){toggle();return;}try{speechSynthesis.cancel();speechSynthesis.resume();}catch(e){}if(orig)return orig.call(this,ev);};});})();
 
 </script>
+<script>/*les-button-layout-js*/
+/* One row of buttons beside the story text: This Page, Full Story, Record (turns into Play once this page has a recording) and a small trash can.
+   Recordings are kept per page, in memory only. Only one sound plays at a time: starting to record stops the narration,
+   and narration / a teach speaker stops my own recording playback. Keyboard: left/right arrows turn the page, Space plays or pauses.
+   If anything goes wrong while setting up, the original buttons are put back. */
+(function(){
+var $=function(i){return document.getElementById(i)};
+var bPage=$("listenPageBtn"),bStory=$("listenStoryBtn"),bRec=$("recordPageBtn"),bDel=$("deleteRecordingBtn"),bOldPlay=$("playRecordingBtn"),stat=$("recStatus"),
+actions=document.querySelector(".audio-actions"),bar=document.querySelector(".audio-bar");
+if(!bPage||!bStory||!bRec||!bDel||!bOldPlay||!stat||!actions||!bar||typeof renderPage!=="function"||typeof setStatus!=="function")return;
+var origRender=renderPage,moved=false,was={recClass:bRec.className,recText:bRec.textContent,delText:bDel.textContent,delDisabled:bDel.disabled};
+function undo(){try{renderPage=origRender;}catch(e){}
+try{bRec.className=was.recClass;bRec.textContent=was.recText;bDel.textContent=was.delText;bDel.disabled=was.delDisabled;bDel.style.display="";bDel.removeAttribute("title");bDel.removeAttribute("aria-label");bPage.disabled=bStory.disabled=false;bPage.classList.remove("listen");bStory.classList.remove("listen");}catch(e){}
+if(moved){[bPage,bStory,bRec,bOldPlay,bDel].forEach(function(b){actions.appendChild(b);});bar.appendChild(stat);moved=false;}
+try{document.body.classList.remove("les-btnrow");}catch(e){}}
+try{
+var tools=document.createElement("div");tools.className="tools";
+var g1=document.createElement("div");g1.className="tgroup";var g2=document.createElement("div");g2.className="tgroup";
+tools.appendChild(g1);tools.appendChild(g2);
+var hint=document.createElement("span");hint.className="key-hint";hint.textContent="← → turn page · Space play / pause";
+bPage.classList.add("listen");bStory.classList.add("listen");
+bDel.disabled=false;bDel.textContent="🗑";bDel.title="Delete my recording";bDel.setAttribute("aria-label","Delete my recording");
+
+var map={},R={active:false,recorder:null,tok:0,audio:null,audioPage:-1,paused:false};
+function state(){if(R.active)return"recording";if(!map[page])return"idle";
+if(R.audio&&R.audioPage===page)return R.paused?"paused":"playing";return"ready";}
+var L={idle:["🎙 Record","rec-idle","Record my reading"],recording:["■ Stop","rec-live","Stop recording"],
+ready:["▶ Play","rec-ready","Play my recording"],playing:["⏸ Pause","rec-playing","Pause"],paused:["▶ Play","rec-paused","Continue"]};
+function ui(){var s=state(),l=L[s];bRec.textContent=l[0];bRec.className="audio-btn "+l[1];bRec.title=l[2];
+bRec.setAttribute("aria-label",l[2]);bRec.setAttribute("aria-pressed",s==="recording"||s==="playing"?"true":"false");
+bDel.style.display=(map[page]&&s!=="recording")?"":"none";bPage.disabled=bStory.disabled=(s==="recording");}
+function stopNarration(){window.__readToken=(window.__readToken||0)+1;try{speechSynthesis.cancel();}catch(e){}try{endNarration();}catch(e){}}
+function stopMine(){if(R.audio){try{R.audio.onended=R.audio.onerror=null;R.audio.pause();}catch(e){}R.audio=null;}R.paused=false;}
+function startRec(){
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){setStatus("Recording works only on the published website — the microphone is turned off in this preview.",false);return;}
+if(typeof MediaRecorder==="undefined"){setStatus("This browser can't record audio. Try Chrome/Edge, or Safari 14+.",false);return;}
+stopNarration();stopMine();var pg=page,tok=++R.tok;R.active=true;ui();
+navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+if(tok!==R.tok||!R.active){stream.getTracks().forEach(function(t){t.stop()});return;}
+var opts={};try{if(MediaRecorder.isTypeSupported){if(MediaRecorder.isTypeSupported("audio/webm"))opts={mimeType:"audio/webm"};else if(MediaRecorder.isTypeSupported("audio/mp4"))opts={mimeType:"audio/mp4"};}}catch(e){}
+var rec=new MediaRecorder(stream,opts),chunks=[];R.recorder=rec;
+rec.ondataavailable=function(e){if(e.data&&e.data.size>0)chunks.push(e.data)};
+rec.onstop=function(){if(map[pg])URL.revokeObjectURL(map[pg]);
+map[pg]=URL.createObjectURL(new Blob(chunks,{type:(rec.mimeType||"audio/webm")}));
+stream.getTracks().forEach(function(t){t.stop()});R.active=false;R.recorder=null;ui();
+if(page===pg)setStatus("Saved! Tap ▶ Play to hear your reading.",true);};
+rec.start();setStatus("Recording… tap ■ Stop when you finish.",true);
+}).catch(function(e){R.active=false;R.recorder=null;ui();var n=(e&&e.name)?e.name:String(e);
+if(n==="NotAllowedError"||n==="SecurityError")setStatus("Microphone blocked. Tap Allow when the browser asks (or click the lock in the address bar → allow Microphone → reload).",false);
+else if(n==="NotFoundError")setStatus("No microphone found on this device.",false);
+else setStatus("Could not record ("+n+"). Use the live website in Chrome/Edge/Safari 14+.",false);});}
+function stopRec(){R.tok++;if(R.recorder&&R.recorder.state==="recording"){R.recorder.stop();}else{R.active=false;R.recorder=null;ui();}}
+function playMine(){stopNarration();stopMine();var a=new Audio(map[page]);R.audio=a;R.audioPage=page;R.paused=false;
+a.onended=function(){if(R.audio===a){R.audio=null;R.paused=false;ui();}};
+a.onerror=function(){if(R.audio===a){R.audio=null;ui();setStatus("Could not play your recording.",false);}};
+ui();var p=a.play();if(p&&p.catch)p.catch(function(err){if(R.audio===a){R.audio=null;ui();setStatus("Could not play ("+((err&&err.name)?err.name:err)+").",false);}});}
+function pauseMine(){if(R.audio){R.audio.pause();R.paused=true;ui();}}
+function resumeMine(){if(R.audio){var p=R.audio.play();if(p&&p.catch)p.catch(function(){});R.paused=false;ui();}}
+bRec.onclick=function(){var s=state();if(s==="recording")stopRec();else if(s==="idle")startRec();else if(s==="ready")playMine();else if(s==="playing")pauseMine();else resumeMine();};
+bDel.onclick=function(){stopMine();if(map[page]){URL.revokeObjectURL(map[page]);delete map[page];}setStatus("",true);ui();};
+g1.addEventListener("click",function(){stopMine();ui();},true);
+document.addEventListener("click",function(e){var t=e.target;if(t&&t.closest&&t.closest(".spk")){stopMine();ui();}},true);
+
+function place(){var story=document.querySelector("#pageView .story");if(!story)return;
+var kick=story.querySelector(".kicker"),head=document.createElement("div");head.className="story-head";
+if(kick)head.appendChild(kick);head.appendChild(tools);head.appendChild(stat);story.insertBefore(head,story.firstChild);}
+g1.appendChild(bPage);g1.appendChild(bStory);g2.appendChild(bRec);g2.appendChild(bDel);moved=true;
+var lastPage=page;
+renderPage=function(){origRender.apply(this,arguments);place();if(page!==lastPage){lastPage=page;if(R.active)stopRec();stopMine();setStatus("",true);}ui();};
+place();ui();
+
+var ctl=document.querySelector(".controls"),nav=ctl&&ctl.querySelector(".nav");
+if(nav)ctl.insertBefore(hint,nav);
+document.addEventListener("keydown",function(e){
+if(e.defaultPrevented||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
+var t=e.target,tag=t&&t.tagName;
+if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||(t&&t.isContentEditable))return;
+if(e.key==="ArrowRight"){if(page<pages.length-1){$("nextBtn").click();e.preventDefault();}}
+else if(e.key==="ArrowLeft"){if(page>0){$("prevBtn").click();e.preventDefault();}}
+else if(e.key===" "||e.key==="Spacebar"){if(tag==="BUTTON"||tag==="A"||R.active)return;
+$(__nOwner==="story"?"listenStoryBtn":"listenPageBtn").click();e.preventDefault();}
+});
+document.body.classList.add("les-btnrow");
+}catch(err){undo();}
+})();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../../supabase-config.js"></script>
 <script src="../../feedback.js"></script>
