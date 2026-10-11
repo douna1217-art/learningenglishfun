@@ -44,10 +44,12 @@
   var AVATARS = [
     { id: "cat", emoji: "🐱", en: "Cat", zh: "猫", bg: "#fde7cf" },
     { id: "dog", emoji: "🐶", en: "Dog", zh: "狗", bg: "#dbeafe" },
-    { id: "lizard", emoji: "🦎", en: "Lizard", zh: "蜥蜴", bg: "#dcfce7" },
     { id: "monkey", emoji: "🐵", en: "Monkey", zh: "猴", bg: "#fef3c7" },
     { id: "bunny", emoji: "🐰", en: "Bunny", zh: "兔", bg: "#fce7f3" },
-    { id: "dino", emoji: "🦖", en: "Dino", zh: "恐龙", bg: "#e0f2fe" },
+    { id: "dino", emoji: "🦖", en: "Dino", zh: "恐龙", bg: "#dcfce7" },
+    { id: "duck", emoji: "🦆", en: "Duck", zh: "小鸭", bg: "#fef9c3" },
+    { id: "penguin", emoji: "🐧", en: "Penguin", zh: "企鹅", bg: "#e0f2fe" },
+    { id: "panda", emoji: "🐼", en: "Panda", zh: "大熊猫", bg: "#f1f5f9" },
   ];
   var GRADES = ["K", "1", "2", "3", "4", "5", "6"];
 
@@ -61,6 +63,7 @@
     });
   }
   function avatarOf(id) {
+    if (id === "lizard") id = "dino"; // the lizard was replaced by the dino; profiles made earlier still say lizard
     for (var i = 0; i < AVATARS.length; i++) if (AVATARS[i].id === id) return AVATARS[i];
     return AVATARS[0];
   }

@@ -40,7 +40,7 @@ create table if not exists public.profiles (
   id uuid primary key default gen_random_uuid(),
   parent_id uuid not null references auth.users(id) on delete cascade,
   nickname text not null check (char_length(btrim(nickname)) between 1 and 20),
-  avatar text not null default 'cat' check (avatar in ('cat','dog','lizard','monkey','bunny','dino')),
+  avatar text not null default 'cat' check (avatar in ('cat','dog','lizard','monkey','bunny','dino','duck','penguin','panda')),
   grade text check (grade is null or grade in ('K','1','2','3','4','5','6')),
   created_at timestamptz not null default now()
 );

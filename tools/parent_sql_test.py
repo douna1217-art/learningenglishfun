@@ -110,5 +110,20 @@ ok(cnt(f"public.user_state where user_id='{A}' and key='lef_pet_v1'") == 1, "old
 # deleting a parent removes everything
 q(f"delete from auth.users where id='{B}'")
 ok(cnt(f"public.profiles where parent_id='{B}'") == 0, "deleting the parent account removes their children")
+# the pet change: supabase/pet_avatars.sql on a database that still has the old six-picture rule
+q("alter table public.profiles drop constraint if exists profiles_avatar_check")
+q("alter table public.profiles add constraint profiles_avatar_check check (avatar in ('cat','dog','lizard','monkey','bunny','dino'))")
+q(f"insert into auth.users values ('cccccccc-cccc-cccc-cccc-cccccccccccc') on conflict do nothing")
+C = "cccccccc-cccc-cccc-cccc-cccccccccccc"
+ok(attempt(C, f"insert into public.profiles(parent_id,nickname,avatar) values ('{C}','Old','panda')", "public.profiles", where=f"parent_id='{C}'") == 0, "before pet_avatars.sql the panda is refused")
+q(f"insert into public.profiles(parent_id,nickname,avatar) values ('{C}','Lizzy','lizard')")
+q(open(R + "pet_avatars.sql").read())
+ok(cnt(f"public.profiles where parent_id='{C}' and avatar='lizard'") == 1, "a child saved with the lizard is kept after the migration")
+for av in ("duck", "penguin", "panda", "dino", "lizard"):
+    q(f"delete from public.profiles where parent_id='{C}' and nickname<>'Lizzy'")
+    ok(attempt(C, f"insert into public.profiles(parent_id,nickname,avatar) values ('{C}','New','{av}')", "public.profiles", where=f"parent_id='{C}' and nickname='New'") == 1, f"{av} accepted after pet_avatars.sql")
+ok(attempt(C, f"insert into public.profiles(parent_id,nickname,avatar) values ('{C}','Bad','tiger')", "public.profiles", where=f"parent_id='{C}' and nickname='Bad'") == 0, "an unknown avatar is still refused")
+q(open(R + "pet_avatars.sql").read())   # running it twice is fine
+ok(True, "pet_avatars.sql can be run twice")
 print(f"\n{passed} passed, {failed} failed")
 db.cleanup()

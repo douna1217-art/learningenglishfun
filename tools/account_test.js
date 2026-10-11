@@ -217,7 +217,7 @@ async function consentAndAdd(dev, nick, avatar, grade) {
   ok(!A.$("acGo").disabled, "1 both boxes enable Continue");
   A.click(A.$("acGo")); await A.settle();
   ok(be.parents[uP] && be.parents[uP].terms_version === A.w.__lesAccount.TERMS_VERSION && be.parents[uP].overseas_storage_ack === true, "1 consent is recorded with the version and the overseas-storage acknowledgement", be.parents[uP]);
-  ok(/Add your child/.test(A.text()) && A.d.querySelectorAll("[data-av]").length === 6 && A.d.querySelectorAll("[data-gr]").length === 7, "1 then the add-child screen with 6 pictures and 7 grades");
+  ok(/Add your child/.test(A.text()) && A.d.querySelectorAll("[data-av]").length === 8 && !A.d.querySelector('[data-av="lizard"]') && ["duck", "penguin", "panda"].every((k) => A.d.querySelector('[data-av="' + k + '"]')) && A.d.querySelectorAll("[data-gr]").length === 7, "1 then the add-child screen with 8 pictures (no lizard; duck, penguin, panda added) and 7 grades");
   A.click(A.$("acGo")); await A.settle();
   ok(/Enter a nickname/.test(A.$("acMsg").textContent) && be.profiles.length === 0, "1 an empty nickname is refused");
   A.d.getElementById("acNick").value = "  Mochi  ";

@@ -100,6 +100,8 @@
       var c = clone(value);
       delete c.last;
       delete c.hunger;
+      delete c.ci; // the colour choice is gone: an old device still writing it is not an edit
+      if (c.type === "lizard") c.type = "dino"; // the lizard was replaced by the dino
       return c;
     }
     return value;
@@ -148,7 +150,21 @@
   // Pet: the richer pet wins (more owned items, then more stars, then most
   // recently touched). When both are the same kind of pet, items from both are
   // kept so nothing the child bought is ever lost.
+  // Homes: {species: [placed decoration ids]}. Union per species, so a decoration
+  // placed on one device never disappears because another device is behind.
+  function mergeHome(a, b) {
+    var out = {};
+    [a, b].forEach(function (h) {
+      if (!isObj(h)) return;
+      Object.keys(h).forEach(function (k) {
+        out[k] = union(out[k], h[k]);
+      });
+    });
+    return out;
+  }
   function mergePet(a, b) {
+    if (isObj(a) && a.type === "lizard") { a = clone(a); a.type = "dino"; } // old data from before the lizard was replaced
+    if (isObj(b) && b.type === "lizard") { b = clone(b); b.type = "dino"; }
     if (!isObj(a) || !a.type) return clone(b);
     if (!isObj(b) || !b.type) return clone(a);
     var richer, other;
@@ -165,6 +181,7 @@
       out.owned = union(richer.owned, other.owned);
       out.toys = union(richer.toys, other.toys);
       out.eq = Object.assign({}, other.eq || {}, richer.eq || {});
+      out.home = mergeHome(other.home, richer.home);
     }
     return out;
   }

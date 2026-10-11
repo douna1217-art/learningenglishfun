@@ -35,6 +35,20 @@ function pureTests() {
   // different kinds of pet: the richer one only, no mixing
   m = core.mergePet(pet({ type: "dog", owned: ["bone"] }), pet({ type: "cat", owned: ["hat", "bow"] }));
   ok(m.type === "cat" && m.owned.length === 2, "different pets -> richer one wins whole", m);
+  // the lizard was replaced by the dino; clothes (eq.body) and decorated homes are kept from both devices
+  m = core.mergePet(pet({ type: "lizard", owned: ["hat"], stars: 9 }), pet({ type: "dino", owned: ["bow"], stars: 9 }));
+  ok(m.type === "dino" && eq(m.owned.slice().sort(), ["bow", "hat"]), "lizard data is treated as dino and its items are kept", m);
+  m = core.mergePet(pet({ type: "lizard", stars: 3 }), pet({ type: "cat", owned: ["hat", "bow"], stars: 50 }));
+  ok(m.type === "cat", "a lizard never wins over a richer cat", m);
+  m = core.mergePet(pet({ type: "duck", owned: ["d:duck:boat"], home: { duck: ["boat"] }, eq: { body: "cape" }, stars: 5 }),
+    pet({ type: "duck", owned: ["d:duck:frog"], home: { duck: ["frog"], panda: ["lanterns"] }, eq: { hat: "party" }, stars: 5, last: 9 }));
+  ok(eq(m.home.duck.slice().sort(), ["boat", "frog"]) && eq(m.home.panda, ["lanterns"]), "decorated homes are merged per species", m);
+  ok(m.eq.body === "cape" && m.eq.hat === "party", "clothes and hats from both devices are kept", m);
+  m = core.mergePet(pet({ type: "cat", owned: ["a"], stars: 1 }), pet({ type: "cat", owned: ["a", "b"], stars: 1 }));
+  ok(Array.isArray(m.owned) && m.home === undefined || eq(m.home, {}), "a pet without homes stays valid", m);
+  ok(core.fingerprint("lef_pet_v1", pet({ ci: 0 })) === core.fingerprint("lef_pet_v1", pet({ ci: 2 })), "the old colour field is not an edit");
+  ok(core.fingerprint("lef_pet_v1", pet({ type: "lizard" })) === core.fingerprint("lef_pet_v1", pet({ type: "dino" })), "lizard and dino look the same to dirty detection");
+  ok(core.fingerprint("lef_pet_v1", pet({ home: { cat: ["rug"] } })) !== core.fingerprint("lef_pet_v1", pet({ home: { cat: [] } })), "placing a decoration is an edit");
   ok(core.mergePet({ type: null }, pet({ stars: 4 })).stars === 4, "blank local pet -> remote");
   ok(core.mergePet(pet({ stars: 4 }), { type: null }).stars === 4, "blank remote pet -> local");
 
