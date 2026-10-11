@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Lantern Parade Mix-Up</h1><p>learningenglishfun · Interactive Grade 2 Fiction</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Reading</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Lantern Parade Mix-Up", "subtitle": "A Story About Traditions That Change Their Shape and Keep Their Heart", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/cover.jpg"}, {"text": "Each autumn, Mei's neighborhood carried lanterns beside the sea. This year, Mei planned a plum-and-jade lantern like Nai Nai's familiar one. Tomas arranged amber-and-cobalt pieces. Everyone expected the usual colors and shapes.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/page1.jpg"}, {"text": "A sudden ocean gust swept across the worktables. Panels lifted, rings rolled, and ribbons tangled. One large paper panel tore. When the wind eased, every family's pieces lay mixed together.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/page2.jpg"}, {"text": "Mei searched for the exact pieces she had chosen. She found one torn plum panel, but its match was gone. Tomas offered sturdy pieces in different colors. “That will not look like our lantern,” Mei said.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/page3.jpg"}, {"text": "Nai Nai opened her basket and lifted an old, patched lantern. None of its pieces matched, yet its light was warm. “Our tradition is carrying welcome light together,” she said. “Colors and shapes can change.”", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/page4.jpg"}, {"text": "Mei looked again at the mixed pile — and saw possibilities. She overlapped jade, amber, plum, and cobalt panels. Tomas built a smaller frame with cross-braces and a short handle. They placed an enclosed LED light low inside.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/page5.jpg"}, {"text": "The first breeze test revealed one more problem. A top-heavy lantern tilted, and long ribbons tugged in the wind. The children lowered its light, added a brace, and trimmed the ribbons. On the next test, it stayed balanced.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/page6.jpg"}, {"text": "At last, the lantern walk began beside the darkening sea. Mixed colors glowed as one bright path. Mei carried a lantern unlike any from years before. The tradition had changed its shape, but not its welcoming heart.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-lantern-parade-mix-up-assets/page7.jpg"}];

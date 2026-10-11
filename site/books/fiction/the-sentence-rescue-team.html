@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Sentence Rescue Team</h1><p>learningenglishfun · Interactive Grade 3 Fiction</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Story</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Sentence Rescue Team", "subtitle": "Grammar and Punctuation Help Every Idea Arrive Safely", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/cover.jpg"}, {"text": "The class message board was supposed to announce a garden workday, but several sentence cards had become confusing. Celia and Marcus formed a Sentence Rescue Team. Their goal was not to decorate the message; it was to make every idea clear.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/page1.jpg"}, {"text": "One sentence switched from singular to plural: “The student bring their gloves.” They matched the subject and verb: “The students bring their gloves.” Agreement helped readers know how many people the sentence described.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/page2.jpg"}, {"text": "Another sentence used an unclear pronoun: “When Ana spoke to Maya, she had the seeds.” The team replaced “she” with “Maya” so readers knew who held them. A specific noun removed the ambiguity.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/page3.jpg"}, {"text": "A third card joined two complete thoughts with only a comma. Celia separated them with a period, then tried a conjunction: “We will weed, and we will water.” Both repairs prevented a run-on sentence.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/page4.jpg"}, {"text": "Marcus capitalized the day, month, and park name in the event details. He added commas between the city and state. Capitalization and punctuation helped readers recognize proper names and locations.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/page5.jpg"}, {"text": "They read the entire announcement aloud. One long sentence was grammatical but hard to follow, so they divided it where the focus changed. Correct writing also needs a structure that readers can process.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/page6.jpg"}, {"text": "The repaired message clearly told who should come, what to bring, where to meet, and what work they would do. Families arrived prepared. Grammar had done its quiet job: carrying meaning from writer to reader without confusion.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-sentence-rescue-team-assets/page7.jpg"}];

@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Bell That Wouldn’t Ring</h1><p>learningenglishfun · Interactive Grade 2 Fiction</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Reading</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Bell That Wouldn’t Ring", "subtitle": "A Story About Turning a Guess into a Solution", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/cover.jpg"}, {"text": "Amara had one important note in Friday's welcome song. Her large brass bell would begin the music. Eli and the other players watched Ms. Vega raise her hands. Amara took a steady breath and swung.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/page1.jpg"}, {"text": "The small bells chimed, but Amara's bell made no sound. She tried one careful swing, then another. The bell moved, yet its clapper did not strike. Ms. Vega paused the rehearsal so the class could investigate.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/page2.jpg"}, {"text": "Ideas arrived faster than answers. One classmate guessed that the rim was cracked. Another suspected the handle. Eli wondered whether something inside was stuck. Amara did not know which idea to trust.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/page3.jpg"}, {"text": "Amara stopped guessing and looked for evidence. She turned the bell over on a padded table. Eli shone a small light inside. A thick strip of felt was wrapped tightly around the clapper, keeping it from reaching the brass.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/page4.jpg"}, {"text": "They removed all the felt and tested the bell again. CLANG! The bare clapper struck much too sharply. The felt had a useful job, Amara realized. It softened the sound — but someone had placed too much in the wrong spot.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/page5.jpg"}, {"text": "Amara and Eli made a smaller felt ring for the clapper's stem. The striking end could move freely, while the new ring softened its bounce. They tested once more. This time, the bell gave a clear, warm note.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/page6.jpg"}, {"text": "On Friday, Amara's bell opened the welcome song right on time. Its warm note carried across the courtyard. Amara smiled at Eli. Their best answer had not been the fastest guess — it had been the one supported by evidence.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-bell-that-wouldnt-ring-assets/page7.jpg"}];

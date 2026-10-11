@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>Aisha’s Window Garden</h1><p>learningenglishfun · Interactive Grade 2 Fiction</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Reading</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "Aisha’s Window Garden", "subtitle": "A Story About Noticing What Each Living Thing Needs", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/cover.jpg"}, {"text": "Hooyo placed three herb pots on the wide apartment window ledge. “Mint, basil, and cilantro are yours to care for,” she told Aisha. Aisha held the watering can close. She promised to help them grow.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/page1.jpg"}, {"text": "Each morning, Aisha gave every pot the same amount of water. Soon, the mint stood tall. The basil leaned toward the light, but the cilantro drooped above a puddle. “I treated them equally,” Aisha said. “Why do they look different?”", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/page2.jpg"}, {"text": "Aisha almost added more water, but she stopped to investigate. The mint’s soil felt damp and springy. The basil’s soil was dry and shaded. The cilantro’s soil was dark and soggy. Three plants had given three clues.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/page3.jpg"}, {"text": "Aisha changed her plan to match the clues. She moved the basil into brighter light and turned its leaning side. Sami emptied the cilantro’s saucer and cleared its drainage holes. They left the thriving mint where it was.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/page4.jpg"}, {"text": "One hot afternoon, Aisha returned from the library and found the basil wilted. Her stomach sank. Then she remembered to check first. The soil was dusty and dry, while the other pots still felt damp.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/page5.jpg"}, {"text": "Aisha watered the basil slowly and softened the hottest sun with a curtain. For several days, she checked the soil, rotated the pot, and removed damaged leaves. Little by little, the basil lifted and new leaves appeared.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/page6.jpg"}, {"text": "At last, the window garden was ready to share. Aisha gathered a few leaves for Hooyo’s flatbreads, and Sami gave a mint cutting to their neighbor. Caring well did not mean doing the same thing. It meant paying attention.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/aishas-window-garden-assets/page7.jpg"}];

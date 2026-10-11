@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Otter’s Borrowed Boat</h1><p>learningenglishfun · Interactive Grade 2 Fiction</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Reading</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Otter’s Borrowed Boat", "subtitle": "A Story About Honesty and Responsible Repair", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/cover.jpg"}, {"text": "Ollie needed a boat to carry berries to the marsh picnic. Tessa agreed to lend him her woven-reed skiff. ‘My aunt built it,’ she said. ‘Please bring it back before the evening tide.’ Ollie promised he would.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/page1.jpg"}, {"text": "Halfway to the picnic, Ollie spotted a duckling on the wrong side of thick reeds. He looped the boat's rope around a cattail, but his knot was loose. Then he slipped into the water to guide the duckling toward its family.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/page2.jpg"}, {"text": "While Ollie helped, the rope slid free. The empty skiff drifted a short distance and caught on a low branch. Several reeds tore along its side. The duckling was safe — but Tessa's boat was damaged.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/page3.jpg"}, {"text": "Ollie pulled the skiff ashore and stared at the ragged hole. For one moment, the tall reeds looked like a place to hide it. Then he saw Tessa waiting at the dock. Hiding the boat would only hide the truth for a little while.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/page4.jpg"}, {"text": "Ollie returned the boat and told the whole story. Tessa was glad the duckling was safe, but her eyes rested sadly on the torn weave. Ollie did not offer an excuse. ‘I tied a careless knot,’ he said. ‘I will help repair it.’", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/page5.jpg"}, {"text": "Tessa chose fresh tule reeds that matched the old ones. She showed Ollie how to weave them over and under. He worked slowly until the side felt strong. Before testing the boat, Ollie tied its rope with a careful double knot.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/page6.jpg"}, {"text": "The next evening, Ollie returned the sturdy skiff before the tide changed. He brought berries and waited for Tessa to inspect every repair. At last, she smiled and climbed aboard. The friends paddled to the picnic together — and trust traveled with them.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/fiction/the-otters-borrowed-boat-assets/page7.jpg"}];

@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Feeling Forecast</h1><p>learningenglishfun · Interactive Grade 3 SEL</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Story</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Feeling Forecast", "subtitle": "Feelings Are Signals We Can Notice, Name, and Understand", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/cover.jpg"}, {"text": "Lina had volunteered to read the morning announcement. When Friday arrived, she smiled at her partner, Dev, but her hands felt cold and her stomach fluttered. “My face says ready,” she whispered, “but the rest of me is sending a different forecast.”", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/page1.jpg"}, {"text": "She drew three weather symbols in her notebook: a bright sun for excitement, wind for nervous energy, and fog for uncertainty. More than one symbol seemed true. Naming the mixture helped Lina understand that she wanted to speak and also feared making a mistake.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/page2.jpg"}, {"text": "Lina searched for clues. Her heart sped up when she imagined the microphone, yet her shoulders relaxed when she practiced the first sentence with Dev. The clues showed that the task — not the whole school day — was causing the strongest feeling.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/page3.jpg"}, {"text": "“I’m excited and nervous,” Lina told Dev. “Could we rehearse once more, then walk to the office together?” Dev agreed. Lina’s honest words turned a confusing feeling into a clear request.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/page4.jpg"}, {"text": "At the microphone, Lina planted both feet and found the opening line on her card. The nervous wind was still there, but it no longer covered the sunny part. She read slowly enough to hear every word.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/page5.jpg"}, {"text": "Halfway through, Lina stumbled over “community.” She paused, tried the word again, and continued. Her cheeks felt warm, but she noticed another signal too: pride.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/page6.jpg"}, {"text": "Back in class, Lina added a rainbow to her forecast. “That stands for relief and pride after the stormy part,” she explained. Feelings had not predicted what Lina could do; they had helped her understand what support she needed.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-feeling-forecast-assets/page7.jpg"}];

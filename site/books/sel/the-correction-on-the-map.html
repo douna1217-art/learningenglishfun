@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Correction on the Map</h1><p>learningenglishfun · Interactive Grade 2 SEL</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 SEL</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Correction on the Map", "subtitle": "Feedback can improve the work without shrinking the learner", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/cover.jpg"}, {"text": "Avery finished a neighborhood map and felt proud of every bright detail. Then Kim noticed that the library and park were in the wrong places.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/page1.jpg"}, {"text": "Avery's face warmed. 'You think my whole map is bad,' they said. The correction felt much bigger than the two misplaced places.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/page2.jpg"}, {"text": "Kim answered, 'I like the map. I am talking about two locations, not about you.' Avery took one breath before looking again.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/page3.jpg"}, {"text": "They checked the class reference map together. Kim was right about the library, but the park symbol could stay where it was.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/page4.jpg"}, {"text": "Avery moved the library and added a path that had been missing. The correction became useful information instead of a final judgment.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/page5.jpg"}, {"text": "Avery also told Kim, 'Next time, please start with the exact part you mean.' Kim agreed that clear feedback was easier to use.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/page6.jpg"}, {"text": "A map could need a change while its maker still had good ideas. Avery learned to check the feedback, use what fit, and keep a steady view of themself.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-correction-on-the-map-assets/page7.jpg"}];

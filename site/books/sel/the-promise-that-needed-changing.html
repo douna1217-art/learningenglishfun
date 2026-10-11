@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Promise That Needed Changing</h1><p>learningenglishfun · Interactive Grade 2 SEL</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 SEL</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Promise That Needed Changing", "subtitle": "A Story About Speaking Up When a Plan No Longer Works", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/cover.jpg"}, {"text": "Lina promised to refill Pip's water every afternoon for one week. She wrote her name beside Monday through Friday on the class pet-care chart. Wes promised to check the hay.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/page1.jpg"}, {"text": "On Wednesday, Lina learned that her reading group would meet during pet-care time. She could not be in two places at once. Still, she worried that changing her promise would make her unreliable.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/page2.jpg"}, {"text": "Lina almost waited until the last minute, but Pip still needed fresh water. She paused and separated the goal from the plan: the goal was dependable care; the original schedule was only one plan.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/page3.jpg"}, {"text": "Lina told Wes and Ms. Grant as soon as she could. ‘My schedule changed,’ she said. ‘I still want to do my share. Can we revise the plan before Wednesday afternoon?’", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/page4.jpg"}, {"text": "Wes could refill the water on Wednesday if Lina checked the hay that morning. They examined both jobs, agreed the trade was fair, and changed the chart together. Ms. Grant confirmed the plan.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/page5.jpg"}, {"text": "On Wednesday morning, Lina checked the hay and recorded the amount. That afternoon, Wes refreshed the water before reading group began. Each child followed the revised promise.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/page6.jpg"}, {"text": "Changing the plan had not meant dropping responsibility. Lina had noticed a problem, communicated early, and protected the important goal: Pip received dependable care.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/the-promise-that-needed-changing-assets/page7.jpg"}];

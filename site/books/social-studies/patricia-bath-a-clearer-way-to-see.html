@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>Patricia Bath: A Clearer Way to See</h1><p>learningenglishfun · Interactive Grade 2 Social Studies</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Social Studies</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "Patricia Bath: A Clearer Way to See", "subtitle": "A Story About How Research and Invention Can Bring Better Care Within Reach", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/cover.jpg"}, {"text": "Patricia Bath was born in Harlem, New York, in 1942 and developed strong interests in science and medicine. As a teenager, she completed award-winning scientific research, then continued toward medical school.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/page1.jpg"}, {"text": "After earning her medical degree, Bath trained in eye care at Harlem Hospital and Columbia University. She studied differences in blindness rates and access to treatment among communities.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/page2.jpg"}, {"text": "Bath helped develop community ophthalmology, connecting eye medicine with public health. Screening, education, prevention, and treatment could reach people beyond a hospital office.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/page3.jpg"}, {"text": "At UCLA and Drew, Bath taught, treated patients, and led medical training while facing racism and sexism. She continued her work and became the first woman to chair a U.S. ophthalmology residency program in 1983.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/page4.jpg"}, {"text": "Bath designed the Laserphaco Probe, a device and technique for removing cataracts. The idea required years of research and testing before she received a U.S. patent in 1988.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/page5.jpg"}, {"text": "Her work helped doctors restore sight and improve cataract treatment. Bath also taught new techniques, donated equipment, and advocated for eye care in communities around the world.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/page6.jpg"}, {"text": "Patricia Bath made a difference as a physician, scientist, inventor, educator, and advocate. She connected careful research with a public goal: preventing blindness and helping more people see.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/patricia-bath-a-clearer-way-to-see-assets/page7.jpg"}];

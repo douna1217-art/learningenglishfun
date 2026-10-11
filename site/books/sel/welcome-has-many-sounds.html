@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>Welcome Has Many Sounds</h1><p>learningenglishfun · Interactive Grade 1 SEL</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 SEL</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "Welcome Has Many Sounds", "subtitle": "Curiosity Begins by Listening and Letting Each Person Choose What to Share", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/cover.jpg"}, {"text": "Ms. Okafor placed a yellow stone in the morning circle. 'Today we can share a greeting,' she said.\n'You may teach one, listen to one, or pass. Each choice belongs here.'", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/page1.jpg"}, {"text": "Anaya chose to share 'Namaste,' a greeting her family used. She showed the class how she said it.\nNo one copied yet. First, they watched and listened.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/page2.jpg"}, {"text": "Luis asked, 'May we try it with you?' Anaya smiled and said yes.\nThe class repeated the greeting slowly, then asked if it sounded right.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/page3.jpg"}, {"text": "Luis shared 'Buenos días,' which his grandfather said each morning. The class listened again.\nOne child chose to pass and kept holding a cream card. Nobody asked for a reason.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/page4.jpg"}, {"text": "A classmate shared 'Good morning.' It was the greeting used most often in her home.\nThe circle learned that familiar words can carry family meaning too.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/page5.jpg"}, {"text": "The children drew symbols for listening, asking, and trying. They did not rank the greetings.\nA greeting was not a contest. It was one small way a person might offer welcome.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/page6.jpg"}, {"text": "At dismissal, the class used the greetings people had invited them to use. They also waved and smiled.\nWelcome had many sounds, and respectful curiosity always began with listening.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/sel/welcome-has-many-sounds-assets/page7.jpg"}];

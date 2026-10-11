@@ -13,6 +13,33 @@
 <header class="topbar"><div class="brand"><div class="logo">R</div><div><h1>The Exhibit Between Two Classrooms</h1><p>learningenglishfun · Interactive Grade 2 Social Studies</p></div></div><div class="stage-pill" id="stagePill">Reading Mode</div></header>
 <section class="audio-bar"><div class="audio-copy"><strong>Listen, read, and record</strong><span>Narration highlights each word. Recordings stay only in this browser session.</span></div><div class="audio-actions"><button class="audio-btn primary" id="listenPageBtn">🔊 This Page</button><button class="audio-btn" id="listenStoryBtn">📖 Full Story</button><button class="audio-btn" id="pauseBtn" disabled>⏸ Pause</button><button class="audio-btn record" id="recordPageBtn">🎙 Record</button><button class="audio-btn" id="playRecordingBtn" disabled>▶ Play</button><button class="audio-btn" id="deleteRecordingBtn" disabled>🗑 Delete</button></div><div id="recStatus" class="rec-status" aria-live="polite"></div></section>
 <main class="shell"><section class="reader"><div id="pageView"></div><div class="controls"><div class="progress" id="progress"></div><div class="nav"><button class="prev" id="prevBtn">← Back</button><button class="next" id="nextBtn">Next →</button></div></div></section><aside class="panel"><div class="journey"><button class="tab active" data-tab="comprehension">1 Social Studies</button><button class="tab" data-tab="grammar">2 Grammar</button><button class="tab" data-tab="vocabulary">3 Vocabulary</button></div><div id="panelContent"></div></aside></main><div class="footer">No API key required · narration, recording, feedback, retry, and progress work in the browser.</div></div>
+<script>/*les-speech-shim*/
+(function(){var w=window,ok=false,errs=[];
+/* Some Android in-app browsers (UC/Quark and other vendor kernels, older WebViews) have no
+   speechSynthesis at all. The page script calls it while loading, so it stopped there and the
+   story was never drawn (the quiz still worked because its handlers were bound earlier).
+   Give such browsers a silent stand-in so the rest of the page runs normally. */
+try{ok=typeof w.speechSynthesis==="object"&&w.speechSynthesis!==null}catch(e){}
+if(typeof w.SpeechSynthesisUtterance!=="function"&&typeof w.SpeechSynthesisUtterance!=="object"){
+w.SpeechSynthesisUtterance=function(t){this.text=t==null?"":String(t);this.lang="";this.rate=1;this.pitch=1;this.volume=1;this.voice=null}}
+if(!ok){var gen=0,told=false;
+w.speechSynthesis={speaking:false,paused:false,pending:false,
+getVoices:function(){return[]},cancel:function(){gen++},pause:function(){},resume:function(){},
+addEventListener:function(){},removeEventListener:function(){},
+speak:function(u){var g=gen;
+if(!told&&typeof w.setStatus==="function"){told=true;try{w.setStatus("This browser can't read aloud, but you can still read and practice. 当前浏览器不支持朗读，仍可阅读和做题。",false)}catch(e){}}
+setTimeout(function(){if(g===gen&&u&&u.onstart){try{u.onstart({})}catch(e){}}},0);
+setTimeout(function(){if(g===gen&&u&&u.onend){try{u.onend({})}catch(e){}}},Math.max(600,String(u&&u.text||"").length*60))}}}
+/* If the story still is not drawn after loading, say why on the page itself, so a screenshot
+   from a phone we cannot test on shows the cause. */
+w.addEventListener("error",function(e){try{if(errs.length<3)errs.push(String(e&&e.message||e))}catch(x){}});
+w.addEventListener("load",function(){try{var v=document.getElementById("pageView");
+if(v&&!v.firstChild&&errs.length){var d=document.createElement("div"),s=document.createElement("small");
+d.style.cssText="padding:24px;color:#b91c1c;font:15px/1.6 sans-serif";
+d.appendChild(document.createTextNode("The story could not be shown in this browser. 此浏览器暂时无法显示故事。"));
+d.appendChild(document.createElement("br"));s.textContent=errs.join(" | ");d.appendChild(s);v.appendChild(d)}}catch(x){}});
+})();
+</script>
 <script>
 
 const pages=[{"type": "cover", "title": "The Exhibit Between Two Classrooms", "subtitle": "A Story About How Questions and Shared Evidence Can Turn Cultural Contact into Understanding", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/cover.jpg"}, {"text": "Ms. Ortiz's class in California and Ms. Sato's class in Osaka, Japan, planned one online exhibit. Their question was, ‘How do students in our two school communities travel to school?’", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/page1.jpg"}, {"text": "Each class collected a small survey and photographs with permission. The California set showed walking, bicycles, cars, and a bus; the Osaka set showed walking groups, bicycles, and trains.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/page2.jpg"}, {"text": "Lila saw matching yellow hats in one Osaka photograph and made a quick guess about every child in Japan. Haruto saw one bus and guessed that every California student rode it.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/page3.jpg"}, {"text": "On their next call, both classes asked, ‘Who is in this photo, where was it taken, and when?’ They learned that one picture could not describe every student, school, or country.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/page4.jpg"}, {"text": "The partners revised their captions to say, ‘At this Osaka school’ and ‘In this California community.’ They added dates and survey numbers so visitors could see the limits of the evidence.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/page5.jpg"}, {"text": "A translation problem made one answer unclear, so the students did not pretend to understand. They asked again, used a map and pictures, and invited bilingual adults to check the meaning.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/page6.jpg"}, {"text": "The finished exhibit showed both similarities and differences without turning either class into a rule for a whole nation. Cultural contact helped the students listen, check evidence, revise ideas, and understand one another better.", "image": "https://learningenglishfun-media-1463631719.cos.ap-hongkong.myqcloud.com/books/social-studies/the-exhibit-between-two-classrooms-assets/page7.jpg"}];
