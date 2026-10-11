@@ -59,7 +59,10 @@
   function placed() { return (S.home && S.home[S.type]) || []; }
   function sceneSVG() {
     var H = HOMES[S.type], on = placed(), s = '<defs>' + H.defs + '</defs>' + H.base();
+    var view = { y0: WIDE ? 85 : 0 }, fest = [];
+    if (typeof FEST !== 'undefined' && S.home && S.home.fest) S.home.fest.forEach(function (id) { var d = FEST.deco(id); if (d) fest.push(d); });
     H.decos.forEach(function (d) { if (on.indexOf(d.id) >= 0 && !d.front) s += '<g' + (L.bought === d.id ? ' class="pop"' : '') + '>' + softSvg(d.svg()) + '</g>'; });
+    fest.forEach(function (d) { if (!d.front) s += '<g' + (L.bought === d.id ? ' class="pop"' : '') + '>' + softSvg(d.svg(view)) + '</g>'; });
     s += '<g id="psPos" transform="translate(' + L.px + ' 0)" style="transform:translate(' + L.px + 'px,0px)">';
     var g = geo();
     s += '<ellipse cx="185" cy="281" rx="' + Math.round(54 * g.k) + '" ry="8" fill="#1E2A4A" opacity=".14"/>';
@@ -67,6 +70,7 @@
     s += '<g transform="translate(185,' + (g.ty + 50 * g.s).toFixed(1) + ') scale(' + g.k.toFixed(3) + ') translate(-185,-145.5)"><g fill="#6A48E8" font-family="Fredoka,Nunito,sans-serif" font-weight="700" class="zzg"><text class="zz" x="248" y="112" font-size="22">z</text><text class="zz" style="animation-delay:.9s" x="260" y="98" font-size="16">z</text><text class="zz" style="animation-delay:1.7s" x="270" y="86" font-size="12">z</text></g></g>';
     s += '</g>';
     H.decos.forEach(function (d) { if (on.indexOf(d.id) >= 0 && d.front) s += '<g' + (L.bought === d.id ? ' class="pop"' : '') + '>' + softSvg(d.svg()) + '</g>'; });
+    fest.forEach(function (d) { if (d.front) s += '<g' + (L.bought === d.id ? ' class="pop"' : '') + '>' + softSvg(d.svg(view)) + '</g>'; });
     var pos = [[86, 238], [226, 238]];
     (S.toys || []).slice(0, 2).forEach(function (id, i) { var it = ITEMS[id]; if (it && it.toy) s += '<g class="toyg" data-toy="' + id + '" transform="translate(' + pos[i][0] + ',' + pos[i][1] + ') scale(.8)" style="cursor:pointer"><g>' + softSvg(it.toy) + '</g></g>'; });
     if (L.eating) s += '<g transform="translate(' + (WIDE ? '216,236) scale(.9' : '222,224) scale(1.05') + ')"><g class="pop">' + softSvg(FOOD[L.eating]) + '</g></g>';

@@ -703,7 +703,8 @@ function petSvg(t,m,eq,mode,style){var g=composePet(t,PETS2[t].pal[0],m||'happy'
  return '<svg viewBox="'+vb+'" aria-hidden="true"'+(style?st:' style="overflow:visible"')+'>'+g+'</svg>';}
 function petGroup(t,m,eq){return composePet(t,PETS2[t].pal[0],m||'happy',eq||{});}
 function decoKey(t,id){return 'd:'+t+':'+id;}
-window.softSvg=function(s){return softAny(s,'sv'+(++GN));};window.PETS=PETS2;window.PET_ORDER=ORDER;window.FOOD=FOOD;window.FNAME=FNAME;window.FCN=FCN;window.MENU=MENU;window.FCOST=FCOST;window.FGAIN=FGAIN;
+window.softSvg=function(s){return softAny(s,'sv'+(++GN));};
+window.PetKit={G:G,body:body,hw:hw,gw:gw,sleeves:sleeves,strip:strip,dot:dot,star5:star5,spark4:spark4,hexMix:hexMix,f1:f1,sm:sm,OUT:OUT,OUTFITS:OUTFITS,ITEMS:ITEMS,SW:SW};   /* drawing helpers for the festival items in pet-fest.js */window.PETS=PETS2;window.PET_ORDER=ORDER;window.FOOD=FOOD;window.FNAME=FNAME;window.FCN=FCN;window.MENU=MENU;window.FCOST=FCOST;window.FGAIN=FGAIN;
 window.LIKES=LIKES;window.ITEMS=ITEMS;window.OUTFITS=OUTFITS;window.OUTFIT_IDS=OUTFIT_IDS;window.ACCS=ACCS;window.TOYS=TOYS;window.SLOTLABEL=SLOTLABEL;
 window.HOMES=HOMES;window.FACES=FACES;window.FACENAME=FACENAME;window.petSvg=petSvg;window.petGroup=petGroup;window.decoKey=decoKey;window.PET_INK=INK;
 

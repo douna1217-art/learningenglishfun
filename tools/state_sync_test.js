@@ -44,6 +44,9 @@ function pureTests() {
     pet({ type: "duck", owned: ["d:duck:frog"], home: { duck: ["frog"], panda: ["lanterns"] }, eq: { hat: "party" }, stars: 5, last: 9 }));
   ok(eq(m.home.duck.slice().sort(), ["boat", "frog"]) && eq(m.home.panda, ["lanterns"]), "decorated homes are merged per species", m);
   ok(m.eq.body === "cape" && m.eq.hat === "party", "clothes and hats from both devices are kept", m);
+  m = core.mergePet(pet({ type: "cat", owned: ["hw-pumpkin", "hw-d-bats"], home: { fest: ["hw-d-bats"] }, eq: { body: "hw-pumpkin" }, stars: 5 }),
+    pet({ type: "cat", owned: ["hw-d-ghost"], home: { fest: ["hw-d-ghost"] }, stars: 5, last: 9 }));
+  ok(eq(m.home.fest.slice().sort(), ["hw-d-bats", "hw-d-ghost"]) && m.eq.body === "hw-pumpkin" && m.owned.indexOf("hw-d-ghost") >= 0, "festival decorations and clothes from both devices are kept", m);
   m = core.mergePet(pet({ type: "cat", owned: ["a"], stars: 1 }), pet({ type: "cat", owned: ["a", "b"], stars: 1 }));
   ok(Array.isArray(m.owned) && m.home === undefined || eq(m.home, {}), "a pet without homes stays valid", m);
   ok(core.fingerprint("lef_pet_v1", pet({ ci: 0 })) === core.fingerprint("lef_pet_v1", pet({ ci: 2 })), "the old colour field is not an edit");
