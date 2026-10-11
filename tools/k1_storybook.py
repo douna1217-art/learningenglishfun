@@ -7,15 +7,23 @@ Committed, permanent replacement for build_kf_m.py / upload_kf_m.py /
 build_g1.py / upload_g1.py, which only lived in the session scratchpad and
 kept being evicted between sessions.
 
-Source docx shape (both grades): 16 non-empty paragraphs = title, subtitle,
+Source docx shape (all grades): 16 non-empty paragraphs = title, subtitle,
 then 7 pages x 2 paragraphs, plus 8 embedded images in cover, page1..page7
 order.
   kindergarten: each page is ONE paragraph holding two lines joined by a line
                 break, followed by a bare page-number marker ("1".."7").
   grade1:       each page is TWO consecutive narrative paragraphs, no marker.
 
-Per-grade metadata (books.js + page chrome): see GRADES below. Both use
+Per-grade metadata (books.js + page chrome): see GRADES below. All use
 subject "Fiction" and the tab label "Reading".
+
+Optional per-book keys in BOOKS (for docx text that would voice badly or
+that does not match the shelf style):
+  title / subtitle   override the docx title / subtitle (the slug must still
+                     match the DOCX title, so the book keeps its identity)
+  text_overrides     {page_number: {old: new}} exact substring replacements
+                     applied to the docx page text (e.g. a colon before a
+                     list, which the TTS tends to drop)
 
 Data module (a .py file you write per batch) must define
 
@@ -30,7 +38,10 @@ quiz_balance.rebalance_quizzes, never by hand.
 
 TTS safety rules baked into `audit`: no parentheses or ellipses in anything
 voiced, and the English half of a grammar teach must not use a colon before
-its example (write ", like <b>word</b>." instead).
+its example (write ", like <b>word</b>." instead). `audit` also reads each docx
+(with the overrides applied) and flags the same hazards, colons and dashes in
+the page text, focus words that never appear in the story, vocabulary
+questions about a word that is not a focus word, and slugs already shipped.
 
 Usage (run from anywhere):
   python3 tools/k1_storybook.py audit    --grade grade1 --data batch.py
@@ -60,6 +71,7 @@ sys.path.insert(0, TOOLS)
 GRADES = {
     "kindergarten": dict(grade="Kindergarten", band="Early Reader", minutes="6 min", fmt="marker"),
     "grade1": dict(grade="Grade 1", band="Beginning Reader", minutes="7 min", fmt="paired"),
+    "grade2": dict(grade="Grade 2", band="Growing Reader", minutes="9 min", fmt="paired"),
 }
 MODULES = ["Listen", "Read", "Reading", "Vocabulary"]
 FICTION_DIR = os.path.join(REPO, "site", "books", "fiction")
@@ -118,6 +130,16 @@ def read_docx(path, fmt):
     return paras[0], paras[1], pages, imgs
 
 
+def book_text(spec, title, subtitle, texts):
+    """Apply a book's optional overrides -> (title, subtitle, texts)."""
+    texts = list(texts)
+    for page, reps in (spec.get("text_overrides") or {}).items():
+        for old, new in reps.items():
+            assert texts[page - 1].count(old) == 1, ("override not found exactly once", page, old)
+            texts[page - 1] = texts[page - 1].replace(old, new)
+    return spec.get("title", title), spec.get("subtitle", subtitle), texts
+
+
 def docx_path(spec, docx_dir):
     return os.path.join(os.path.expanduser(docx_dir), f"{spec['docx']}-Storybook.docx")
 
@@ -149,6 +171,35 @@ def balanced_quizzes(slug, spec):
 
 
 # ---------------------------------------------------------------- commands
+def audit_story(args, slug, spec, quizzes):
+    """Page-text hazards, focus-word coverage and shipped-slug check for one book."""
+    found = []
+    cfg = GRADES[args.grade]
+    title, subtitle, texts, _ = read_docx(docx_path(spec, args.docx_dir), cfg["fmt"])
+    if slugify(title) != slug:
+        found.append((slug, "slug", f"docx title slugifies to {slugify(title)!r}"))
+    title, subtitle, texts = book_text(spec, title, subtitle, texts)
+    for where, x in [("title", title), ("subtitle", subtitle)] + [(f"page {i}", t) for i, t in enumerate(texts, 1)]:
+        m = re.search(r"[:()—–]|\.\.\.|…", x)
+        if m:
+            found.append((slug, where, f"TTS hazard {m.group(0)!r} in {x[max(0, m.start() - 30):m.end() + 30]!r}"))
+    words = " ".join(texts).lower()
+    for w in spec["focus"]:
+        if not re.search(r"(?<![a-z])%s(?![a-z])" % re.escape(w.lower()), words):
+            found.append((slug, "focus", f"{w!r} never appears in the story text"))
+    asked = [re.match(r"[‘']([^’']+)[’']", it["q"]) for it in quizzes["vocabulary"]]
+    asked = [m.group(1).lower() for m in asked if m]
+    if sorted(asked) != sorted(w.lower() for w in spec["focus"]):
+        found.append((slug, "vocabulary", f"vocab words {asked} differ from focus {spec['focus']}"))
+    for it in quizzes["comprehension"] + quizzes["grammar"] + quizzes["vocabulary"]:
+        for f in ("q", "hint", "explain"):
+            if re.search(r"[:]", it.get(f, "")) and f != "q":
+                found.append((slug, f, f"colon in {it[f]!r}"))
+    if os.path.exists(os.path.join(FICTION_DIR, slug + ".html")):
+        found.append((slug, "exists", "book html already exists (build will refuse)"))
+    return found
+
+
 def cmd_audit(args, books):
     """Answer-position balance, correctness listing, TTS-hazard checks."""
     cjk = re.compile(r"[一-鿿]")
@@ -180,6 +231,7 @@ def cmd_audit(args, books):
                     if ":" in en or re.search(r"[()]", en):
                         problems.append((slug, "teach", f"colon/paren in {en!r}"))
         print(slug, "answer positions:", dict(sorted(counts.items())))
+        problems += audit_story(args, slug, spec, quizzes)
         if max(counts.values()) - min(counts.values()) > 1:
             problems.append((slug, "balance", str(counts)))
         if len(spec["focus"]) != 3:
@@ -199,6 +251,7 @@ def cmd_build(args, books):
     for slug, spec in books.items():
         title, subtitle, texts, _ = read_docx(docx_path(spec, args.docx_dir), cfg["fmt"])
         assert slugify(title) == slug, (slugify(title), slug)
+        title, subtitle, texts = book_text(spec, title, subtitle, texts)
         todo.append((slug, spec, title, subtitle, texts))
     clash = [s for s, *_ in todo if os.path.exists(os.path.join(out, s + ".html"))]
     if clash and not args.force:
@@ -274,8 +327,9 @@ def cmd_register(args, books):
         if f'"slug":"{slug}"' in content:
             print("already registered, skipping:", slug)
             continue
-        title, subtitle, _, _ = read_docx(docx_path(spec, args.docx_dir), cfg["fmt"])
+        title, subtitle, texts, _ = read_docx(docx_path(spec, args.docx_dir), cfg["fmt"])
         assert slugify(title) == slug, (slugify(title), slug)
+        title, subtitle, _ = book_text(spec, title, subtitle, texts)
         entries.append(json.dumps({
             "slug": slug, "title": title, "subtitle": subtitle, "grade": cfg["grade"],
             "readingBand": cfg["band"], "minutes": cfg["minutes"], "modules": MODULES, "status": "ready",
