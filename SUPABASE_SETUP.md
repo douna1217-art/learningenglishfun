@@ -307,10 +307,16 @@ Authentication → Rate Limits 里 "Rate limit for sending emails" 是 **2 封/�
 5. Authentication → Emails → Templates → **Magic link or OTP**：主题用
    `supabase/email_templates/magic_link_subject.txt`，正文用 `magic_link.html`
    （中英文，同时有 6 位验证码 `{{ .Token }}` 和一键登录按钮 `{{ .ConfirmationURL }}`）。
-6. 把 `site/supabase-config.js` 里的 `emailCode` 改成 `true` 并推送。此后点 "Send link" 会
+6. **验证码长度和有效期**（Authentication → Sign In / Providers → Email）：
+   - **Email OTP length 设成 `6`**。Supabase 新项目默认是 **8**，而网站的验证码输入框、邮件模板和说明文字都按 6 位写，
+     不改的话邮件发 8 位、网站只收 6 位，验证码登录就废了（2026-10-11 就踩过）。Supabase 要求至少 6，设不了 4。
+   - **Email OTP expiration 设成 `600`**（秒，即 10 分钟，默认是 3600）。验证码越短，有效期越应该短；
+     10 分钟给国内邮箱的延迟留了余量，如果家长反馈"验证码总说过期"，再放宽。这个有效期同样管邮件里的登录按钮。
+   - 改任何一项之前，先想想网站的输入框和邮件文字要不要跟着改，别再让它们对不上。
+7. 把 `site/supabase-config.js` 里的 `emailCode` 改成 `true` 并推送。此后点 "Send link" 会
    同时出现 6 位验证码输入框：在微信等内置浏览器里点邮件链接会跳到别的浏览器、登录状态接不上，
    输入验证码就不受影响。**第 5 步之前不要打开这个开关**，否则邮件里没有验证码。
-7. 用你自己的邮箱试一次完整流程，再分别试 Gmail 和 QQ/163 邮箱，确认收得到、不在垃圾箱。
+8. 用你自己的邮箱试一次完整流程，再分别试 Gmail 和 QQ/163 邮箱，确认收得到、不在垃圾箱。
 
 **没配好之前**：登录框遇到发送太频繁（2 封/小时的限制）会显示中英文的友好提示，不再显示
 英文报错原文。

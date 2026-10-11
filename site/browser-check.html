@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Browser check 浏览器检测 | learningenglishfun</title>
+<style>
+body{margin:0;background:#f5f9fc;color:#1E2A4A;font-family:-apple-system,"Segoe UI",Arial,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.5;padding:18px 14px 40px}
+.wrap{max-width:560px;margin:0 auto}
+h1{font-size:1.35rem;margin:0 0 2px}h1 small{display:block;font-size:.9rem;color:#4A5878;font-weight:700}
+.sum{border-radius:14px;padding:14px;font-weight:800;margin:14px 0;font-size:1.05rem}
+.sum.ok{background:#e7f5ec;border:1px solid #9fd2b0;color:#1d5b34}.sum.bad{background:#ffe9e7;border:1px solid #f0b4ae;color:#8a2a22}.sum.wait{background:#fff6e0;border:1px solid #f0d896}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:.9rem}
+td{padding:8px 10px;border-bottom:1px solid #e6eee9;vertical-align:top}td:last-child{text-align:right;font-weight:800;white-space:nowrap}
+.y{color:#1d7a43}.n{color:#b23b34}.u{color:#4A5878;font-weight:700}
+pre{background:#fff;border-radius:12px;padding:10px;white-space:pre-wrap;word-break:break-all;font-size:.78rem;border:1px solid #e6eee9}
+.note{font-size:.82rem;color:#4A5878}
+</style></head><body><div class="wrap">
+<h1>Browser check<small>浏览器检测</small></h1>
+<p class="note">Open this page in the browser where a book looks empty, take a screenshot of the whole page and send it to us. 请在"书打开后看不到内容"的那个浏览器里打开本页，整页截图发给我们。</p>
+<div class="sum wait" id="sum">Checking… 检测中…</div>
+<table id="tbl"></table>
+<p class="note" style="margin-top:14px">Browser identification (user agent) 浏览器标识：</p>
+<pre id="ua"></pre>
+<p class="note"><a href="/" style="color:#315f47;font-weight:800">&larr; learningenglishfun</a></p>
+</div>
+<script>
+(function(){
+  function tryJs(src){try{new Function(src)();return true;}catch(e){return false;}}
+  var tests=[
+    ["Basic JavaScript (arrow functions, const) 基本脚本", "required", function(){return tryJs("const f=(a)=>a+1;return f(1)");}],
+    ["Async functions (ES2017) 异步函数", "required", function(){return tryJs("return (async function(){return 1})()");}],
+    ["Optional chaining ?. (ES2020) 可选链", "info", function(){return tryJs("var a={};return a?.b?.c");}],
+    ["Object spread (ES2018) 对象展开", "info", function(){return tryJs("return {...{a:1}}");}],
+    ["localStorage 本地存储", "required", function(){try{localStorage.setItem("_t","1");localStorage.removeItem("_t");return true;}catch(e){return false;}}],
+    ["Audio playback 音频播放", "required", function(){return typeof Audio!=="undefined";}],
+    ["Text-to-speech 语音朗读", "info", function(){return "speechSynthesis" in window;}],
+    ["Recording 录音", "info", function(){return typeof MediaRecorder!=="undefined";}],
+    ["fetch / network (needed for sign-in only) 网络请求（仅登录需要）", "info", function(){return typeof fetch==="function";}],
+    ["Promise.finally", "info", function(){return typeof Promise!=="undefined"&&typeof Promise.prototype["finally"]==="function";}]
+  ];
+  var rows="",badReq=[];
+  for(var i=0;i<tests.length;i++){
+    var ok=false;try{ok=!!tests[i][2]();}catch(e){}
+    if(!ok&&tests[i][1]==="required")badReq.push(tests[i][0]);
+    rows+="<tr><td>"+tests[i][0]+"</td><td class=\""+(ok?"y":(tests[i][1]==="required"?"n":"u"))+"\">"+(ok?"YES 支持":(tests[i][1]==="required"?"NO 不支持":"no 不支持 (ok)"))+"</td></tr>";
+  }
+  var ua=navigator.userAgent||"";
+  var m=/(?:Chrome|CriOS)\/(\d+)/.exec(ua);
+  rows+="<tr><td>Chrome engine version 内核版本</td><td class=\"u\">"+(m?m[1]:"?")+"</td></tr>";
+  document.getElementById("tbl").innerHTML=rows;
+  document.getElementById("ua").textContent=ua;
+  var s=document.getElementById("sum");
+  if(badReq.length){s.className="sum bad";s.innerHTML="This browser is too old for the books: "+badReq.join(", ")+".<br>这个浏览器太旧，无法显示书：请改用系统自带的 Chrome、或更新浏览器后再试。";}
+  else{s.className="sum ok";s.innerHTML="This browser can show the books. 这个浏览器可以正常显示书。";}
+})();
+</script></body></html>
