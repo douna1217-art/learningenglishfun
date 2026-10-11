@@ -15,6 +15,8 @@
 
   function fresh() { return { act: 'idle', px: 0, idle: 0, busy: false, yawn: false, drowsy: false, cf: null, fc: null, small: false, rumble: false, hc: 0, eating: null, bought: null, timers: [] }; }
   function $(id) { return document.getElementById(id); }
+  function sfx(name, k) { if (window.PetSound) PetSound.play(name, k); }       // sound effects are optional: no PetSound, no sound
+  function voice() { if (window.PetSound && S && S.type) PetSound.voice(S.type); }
   function later(fn, ms) {
     var id = setTimeout(function () { var k = L.timers.indexOf(id); if (k >= 0) L.timers.splice(k, 1); if (active) fn(); }, ms);
     L.timers.push(id); return id;
@@ -154,12 +156,14 @@
   function cheer(msg, big, kind, fc) {
     clearLater(); L.busy = true; L.act = 'cheer'; L.small = !big; L.cf = fc || (big ? 'excited' : 'happy'); L.fc = null; refreshPet();
     burst(kind || 'heart', big ? 9 : 5); if (msg) bubble(msg, big ? 3000 : 1800); later(settle, big ? 2300 : 1100);
+    if (big) { sfx('big'); voice(); }          // small reactions (poke, toy, decoration) have their own sounds
   }
   function twirl(msg) {
     clearLater(); L.busy = true; L.act = 'twirl'; refreshPet(); burst('star', 7); bubble(msg || 'I love it!', 2000); later(settle, 1900);
+    setTimeout(function () { sfx('sparkle'); }, 280);
   }
   function wakeUp(why, msg, withStars) {
-    clearLater(); L.busy = true; L.act = 'wake'; L.drowsy = false; L.fc = null;
+    clearLater(); L.busy = true; L.act = 'wake'; L.drowsy = false; L.fc = null; sfx('yawn');
     if (why === 'return') {
       L.yawn = true; refreshPet();
       later(function () { L.yawn = false; cheer(msg || "You're back! I missed you!", true, withStars ? 'star' : 'heart', 'excited'); if (withStars) rain(10); }, 1300);
@@ -171,10 +175,10 @@
   function goBored() { L.act = 'bored'; L.drowsy = false; refreshPet(); later(function () { bubble('...', 2600); }, 700); later(yawnLoop, 6500); }
   function yawnLoop() {
     if (L.act !== 'bored') return;
-    L.yawn = true; refreshPet();
+    L.yawn = true; refreshPet(); sfx('yawn', .5);
     later(function () { L.yawn = false; if (L.act === 'bored') { refreshPet(); later(yawnLoop, 6500); } }, 1300);
   }
-  function goSleep() { clearLater(); L.act = 'sleep'; L.busy = false; L.yawn = false; L.drowsy = false; refreshPet(); }
+  function goSleep() { clearLater(); L.act = 'sleep'; L.busy = false; L.yawn = false; L.drowsy = false; refreshPet(); sfx('sleep'); }
   function eat(key, done) {
     clearLater(); L.busy = true;
     walkTo(0, function () {
@@ -188,9 +192,9 @@
   }
   function react(kind) {
     if (L.busy || L.act === 'sleep' || L.act === 'wake') return;
-    if (kind === 'toy') { cheer('Wheee!', false, 'star', 'excited'); return; }
+    if (kind === 'toy') { cheer('Wheee!', false, 'star', 'excited'); sfx('boing'); return; }
     var m = ['Hee hee!', 'That tickles!', 'Hello!', 'Hi hi!'];
-    cheer(m[Math.floor(Math.random() * m.length)], false, 'heart', 'surprised'); mark();
+    cheer(m[Math.floor(Math.random() * m.length)], false, 'heart', 'surprised'); mark(); sfx('poke'); voice();
     later(function () { if (L.act === 'cheer') { L.cf = 'love'; refreshPet(); } }, 500);
   }
   function welcome(away, gain) {
@@ -222,7 +226,7 @@
     if (L.act === 'idle' && L.idle >= T.bored) { goBored(); return; }
     if (L.act === 'bored' && !L.drowsy && !L.yawn && L.idle >= (T.bored + T.sleep) / 2) { L.drowsy = true; refreshPet(); }
     if (S.hunger < 50 && (L.act === 'idle' || L.act === 'bored') && ++L.hc >= 9) {
-      L.hc = 0; L.rumble = true; applyClasses(); bubble('My tummy is rumbling...', 2200);
+      L.hc = 0; L.rumble = true; applyClasses(); bubble('My tummy is rumbling...', 2200); sfx('rumble');
       setTimeout(function () { L.rumble = false; applyClasses(); }, 1100);
     }
   }
@@ -261,7 +265,7 @@
     eat: function (key, done) { if (active) eat(key, done); else if (done) done(); },
     twirl: function (msg) { if (active) twirl(msg); },
     cheer: function (msg, big, kind, fc) { if (active) cheer(msg, big, kind, fc); },
-    decorated: function (id) { if (!active) return; L.bought = id; render(); cheer('So pretty!', false, 'star', 'excited'); },
+    decorated: function (id) { if (!active) return; L.bought = id; render(); cheer('So pretty!', false, 'star', 'excited'); setTimeout(function () { sfx('pop'); }, 120); },
     placed: function () { if (active) { L.bought = null; render(); } },
     setAway: function (sec) { pageAway = sec; pageAwayAt = Date.now(); },                  // seconds since the page was last used, read when the page loads
     say: function (msg) { if (active) setTimeout(function () { if (active) bubble(msg, 4800); }, 300); },       /* the page's messages appear as a speech bubble in the picture */
