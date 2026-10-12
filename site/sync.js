@@ -33,9 +33,10 @@
   // tab (comprehension/grammar/vocabulary) is marked complete, by scanning the
   // per-book "les-<slug>-v1" keys that every book page already writes via
   // saveProgress() (see tools/templates/human_book_tail.js and the
-  // Math/Science/CS template). Opening the panel counts as having seen the nudge.
+  // Math/Science/CS template). The dot stays until somebody signs in: opening the
+  // panel does not remove it (it used to, via a "les_sync_hint_dismissed" flag that
+  // is now ignored), and once signed in the box is replaced by the account header.
   var HINT_THRESHOLD = 3;
-  var HINT_DISMISSED_KEY = "les_sync_hint_dismissed";
 
   function hasPet() {
     try {
@@ -59,9 +60,6 @@
     return n;
   }
   function shouldShowHint() {
-    try {
-      if (localStorage.getItem(HINT_DISMISSED_KEY)) return false;
-    } catch (e) {}
     return hasPet() || countCompletedBooks() >= HINT_THRESHOLD;
   }
 
@@ -224,10 +222,6 @@
       panel.className = "sy-panel" + (r.right < 344 ? " sy-l" : "");
       panel.hidden = false;
       toggle.setAttribute("aria-expanded", "true");
-      try {
-        localStorage.setItem(HINT_DISMISSED_KEY, "1");
-      } catch (e) {}
-      updateDot();
       try {
         document.getElementById("syncEmail").focus({ preventScroll: true });
       } catch (e) {}
