@@ -141,7 +141,7 @@ for(var fk in FOOD2)FOOD[fk]=FOOD2[fk];
 Object.assign(FNAME,{shrimp:'Shrimp',squid:'Squid',crab:'Crab',bamboo:'Bamboo',wowotou:'Wowotou',corn:'Corn'});
 Object.assign(FCN,{shrimp:'虾',squid:'鱿鱼',crab:'螃蟹',bamboo:'竹子',wowotou:'窝窝头',corn:'玉米'});
 /* ---- the three new species; the five old ones come from the live code (PETS, MENU, LIKES) ---- */
-ANC.penguin={hx:60,hy:21,hs:1,ey:60,edx:22,er:9.5,ny:100};
+ANC.penguin={hx:60,hy:21,hs:1,ey:60,edx:22,er:9.5,ny:100,nd:16};   /* nd: how far a cord-and-medal hangs lower than on the others (the penguin's head reaches further down) */
 ANC.panda={hx:60,hy:26,hs:1,ey:62,edx:17,er:10,ny:102};
 ANC.duck={hx:60,hy:14,hs:1,ey:54,edx:21,er:9,ny:94};
 var NEWPETS={
@@ -240,8 +240,11 @@ function pandaSVG(c,m){var b=c.b,d=c.d,l=c.l,s='';
  return s;}
 
 var NECKX={penguin:1,panda:.74};
-function accs2(t,acc){if(!acc)return '';var A=ANC[t],o='';SLOTORDER.forEach(function(sl){var it=ITEMS[acc[sl]];if(it&&it.slot===sl){var g=it.draw(A);
+function accs2(t,acc){if(!acc)return '';var A=ANC[t],o='';SLOTORDER.forEach(function(sl){var it=ITEMS[acc[sl]];if(it&&it.slot===sl&&!it.behind){var g=it.draw(A);
  if(sl==='neck'){g='<g transform="translate(60,0) scale('+(NECKX[t]||1)+',1) translate(-60,0)">'+g+'</g>';}o+=g;}});return o;}
+/* a neck item marked "behind" (a medal on a cord) is drawn under the head, so the cord comes up from behind the chin like a real one */
+function neckBehind(t,acc){var it=acc&&ITEMS[acc.neck];if(!it||it.slot!=='neck'||!it.behind)return '';
+ return '<g transform="translate(60,0) scale('+(it.nx!==undefined?it.nx:(NECKX[t]||1))+',1) translate(-60,0)">'+it.draw(ANC[t])+'</g>';}   /* nx: an item can keep its own width instead of being squeezed for the panda */
 
 /* ---- bodies for the five existing heads (the heads themselves are the live drawings) + the new duck ---- */
 function armPaths(fill,d,m){var up=armUp(m);
@@ -326,7 +329,7 @@ function composePet(t,c,m,eq){var P=parts(t,c,m),o=eq&&eq.body&&OUTFITS[eq.body]
  if(t!=='penguin'){var S=softStr(c,id);P.pre='<defs>'+S.defs+'</defs>'+S.f(P.pre)+(BODYHL[t]||BODYHL.def);P.post=S.f(P.post);
   P.head=S.f(P.head)+(HEADHL[t]?'<g fill="#fff" opacity=".26">'+HEADHL[t]+'</g>':'');}
  var head=P.head+softAny(accs2(t,eq),id+'a');
- return softAny(ou.back,id+'o')+'<g class="torso">'+P.pre+softAny(ou.under,id+'u')+'</g>'+P.post+softAny(ou.over,id+'v')+'<g class="headg">'+head+'</g>';}
+ return softAny(ou.back,id+'o')+'<g class="torso">'+P.pre+softAny(ou.under,id+'u')+'</g>'+P.post+softAny(ou.over,id+'v')+softAny(neckBehind(t,eq),id+'n')+'<g class="headg">'+head+'</g>';}
 function drawPet(t,c,m,eq){return composePet(t,c,m,eq);}
 
 /* ---- real clothes: drawn once, fitted to every body by a width profile (y, half-width) ----

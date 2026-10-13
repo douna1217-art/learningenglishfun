@@ -143,6 +143,7 @@ a.card:hover .mascot{animation:wiggle .6s ease-in-out}
 .tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .tabs button,#viewPets .tabs button{background:#EEF3FA;border-radius:999px;padding:10px 18px;font-weight:800;font-size:16px;border:3px solid transparent;color:#1E2A4A;cursor:pointer;font-family:inherit}
 .tabs button.on,#viewPets .tabs button.on{background:#6A48E8;color:#fff}
+#viewPets #shopTabs button{display:inline-flex;align-items:center;gap:8px;padding:5px 18px 5px 9px}#viewPets #shopTabs .ti{display:inline-flex;flex:none}#viewPets #shopTabs .ti svg{width:38px;height:38px;display:block;overflow:visible}
 #viewPets #petBox .toy{position:absolute;bottom:0;width:78px;height:78px;background:none;border:0;padding:0}
 #viewPets #petBox .toy svg{width:100%;height:100%;display:block;overflow:visible}
 .toy{position:absolute;bottom:0;width:78px;height:78px;cursor:pointer;background:none;border:0;padding:0;transition:transform .15s}
@@ -175,7 +176,7 @@ a.card:hover .mascot{animation:wiggle .6s ease-in-out}
 /* an open shelf never pushes the animal out of sight: wide screens put it beside the animal, phones slide it up from the bottom */
 @media(min-width:901px){#viewPets .phome.shopOpen{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:start}
  #viewPets .phome.shopOpen .shopcard{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow-y:auto}}
-@media(max-width:560px){#viewPets .shoprow .tabs{gap:6px}#viewPets .shoprow .tabs button{padding:7px 11px;font-size:14px}
+@media(max-width:560px){#viewPets .shoprow .tabs{gap:6px}#viewPets .shoprow .tabs button,#viewPets #shopTabs button{padding:3px 9px 3px 5px !important;font-size:14px;gap:4px}#viewPets #shopTabs .ti svg{width:26px;height:26px}
  #viewPets .shopcard .stars{padding:2px 12px;font-size:16px;border-width:2px}#viewPets .shopcard .demo .row button{font-size:13px;padding:8px 12px}
  #viewPets #shopNote{font-size:13px;padding:8px 12px}#viewPets .petbar .fd{font-size:28px}}
 @media(max-width:900px){#viewPets .phome.shopOpen{padding-bottom:50vh}
@@ -408,7 +409,7 @@ Grades K–6 · Read-aloud stories
 <div class="petbar"><div class="fd" id="petName"></div><div class="tummy"><div class="trow"><span>Tummy</span><span id="hungerTxt"></span></div><div class="bar"><i id="hungerBar"></i></div></div></div>
 </div>
 <div class="card shopcard">
-<div class="shoprow"><div class="tabs" id="shopTabs"><button data-tab="food">Snacks 零食</button><button data-tab="dress">Dress-up 服饰</button><button data-tab="toys">Toys 玩具</button><button data-tab="home">Home 家</button></div><div class="stars" id="starBal"></div></div>
+<div class="shoprow"><div class="tabs" id="shopTabs"><button data-tab="food">Snacks 零食</button><button data-tab="dress">Dress-up 服饰</button><button data-tab="toys">Toys 玩具</button><button data-tab="home">Home 家</button><button data-tab="badges">Badges 徽章</button></div><div class="stars" id="starBal"></div></div>
 <div id="shopPanel" style="display:none"><div class="shophead"><div id="shopNote"></div><button id="shopClose" type="button" aria-label="Close the shop 关闭商店">&times;</button></div><div class="foods" id="foods"></div></div>
 <div class="demo"><div class="row"><button id="dBack">Choose another pet 换一只宠物</button><button data-rules>How do stars work? 怎么赚星星？</button></div></div>
 </div>
@@ -478,9 +479,10 @@ var SHELF={},ALL=[];
 (function(){Object.keys(ID2NAME).forEach(function(id){var books=BOOKS[id]||[],gg=gradeGroupsFor(books),sj=ID2NAME[id];SHELF[sj]={};
  gg.gradeKeys.forEach(function(g){SHELF[sj][g]={count:gg.groups[g].length,books:gg.groups[g].map(function(b){var o={slug:b.slug,title:b.title,subtitle:b.subtitle||'',grade:b.grade||g,band:b.readingBand||'',minutes:b.minutes||'',subject:sj,id:id,cover:b.cover,file:b.file};ALL.push(o);return o;})};});});})();
 </script>
-<script src="pet-art.js?v=20261012a"></script>
+<script src="pet-art.js?v=20261013d"></script>
 <script src="pet-fest.js?v=20261012a"></script>
 <script src="pet-sound.js?v=20261013a"></script>
+<script src="badges.js?v=20261013a"></script>
 <script src="pet-life.js?v=20261013a"></script>
 <script>
 /* the pet page needs pet-art.js and pet-life.js; if either did not load, show no pet and never save over the child's saved one */
@@ -490,6 +492,26 @@ if(typeof PetLife==='undefined'){window.PetLife={start:function(){},stop:functio
 var st={type:null,ci:0,name:'',hunger:80,stars:0,busy:false,owned:[],eq:{},toys:[],home:{},tab:null};
 try{var _s=JSON.parse(localStorage.getItem('lef_pet_v1')||'null');if(_s&&_s.type==='lizard')_s.type='dino';if(ART_OK&&_s&&PETS[_s.type]){st.type=_s.type;st.name=_s.name||'Pet';st.hunger=_s.hunger;st.stars=_s.stars;st.owned=_s.owned||[];st.eq=_s.eq||{};st.toys=_s.toys||[];st.home=(_s.home&&typeof _s.home==='object')?_s.home:{};}}catch(e){}
 function save(){if(!ART_OK)return;try{localStorage.setItem('lef_pet_v1',JSON.stringify({type:st.type,ci:0,name:st.name,hunger:st.hunger,stars:st.stars,owned:st.owned,eq:st.eq,toys:st.toys,home:st.home}));}catch(e){}}
+/* badges: how to find a book's subject, how many things the pet owns, and (the first time only) what the site already knows about this child */
+(function(){if(!window.Badges)return;var bySlug=null;
+ function subjectOf(slug){if(!bySlug){bySlug={};ALL.forEach(function(b){if(b.slug&&!bySlug[b.slug])bySlug[b.slug]=b.subject;});}return bySlug[slug]||null;}
+ function spent(){var n=0;st.owned.forEach(function(id){var it=(typeof ITEMS!=='undefined'&&ITEMS[id])||(typeof OUTFITS!=='undefined'&&OUTFITS[id]);if(it&&typeof it.price==='number'){n+=it.price;return;}
+  var m=/^d:([a-z]+):(.+)$/.exec(id);if(m&&typeof HOMES!=='undefined'&&HOMES[m[1]]){HOMES[m[1]].decos.forEach(function(d){if(d.id===m[2])n+=d.price;});return;}
+  var fd=FEST.deco&&FEST.deco(id);if(fd&&typeof fd.price==='number')n+=fd.price;});return n;}
+ function seed(){var days=[],h=[],d;try{h=JSON.parse(localStorage.getItem('lef_hist_v1')||'[]');}catch(e){}
+  (h||[]).forEach(function(x){if(x&&x.t){d=Badges.dayNum(new Date(x.t));if(days.indexOf(d)<0)days.push(d);}});
+  try{var D=JSON.parse(localStorage.getItem('lef_day_v1')||'null'),m=D&&/^(\d+)-(\d+)-(\d+)$/.exec(D.date||'');if(m&&D.earned>0){d=Badges.dayNum(new Date(+m[1],+m[2]-1,+m[3]));if(days.indexOf(d)<0)days.push(d);}}catch(e){}
+  return {days:days,total:Math.max(0,(+st.stars||0)+spent())};}
+ Badges.init({subjectOf:subjectOf,ownedCount:function(){return st.owned.length;},seed:seed});})();
+/* the shop tabs: a small picture next to the English word, no Chinese */
+(function(){if(!ART_OK)return;var T={food:'Snacks',dress:'Dress-up',toys:'Toys',home:'Home',badges:'Badges'},ic={},
+ HOUSE='<rect x="38" y="12" width="7" height="14" fill="#B8893E" stroke="#8A5F22" stroke-width="2.5"/><rect x="12" y="28" width="36" height="25" rx="2" fill="#FFE9B8" stroke="#B8893E" stroke-width="3"/><path d="M6 31L30 9L54 31Z" fill="#E8604C" stroke="#9E2F1F" stroke-width="3" stroke-linejoin="round"/><rect x="25" y="38" width="10" height="15" rx="2" fill="#9B6A3C" stroke="#5B3A1A" stroke-width="2.5"/><rect x="15" y="34" width="8" height="8" rx="1.5" fill="#BDEBF2" stroke="#1F78BC" stroke-width="2"/><circle cx="32.5" cy="46" r="1.2" fill="#FFC93C"/>';
+ try{ic.food='<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(FOOD.cake||FOOD.apple)+'</svg>';
+  ic.dress='<svg viewBox="'+OUTFITS.tshirt.vb+'" aria-hidden="true">'+OUTFITS.tshirt.icon()+'</svg>';
+  ic.toys='<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(ITEMS.teddy.toy)+'</svg>';
+  ic.home='<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(HOUSE)+'</svg>';
+  if(window.Badges)ic.badges=Badges.tabIcon();}catch(e){}
+ Array.prototype.forEach.call(document.querySelectorAll('#shopTabs button'),function(b){var k=b.dataset.tab;b.innerHTML='<span class="ti">'+(ic[k]||'')+'</span>'+(T[k]||b.textContent);});})();
 var $=function(i){return document.getElementById(i)};
 var ctx;function snd(kind){if(window.__sfxOff)return;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();var t=ctx.currentTime,fr=kind==='munch'?[260,220,260,220]:[523,659,784];fr.forEach(function(f,i){var o=ctx.createOscillator(),g=ctx.createGain();o.type=kind==='munch'?'triangle':'sine';o.frequency.value=f;var s=t+i*(kind==='munch'?.11:.09);g.gain.setValueAtTime(0,s);g.gain.linearRampToValueAtTime(.12,s+.02);g.gain.exponentialRampToValueAtTime(.001,s+.25);o.connect(g);g.connect(ctx.destination);o.start(s);o.stop(s+.3);});}catch(e){}}
 var cols=['#FFC93C','#FF8FB1','#3DA5F4','#35B779','#7A5AF8','#FF6B4A'];
@@ -676,41 +698,49 @@ function thumb(id){var it=ITEMS[id];if(it.toy)return '<svg viewBox="0 0 60 60" a
 var SMALLSTAR=starSvg.replace('width="22" height="22"','width="16" height="16"');
 function have(id){return st.owned.indexOf(id)>=0;}
 function placedHere(){if(!st.home[st.type])st.home[st.type]=[];return st.home[st.type];}
-function shopCard(attr,svg,name,cn,status,on,dis){return '<button class="food'+(on?' on':'')+'" '+attr+(dis?' disabled':'')+'>'+svg+name+'<div style="font-weight:700;font-size:13px;color:#4A5878">'+cn+'</div>'+status+'</button>';}
+/* the shop categories (Snacks, Dress-up, Toys, Home) show English only; the Badges tab stays bilingual */
+function noCn(s){return String(s).replace(/\s*[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef]+/g,'');}
+function shopCard(attr,svg,name,cn,status,on,dis){return '<button class="food'+(on?' on':'')+'" '+attr+(dis?' disabled':'')+'>'+svg+name+'<div class="gap"></div>'+status+'</button>';}
 function priceTag(own,on,price,onTxt,offTxt){return own?(on?'<span class="st" style="color:#2E6B43">'+onTxt+' ✓</span>':'<span class="st">'+(offTxt||'Owned')+'</span>'):(price===0?'<span class="st" style="color:#D9531E">Free gift 免费礼物</span>':'<span class="st">'+SMALLSTAR+price+'</span>');}
 /* festival shelves: only in the week before and after a festival; what the child owns stays in a collection */
 function festHead(f){return '<h4 class="shsec fest">'+f.name+' '+f.cn+' <span>· until '+f.ends+'</span></h4>';}
 function clothCard(id){var it=ITEMS[id],o=OUTFITS[id];
  if(o){var own=have(id),on=st.eq.body===id;return shopCard('data-id="'+id+'"','<svg viewBox="'+o.vb+'" aria-hidden="true">'+o.icon()+'</svg>',o.name,o.cn,priceTag(own,on,o.price,'Wearing'),on,!own&&st.stars<o.price);}
  var own2=have(id),on2=st.eq[it.slot]===id;return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,priceTag(own2,on2,it.price,'Wearing'),on2,!own2&&st.stars<it.price);}
+/* things only a badge can give: locked until the badge is earned, then worn like any other accessory */
+function rewardCard(id){var it=ITEMS[id],un=Badges.unlocked(id),on=st.eq[it.slot]===id;
+ return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">Badge: '+Badges.badgeName(it.badge)+'</span>',on,!un);}
 function festDecoCard(id){var d=FEST.deco(id),own=have(id),on=(st.home.fest||[]).indexOf(id)>=0;
  return shopCard('data-fdeco="'+id+'"','<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(d.icon)+'</svg>',d.name,d.cn,priceTag(own,on,d.price,'In the home','Owned · tap to place'),on,!own&&st.stars<d.price);}
 function renderShop(){
  Array.prototype.forEach.call(document.querySelectorAll('#shopTabs button'),function(b){b.classList.toggle('on',b.dataset.tab===st.tab);b.setAttribute('aria-expanded',b.dataset.tab===st.tab?'true':'false');b.onclick=function(){var was=st.tab;st.tab=(was===b.dataset.tab)?null:b.dataset.tab;renderShop();};});
  var el=$('foods'),h='',nt=$('shopNote'),pn=$('shopPanel'),ph=document.querySelector('#petHome .phome');if(pn)pn.style.display=(st.tab&&st.type&&ART_OK)?'block':'none';if(ph){ph.classList.toggle('shopOpen',!!(st.tab&&st.type&&ART_OK));PetLife.relayout();}if(!st.type||!ART_OK||!st.tab){el.innerHTML='';return;}
- if(st.tab==='food'){nt.textContent=LIKES[st.type]||'';
-  h=MENU[st.type].map(function(f,i){var c=FCOST[i];return '<button class="food" data-f="'+f+'" data-i="'+i+'" '+(st.stars<c||st.busy?'disabled':'')+'><svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(FOOD[f])+'</svg>'+FNAME[f]+(i===0?'<span class="fav">fave</span>':'')+'<div style="font-weight:700;font-size:13px;color:#4A5878">'+FCN[f]+'</div><small>'+SMALLSTAR+c+'</small></button>';}).join('');
+ if(st.tab==='food'){nt.textContent=noCn(LIKES[st.type]||'');
+  h=MENU[st.type].map(function(f,i){var c=FCOST[i];return '<button class="food" data-f="'+f+'" data-i="'+i+'" '+(st.stars<c||st.busy?'disabled':'')+'><svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(FOOD[f])+'</svg>'+FNAME[f]+(i===0?'<span class="fav">fave</span>':'')+'<div class="gap"></div><small>'+SMALLSTAR+c+'</small></button>';}).join('');
   el.innerHTML=h;Array.prototype.forEach.call(el.querySelectorAll('.food'),function(b){b.onclick=function(e){feed(+b.dataset.i,e);};});return;}
- if(st.tab==='dress'){nt.textContent='Real clothes, plus hats, glasses and scarves. Tap to buy, tap again to take off. 衣服、帽子、眼镜和围巾，点一下买，再点一下脱掉。';
+ if(st.tab==='badges'){nt.textContent='Read and learn to earn badges. Some badges unlock special things for your pet! 读书学习就能得到徽章，有的徽章还会解锁宠物专属的东西。';if(window.Badges){Badges.check();Badges.renderTab(el);}return;}
+ if(st.tab==='dress'){nt.textContent=noCn('Real clothes, plus hats, glasses and scarves. Tap to buy, tap again to take off. 衣服、帽子、眼镜和围巾，点一下买，再点一下脱掉。');
   var fa=FEST.active(),col=FEST.collection(st.owned);
   fa.forEach(function(f){h+=festHead(f)+f.outfits.concat(f.hats).map(clothCard).join('');});
   h+='<h4 class="shsec">Clothes 衣服</h4>'+OUTFIT_IDS.map(function(id){var o=OUTFITS[id],own=have(id),on=st.eq.body===id,dis=!own&&st.stars<o.price;
    return shopCard('data-id="'+id+'"','<svg viewBox="'+o.vb+'" aria-hidden="true">'+o.icon()+'</svg>',o.name,o.cn,priceTag(own,on,o.price,'Wearing'),on,dis);}).join('');
   ['hat','face','neck'].forEach(function(sl){h+='<h4 class="shsec">'+SLOTLABEL[sl]+'</h4>'+ACCS.filter(function(id){return ITEMS[id].slot===sl;}).map(function(id){var it=ITEMS[id],own=have(id),on=st.eq[sl]===id,dis=!own&&st.stars<it.price;
     return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,priceTag(own,on,it.price,'Wearing'),on,dis);}).join('');});
+  if(window.Badges&&Badges.rewardIds().length)h+='<h4 class="shsec">Badge rewards 徽章奖励</h4>'+Badges.rewardIds().map(rewardCard).join('');
   if(col.outfits.length+col.hats.length)h+='<h4 class="shsec">Festival collection 节日收藏</h4>'+col.outfits.concat(col.hats).map(clothCard).join('');
- }else if(st.tab==='toys'){nt.textContent='Toys sit in the home. Tap a toy in the picture to play! 点一下画面里的玩具，宠物会跳起来。';
+ }else if(st.tab==='toys'){nt.textContent=noCn('Toys sit in the home. Tap a toy in the picture to play! 点一下画面里的玩具，宠物会跳起来。');
   h=TOYS.map(function(id){var it=ITEMS[id],own=have(id),on=st.toys.indexOf(id)>=0,dis=!own&&st.stars<it.price;
    return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,priceTag(own,on,it.price,'In the home'),on,dis);}).join('');
- }else{var H=HOMES[st.type];nt.textContent=H.name+' '+H.cn+' starts simple. Decorate it with stars! 用星星把家布置得更漂亮。';
+ }else{var H=HOMES[st.type];nt.textContent=noCn(H.name+' '+H.cn+' starts simple. Decorate it with stars! 用星星把家布置得更漂亮。');
   var fa2=FEST.active(),col2=FEST.collection(st.owned);
   fa2.forEach(function(f){h+=festHead(f)+f.decos.map(festDecoCard).join('');});
   h+=H.decos.map(function(d){var own=have(decoKey(st.type,d.id)),on=placedHere().indexOf(d.id)>=0,dis=!own&&st.stars<d.price;
    return shopCard('data-deco="'+d.id+'"','<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(d.icon)+'</svg>',d.name,d.cn,priceTag(own,on,d.price,'In the home','Owned · tap to place'),on,dis);}).join('');
   if(col2.decos.length)h+='<h4 class="shsec">Festival collection 节日收藏</h4>'+col2.decos.map(festDecoCard).join('');}
- el.innerHTML=h;Array.prototype.forEach.call(el.querySelectorAll('.food'),function(b){b.onclick=function(e){if(b.dataset.deco)buyDeco(b.dataset.deco,e);else if(b.dataset.fdeco)buyFestDeco(b.dataset.fdeco,e);else buyItem(b.dataset.id,e);};});}
+ el.innerHTML=noCn(h);Array.prototype.forEach.call(el.querySelectorAll('.food'),function(b){b.onclick=function(e){if(b.dataset.deco)buyDeco(b.dataset.deco,e);else if(b.dataset.fdeco)buyFestDeco(b.dataset.fdeco,e);else buyItem(b.dataset.id,e);};});}
 /* clothes, hats, glasses, scarves, toys: ITEMS holds the accessories and toys, OUTFITS the clothes (slot 'body') */
-function buyItem(id,e){var it=ITEMS[id]||OUTFITS[id],own=have(id);
+function buyItem(id,e){var it=ITEMS[id]||OUTFITS[id],own=have(id)||!!(window.Badges&&Badges.unlocked(id));
+ if(window.Badges&&Badges.isReward(id)&&!own)return;   /* badge rewards cannot be bought */
  if(!own){if(FEST.festOf(id)&&!FEST.isActiveItem(id))return;   /* festival things can be bought only while their festival is on */if(st.stars<it.price){say('You need '+(it.price-st.stars)+' more stars. Read a book!');return;}st.stars-=it.price;st.owned.push(id);burst(e.clientX,e.clientY);snd();
   if(it.slot==='toy'){st.toys.push(id);if(st.toys.length>2)st.toys.shift();}else st.eq[it.slot]=id;
   render();say(it.slot==='toy'?'A new toy! Let’s play!':'I love it! Do I look cute?');if(it.slot==='toy')PetLife.cheer('A new toy!',false,'star','excited');else PetLife.twirl('I love it!');return;}
@@ -983,7 +1013,10 @@ function settleReading(){
  setBook(b.slug,bs);
  if(!n){save();return;}
  var got=award(n);save();toast(lines,got,got<n);}
-function reviewStar(){var D=dayState();if(D.reviews>=3)return;D.reviews++;saveJ('lef_day_v1',D);var got=award(1);if(got){toast([[1,'Reviewed a question','复习了一道题']],got,false);try{renderHomePet();}catch(e){}}}
+function reviewStar(){if(window.Badges)Badges.recordReview();var D=dayState();if(D.reviews>=3)return;D.reviews++;saveJ('lef_day_v1',D);var got=award(1);if(got){toast([[1,'Reviewed a question','复习了一道题']],got,false);try{renderHomePet();}catch(e){}}}
+/* every award also feeds the star total and the learning days, then looks for new badges a moment later */
+(function(){var raw=award;award=function(n){var ok=raw(n);if(window.Badges){if(ok>0)Badges.recordStars(ok);if(n>0)Badges.soon();}return ok;};})();
+window.addEventListener('load',function(){if(window.Badges)Badges.soon(2500);});
 window.addEventListener('load',function(){var prev=window.__trackEvent;window.__trackEvent=function(n,p){if(n==='review_correct'){try{reviewStar();}catch(e){}}if(prev){try{return prev.apply(this,arguments);}catch(e){}}};});
 /* ---- pet: gets sleepy over time, saved with a timestamp ---- */
 save=function(){if(!ART_OK)return;try{localStorage.setItem('lef_pet_v1',JSON.stringify({type:st.type,ci:0,name:st.name,hunger:st.hunger,stars:st.stars,owned:st.owned,eq:st.eq,toys:st.toys,home:st.home,last:Date.now()}));}catch(e){}};

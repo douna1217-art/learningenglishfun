@@ -14,6 +14,8 @@
 //     lef_day_v1     stars earned today
 //     lef_books_v1   per-book listen / vocab / quiz marks
 //     lef_hist_v1    recent reading history
+//     lef_stats_v1   learning days (for the streak), stars earned in total, questions reviewed
+//     lef_badges_v1  badges earned (id -> time)
 //     lef_opens_v1   recently opened books
 //     lef_gift       welcome-gift flag
 //     les_review_v1  Smart Review records (merge: the higher box of each card wins)
@@ -48,7 +50,9 @@
   var GIFT = "lef_gift";
   var REVIEW = "les_review_v1";
   var PLACEMENT = "les_placement_v1";
-  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT];
+  var STATS = "lef_stats_v1";
+  var BADGES = "lef_badges_v1";
+  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT, STATS, BADGES];
   var BOOK_RE = /^les-.+-v1$/;
 
   function isHomeKey(k) {
@@ -262,7 +266,43 @@
     return clone((b.takenAt || 0) > (a.takenAt || 0) ? b : a);
   }
 
+  // Learning days: every day either device recorded stays (days only ever get added), and the counters keep the
+  // larger value, so a streak is never shortened and no star total goes down by syncing.
+  function mergeStats(a, b) {
+    var days = {},
+      out = { days: [], total: 0, reviews: 0 };
+    [a, b].forEach(function (s) {
+      if (!isObj(s)) return;
+      (Array.isArray(s.days) ? s.days : []).forEach(function (d) {
+        if (typeof d === "number" && isFinite(d)) days[d] = 1;
+      });
+      out.total = Math.max(out.total, +s.total || 0);
+      out.reviews = Math.max(out.reviews, +s.reviews || 0);
+    });
+    out.days = Object.keys(days)
+      .map(Number)
+      .sort(function (x, y) {
+        return x - y;
+      })
+      .slice(-400);
+    return out;
+  }
+  // Badges: every badge either device earned stays, with the earlier time.
+  function mergeBadges(a, b) {
+    var out = {};
+    [a, b].forEach(function (m) {
+      if (!isObj(m)) return;
+      Object.keys(m).forEach(function (id) {
+        var t = +m[id] || 0;
+        if (out[id] === undefined || (t && t < out[id])) out[id] = t || out[id] || 1;
+      });
+    });
+    return out;
+  }
+
   function mergeValue(key, local, remote) {
+    if (key === STATS) return mergeStats(local, remote);
+    if (key === BADGES) return mergeBadges(local, remote);
     if (key === REVIEW) return mergeReview(local, remote);
     if (key === PLACEMENT) return mergePlacement(local, remote);
     if (key === PET) return mergePet(local, remote);
@@ -306,6 +346,8 @@
     mergeDay: mergeDay,
     mergeHist: mergeHist,
     mergeOpens: mergeOpens,
+    mergeStats: mergeStats,
+    mergeBadges: mergeBadges,
     mergeReview: mergeReview,
     mergePlacement: mergePlacement,
     mergeDeep: mergeDeep,
