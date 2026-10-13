@@ -24,6 +24,10 @@ that does not match the shelf style):
   text_overrides     {page_number: {old: new}} exact substring replacements
                      applied to the docx page text (e.g. a colon before a
                      list, which the TTS tends to drop)
+  quotes="double"    the docx writes dialogue with single quotes ('Hi,' she
+                     said); turn them into curly double quotes like the rest
+                     of the shelf (apostrophes inside words are left alone;
+                     the build stops if a page's quotes do not pair up)
 
 Data module (a .py file you write per batch) must define
 
@@ -130,6 +134,31 @@ def read_docx(path, fmt):
     return paras[0], paras[1], pages, imgs
 
 
+def single_to_double_quotes(text):
+    """'Hi,' she said. -> “Hi,” she said.  An apostrophe between two letters
+    stays; a quote mark that opens (after a space or line start, before a
+    letter) becomes “ and one that closes (after a letter or . , ! ?, before a
+    space, punctuation or the end) becomes ”."""
+    out, opened = [], 0
+    for i, ch in enumerate(text):
+        if ch not in "'\u2019":
+            out.append(ch)
+            continue
+        prev = text[i - 1] if i else " "
+        nxt = text[i + 1] if i + 1 < len(text) else " "
+        if prev.isalnum() and nxt.isalpha():
+            out.append("'")                       # apostrophe inside a word
+        elif (prev.isspace() or prev in "(\u201c") and nxt.isalnum():
+            out.append("\u201c")
+            opened += 1
+        elif prev.isalnum() or prev in ".,!?":
+            out.append("\u201d")
+            opened -= 1
+        else:
+            raise ValueError(("cannot tell what this quote mark is", text[max(0, i - 20):i + 20]))
+    return "".join(out), opened
+
+
 def book_text(spec, title, subtitle, texts):
     """Apply a book's optional overrides -> (title, subtitle, texts)."""
     texts = list(texts)
@@ -137,6 +166,10 @@ def book_text(spec, title, subtitle, texts):
         for old, new in reps.items():
             assert texts[page - 1].count(old) == 1, ("override not found exactly once", page, old)
             texts[page - 1] = texts[page - 1].replace(old, new)
+    if spec.get("quotes") == "double":
+        for k, t in enumerate(texts):
+            texts[k], balance = single_to_double_quotes(t)
+            assert balance == 0, ("quotes do not pair up on page", k + 1, t)
     return spec.get("title", title), spec.get("subtitle", subtitle), texts
 
 
