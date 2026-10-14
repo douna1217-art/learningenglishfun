@@ -906,7 +906,8 @@
       known = knownCount(s, allWords()),
       due = dueWords(s, dayStr()).length;
     el.textContent = due > 0 ? due + " to review" : known + " / " + allWords().length;
-    el.style.background = due > 0 ? "#D93B1E" : "#6A48E8";
+    el.style.background = "#fff";
+    el.style.color = due > 0 ? "#D93B1E" : "#4A2FB8";
   }
 
   /* ---- where the back buttons go: lessons and unit games return to the stage map, the rest to the first page ---- */
