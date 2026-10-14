@@ -808,6 +808,28 @@
       "#swOverlay .sw-th svg{display:block;width:100%;height:100%}" +
       "@keyframes swchew{0%{transform:scale(1,1)}18%{transform:scale(1.07,.93)}36%{transform:scale(.97,1.04)}54%{transform:scale(1.07,.93)}72%{transform:scale(.98,1.03)}100%{transform:scale(1,1)}}" +
       "@keyframes swcrumb{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(18px,60px) rotate(120deg);opacity:0}}" +
+      "#swOverlay .sw-fin{padding:16px 16px 14px}" +
+      "#swOverlay .sw-fhead{display:flex;align-items:center;justify-content:center;margin:0 0 4px}" +
+      "#swOverlay .sw-fst{flex:none;width:38%;max-width:150px;margin:0;padding-top:14px}" +
+      "#swOverlay .sw-fst .sw-pet.sw-pets{width:100%}" +
+      "#swOverlay .sw-ftxt{flex:1;min-width:0;text-align:left;margin-left:12px}" +
+      "#swOverlay .sw-fin .sw-bstars{margin:0 0 2px}" +
+      "#swOverlay .sw-fin .sw-bs{width:34px;height:34px;margin:0 4px 0 0}" +
+      "#swOverlay .sw-big.sw-fbig{font-size:36px;margin:0 0 4px}" +
+      "#swOverlay .sw-sent.sw-fsent{font-size:16px;margin:0}" +
+      "#swOverlay .sw-fin .sw-words{margin:6px 0 2px}" +
+      "#swOverlay .sw-fin .sw-words span{font-size:15px;padding:3px 12px}" +
+      "#swOverlay .sw-fin .sw-msg{min-height:0;margin-top:4px;font-size:15px}" +
+      "#swOverlay .sw-fin .sw-unitdone{margin:8px 0;padding:6px 14px;font-size:16px}" +
+      "#swOverlay .sw-fin .sw-unitdone svg{width:26px;height:32px}" +
+      "#swOverlay .sw-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 2px}" +
+      "#swOverlay .sw-acts .sw-a1{grid-column:1 / -1;margin:0;font-size:19px;padding:11px 16px;border-radius:26px}" +
+      "#swOverlay .sw-acts .sw-gold{background:#FFC93C;color:#1E2A4A;box-shadow:0 6px 0 #E0A800}" +
+      "#swOverlay .sw-acts .sw-gt{padding:8px 6px 10px}" +
+      "#swOverlay .sw-acts .sw-gi{width:52%;margin-bottom:4px}" +
+      "#swOverlay .sw-fl{margin-top:6px}" +
+      "#swOverlay .sw-linkbtn{display:inline-block;font-weight:800;font-size:15px;color:#4A2FB8;padding:8px 12px;text-decoration:underline}" +
+      "@media(min-width:720px){#swOverlay .sw-acts{grid-template-columns:repeat(3,minmax(0,1fr))}#swOverlay .sw-acts .sw-a1{grid-column:auto}}" +
       "@keyframes swbobp{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}" +
       "@keyframes swbobi{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}" +
       "@keyframes swpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}" +
@@ -2157,34 +2179,43 @@
     var lesson = run.mode === "lesson" ? lessonOf(run.id) : null,
       known = knownCount(s, allWords()),
       unitNow = unit && !unitWas && unitProgress(unit, D.lessons, s).complete,
-      nextL = run.mode === "review" ? nextLesson(D.lessons, s) : 0;
+      nextL = nextLesson(D.lessons, s);
     var glad = pct >= 80,
       earned = run.mode === "lesson" ? lessonStars({ acc: pct }) : 0,
-      bigStars = "";
+      bigStars = "",
+      title = pct >= 80 ? "Great job!" : pct >= 50 ? "Good work!" : "Nice try!",
+      memWords = lesson ? lesson.words : memoryWords(s),
+      balWords = lesson ? pickWords(lesson.words, learnedWords(s), 8, seeded(Date.now() % 100003)) : gameWords(s, 8),
+      hasBooks = !!(lesson && lesson.books && lesson.books.length);
     for (var si = 0; si < earned; si++) bigStars += '<span class="sw-bs" style="animation-delay:' + (0.5 + si * 0.3).toFixed(1) + 's">' + scenery("star") + "</span>";
-    var celebrate = '<div class="sw-stage">' + (glad ? party() : "") + '<div class="sw-pet sw-pets ' + (glad ? "sw-dance" : "sw-hop") + '">' + petArt(glad ? "excited" : "happy") + "</div></div>" + (bigStars ? '<div class="sw-bstars">' + bigStars + "</div>" : "");
-    var h = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button></div><div class="sw-card"><div class="sw-kind">' + (run.mode === "review" ? "Review done" : "Lesson " + run.id + " done") + "</div>" + celebrate +
-      '<div class="sw-big" style="font-size:54px">' + (pct >= 80 ? "Great job!" : pct >= 50 ? "Good work!" : "Nice try!") + "</div>" +
-      '<div class="sw-sent" style="font-size:22px">' + run.right + " of " + run.total + ' words right on the first try</div><div class="sw-words">' +
-      keys.map(function (k) {
+    // everything fits on one screen: the pet and the result at the top, then the buttons (next lesson, the games), then the small things
+    var h = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button></div><div class="sw-card sw-fin"><div class="sw-kind">' + (run.mode === "review" ? "Review done" : "Lesson " + run.id + " done") + "</div>" +
+      '<div class="sw-fhead"><div class="sw-stage sw-fst">' + (glad ? party() : "") + '<div class="sw-pet sw-pets ' + (glad ? "sw-dance" : "sw-hop") + '">' + petArt(glad ? "excited" : "happy") + "</div></div>" +
+      '<div class="sw-ftxt">' + (bigStars ? '<div class="sw-bstars">' + bigStars + "</div>" : "") + '<div class="sw-big sw-fbig">' + title + '</div><div class="sw-sent sw-fsent">' + run.right + " of " + run.total + " words right on the first try</div></div></div>" +
+      '<div class="sw-words">' + keys.map(function (k) {
         return '<span class="' + (run.first[k] ? "" : "sw-miss") + '">' + esc(k) + "</span>";
       }).join("") + "</div>" +
       '<div class="sw-msg sw-good">Words I know: ' + known + " / " + allWords().length + "</div>" +
       (misses.length ? '<div class="sw-msg">The red ones will come back for review tomorrow.</div>' : "") +
-      (unitNow ? '<div class="sw-unitdone">' + medal(true) + "<div><b>Unit " + unit.id + " complete!</b> Try the unit challenge.</div></div>" : "");
-    if (lesson && lesson.books && lesson.books.length) {
-      h += '<div class="sw-books"><div class="sw-kind" style="text-align:center">Read them in a story</div>' +
+      (unitNow ? '<div class="sw-unitdone">' + medal(true) + "<div><b>Unit " + unit.id + " complete!</b> Open the chest.</div></div>" : "") +
+      '<div class="sw-acts">' + (unitNow ? '<button class="sw-go sw-a1 sw-gold" id="swUnit">Unit challenge · Balloon pop</button>' : "") + (nextL ? '<button class="sw-go sw-a1" id="swNextL">Next lesson →</button>' : "") +
+      '<button class="sw-gt sw-g1" id="swMem"><span class="sw-gi">' + scenery("game", "memory") + '</span>Memory match</button><button class="sw-gt sw-g2" id="swBal"><span class="sw-gi">' + scenery("game", "balloon") + "</span>Balloon pop</button></div>" +
+      '<div class="sw-fl"><button class="sw-linkbtn" id="swMap">' + backLabel() + "</button>" + (hasBooks ? '<button class="sw-linkbtn" id="swBooksBtn">Read these words in a story</button>' : "") + "</div>";
+    if (hasBooks) {
+      h += '<div class="sw-books" id="swBooks" style="display:none">' +
         lesson.books.map(function (b) {
           return '<a href="#" data-f="' + esc(b.file) + '" data-t="' + esc(b.title) + '">📖 ' + esc(b.title) + "</a>";
         }).join("") + "</div>";
     }
-    box.innerHTML = h + (unitNow ? '<button class="sw-go" id="swUnit">Unit challenge · Balloon pop</button> ' : "") + (nextL ? '<button class="sw-go" id="swNextL">Start lesson ' + nextL + " →</button> " : "") + (lesson ? '<button class="' + (unitNow ? "sw-say sw-alt" : "sw-go") + '" id="swPlay">Play memory match</button> ' : "") + '<button class="sw-say sw-alt" id="swMap">' + backLabel() + '</button></div>';
+    box.innerHTML = h + "</div>";
     document.getElementById("swQuit").onclick = goBack;
     document.getElementById("swMap").onclick = goBack;
-    if (lesson)
-      document.getElementById("swPlay").onclick = function () {
-        startMemory(lesson.words);
-      };
+    document.getElementById("swMem").onclick = function () {
+      startMemory(memWords);
+    };
+    document.getElementById("swBal").onclick = function () {
+      startBalloons(balWords);
+    };
     if (unitNow)
       document.getElementById("swUnit").onclick = function () {
         unitChallenge(unit.id);
@@ -2192,6 +2223,12 @@
     if (nextL)
       document.getElementById("swNextL").onclick = function () {
         startLesson(nextL);
+      };
+    if (hasBooks)
+      document.getElementById("swBooksBtn").onclick = function () {
+        var bk = document.getElementById("swBooks");
+        bk.style.display = bk.style.display === "none" ? "block" : "none";
+        if (bk.style.display === "block") ov.scrollTop = ov.scrollHeight;
       };
     Array.prototype.forEach.call(box.querySelectorAll(".sw-books a"), function (a) {
       a.onclick = function (e) {
