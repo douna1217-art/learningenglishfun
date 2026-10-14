@@ -469,28 +469,62 @@
       }
       audio = new Audio(src);
       audio.onerror = function () {
-        speakFallback(text);
+        speakFallback(text, then);
       };
       if (then) audio.onended = then;
       var p = audio.play();
       if (p && p.catch)
         p.catch(function () {
-          speakFallback(text);
+          speakFallback(text, then);
         });
     } catch (e) {
-      speakFallback(text);
+      speakFallback(text, then);
     }
   }
-  function speakFallback(text) {
+  function speakFallback(text, then) {
+    var spoke = false;
     try {
       if (root.speechSynthesis && root.SpeechSynthesisUtterance) {
         root.speechSynthesis.cancel();
         var u = new root.SpeechSynthesisUtterance(text);
         u.lang = "en-US";
         u.rate = 0.85;
+        if (then) u.onend = then;
         root.speechSynthesis.speak(u);
+        spoke = true;
       }
     } catch (e) {}
+    if (!spoke && then) setTimeout(then, 600);
+  }
+  // stop whatever is being said (when the child leaves a page)
+  function stopSound() {
+    try {
+      if (audio) {
+        audio.onended = null;
+        audio.pause();
+      }
+      if (root.speechSynthesis) root.speechSynthesis.cancel();
+    } catch (e) {}
+  }
+  // After the sentence is read to the child, go on only when the clip has finished (plus a short pause), never in the middle of it.
+  // minMs keeps the green answer on screen for a moment even when the sentence is short; a clip that never ends does not leave the child stuck.
+  function readThenNext(w, minMs) {
+    var r0 = run,
+      i0 = run.i,
+      started = Date.now(),
+      done = false,
+      guard;
+    function go() {
+      if (done) return;
+      done = true;
+      clearTimeout(guard);
+      var wait = Math.max(0, minMs - (Date.now() - started)) + 600;
+      setTimeout(function () {
+        if (run === r0 && run.i === i0 && ov && ov.style.display !== "none" && document.getElementById("swQuit")) nextStep();
+      }, wait);
+    }
+    play("s", w, go);
+    guard = setTimeout(go, 8000);
   }
   function sfx(name) {
     try {
@@ -858,6 +892,7 @@
     openU = {},
     MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   function goBack() {
+    stopSound();
     back();
   }
   function backLabel() {
@@ -1405,8 +1440,7 @@
           b.style.borderColor = "#35B779";
           sfx("cheer");
           tell("You found it!", true);
-          play("s", st.w);
-          setTimeout(nextStep, 1700);
+          readThenNext(st.w, 1500);
         } else {
           b.style.background = "#FFE3DE";
           b.style.borderColor = "#FF6B4A";
@@ -1457,9 +1491,8 @@
             if (order.length === want) {
               if (!tried) note(st.w, true);
               tell("You built it!", true);
-              play("s", st.w);
+              readThenNext(st.w, 1500);
               paint();
-              setTimeout(nextStep, 2000);
               return;
             }
             tell("", true);
@@ -1521,8 +1554,7 @@
           b.classList.add("sw-ok");
           sfx("cheer");
           tell("Yes, that is the picture!", true);
-          play("s", st.w);
-          setTimeout(nextStep, 2000);
+          readThenNext(st.w, 1500);
         } else {
           b.classList.add("sw-bad");
           sfx("poke");
