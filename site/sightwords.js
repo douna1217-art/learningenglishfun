@@ -355,7 +355,20 @@
     return step === 0 ? "okay" : step === 1 ? "happy" : "love";
   }
 
+  // the chest of one unit of one island: opened the first time its challenge is finished (rev["chest<island>-<unit>"] holds when)
+  function chestKey(island, unit) {
+    return "chest" + island + "-" + unit;
+  }
+  function claimChest(state, island, unit, now) {
+    var k = chestKey(island, unit),
+      first = !state.rev[k];
+    if (first) state.rev[k] = now || Date.now();
+    return first;
+  }
+
   var core = {
+    chestKey: chestKey,
+    claimChest: claimChest,
     feelFor: feelFor,
     trailPath: trailPath,
     lessonStars: lessonStars,
@@ -402,7 +415,7 @@
   try {
     ls = root.localStorage;
   } catch (e) {}
-  var hooks = { award: null, toast: null, burst: null, openBook: null, pet: null, feedPet: null };
+  var hooks = { award: null, toast: null, burst: null, openBook: null, pet: null, feedPet: null, gift: null, wear: null };
   var ov = null,
     box = null,
     audio = null,
@@ -830,6 +843,25 @@
       "#swOverlay .sw-fl{margin-top:6px}" +
       "#swOverlay .sw-linkbtn{display:inline-block;font-weight:800;font-size:15px;color:#4A2FB8;padding:8px 12px;text-decoration:underline}" +
       "@media(min-width:720px){#swOverlay .sw-acts{grid-template-columns:repeat(3,minmax(0,1fr))}#swOverlay .sw-acts .sw-a1{grid-column:auto}}" +
+      "#swOverlay .sw-ins{display:flex;align-items:center;margin-top:5px;font-weight:800;font-size:12px;line-height:1.2;color:#4A2FB8}" +
+      "#swOverlay .sw-sr .sw-ins{justify-content:flex-end}" +
+      "#swOverlay .sw-ith{display:inline-block;flex:none;width:46px;height:30px;margin-right:6px}" +
+      "#swOverlay .sw-ith svg{display:block;width:100%;height:100%;overflow:visible}" +
+      "#swOverlay .sw-cready{animation:swwig 2.4s ease-in-out infinite}" +
+      "#swOverlay .sw-reveal{margin:0 0 6px}" +
+      "#swOverlay .sw-rchest{width:76px;margin:0 auto;animation:swbobi 2.6s ease-in-out infinite}" +
+      "#swOverlay .sw-rchest svg{display:block;width:100%;height:auto;overflow:visible}" +
+      "#swOverlay .sw-rt{font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;color:#B97A00;line-height:1.1}" +
+      "#swOverlay .sw-rrow{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;margin:8px 0 2px}" +
+      "#swOverlay .sw-rstar{display:inline-block;background:#FFF1C2;border:3px solid #FFC93C;border-radius:999px;padding:4px 16px;font-weight:800;font-size:20px;margin:4px 6px}" +
+      "#swOverlay .sw-ritem{display:inline-flex;align-items:center;background:#EFE9FF;border:3px solid #8B6BE8;border-radius:999px;padding:3px 16px 3px 4px;margin:4px 6px;font-weight:800;font-size:17px}" +
+      "#swOverlay .sw-ith.sw-rbig{width:56px;height:42px;margin-right:8px;background:#fff;border-radius:50%}" +
+      "#swOverlay .sw-rpet{margin-top:-6px;padding-top:12px}" +
+      "#swOverlay .sw-reveal + .sw-big{font-size:34px !important;margin:14px 0 4px}" +
+      "#swOverlay .sw-reveal + .sw-big + .sw-sent{font-size:16px !important}" +
+      "#swOverlay .sw-reveal .sw-go{margin-top:4px;padding:10px 28px;font-size:18px}" +
+      "#swOverlay .sw-rpet .sw-pets{width:104px}" +
+      "@keyframes swwig{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-7deg)}90%{transform:rotate(6deg)}95%{transform:rotate(-3deg)}}" +
       "@keyframes swbobp{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}" +
       "@keyframes swbobi{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}" +
       "@keyframes swpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}" +
@@ -863,7 +895,7 @@
       "#swOverlay .sw-x{position:absolute;right:10px;top:6px;width:34px;height:34px;border-radius:50%;background:#F1F5FA;font-size:24px;line-height:1;font-weight:800;color:#6B7A99}" +
       "#swOverlay .sw-wg:last-child{margin-bottom:210px}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
-      "@media(prefers-reduced-motion:reduce){#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
+      "@media(prefers-reduced-motion:reduce){#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
   }
   var SPEAKER = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>';
@@ -1082,7 +1114,15 @@
   }
 
   /* ---- a stage: its units, one open at a time (the finished ones fold away); each unit is a winding trail in its own little world ---- */
-  var ROWH = 132;
+  var ROWH = 132,
+    chestRun = null;
+  var CHEST_STARS = root.SWPrizes ? root.SWPrizes.STARS : 5;
+  function prizeFor(island, unit) {
+    return root.SWPrizes ? root.SWPrizes.forUnit(island, unit) : null;
+  }
+  function prizeThumb(id) {
+    return root.SWPrizes ? root.SWPrizes.thumb(id) : "";
+  }
   function showMap(keep) {
     var y = keep === true ? ov.scrollTop : 0,
       s = readState(),
@@ -1127,9 +1167,13 @@
         });
         var ci = u.lessons.length,
           left = up.total - up.done,
-          tag = up.complete ? "button" : "div";
-        h += "<" + tag + ' class="sw-step' + (ci % 2 ? " sw-sr" : "") + '"' + (up.complete ? ' data-uc="' + u.id + '"' : "") + ' style="top:' + ci * ROWH + 'px"><span class="sw-chest' + (up.complete ? " sw-copen" : "") + '">' + scenery("chest", { open: up.complete, s: sid }) + '</span><span class="sw-slab"><b>Unit challenge</b><small>' +
-          (up.complete ? "Open the chest: pop balloons with this unit’s words!" : "Finish " + plural(left, "more lesson") + " to open the chest.") + "</small></span></" + tag + ">";
+          claimed = !!s.rev[chestKey(sid, u.id)],
+          cst = claimed ? "open" : up.complete ? "ready" : "locked",
+          prize = prizeFor(sid, u.id),
+          tag = up.complete ? "button" : "div",
+          inside = prize ? '<span class="sw-ins"><span class="sw-ith">' + prizeThumb(prize.id) + "</span>" + (claimed ? "" : CHEST_STARS + " ★ + ") + esc(prize.name) + "</span>" : claimed ? "" : '<span class="sw-ins">' + CHEST_STARS + " ★</span>";
+        h += "<" + tag + ' class="sw-step' + (ci % 2 ? " sw-sr" : "") + '"' + (up.complete ? ' data-uc="' + u.id + '"' : "") + ' style="top:' + ci * ROWH + 'px"><span class="sw-chest' + (cst === "open" ? " sw-copen" : cst === "ready" ? " sw-cready" : "") + '">' + scenery("chest", { state: cst, s: sid }) + '</span><span class="sw-slab">' +
+          (cst === "open" ? "<b>Chest opened ✓</b><small>Play the challenge again.</small>" : cst === "ready" ? "<b>Open the chest!</b><small>Pop balloons with this unit’s words.</small>" : "<b>Unit challenge</b><small>Finish " + plural(left, "more lesson") + " to open the chest.</small>") + inside + "</span></" + tag + ">";
         h += "</div></div>";
       }
       h += "</div>";
@@ -1164,6 +1208,7 @@
     });
     if (!u) return;
     back = showMap;
+    chestRun = { s: D.stages[0].id, u: id };
     startBalloons(pickWords([], unitProgress(u, D.lessons, readState()).words, 8, seeded(Date.now() % 100003)));
   }
 
@@ -1304,10 +1349,10 @@
     showStep();
   }
   // the child's pet (a cat when there is none) in a mood, for the practice pages and end screens
-  function petArt(mood) {
+  function petArt(mood, eqNow) {
     var p = hooks.pet ? hooks.pet() : null,
       type = p && root.PETS && root.PETS[p.type] ? p.type : "cat",
-      eq = p && p.eq ? p.eq : {};
+      eq = eqNow || (p && p.eq ? p.eq : {});
     return typeof root.petSvg === "function" ? root.petSvg(type, mood, eq, "full", "width:100%;height:auto;overflow:visible") : "";
   }
   // the pet walks along the progress bar toward a star; react() makes it cheer (with confetti) or look surprised
@@ -1825,26 +1870,71 @@
       sky.classList.remove("sw-shake");
     }, 1100);
   }
+  // the unit's chest: the first time it is opened it gives stars and the unit's prize; the reveal goes into the end screen of the balloon game
+  function chestReveal(cr) {
+    var P = root.SWPrizes,
+      prize = P ? P.forUnit(cr.s, cr.u) : null,
+      s = readState(),
+      first = claimChest(s, cr.s, cr.u),
+      p = hooks.pet ? hooks.pet() : null,
+      eq2 = {},
+      k;
+    if (first) {
+      writeState(s);
+      try {
+        if (hooks.gift) hooks.gift(CHEST_STARS);
+        if (hooks.toast) hooks.toast([[CHEST_STARS, "Treasure chest", "宝箱奖励"]], CHEST_STARS, false);
+      } catch (e) {}
+    }
+    if (p && p.eq) for (k in p.eq) if (p.eq.hasOwnProperty(k)) eq2[k] = p.eq[k];
+    if (prize) eq2[prize.slot] = prize.id;
+    var chip = prize ? '<span class="sw-ritem"><span class="sw-ith sw-rbig">' + prizeThumb(prize.id) + "</span>" + esc(prize.name) + "</span>" : "",
+      html = '<div class="sw-reveal"><div class="sw-rchest">' + scenery("chest", { state: "open", s: cr.s }) + '</div><div class="sw-rt">' + (first ? "Chest opened!" : "Chest opened before") + "</div>" +
+        '<div class="sw-rrow">' + (first ? '<span class="sw-rstar">+' + CHEST_STARS + " ★</span>" : "") + chip + "</div>" +
+        (first && prize && p ? '<div class="sw-stage sw-rpet"><div class="sw-pet sw-pets sw-dance">' + petArt("excited", eq2) + '</div></div><button class="sw-go" id="swWear">Wear it now</button>' : first && prize ? '<div class="sw-msg">Adopt a pet on the pet page to wear it.</div>' : "") + "</div>";
+    return {
+      html: html,
+      after: function () {
+        var b = document.getElementById("swWear");
+        if (b)
+          b.onclick = function () {
+            var ok = false;
+            try {
+              ok = hooks.wear ? hooks.wear(prize.id) : false;
+            } catch (e) {}
+            b.textContent = ok ? "Wearing ✓" : "Open the pet page to wear it";
+            b.disabled = true;
+            if (ok) sfx("cheer");
+          };
+        setTimeout(function () {
+          sfx(first ? "sparkle" : "cheer");
+        }, 350);
+      },
+    };
+  }
   function startBalloons(words) {
+    var cr = chestRun;
+    chestRun = null;
     var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
       rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
       first = {},
       i = 0;
     function show() {
       if (i >= rounds.length) {
-        endGame("b", first, "Popped the balloons", function (r, t) {
+        var rv = cr ? chestReveal(cr) : null;
+        endGame("b", first, cr ? "Unit challenge" : "Popped the balloons", function (r, t) {
           return r >= t ? "Wow, all of them!" : "You popped them all!";
         }, function (r, t) {
           return r + " of " + t + " on the first try.";
         }, function () {
           startBalloons(gameWords(readState(), 8));
-        }, (function () {
+        }, cr ? rv.html : (function () {
           var ks = Object.keys(first),
             all = ks.length > 0 && ks.every(function (k) {
               return first[k];
             });
           return '<div class="sw-stage">' + (all ? party() : "") + '<div class="sw-pet sw-pets ' + (all ? "sw-dance" : "sw-hop") + '">' + petArt(all ? "excited" : "happy") + "</div></div>";
-        })());
+        })(), cr ? rv.after : null);
         return;
       }
       var r = rounds[i],
@@ -2254,6 +2344,8 @@
       hooks.openBook = h.openBook || null;
       hooks.pet = h.pet || null;
       hooks.feedPet = h.feedPet || null;
+      hooks.gift = h.gift || null;
+      hooks.wear = h.wear || null;
       if (!D) return;
       refreshButton();
     },

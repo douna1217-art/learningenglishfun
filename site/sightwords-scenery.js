@@ -271,17 +271,25 @@
     return "";
   }
   function chest(o) {
-    var open = !!(o && o.open),
+    // state: "locked" (grey, the unit is not finished), "ready" (finished, coloured and shut: waiting to be opened), "open" (opened, full of coins)
+    var state = o && o.state ? o.state : o && o.open ? "open" : "locked",
       st = (o && o.s) || 1,
       c = CHESTS[st] || CHESTS[1],
-      inner = open
-        ? '<path d="M12 30 L17 4 Q40 -4 63 4 L68 30z" fill="' + c.lid + '"/><rect x="36" y="2" width="8" height="28" fill="' + c.band + '"/>' +
-          '<path d="M10 34 h60 v26 q0 6 -6 6 h-48 q-6 0 -6 -6z" fill="' + c.body + '"/><rect x="34" y="34" width="12" height="32" fill="' + c.band + '"/><ellipse cx="40" cy="34" rx="30" ry="6" fill="#3B2A1E"/>' +
-          '<circle cx="26" cy="31" r="6" fill="#FFD23F"/><circle cx="42" cy="28" r="7" fill="#FFC93C"/><circle cx="55" cy="32" r="6" fill="#FFE066"/>'
-        : '<path d="M10 34 h60 v26 q0 6 -6 6 h-48 q-6 0 -6 -6z" fill="#B3BDD0"/><rect x="34" y="34" width="12" height="32" fill="#98A5BD"/>' +
-          '<path d="M10 34 v-8 q0 -16 30 -16 q30 0 30 16 v8z" fill="#C7D0E0"/><rect x="34" y="10" width="12" height="24" fill="#98A5BD"/><rect x="33" y="29" width="14" height="14" rx="3" fill="#8A97AD"/><circle cx="40" cy="35" r="2.4" fill="#FFFFFF"/>';
-    if (open) inner += emblem(st);
-    return '<svg viewBox="0 -10 80 80" aria-hidden="true">' + soft(inner) + (open ? '<path d="M40 -8 l2.6 6 l6.4 .8 l-4.8 4.4 l1.4 6.4 l-5.6 -3.4 l-5.6 3.4 l1.4 -6.4 l-4.8 -4.4 l6.4 -.8z" fill="#FFE066" stroke="#E0A800" stroke-width="1.2" stroke-linejoin="round"/>' : "") + "</svg>";
+      inner;
+    if (state === "open") {
+      inner = '<path d="M12 30 L17 4 Q40 -4 63 4 L68 30z" fill="' + c.lid + '"/><rect x="36" y="2" width="8" height="28" fill="' + c.band + '"/>' +
+        '<path d="M10 34 h60 v26 q0 6 -6 6 h-48 q-6 0 -6 -6z" fill="' + c.body + '"/><rect x="34" y="34" width="12" height="32" fill="' + c.band + '"/><ellipse cx="40" cy="34" rx="30" ry="6" fill="#3B2A1E"/>' +
+        '<circle cx="26" cy="31" r="6" fill="#FFD23F"/><circle cx="42" cy="28" r="7" fill="#FFC93C"/><circle cx="55" cy="32" r="6" fill="#FFE066"/>' + emblem(st);
+    } else if (state === "ready") {
+      inner = '<path d="M10 34 h60 v26 q0 6 -6 6 h-48 q-6 0 -6 -6z" fill="' + c.body + '"/><rect x="34" y="34" width="12" height="32" fill="' + c.band + '"/>' +
+        '<path d="M10 34 v-8 q0 -16 30 -16 q30 0 30 16 v8z" fill="' + c.lid + '"/><rect x="34" y="10" width="12" height="24" fill="' + c.band + '"/>' +
+        '<rect x="33" y="29" width="14" height="14" rx="3" fill="#FFD23F" stroke="#B8860B" stroke-width="1.6"/><circle cx="40" cy="35" r="2.4" fill="#8A5A00"/>' +
+        twinkle(12, 6, 6, "#FFE066") + twinkle(68, 2, 5, "#FFFFFF");
+    } else {
+      inner = '<path d="M10 34 h60 v26 q0 6 -6 6 h-48 q-6 0 -6 -6z" fill="#B3BDD0"/><rect x="34" y="34" width="12" height="32" fill="#98A5BD"/>' +
+        '<path d="M10 34 v-8 q0 -16 30 -16 q30 0 30 16 v8z" fill="#C7D0E0"/><rect x="34" y="10" width="12" height="24" fill="#98A5BD"/><rect x="33" y="29" width="14" height="14" rx="3" fill="#8A97AD"/><circle cx="40" cy="35" r="2.4" fill="#FFFFFF"/>';
+    }
+    return '<svg viewBox="0 -10 80 80" aria-hidden="true">' + soft(inner) + (state === "open" ? '<path d="M40 -8 l2.6 6 l6.4 .8 l-4.8 4.4 l1.4 6.4 l-5.6 -3.4 l-5.6 3.4 l1.4 -6.4 l-4.8 -4.4 l6.4 -.8z" fill="#FFE066" stroke="#E0A800" stroke-width="1.2" stroke-linejoin="round"/>' : "") + "</svg>";
   }
 
   // the album book: a green cover with "Aa" and a ribbon

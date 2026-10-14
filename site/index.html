@@ -512,10 +512,10 @@ var SHELF={},ALL=[];
 <script src="pet-art.js?v=20261014a"></script>
 <script src="pet-fest.js?v=20261012a"></script>
 <script src="pet-sound.js?v=20261014b"></script>
-<script src="badges.js?v=20261013a"></script>
+<script src="badges.js?v=20261013a"></script><script src="sightwords-prizes.js?v=20261014a"></script>
 <script src="sightwords-data.js?v=20261014d"></script>
-<script src="sightwords-art.js?v=20261014c"></script><script src="sightwords-scenery.js?v=20261014c"></script>
-<script src="sightwords.js?v=20261014p"></script>
+<script src="sightwords-art.js?v=20261014c"></script><script src="sightwords-scenery.js?v=20261014d"></script>
+<script src="sightwords.js?v=20261014q"></script>
 <script src="pet-life.js?v=20261013a"></script>
 <script>
 /* the pet page needs pet-art.js and pet-life.js; if either did not load, show no pet and never save over the child's saved one */
@@ -743,6 +743,8 @@ function clothCard(id){var it=ITEMS[id],o=OUTFITS[id];
 /* things only a badge can give: locked until the badge is earned, then worn like any other accessory */
 function rewardCard(id){var it=ITEMS[id],un=Badges.unlocked(id),on=st.eq[it.slot]===id;
  return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">Badge: '+Badges.badgeName(it.badge)+'</span>',on,!un);}
+function prizeCard(id){var it=ITEMS[id],P=SWPrizes.get(id),un=SWPrizes.unlocked(id),on=st.eq[it.slot]===id;
+ return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">Chest: '+P.world+'</span>',on,!un);}
 function festDecoCard(id){var d=FEST.deco(id),own=have(id),on=(st.home.fest||[]).indexOf(id)>=0;
  return shopCard('data-fdeco="'+id+'"','<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(d.icon)+'</svg>',d.name,d.cn,priceTag(own,on,d.price,'In the home','Owned · tap to place'),on,!own&&st.stars<d.price);}
 function renderShop(){
@@ -760,6 +762,7 @@ function renderShop(){
   ['hat','face','neck'].forEach(function(sl){h+='<h4 class="shsec">'+SLOTLABEL[sl]+'</h4>'+ACCS.filter(function(id){return ITEMS[id].slot===sl;}).map(function(id){var it=ITEMS[id],own=have(id),on=st.eq[sl]===id,dis=!own&&st.stars<it.price;
     return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,priceTag(own,on,it.price,'Wearing'),on,dis);}).join('');});
   if(window.Badges&&Badges.rewardIds().length)h+='<h4 class="shsec">Badge rewards 徽章奖励</h4>'+Badges.rewardIds().map(rewardCard).join('');
+  if(window.SWPrizes&&SWPrizes.ids().length)h+='<h4 class="shsec">Chest prizes 宝箱奖励</h4>'+SWPrizes.ids().map(prizeCard).join('');
   if(col.outfits.length+col.hats.length)h+='<h4 class="shsec">Festival collection 节日收藏</h4>'+col.outfits.concat(col.hats).map(clothCard).join('');
  }else if(st.tab==='toys'){nt.textContent=noCn('Toys sit in the home. Tap a toy in the picture to play! 点一下画面里的玩具，宠物会跳起来。');
   h=TOYS.map(function(id){var it=ITEMS[id],own=have(id),on=st.toys.indexOf(id)>=0,dis=!own&&st.stars<it.price;
@@ -772,8 +775,9 @@ function renderShop(){
   if(col2.decos.length)h+='<h4 class="shsec">Festival collection 节日收藏</h4>'+col2.decos.map(festDecoCard).join('');}
  el.innerHTML=noCn(h);Array.prototype.forEach.call(el.querySelectorAll('.food'),function(b){b.onclick=function(e){if(b.dataset.deco)buyDeco(b.dataset.deco,e);else if(b.dataset.fdeco)buyFestDeco(b.dataset.fdeco,e);else buyItem(b.dataset.id,e);};});}
 /* clothes, hats, glasses, scarves, toys: ITEMS holds the accessories and toys, OUTFITS the clothes (slot 'body') */
-function buyItem(id,e){var it=ITEMS[id]||OUTFITS[id],own=have(id)||!!(window.Badges&&Badges.unlocked(id));
+function buyItem(id,e){var it=ITEMS[id]||OUTFITS[id],own=have(id)||!!(window.Badges&&Badges.unlocked(id))||!!(window.SWPrizes&&SWPrizes.unlocked(id));
  if(window.Badges&&Badges.isReward(id)&&!own)return;   /* badge rewards cannot be bought */
+ if(window.SWPrizes&&SWPrizes.isPrize(id)&&!own)return;   /* chest prizes cannot be bought either */
  if(!own){if(FEST.festOf(id)&&!FEST.isActiveItem(id))return;   /* festival things can be bought only while their festival is on */if(st.stars<it.price){say('You need '+(it.price-st.stars)+' more stars. Read a book!');return;}st.stars-=it.price;st.owned.push(id);burst(e.clientX,e.clientY);snd();
   if(it.slot==='toy'){st.toys.push(id);if(st.toys.length>2)st.toys.shift();}else st.eq[it.slot]=id;
   render();say(it.slot==='toy'?'A new toy! Let’s play!':'I love it! Do I look cute?');if(it.slot==='toy')PetLife.cheer('A new toy!',false,'star','excited');else PetLife.twirl('I love it!');return;}
@@ -1053,7 +1057,9 @@ window.addEventListener('load',function(){if(window.Badges)Badges.soon(2500);});
 /* sight words: the button opens the lessons; stars, the star note, confetti and opening a book come from the page */
 (function(){if(!window.SightWords)return;SightWords.init({award:function(n){return award(n);},toast:function(l,t,c){toast(l,t,c);},burst:function(x,y){burst(x,y);},openBook:function(f,t,c){openBook(f,t,c);},
   pet:function(){if(!ART_OK||!st.type)return null;return {type:st.type,name:st.name,eq:st.eq,hunger:st.hunger,stars:st.stars};},
-  feedPet:function(n){if(!ART_OK||!st.type)return;st.hunger=Math.min(100,st.hunger+n);save();try{renderHomePet();}catch(e){}}});
+  feedPet:function(n){if(!ART_OK||!st.type)return;st.hunger=Math.min(100,st.hunger+n);save();try{renderHomePet();}catch(e){}},
+  gift:function(n){st.stars+=n;save();try{render();}catch(e){}try{if(window.Badges){Badges.recordStars(n);Badges.soon();}}catch(e){}return n;},
+  wear:function(id){var it=window.ITEMS&&ITEMS[id];if(!ART_OK||!st.type||!it)return false;st.eq[it.slot]=id;save();try{render();renderHomePet();}catch(e){}return true;}});
  var b=$('swBtn');if(b)b.addEventListener('click',function(e){e.preventDefault();snd();SightWords.open();});})();
 window.addEventListener('load',function(){var prev=window.__trackEvent;window.__trackEvent=function(n,p){if(n==='review_correct'){try{reviewStar();}catch(e){}}if(prev){try{return prev.apply(this,arguments);}catch(e){}}};});
 /* ---- pet: gets sleepy over time, saved with a timestamp ---- */

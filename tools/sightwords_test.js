@@ -226,6 +226,27 @@ let neverWorse = true;
 });
 ok(neverWorse && SW.feelFor(0, 3) === "hungry" && SW.feelFor(3, 3) === "excited" && SW.feelFor(undefined, 6) === "hungry", "feeding: with any number of rounds the face never gets worse as bites are added");
 
+// ---- the treasure chests: opened once, 5 stars, one prize per unit
+const PZ = require("../site/sightwords-prizes.js");
+const st0 = SW.cleanState(null);
+ok(SW.claimChest(st0, 1, 2, 1000) === true && st0.rev["chest1-2"] === 1000 && SW.claimChest(st0, 1, 2, 2000) === false && st0.rev["chest1-2"] === 1000, "chest: the first opening counts, a second one does not and keeps the first time");
+ok(SW.chestKey(1, 3) === "chest1-3", "chest: the key is made of the island and the unit");
+ok(PZ.STARS === 5 && PZ.ids().length === 5 && new Set(PZ.ids()).size === 5, "prizes: five different items, 5 stars per chest");
+ok(D.units.every((u) => PZ.forUnit(1, u.id) && PZ.forUnit(1, u.id).unit === u.id) && PZ.forUnit(2, 1) === null, "prizes: every unit of island 1 has one, island 2 none yet");
+ok(PZ.ids().every((id) => /^ch-/.test(id) && ["hat", "face"].indexOf(PZ.get(id).slot) >= 0 && PZ.isPrize(id) && !PZ.isPrize("x" + id)), "prizes: ids and slots");
+ok(!PZ.wonIn({}, "ch-flower") && PZ.wonIn({ "chest1-1": 5 }, "ch-flower") && !PZ.wonIn({ "chest1-1": 5 }, "ch-pine") && !PZ.wonIn({ "chest1-1": 5 }, "nope"), "prizes: won when the unit's chest has been opened");
+const fakeG = (a, inner) => '<g transform="translate(' + a.hx + "," + a.hy + ") scale(" + a.hs + ')">' + inner + "</g>";
+let artOk = true;
+PZ.ids().forEach((id) => {
+  const it = PZ.get(id), svg = it.draw(it.a, fakeG);
+  if (!svg || /NaN|undefined/.test(svg) || (svg.match(/</g) || []).length !== (svg.match(/>/g) || []).length) artOk = false;
+  [{ hx: 60, hy: 30, hs: 1.1, ey: 52, edx: 24, er: 11 }, { hx: 60, hy: 54, hs: 0.9, ey: 40, edx: 18, er: 8 }].forEach((a) => {
+    const v = it.draw(a, fakeG);
+    if (/NaN|undefined/.test(v)) artOk = false;
+  });
+});
+ok(artOk, "prizes: every item draws with its own anchors and with other pets' anchors");
+
 // ---- merges (sightwords.js and state-sync.js must agree)
 [["sightwords.js", SW], ["state-sync.js", S]].forEach(([name, M]) => {
   let m = M.mergeWords(
