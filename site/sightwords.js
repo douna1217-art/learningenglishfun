@@ -415,7 +415,7 @@
   try {
     ls = root.localStorage;
   } catch (e) {}
-  var hooks = { award: null, toast: null, burst: null, openBook: null, pet: null, feedPet: null, gift: null, wear: null };
+  var hooks = { award: null, toast: null, burst: null, openBook: null, pet: null, feedPet: null, gift: null, wear: null, track: null };
   var ov = null,
     box = null,
     audio = null,
@@ -469,6 +469,18 @@
   }
   function wordInfo(w) {
     return D.words[w] || D.words[w.toLowerCase()] || null;
+  }
+
+  // Anonymous usage numbers, written into the same table as the book opens (see stats.js): the name of the event, what it is about
+  // (book_id column), a short detail (book_title) and a kind (category). Nothing here says who the child is.
+  var gameTag = "game"; // "challenge" while a unit challenge (the chest) is being played
+  function stageTag() {
+    return "s" + (D.stages && D.stages[0] ? D.stages[0].id : 1);
+  }
+  function trk(name, id, detail, kind) {
+    try {
+      if (hooks.track) hooks.track(name, { book_id: String(id).slice(0, 40), book_title: String(detail || "").slice(0, 40), category: kind || "" });
+    } catch (e) {}
   }
 
   /* ---- sound ---- */
@@ -948,6 +960,11 @@
     MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   function goBack() {
     stopSound();
+    // leaving a lesson or a review before its end: say at which step
+    if (run && !run.done && (run.mode === "lesson" || run.mode === "review") && run.steps && run.i < run.steps.length) {
+      trk(run.mode === "lesson" ? "sw_lesson_quit" : "sw_review_quit", run.mode === "lesson" ? stageTag() + "-l" + run.id : "review", "step " + (run.i + 1) + "/" + run.steps.length, run.mode);
+      run.done = true;
+    }
     back();
   }
   function backLabel() {
@@ -1124,6 +1141,7 @@
     return root.SWPrizes ? root.SWPrizes.thumb(id) : "";
   }
   function showMap(keep) {
+    if (keep !== true) trk("sw_view", "stage", stageTag(), "screen");
     var y = keep === true ? ov.scrollTop : 0,
       s = readState(),
       words = allWords(),
@@ -1224,6 +1242,7 @@
     return out;
   }
   function showWall() {
+    trk("sw_view", "wall", "", "screen");
     var s = readState(),
       today = dayStr(),
       n = { known: 0, learning: 0, nw: 0 },
@@ -1308,6 +1327,7 @@
       if (x.id <= id) met = met.concat(x.words);
     });
     run = { mode: "lesson", id: id, words: l.words, pool: met, steps: [], i: 0, first: {}, total: 0, right: 0, rnd: seeded(id * 7919 + Date.now() % 997) };
+    trk("sw_lesson_start", stageTag() + "-l" + id, "", "lesson");
     // meet each word, then practise: listen and tap, find it in the sentence, and build two sentences
     l.words.forEach(function (w) {
       run.steps.push({ t: "meet", w: w });
@@ -1346,6 +1366,7 @@
       showHome();
       return;
     }
+    trk("sw_review_start", "review", plural(run.steps.length, "word"), "review");
     showStep();
   }
   // the child's pet (a cat when there is none) in a mood, for the practice pages and end screens
@@ -1647,6 +1668,7 @@
     return compatibleSubset(shuffle(seen, seeded(Date.now() % 100003)), confusable, 6, 4);
   }
   function startMemory(words) {
+    trk("sw_game_start", "memory", "", "game");
     var rnd = seeded(Date.now() % 9973),
       cards = memoryCards(compatibleSubset(words, confusable, 6, 4), rnd),
       open = [],
@@ -1723,6 +1745,7 @@
       if (hooks.burst) hooks.burst(root.innerWidth / 2, 160);
     } catch (e) {}
     var rating = tries <= pairs + 2 ? "Amazing memory!" : tries <= pairs * 2 ? "Great job!" : "You did it!";
+    trk("sw_game_done", "memory", tries + " tries", "game");
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button></div><div class="sw-card"><div class="sw-kind">Memory match done</div><div class="sw-stage">' + party() + '<div class="sw-pet sw-pets sw-dance">' + petArt("excited") + '</div></div><div class="sw-big" style="font-size:54px">' + rating + "</div>" +
       '<div class="sw-sent" style="font-size:22px">You found all ' + pairs + " pairs in " + tries + " tries.</div>" +
       '<button class="sw-go" id="swAgain">Play again</button> <button class="sw-say sw-alt" id="swMap">' + backLabel() + '</button></div>';
@@ -1774,6 +1797,7 @@
       if (firstTry[k]) right++;
       if (s.words[k]) s.words[k] = applyResult(s.words[k], firstTry[k], today);
     });
+    trk("sw_game_done", kind === "f" ? "feed" : "balloon", right + "/" + total, kind === "f" ? "game" : gameTag);
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -1881,6 +1905,7 @@
       k;
     if (first) {
       writeState(s);
+      trk("sw_chest", stageTag() + "-u" + cr.u, "", "chest");
       try {
         if (hooks.gift) hooks.gift(CHEST_STARS);
         if (hooks.toast) hooks.toast([[CHEST_STARS, "Treasure chest", "宝箱奖励"]], CHEST_STARS, false);
@@ -1915,6 +1940,8 @@
   function startBalloons(words) {
     var cr = chestRun;
     chestRun = null;
+    gameTag = cr ? "challenge" : "game";
+    trk("sw_game_start", "balloon", cr ? "unit " + cr.u : "", gameTag);
     var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
       rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
       first = {},
@@ -2023,6 +2050,8 @@
     return '<svg viewBox="0 0 60 60" aria-hidden="true">' + (typeof root.softSvg === "function" ? root.softSvg(f) : f) + "</svg>";
   }
   function startFeed(words) {
+    gameTag = "game";
+    trk("sw_game_start", "feed", "", "game");
     var p = hooks.pet ? hooks.pet() : null,
       type = p && root.PETS && root.PETS[p.type] ? p.type : "cat",
       name = p && p.name ? p.name : "your pet",
@@ -2234,6 +2263,8 @@
       return run.first[k];
     }).length;
     var pct = accuracy(run.right, run.total);
+    run.done = true;
+    trk(run.mode === "lesson" ? "sw_lesson_done" : "sw_review_done", run.mode === "lesson" ? stageTag() + "-l" + run.id : "review", pct + "%", run.mode);
     keys.forEach(function (k) {
       var ok = run.first[k];
       s.words[k] = applyResult(s.words[k], ok, today);
@@ -2346,12 +2377,14 @@
       hooks.feedPet = h.feedPet || null;
       hooks.gift = h.gift || null;
       hooks.wear = h.wear || null;
+      hooks.track = h.track || null;
       if (!D) return;
       refreshButton();
     },
     open: function () {
       if (!D) return;
       openOverlay();
+      trk("sw_open", "home", "", "button");
       showHome();
     },
     refresh: refreshButton,

@@ -515,7 +515,7 @@ var SHELF={},ALL=[];
 <script src="badges.js?v=20261013a"></script><script src="sightwords-prizes.js?v=20261014a"></script>
 <script src="sightwords-data.js?v=20261014d"></script>
 <script src="sightwords-art.js?v=20261014c"></script><script src="sightwords-scenery.js?v=20261014d"></script>
-<script src="sightwords.js?v=20261014q"></script>
+<script src="sightwords.js?v=20261014r"></script>
 <script src="pet-life.js?v=20261013a"></script>
 <script>
 /* the pet page needs pet-art.js and pet-life.js; if either did not load, show no pet and never save over the child's saved one */
@@ -1058,6 +1058,7 @@ window.addEventListener('load',function(){if(window.Badges)Badges.soon(2500);});
 (function(){if(!window.SightWords)return;SightWords.init({award:function(n){return award(n);},toast:function(l,t,c){toast(l,t,c);},burst:function(x,y){burst(x,y);},openBook:function(f,t,c){openBook(f,t,c);},
   pet:function(){if(!ART_OK||!st.type)return null;return {type:st.type,name:st.name,eq:st.eq,hunger:st.hunger,stars:st.stars};},
   feedPet:function(n){if(!ART_OK||!st.type)return;st.hunger=Math.min(100,st.hunger+n);save();try{renderHomePet();}catch(e){}},
+  track:function(n,p){try{if(window.__trackEvent)window.__trackEvent(n,p||{});}catch(e){}},
   gift:function(n){st.stars+=n;save();try{render();}catch(e){}try{if(window.Badges){Badges.recordStars(n);Badges.soon();}}catch(e){}return n;},
   wear:function(id){var it=window.ITEMS&&ITEMS[id];if(!ART_OK||!st.type||!it)return false;st.eq[it.slot]=id;save();try{render();renderHomePet();}catch(e){}return true;}});
  var b=$('swBtn');if(b)b.addEventListener('click',function(e){e.preventDefault();snd();SightWords.open();});})();
