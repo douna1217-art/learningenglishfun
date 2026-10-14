@@ -107,6 +107,14 @@
     { id: "star200", tier: "gold", glyph: "star", name: "Star Master", cn: "星星大师", metric: "stars", need: 200, en: "Earn 200 stars in total", zh: "累计赚到 200 颗星" },
     { id: "pet5", tier: "silver", glyph: "heart", name: "Pet's Best Friend", cn: "宠物好朋友", metric: "owned", need: 5, en: "Own 5 things for your pet", zh: "为宠物拥有 5 件物品" },
     { id: "rev20", tier: "silver", glyph: "check", name: "Mistake Fixer", cn: "错题小能手", metric: "reviews", need: 20, en: "Review 20 questions", zh: "复习 20 道题" },
+    // the sight words (see sightwords.js): what is counted comes from lef_words_v1, see swMetrics()
+    { id: "sw10", tier: "bronze", glyph: "aa", name: "First Words", cn: "第一批单词", metric: "words", need: 10, en: "Know 10 sight words", zh: "认识 10 个高频词" },
+    { id: "sw50", tier: "silver", glyph: "aa", name: "Word Collector", cn: "单词收集家", metric: "words", need: 50, en: "Know 50 sight words", zh: "认识 50 个高频词" },
+    { id: "sw92", tier: "gold", glyph: "aa", name: "Word Master", cn: "单词大师", metric: "words", need: 92, en: "Know all 92 words of Stage 1", zh: "认识第一阶段的全部 92 个词" },
+    { id: "swstar3", tier: "silver", glyph: "star", name: "Lesson Star", cn: "课程之星", metric: "stars3", need: 3, en: "Get 3 stars on 3 word lessons", zh: "3 节单词课拿到 3 颗星" },
+    { id: "swrev5", tier: "silver", glyph: "check", name: "Memory Keeper", cn: "记忆守护者", metric: "swrev", need: 5, en: "Review your words on 5 different days", zh: "在 5 个不同的日子复习单词" },
+    { id: "chest1", tier: "bronze", glyph: "chest", name: "Treasure Hunter", cn: "寻宝小能手", metric: "chests", need: 1, en: "Open a treasure chest", zh: "打开 1 个宝箱" },
+    { id: "chest5", tier: "diamond", glyph: "mountain", name: "Mountain Master", cn: "高山大师", metric: "chests", need: 5, en: "Open all 5 chests on the mountain island", zh: "打开山岛上的全部 5 个宝箱" },
   ];
   var DEF_BY = {};
   DEFS.forEach(function (d) {
@@ -126,7 +134,35 @@
     return { list: list, fresh: fresh };
   }
 
+  // What the sight-word badges count, from lef_words_v1 ({words:{key:{box}}, lessons:{id:{acc}}, rev:{...}}):
+  // words = known words (box 3 or more), stars3 = lessons with 3 stars (90% right on the first try), swrev = days a review earned its star,
+  // chests = treasure chests opened (rev keys "chest<island>-<unit>")
+  function swMetrics(sw) {
+    sw = isObj(sw) ? sw : {};
+    var words = 0,
+      stars3 = 0,
+      swrev = 0,
+      chests = 0;
+    if (isObj(sw.words))
+      Object.keys(sw.words).forEach(function (k) {
+        var r = sw.words[k];
+        if (isObj(r) && (r.box || 0) >= 3) words++;
+      });
+    if (isObj(sw.lessons))
+      Object.keys(sw.lessons).forEach(function (k) {
+        var l = sw.lessons[k];
+        if (isObj(l) && (l.acc || 0) >= 90) stars3++;
+      });
+    if (isObj(sw.rev))
+      Object.keys(sw.rev).forEach(function (k) {
+        if (/^\d{4}-\d\d-\d\d$/.test(k) && sw.rev[k]) swrev++;
+        else if (/^chest\d+-\d+$/.test(k) && sw.rev[k]) chests++;
+      });
+    return { words: words, stars3: stars3, swrev: swrev, chests: chests };
+  }
+
   var core = {
+    swMetrics: swMetrics,
     DEFS: DEFS,
     dayNum: dayNum,
     cleanStats: cleanStats,
@@ -214,6 +250,7 @@
     try {
       owned = cfg.ownedCount ? cfg.ownedCount() : 0;
     } catch (e) {}
+    var sm = swMetrics(readJ("lef_words_v1", null));
     return {
       books: fin,
       subjects: subjects,
@@ -222,6 +259,10 @@
       stars: S.total,
       owned: owned,
       reviews: S.reviews,
+      words: sm.words,
+      stars3: sm.stars3,
+      swrev: sm.swrev,
+      chests: sm.chests,
     };
   }
 
@@ -251,6 +292,12 @@
     if (g === "bulb")
       return '<circle cy="-3" r="10" fill="' + F("#FFE066") + '"' + sw + ' stroke-width="2.4"/><path d="M-5 6H5V11Q5 13 3 13H-3Q-5 13 -5 11Z" fill="' + F("#D3DBE5") + '"' + sw + ' stroke-width="2"/><path d="M-3 -2L0 2L3 -2" fill="none"' + sw + ' stroke-width="1.8"/>';
     if (g === "heart") return '<path d="M0 12C-15 2 -14 -11 -6 -11C-2 -11 0 -7 0 -7C0 -7 2 -11 6 -11C14 -11 15 2 0 12Z" fill="' + F("#FF8FB1") + '"' + sw + ' stroke-width="2.4"/>';
+    if (g === "aa")
+      return '<text y="6.5" text-anchor="middle" font-family="Fredoka,Nunito,sans-serif" font-weight="700" font-size="19" fill="' + F("#6A48E8") + '">Aa</text><path d="M-11 11H11" stroke="' + F("#FFC93C") + '" stroke-width="2.6" stroke-linecap="round"/>';
+    if (g === "chest")
+      return '<path d="M-13 -1H13V10Q13 12 11 12H-11Q-13 12 -13 10Z" fill="' + F("#C98B5A") + '"' + sw + ' stroke-width="2.2"/><path d="M-13 -1V-5Q-13 -13 0 -13Q13 -13 13 -5V-1Z" fill="' + F("#E0A06A") + '"' + sw + ' stroke-width="2.2"/><rect x="-2.2" y="-13" width="4.4" height="25" fill="' + F("#FFC93C") + '"' + sw + ' stroke-width="1.4"/><rect x="-3.6" y="-4" width="7.2" height="6.4" rx="1.6" fill="' + F("#FFE066") + '"' + sw + ' stroke-width="1.6"/>';
+    if (g === "mountain")
+      return '<path d="M-16 11L-5 -8L3 3L8 -12L16 11Z" fill="' + F("#8FA3C7") + '"' + sw + ' stroke-width="2.2"/><path d="M8 -12L4.5 -5L8 -7.5L11.5 -4.5Z" fill="' + F("#FFFFFF") + '"' + sw + ' stroke-width="1.2"/><path d="M-5 -8L-8 -2L-5 -4L-2 -1.6Z" fill="' + F("#FFFFFF") + '"' + sw + ' stroke-width="1.2"/>';
     if (g === "check") return '<circle r="13" fill="' + F("#7ED957") + '"' + sw + ' stroke-width="2.4"/><path d="M-6 0L-1.5 5L7 -5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';
     return "";
   }
