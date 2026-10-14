@@ -110,7 +110,7 @@ a.card:hover{transform:translateY(-6px) rotate(-.6deg)}
 a.btn{transition:transform .15s}
 a.btn:hover{transform:translateY(-2px)}
 /* the four home buttons: equal, colourful tiles (four in a row on a computer, two by two on a phone): a picture, a badge in the corner, the English title and the Chinese line, all centred */
-.hbtns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:780px}
+.hbtns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:780px;align-self:stretch}
 .hb{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;color:#1E2A4A;border-radius:22px;border-bottom:6px solid #8A8A8A;padding:10px 10px 12px;transition:transform .15s,border-bottom-width .15s}
 .hb:hover{transform:translateY(-3px)}
 .hb:active{transform:translateY(3px);border-bottom-width:3px}
@@ -134,7 +134,7 @@ a.btn:hover{transform:translateY(-2px)}
 @keyframes hbshake{0%,84%,100%{transform:rotate(0)}88%{transform:rotate(-9deg)}92%{transform:rotate(8deg)}96%{transform:rotate(-5deg)}}
 .hb:hover .hb-art svg,.hb:hover #petBtnIcon{animation:hbwob .6s}
 .hb-due .hb-art svg{animation:hbshake 4s ease-in-out infinite}
-@media(max-width:720px){.hbtns{grid-template-columns:repeat(2,minmax(0,1fr));max-width:440px}.hb-rv{order:1}.hb-sw{order:2}.hb-pet{order:3}.hb-lv{order:4}}
+@media(max-width:720px){.hbtns{grid-template-columns:repeat(2,minmax(0,1fr));width:100%;max-width:440px;margin:0 auto;align-self:auto}.hb-rv{order:1}.hb-sw{order:2}.hb-pet{order:3}.hb-lv{order:4}}
 @media(prefers-reduced-motion:reduce){.hb:hover .hb-art svg,.hb:hover #petBtnIcon,.hb-due .hb-art svg{animation:none}.hb{transition:none}}
 a.card:hover .mascot{animation:wiggle .6s ease-in-out}
 .mascot{animation:bob 3s ease-in-out infinite}
