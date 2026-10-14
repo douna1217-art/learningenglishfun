@@ -109,6 +109,23 @@ a.card{transition:transform .18s}
 a.card:hover{transform:translateY(-6px) rotate(-.6deg)}
 a.btn{transition:transform .15s}
 a.btn:hover{transform:translateY(-2px)}
+/* the four home buttons: equal tiles (four in a row on a computer, two by two on a phone), each with a coloured icon, a badge and two lines of text */
+.hbtns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:780px}
+.hb{display:flex;flex-direction:column;gap:10px;background:#fff;color:#1E2A4A;border-radius:22px;border-bottom:5px solid #9FB6CC;padding:12px;transition:transform .15s,border-bottom-width .15s}
+.hb:hover{transform:translateY(-3px)}
+.hb:active{transform:translateY(2px);border-bottom-width:3px}
+.hb-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:6px}
+.hb-ic{width:44px;height:44px;flex:none;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff}
+.hb-ic svg{display:block;width:26px;height:26px}
+.hb-badge{display:flex;align-items:center;justify-content:center;min-width:30px;height:30px;box-sizing:border-box;border-radius:15px;padding:0 9px;color:#fff;font-weight:800;font-size:14px;white-space:nowrap}
+.hb-t{display:block;font-weight:800;font-size:16px;line-height:1.2}
+.hb-s{display:block;font-weight:700;font-size:13px;color:#4A5878;margin-top:2px}
+.hb-pet{background:#FFE9B0;border-bottom-color:#E0B94F}
+#petBtnIcon{width:44px;height:44px;flex:none;display:block;border-radius:50%;background:#fff;overflow:hidden}
+@keyframes hbshake{0%,86%,100%{transform:rotate(0)}90%{transform:rotate(-14deg)}94%{transform:rotate(12deg)}98%{transform:rotate(-8deg)}}
+.hb-due .hb-ic svg{animation:hbshake 4s ease-in-out infinite}
+@media(max-width:720px){.hbtns{grid-template-columns:repeat(2,minmax(0,1fr));max-width:440px}.hb-rv{order:1}.hb-sw{order:2}.hb-pet{order:3}.hb-lv{order:4}}
+@media(prefers-reduced-motion:reduce){.hb-due .hb-ic svg{animation:none}.hb{transition:none}}
 a.card:hover .mascot{animation:wiggle .6s ease-in-out}
 .mascot{animation:bob 3s ease-in-out infinite}
 @keyframes bob{0%,100%{translate:0 0}50%{translate:0 -8px}}
@@ -354,9 +371,12 @@ Grades K–6 · Read-aloud stories
 <div style="position: relative; flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 18px">
 <h1 id="heroH" style="margin: 0; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 54px; line-height: 1.06; letter-spacing: -.5px">Every subject can become a <span style="background: #FFC93C; padding: 0 14px; border-radius: 18px; display: inline-block; transform: rotate(-1.5deg)">reading adventure.</span></h1>
 <p id="heroP" style="margin: 0; font-size: 18px; line-height: 1.55; font-weight: 700; color: #33415F; max-width: 560px">Explore stories and nonfiction across the elementary grades. Build knowledge, vocabulary, fluency and comprehension, one book at a time.</p>
-<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch">
+<div class="hbtns">
 
-<a data-level class="btn" href="#level" style="background: #fff; color: #1E2A4A; font-weight: 800; font-size: 16px; padding: 0 16px; min-height: 64px; display: flex; align-items: center; border-radius: 999px; box-shadow: 0 6px 0 #9FB6CC"><span style="display: block; line-height: 1.15; text-align: left">Find my level<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">阅读水平测试</span></span></a><a class="btn" href="#review" data-review style="background: #fff; color: #1E2A4A; font-weight: 800; font-size: 16px; padding: 0 14px; min-height: 64px; border-radius: 999px; box-shadow: 0 6px 0 #9FB6CC; display: flex; align-items: center; gap: 8px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1E2A4A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg><span style="display: block; line-height: 1.15; text-align: left">Smart review<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">智能复习</span></span><span id="revBadge" style="background: #D93B1E; color: #fff; border-radius: 999px; font-size: 14px; padding: 2px 9px; min-width: 24px; text-align: center">3</span></a><a class="btn" href="#sightwords" id="swBtn" style="background: #fff; color: #1E2A4A; font-weight: 800; font-size: 16px; padding: 0 14px 0 10px; min-height: 64px; border-radius: 999px; box-shadow: 0 6px 0 #9FB6CC; display: flex; align-items: center; gap: 9px"><span style="width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 13px; background: #6A48E8; color: #fff; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px; box-shadow: 0 3px 0 #4A2FB8">Aa</span><span style="display: block; line-height: 1.15; text-align: left">Sight words<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">高频词</span></span><span id="swBadge" style="background: #6A48E8; color: #fff; border-radius: 999px; font-size: 14px; padding: 2px 9px; min-width: 24px; text-align: center">0 / 92</span></a><a class="btn" href="#pets" data-go="pets" id="petBtn" style="background: #FFE9B0; color: #1E2A4A; font-weight: 800; font-size: 16px; padding: 0 14px 0 8px; min-height: 64px; border-radius: 999px; box-shadow: 0 6px 0 #E8B84A; display: flex; align-items: center; gap: 8px"><span id="petBtnIcon" style="width: 44px; height: 44px; flex: none; display: block"></span><span id="petBtnText" style="display: block; line-height: 1.15; text-align: left">Adopt a pet<span style="display: block; font-weight: 700; font-size: 13px; color: #4A5878">领养宠物</span></span><span id="petStars" style="display: none; align-items: center; gap: 6px; background: #fff; border: 2px solid #FFC93C; border-radius: 999px; padding: 2px 10px 2px 6px; font-size: 16px"></span></a>
+<a data-level class="hb hb-lv" href="#level"><span class="hb-top"><span class="hb-ic" style="background: #FF8A3D; box-shadow: 0 3px 0 #D96A1F"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg></span></span><span><span class="hb-t">Find my level</span><span class="hb-s">阅读水平测试</span></span></a>
+<a class="hb hb-rv" href="#review" data-review><span class="hb-top"><span class="hb-ic" style="background: #E5483A; box-shadow: 0 3px 0 #B3361E"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></svg></span><span id="revBadge" class="hb-badge" style="background: #D93B1E">3</span></span><span><span class="hb-t">Smart review</span><span class="hb-s">智能复习</span></span></a>
+<a class="hb hb-sw" href="#sightwords" id="swBtn"><span class="hb-top"><span class="hb-ic" style="background: #6A48E8; box-shadow: 0 3px 0 #4A2FB8; font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 20px">Aa</span><span id="swBadge" class="hb-badge" style="background: #6A48E8">0 / 92</span></span><span><span class="hb-t">Sight words</span><span class="hb-s">高频词</span></span></a>
+<a class="hb hb-pet" href="#pets" data-go="pets" id="petBtn"><span class="hb-top"><span id="petBtnIcon"></span><span id="petStars" style="display: none; align-items: center; gap: 6px; background: #fff; border: 2px solid #FFC93C; border-radius: 999px; padding: 2px 10px 2px 6px; font-size: 16px; font-weight: 800"></span></span><span id="petBtnText" class="hb-t">Adopt a pet<span class="hb-s">领养宠物</span></span></a>
 </div>
 
 </div>
@@ -556,7 +576,7 @@ function homeBubble(t){var b=$('heroBubble');if(!b)return;b.textContent=t;}
 function renderHomePet(){
  var has=ART_OK&&!!st.type,m=mood(),svg=has?petSvg(st.type,m==='happy'?'happy':'hungry',st.eq,'icon','width:100%;height:100%'):EGG;
  var pi=$('petBtnIcon');if(pi){pi.innerHTML=svg;pi.firstChild.style.cssText='width:100%;height:100%;overflow:'+(has?'hidden':'visible');}
- var fa0=FEST.active(),t=$('petBtnText');if(t)t.innerHTML=has?st.name+(fa0.length?'<span style="display:block;font-weight:800;font-size:13px;color:#D9531E">'+fa0[0].name+' '+fa0[0].cn+'!</span>':(m==='sleepy'?' misses you<span style="display:block;font-weight:700;font-size:13px;color:#4A5878">想你了</span>':'')):'Adopt a pet<span style="display:block;font-weight:700;font-size:13px;color:#4A5878">领养宠物</span>';
+ var fa0=FEST.active(),t=$('petBtnText');if(t)t.innerHTML=has?st.name+(fa0.length?'<span style="display:block;font-weight:800;font-size:13px;color:#D9531E">'+fa0[0].name+' '+fa0[0].cn+'!</span>':(m==='sleepy'?' misses you<span class="hb-s">想你了</span>':'<span class="hb-s">我的宠物</span>')):'Adopt a pet<span class="hb-s">领养宠物</span>';
  var sc=$('petStars');if(sc){sc.style.display=has?'inline-flex':'none';sc.innerHTML=starSvgH.replace('width="26" height="26"','width="20" height="20"')+'<span id="starNum">'+st.stars+'</span>';}
 }
 function showAdopt(){PetLife.stop();$('petHome').style.display='none';$('adopt').style.display='block';sel=null;$('nameIn').value='';renderPicks();renderSetup();}
@@ -1048,7 +1068,7 @@ function reviewIntro(){openModal('<h2>Smart review <span style="font-size:22px;c
  $('rvgo').onclick=function(){closeModal();var b=$('startReview');if(b)b.click();};$('rvlater').onclick=closeModal;}
 function openReview(){var d=todayStr();if(loadJ('lef_rv_intro_day','')!==d){saveJ('lef_rv_intro_day',d);reviewIntro();}else{var b=$('startReview');if(b)b.click();}}
 /* ---- Smart Review button counter mirrors the original badge ---- */
-(function(){var src=$('reviewBadge'),dst=$('revBadge');if(!src||!dst)return;function sync(){var mm=(src.textContent||'').match(/\d+/),n=mm?+mm[0]:0,show=src.style.display!=='none'&&n>0;dst.textContent=n;dst.style.display=show?'':'none';}
+(function(){var src=$('reviewBadge'),dst=$('revBadge');if(!src||!dst)return;function sync(){var mm=(src.textContent||'').match(/\d+/),n=mm?+mm[0]:0,show=src.style.display!=='none'&&n>0;dst.textContent=n;dst.style.display=show?'':'none';var tl=dst.closest?dst.closest('a'):null;if(tl)tl.classList[show?'add':'remove']('hb-due');}
  new MutationObserver(sync).observe(src,{childList:true,characterData:true,subtree:true,attributes:true});sync();})();
 /* ---- hero copy comes from catalog.js ---- */
 (function(){var h=$('heroH');if(h&&data.site.heroTitle){h.innerHTML=data.site.heroTitle.replace('reading adventure.','<span style="background: #FFC93C; padding: 0 14px; border-radius: 18px; display: inline-block; transform: rotate(-1.5deg)">reading adventure.</span>');}
