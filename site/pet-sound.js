@@ -51,6 +51,17 @@
     pop: function (c, d, t, k) { tone(c, d, { t: t, f: 500, f2: 950, dur: .09, type: 'sine', vol: .4, k: k }); tone(c, d, { t: t + .09, f: 1568, dur: .3, type: 'sine', vol: .18, k: k }); tone(c, d, { t: t + .15, f: 2093, dur: .3, type: 'sine', vol: .14, k: k }); },
     yawn: function (c, d, t, k) { tone(c, d, { t: t, f: 420, f2: 240, dur: .55, type: 'triangle', vol: .3, vib: [5, 10], lp: 900, a: .08, k: k }); tone(c, d, { t: t + .6, f: 260, f2: 330, dur: .25, type: 'triangle', vol: .2, lp: 900, k: k }); },
     sleep: function (c, d, t, k) { [659.25, 523.25, 392].forEach(function (f, i) { tone(c, d, { t: t + i * .35, f: f, dur: .9, type: 'sine', vol: .2, k: k }); }); },
+    /* a balloon bursting, kept gentle for children: a soft little pop with a whisper of air and two tiny chimes (no sharp crack, no low thump) */
+    bang: function (c, d, t, k) {
+      var len = Math.floor(c.sampleRate * 0.1), buf = c.createBuffer(1, len, c.sampleRate), data = buf.getChannelData(0), i;
+      for (i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+      var src = c.createBufferSource(), g = c.createGain(), lp = c.createBiquadFilter();
+      src.buffer = buf; lp.type = 'lowpass'; lp.frequency.value = 1700; g.gain.value = 0.14 * (k || 1);
+      src.connect(lp); lp.connect(g); g.connect(d); src.start(t);
+      tone(c, d, { t: t, f: 380, f2: 820, dur: .12, type: 'sine', vol: .36, k: k });
+      tone(c, d, { t: t + .07, f: 1318.5, dur: .3, type: 'sine', vol: .15, k: k });
+      tone(c, d, { t: t + .13, f: 1760, dur: .32, type: 'sine', vol: .11, k: k });
+    },
     rumble: function (c, d, t, k) { tone(c, d, { t: t, f: 90, f2: 55, dur: .75, type: 'sawtooth', vol: .3, lp: 220, vib: [11, 9], a: .05, k: k }); },
     /* each pet's own little voice (cartoon-style, not recordings) */
     v_cat: function (c, d, t, k) { tone(c, d, { t: t, f: 520, f2: 900, dur: .26, type: 'sawtooth', vol: .46, bp: [1100, 2.2], a: .04, k: k }); tone(c, d, { t: t + .25, f: 900, f2: 560, dur: .3, type: 'sawtooth', vol: .46, bp: [1100, 2.2], a: .02, k: k }); },

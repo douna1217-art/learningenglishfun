@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sight-word pictures, overview</title>
+<style>
+body{margin:0;background:#F4FAFF;font-family:'Nunito',ui-rounded,system-ui,sans-serif;color:#1E2A4A}
+h1{font-size:22px;margin:14px 16px 4px}p.n{margin:0 16px 10px;color:#4A5878;font-weight:700;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;padding:10px 16px 40px}
+.c{background:#fff;border-radius:16px;padding:8px;box-shadow:0 3px 0 #C9D7E8}
+.c svg{width:100%;height:auto;display:block;border-radius:12px}
+.c b{display:block;margin:6px 4px 0;font-size:15px}.c span{display:block;margin:0 4px 2px;font-size:13px;color:#4A5878;font-weight:700}
+</style></head><body>
+<h1>Sight-word pictures: Stage 1 (92)</h1><p class="n" id="n"></p>
+<div class="grid" id="g"></div>
+<script src="pet-art.js"></script><script src="sightwords-data.js"></script><script src="sightwords-art.js"></script>
+<script>
+var D=SW_DATA,g=document.getElementById('g'),h='',miss=[];
+D.lessons.forEach(function(l){l.words.forEach(function(w){var k=SWArt.has(w);if(!k){miss.push(w);return;}
+ h+='<div class="c" id="w-'+w.toLowerCase()+'">'+SWArt.scene(w)+'<b>'+l.id+'. '+w+'</b><span>'+D.words[w].s+'</span></div>';});});
+g.innerHTML=h;document.getElementById('n').textContent=(92-miss.length)+' of 92 pictures'+(miss.length?'; missing: '+miss.join(', '):'');
+</script></body></html>

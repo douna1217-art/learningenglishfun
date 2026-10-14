@@ -1,0 +1,1106 @@
+{
+ "s-a.mp3": {
+  "id": "1f5cd065eee8",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see a cat.",
+  "voice": "fable"
+ },
+ "s-all.mp3": {
+  "id": "8a5ba3f3a41c",
+  "model": "gpt-4o-mini-tts",
+  "text": "We can all play.",
+  "voice": "fable"
+ },
+ "s-am.mp3": {
+  "id": "37e0830f1757",
+  "model": "gpt-4o-mini-tts",
+  "text": "I am a boy.",
+  "voice": "fable"
+ },
+ "s-and.mp3": {
+  "id": "206386e9face",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat and the dog play.",
+  "voice": "fable"
+ },
+ "s-are.mp3": {
+  "id": "1d7f696baf93",
+  "model": "gpt-4o-mini-tts",
+  "text": "You are big.",
+  "voice": "fable"
+ },
+ "s-at.mp3": {
+  "id": "af7065c545e1",
+  "model": "gpt-4o-mini-tts",
+  "text": "Look at the bird.",
+  "voice": "fable"
+ },
+ "s-ate.mp3": {
+  "id": "646cd505570d",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog ate the cake.",
+  "voice": "fable"
+ },
+ "s-away.mp3": {
+  "id": "f44173eebc45",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog can run away.",
+  "voice": "fable"
+ },
+ "s-be.mp3": {
+  "id": "07e6890abcc8",
+  "model": "gpt-4o-mini-tts",
+  "text": "I will be good.",
+  "voice": "fable"
+ },
+ "s-big.mp3": {
+  "id": "0fd000d93e0d",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see a big tree.",
+  "voice": "fable"
+ },
+ "s-black.mp3": {
+  "id": "eb0340236790",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see a black cat.",
+  "voice": "fable"
+ },
+ "s-blue.mp3": {
+  "id": "7a3bef168b15",
+  "model": "gpt-4o-mini-tts",
+  "text": "The blue bag is big.",
+  "voice": "fable"
+ },
+ "s-brown.mp3": {
+  "id": "63b8961adb9a",
+  "model": "gpt-4o-mini-tts",
+  "text": "The brown dog can run.",
+  "voice": "fable"
+ },
+ "s-but.mp3": {
+  "id": "9875180b49ee",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can run but not jump.",
+  "voice": "fable"
+ },
+ "s-came.mp3": {
+  "id": "9061c16d94c7",
+  "model": "gpt-4o-mini-tts",
+  "text": "Mom came to see me.",
+  "voice": "fable"
+ },
+ "s-can.mp3": {
+  "id": "e695c294f412",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can jump.",
+  "voice": "fable"
+ },
+ "s-come.mp3": {
+  "id": "d5ce4f9ccf49",
+  "model": "gpt-4o-mini-tts",
+  "text": "Come and see.",
+  "voice": "fable"
+ },
+ "s-did.mp3": {
+  "id": "98e642156fd4",
+  "model": "gpt-4o-mini-tts",
+  "text": "Did you see the dog?",
+  "voice": "fable"
+ },
+ "s-do.mp3": {
+  "id": "a8cb92977133",
+  "model": "gpt-4o-mini-tts",
+  "text": "What do you see?",
+  "voice": "fable"
+ },
+ "s-down.mp3": {
+  "id": "4435044fedc6",
+  "model": "gpt-4o-mini-tts",
+  "text": "The ball can go down.",
+  "voice": "fable"
+ },
+ "s-eat.mp3": {
+  "id": "216f7ed0305f",
+  "model": "gpt-4o-mini-tts",
+  "text": "We eat cake.",
+  "voice": "fable"
+ },
+ "s-find.mp3": {
+  "id": "ed7b819904ba",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can find my hat.",
+  "voice": "fable"
+ },
+ "s-for.mp3": {
+  "id": "63727d849d93",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is for you.",
+  "voice": "fable"
+ },
+ "s-four.mp3": {
+  "id": "92a5c928cf87",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see four fish.",
+  "voice": "fable"
+ },
+ "s-funny.mp3": {
+  "id": "94a0cfda82c8",
+  "model": "gpt-4o-mini-tts",
+  "text": "The funny dog can jump.",
+  "voice": "fable"
+ },
+ "s-get.mp3": {
+  "id": "09b2876cad29",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can get the ball.",
+  "voice": "fable"
+ },
+ "s-go.mp3": {
+  "id": "1b35826bb3d2",
+  "model": "gpt-4o-mini-tts",
+  "text": "We go up.",
+  "voice": "fable"
+ },
+ "s-good.mp3": {
+  "id": "7ac74d3d54eb",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog is good.",
+  "voice": "fable"
+ },
+ "s-have.mp3": {
+  "id": "d565a9595f59",
+  "model": "gpt-4o-mini-tts",
+  "text": "I have a red ball.",
+  "voice": "fable"
+ },
+ "s-he.mp3": {
+  "id": "f12e16d92d91",
+  "model": "gpt-4o-mini-tts",
+  "text": "He can run.",
+  "voice": "fable"
+ },
+ "s-help.mp3": {
+  "id": "a6e66fea300d",
+  "model": "gpt-4o-mini-tts",
+  "text": "Can you help me?",
+  "voice": "fable"
+ },
+ "s-here.mp3": {
+  "id": "7c5ca9c0279a",
+  "model": "gpt-4o-mini-tts",
+  "text": "Come here, Sam.",
+  "voice": "fable"
+ },
+ "s-i.mp3": {
+  "id": "2c941f0bf329",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can run.",
+  "voice": "fable"
+ },
+ "s-in.mp3": {
+  "id": "55219155ee38",
+  "model": "gpt-4o-mini-tts",
+  "text": "The fish is in the box.",
+  "voice": "fable"
+ },
+ "s-into.mp3": {
+  "id": "cb82807fae95",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat ran into the box.",
+  "voice": "fable"
+ },
+ "s-is.mp3": {
+  "id": "9ced42769658",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat is big.",
+  "voice": "fable"
+ },
+ "s-it.mp3": {
+  "id": "cbdba6e129b6",
+  "model": "gpt-4o-mini-tts",
+  "text": "It is a red ball.",
+  "voice": "fable"
+ },
+ "s-jump.mp3": {
+  "id": "676fc6861c1b",
+  "model": "gpt-4o-mini-tts",
+  "text": "The frog can jump.",
+  "voice": "fable"
+ },
+ "s-like.mp3": {
+  "id": "deccf09e2e89",
+  "model": "gpt-4o-mini-tts",
+  "text": "I like my dog.",
+  "voice": "fable"
+ },
+ "s-little.mp3": {
+  "id": "4e42217fe18c",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see a little bird.",
+  "voice": "fable"
+ },
+ "s-look.mp3": {
+  "id": "3113d0d76d4e",
+  "model": "gpt-4o-mini-tts",
+  "text": "Look at the big fish.",
+  "voice": "fable"
+ },
+ "s-make.mp3": {
+  "id": "22780a44ff5f",
+  "model": "gpt-4o-mini-tts",
+  "text": "We can make a cake.",
+  "voice": "fable"
+ },
+ "s-me.mp3": {
+  "id": "74b0d4119001",
+  "model": "gpt-4o-mini-tts",
+  "text": "Look at me.",
+  "voice": "fable"
+ },
+ "s-must.mp3": {
+  "id": "1d8261418d9c",
+  "model": "gpt-4o-mini-tts",
+  "text": "We must go now.",
+  "voice": "fable"
+ },
+ "s-my.mp3": {
+  "id": "d08b9b04c6b7",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see my dog.",
+  "voice": "fable"
+ },
+ "s-new.mp3": {
+  "id": "2aac27f5c2bf",
+  "model": "gpt-4o-mini-tts",
+  "text": "I have a new hat.",
+  "voice": "fable"
+ },
+ "s-no.mp3": {
+  "id": "8ff2ff5c3464",
+  "model": "gpt-4o-mini-tts",
+  "text": "No, it is not red.",
+  "voice": "fable"
+ },
+ "s-not.mp3": {
+  "id": "9c6e84117ea0",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat is not big.",
+  "voice": "fable"
+ },
+ "s-now.mp3": {
+  "id": "7d9e72d5c056",
+  "model": "gpt-4o-mini-tts",
+  "text": "Come here now.",
+  "voice": "fable"
+ },
+ "s-on.mp3": {
+  "id": "ad740f8023b2",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat is on the bed.",
+  "voice": "fable"
+ },
+ "s-one.mp3": {
+  "id": "e64d5acc044b",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see one dog.",
+  "voice": "fable"
+ },
+ "s-our.mp3": {
+  "id": "d79bd5fb933e",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is our bus.",
+  "voice": "fable"
+ },
+ "s-out.mp3": {
+  "id": "b8cb79d5edda",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog ran out.",
+  "voice": "fable"
+ },
+ "s-play.mp3": {
+  "id": "06384cfc6ff0",
+  "model": "gpt-4o-mini-tts",
+  "text": "We can play with the ball.",
+  "voice": "fable"
+ },
+ "s-please.mp3": {
+  "id": "5e068f241a05",
+  "model": "gpt-4o-mini-tts",
+  "text": "Help me, please.",
+  "voice": "fable"
+ },
+ "s-pretty.mp3": {
+  "id": "363a71e32326",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see a pretty bird.",
+  "voice": "fable"
+ },
+ "s-ran.mp3": {
+  "id": "206f57282a3c",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog ran to me.",
+  "voice": "fable"
+ },
+ "s-red.mp3": {
+  "id": "6b3c30e89f71",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see a red hat.",
+  "voice": "fable"
+ },
+ "s-ride.mp3": {
+  "id": "0e6d918ebdb8",
+  "model": "gpt-4o-mini-tts",
+  "text": "We ride the bus.",
+  "voice": "fable"
+ },
+ "s-run.mp3": {
+  "id": "96da64023af1",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog can run.",
+  "voice": "fable"
+ },
+ "s-said.mp3": {
+  "id": "8a05b56331ff",
+  "model": "gpt-4o-mini-tts",
+  "text": "“I can jump,” said the frog.",
+  "voice": "fable"
+ },
+ "s-saw.mp3": {
+  "id": "72b87c8ec584",
+  "model": "gpt-4o-mini-tts",
+  "text": "I saw a frog.",
+  "voice": "fable"
+ },
+ "s-say.mp3": {
+  "id": "bf5a1fd4af1f",
+  "model": "gpt-4o-mini-tts",
+  "text": "What do you say?",
+  "voice": "fable"
+ },
+ "s-see.mp3": {
+  "id": "b50f4164b1b9",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can see a bird.",
+  "voice": "fable"
+ },
+ "s-she.mp3": {
+  "id": "c17829adbbc1",
+  "model": "gpt-4o-mini-tts",
+  "text": "She can jump.",
+  "voice": "fable"
+ },
+ "s-so.mp3": {
+  "id": "5cb4859a3315",
+  "model": "gpt-4o-mini-tts",
+  "text": "It is so big!",
+  "voice": "fable"
+ },
+ "s-soon.mp3": {
+  "id": "4bf40aa8eec9",
+  "model": "gpt-4o-mini-tts",
+  "text": "We will go soon.",
+  "voice": "fable"
+ },
+ "s-that.mp3": {
+  "id": "acbd5817a38f",
+  "model": "gpt-4o-mini-tts",
+  "text": "That is a big bus.",
+  "voice": "fable"
+ },
+ "s-the.mp3": {
+  "id": "0bda0533d874",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see the dog.",
+  "voice": "fable"
+ },
+ "s-there.mp3": {
+  "id": "10ee1334d154",
+  "model": "gpt-4o-mini-tts",
+  "text": "There is a duck.",
+  "voice": "fable"
+ },
+ "s-they.mp3": {
+  "id": "d3b3e7c188b8",
+  "model": "gpt-4o-mini-tts",
+  "text": "They can play.",
+  "voice": "fable"
+ },
+ "s-this.mp3": {
+  "id": "4cc8e6a2d94e",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is my hat.",
+  "voice": "fable"
+ },
+ "s-three.mp3": {
+  "id": "f0f64a2a3acb",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see three ducks.",
+  "voice": "fable"
+ },
+ "s-to.mp3": {
+  "id": "bd947a5c97b0",
+  "model": "gpt-4o-mini-tts",
+  "text": "Come to me.",
+  "voice": "fable"
+ },
+ "s-too.mp3": {
+  "id": "4e9f2e743984",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can jump too.",
+  "voice": "fable"
+ },
+ "s-two.mp3": {
+  "id": "b0c20df8ffe1",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see two cats.",
+  "voice": "fable"
+ },
+ "s-under.mp3": {
+  "id": "7ae4deee7a8b",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat is under the bed.",
+  "voice": "fable"
+ },
+ "s-up.mp3": {
+  "id": "bd185341939e",
+  "model": "gpt-4o-mini-tts",
+  "text": "The kite is up.",
+  "voice": "fable"
+ },
+ "s-want.mp3": {
+  "id": "8e8ec90eec45",
+  "model": "gpt-4o-mini-tts",
+  "text": "I want a cake.",
+  "voice": "fable"
+ },
+ "s-was.mp3": {
+  "id": "e9e8e79054df",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat was in the box.",
+  "voice": "fable"
+ },
+ "s-we.mp3": {
+  "id": "0dbd3080e3a8",
+  "model": "gpt-4o-mini-tts",
+  "text": "We can play.",
+  "voice": "fable"
+ },
+ "s-well.mp3": {
+  "id": "98e114fb5071",
+  "model": "gpt-4o-mini-tts",
+  "text": "You can run well.",
+  "voice": "fable"
+ },
+ "s-went.mp3": {
+  "id": "aa93813695c1",
+  "model": "gpt-4o-mini-tts",
+  "text": "We went to the bus.",
+  "voice": "fable"
+ },
+ "s-what.mp3": {
+  "id": "1e5103213a15",
+  "model": "gpt-4o-mini-tts",
+  "text": "What is that?",
+  "voice": "fable"
+ },
+ "s-where.mp3": {
+  "id": "ff77e382d94d",
+  "model": "gpt-4o-mini-tts",
+  "text": "Where is my hat?",
+  "voice": "fable"
+ },
+ "s-white.mp3": {
+  "id": "e3da16afc0de",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see a white duck.",
+  "voice": "fable"
+ },
+ "s-who.mp3": {
+  "id": "49fd9830aea1",
+  "model": "gpt-4o-mini-tts",
+  "text": "Who is in the box?",
+  "voice": "fable"
+ },
+ "s-will.mp3": {
+  "id": "8e059019f6e5",
+  "model": "gpt-4o-mini-tts",
+  "text": "I will help you.",
+  "voice": "fable"
+ },
+ "s-with.mp3": {
+  "id": "dc91b15522f0",
+  "model": "gpt-4o-mini-tts",
+  "text": "I play with my dog.",
+  "voice": "fable"
+ },
+ "s-yellow.mp3": {
+  "id": "2f6fd145cdfd",
+  "model": "gpt-4o-mini-tts",
+  "text": "The yellow duck can play.",
+  "voice": "fable"
+ },
+ "s-yes.mp3": {
+  "id": "4649b8d1d52f",
+  "model": "gpt-4o-mini-tts",
+  "text": "Yes, I can jump.",
+  "voice": "fable"
+ },
+ "s-you.mp3": {
+  "id": "6898b3453660",
+  "model": "gpt-4o-mini-tts",
+  "text": "I see you.",
+  "voice": "fable"
+ },
+ "w-a.mp3": {
+  "id": "ecc4b076475f",
+  "model": "gpt-4o-mini-tts",
+  "text": "a",
+  "voice": "fable"
+ },
+ "w-all.mp3": {
+  "id": "a2e903074fa2",
+  "model": "gpt-4o-mini-tts",
+  "text": "all",
+  "voice": "fable"
+ },
+ "w-am.mp3": {
+  "id": "67cf18802825",
+  "model": "gpt-4o-mini-tts",
+  "text": "am",
+  "voice": "fable"
+ },
+ "w-and.mp3": {
+  "id": "478a8b8ae2b9",
+  "model": "gpt-4o-mini-tts",
+  "text": "and",
+  "voice": "fable"
+ },
+ "w-are.mp3": {
+  "id": "26cdce3314a3",
+  "model": "gpt-4o-mini-tts",
+  "text": "are",
+  "voice": "fable"
+ },
+ "w-at.mp3": {
+  "id": "3ab075d111f8",
+  "model": "gpt-4o-mini-tts",
+  "text": "at",
+  "voice": "fable"
+ },
+ "w-ate.mp3": {
+  "id": "4b605f61ae7d",
+  "model": "gpt-4o-mini-tts",
+  "text": "ate",
+  "voice": "fable"
+ },
+ "w-away.mp3": {
+  "id": "a08aa4f48c59",
+  "model": "gpt-4o-mini-tts",
+  "text": "away",
+  "voice": "fable"
+ },
+ "w-be.mp3": {
+  "id": "4c4a9a34c9fb",
+  "model": "gpt-4o-mini-tts",
+  "text": "be",
+  "voice": "fable"
+ },
+ "w-big.mp3": {
+  "id": "a706fb75bc04",
+  "model": "gpt-4o-mini-tts",
+  "text": "big",
+  "voice": "fable"
+ },
+ "w-black.mp3": {
+  "id": "54ad39d8f247",
+  "model": "gpt-4o-mini-tts",
+  "text": "black",
+  "voice": "fable"
+ },
+ "w-blue.mp3": {
+  "id": "c8d032b7225b",
+  "model": "gpt-4o-mini-tts",
+  "text": "blue",
+  "voice": "fable"
+ },
+ "w-brown.mp3": {
+  "id": "63ddfea3432b",
+  "model": "gpt-4o-mini-tts",
+  "text": "brown",
+  "voice": "fable"
+ },
+ "w-but.mp3": {
+  "id": "fdec17ba5cfe",
+  "model": "gpt-4o-mini-tts",
+  "text": "but",
+  "voice": "fable"
+ },
+ "w-came.mp3": {
+  "id": "7502f66c0378",
+  "model": "gpt-4o-mini-tts",
+  "text": "came",
+  "voice": "fable"
+ },
+ "w-can.mp3": {
+  "id": "3448d940e8f7",
+  "model": "gpt-4o-mini-tts",
+  "text": "can",
+  "voice": "fable"
+ },
+ "w-come.mp3": {
+  "id": "9525c32073bd",
+  "model": "gpt-4o-mini-tts",
+  "text": "come",
+  "voice": "fable"
+ },
+ "w-did.mp3": {
+  "id": "cc55b9f53593",
+  "model": "gpt-4o-mini-tts",
+  "text": "did",
+  "voice": "fable"
+ },
+ "w-do.mp3": {
+  "id": "716231a159af",
+  "model": "gpt-4o-mini-tts",
+  "text": "do",
+  "voice": "fable"
+ },
+ "w-down.mp3": {
+  "id": "983770addde0",
+  "model": "gpt-4o-mini-tts",
+  "text": "down",
+  "voice": "fable"
+ },
+ "w-eat.mp3": {
+  "id": "b77fdf4ce5af",
+  "model": "gpt-4o-mini-tts",
+  "text": "eat",
+  "voice": "fable"
+ },
+ "w-find.mp3": {
+  "id": "2ee66fe82d5a",
+  "model": "gpt-4o-mini-tts",
+  "text": "find",
+  "voice": "fable"
+ },
+ "w-for.mp3": {
+  "id": "251a536b6414",
+  "model": "gpt-4o-mini-tts",
+  "text": "for",
+  "voice": "fable"
+ },
+ "w-four.mp3": {
+  "id": "f0fd4d87b9c8",
+  "model": "gpt-4o-mini-tts",
+  "text": "four",
+  "voice": "fable"
+ },
+ "w-funny.mp3": {
+  "id": "95f821d36bc5",
+  "model": "gpt-4o-mini-tts",
+  "text": "funny",
+  "voice": "fable"
+ },
+ "w-get.mp3": {
+  "id": "ac2f10ce97d0",
+  "model": "gpt-4o-mini-tts",
+  "text": "get",
+  "voice": "fable"
+ },
+ "w-go.mp3": {
+  "id": "d4d6f9fdcf14",
+  "model": "gpt-4o-mini-tts",
+  "text": "go",
+  "voice": "fable"
+ },
+ "w-good.mp3": {
+  "id": "868eba3e4512",
+  "model": "gpt-4o-mini-tts",
+  "text": "good",
+  "voice": "fable"
+ },
+ "w-have.mp3": {
+  "id": "8995022ebcf2",
+  "model": "gpt-4o-mini-tts",
+  "text": "have",
+  "voice": "fable"
+ },
+ "w-he.mp3": {
+  "id": "179cf2969327",
+  "model": "gpt-4o-mini-tts",
+  "text": "he",
+  "voice": "fable"
+ },
+ "w-help.mp3": {
+  "id": "2cd6c15c9abb",
+  "model": "gpt-4o-mini-tts",
+  "text": "help",
+  "voice": "fable"
+ },
+ "w-here.mp3": {
+  "id": "a2b0bff13a49",
+  "model": "gpt-4o-mini-tts",
+  "text": "here",
+  "voice": "fable"
+ },
+ "w-i.mp3": {
+  "id": "b87ecd53ab64",
+  "model": "gpt-4o-mini-tts",
+  "text": "I",
+  "voice": "fable"
+ },
+ "w-in.mp3": {
+  "id": "153ad5e01055",
+  "model": "gpt-4o-mini-tts",
+  "text": "in",
+  "voice": "fable"
+ },
+ "w-into.mp3": {
+  "id": "cc1053a41847",
+  "model": "gpt-4o-mini-tts",
+  "text": "into",
+  "voice": "fable"
+ },
+ "w-is.mp3": {
+  "id": "56cedf365aa1",
+  "model": "gpt-4o-mini-tts",
+  "text": "is",
+  "voice": "fable"
+ },
+ "w-it.mp3": {
+  "id": "333cdf94118b",
+  "model": "gpt-4o-mini-tts",
+  "text": "it",
+  "voice": "fable"
+ },
+ "w-jump.mp3": {
+  "id": "ffc6b8f008f1",
+  "model": "gpt-4o-mini-tts",
+  "text": "jump",
+  "voice": "fable"
+ },
+ "w-like.mp3": {
+  "id": "311ddffb8fcc",
+  "model": "gpt-4o-mini-tts",
+  "text": "like",
+  "voice": "fable"
+ },
+ "w-little.mp3": {
+  "id": "989291271c9a",
+  "model": "gpt-4o-mini-tts",
+  "text": "little",
+  "voice": "fable"
+ },
+ "w-look.mp3": {
+  "id": "f44bb6e25245",
+  "model": "gpt-4o-mini-tts",
+  "text": "look",
+  "voice": "fable"
+ },
+ "w-make.mp3": {
+  "id": "994d2cc0bffb",
+  "model": "gpt-4o-mini-tts",
+  "text": "make",
+  "voice": "fable"
+ },
+ "w-me.mp3": {
+  "id": "819803e9f6ae",
+  "model": "gpt-4o-mini-tts",
+  "text": "me",
+  "voice": "fable"
+ },
+ "w-must.mp3": {
+  "id": "a2a6eec209a7",
+  "model": "gpt-4o-mini-tts",
+  "text": "must",
+  "voice": "fable"
+ },
+ "w-my.mp3": {
+  "id": "406bb04fb5d9",
+  "model": "gpt-4o-mini-tts",
+  "text": "my",
+  "voice": "fable"
+ },
+ "w-new.mp3": {
+  "id": "71263d7cadb8",
+  "model": "gpt-4o-mini-tts",
+  "text": "new",
+  "voice": "fable"
+ },
+ "w-no.mp3": {
+  "id": "fc271bdb1fe6",
+  "model": "gpt-4o-mini-tts",
+  "text": "no",
+  "voice": "fable"
+ },
+ "w-not.mp3": {
+  "id": "dac4036963f4",
+  "model": "gpt-4o-mini-tts",
+  "text": "not",
+  "voice": "fable"
+ },
+ "w-now.mp3": {
+  "id": "9feb0cd47614",
+  "model": "gpt-4o-mini-tts",
+  "text": "now",
+  "voice": "fable"
+ },
+ "w-on.mp3": {
+  "id": "b09e0f667fef",
+  "model": "gpt-4o-mini-tts",
+  "text": "on",
+  "voice": "fable"
+ },
+ "w-one.mp3": {
+  "id": "4335be04bf7c",
+  "model": "gpt-4o-mini-tts",
+  "text": "one",
+  "voice": "fable"
+ },
+ "w-our.mp3": {
+  "id": "bd0ce274aa15",
+  "model": "gpt-4o-mini-tts",
+  "text": "our",
+  "voice": "fable"
+ },
+ "w-out.mp3": {
+  "id": "cdd93bc7670b",
+  "model": "gpt-4o-mini-tts",
+  "text": "out",
+  "voice": "fable"
+ },
+ "w-play.mp3": {
+  "id": "8c4c64a8f7cd",
+  "model": "gpt-4o-mini-tts",
+  "text": "play",
+  "voice": "fable"
+ },
+ "w-please.mp3": {
+  "id": "9c4378ecc6b7",
+  "model": "gpt-4o-mini-tts",
+  "text": "please",
+  "voice": "fable"
+ },
+ "w-pretty.mp3": {
+  "id": "d62e163a7ce8",
+  "model": "gpt-4o-mini-tts",
+  "text": "pretty",
+  "voice": "fable"
+ },
+ "w-ran.mp3": {
+  "id": "843e7879d79a",
+  "model": "gpt-4o-mini-tts",
+  "text": "ran",
+  "voice": "fable"
+ },
+ "w-red.mp3": {
+  "id": "5b2c047aa15a",
+  "model": "gpt-4o-mini-tts",
+  "text": "red",
+  "voice": "fable"
+ },
+ "w-ride.mp3": {
+  "id": "91ad0a4e43ee",
+  "model": "gpt-4o-mini-tts",
+  "text": "ride",
+  "voice": "fable"
+ },
+ "w-run.mp3": {
+  "id": "3be23dfa4380",
+  "model": "gpt-4o-mini-tts",
+  "text": "run",
+  "voice": "fable"
+ },
+ "w-said.mp3": {
+  "id": "1bc79ee14fc4",
+  "model": "gpt-4o-mini-tts",
+  "text": "said",
+  "voice": "fable"
+ },
+ "w-saw.mp3": {
+  "id": "95932d04366a",
+  "model": "gpt-4o-mini-tts",
+  "text": "saw",
+  "voice": "fable"
+ },
+ "w-say.mp3": {
+  "id": "3fde68b9a32b",
+  "model": "gpt-4o-mini-tts",
+  "text": "say",
+  "voice": "fable"
+ },
+ "w-see.mp3": {
+  "id": "d2e58731e33e",
+  "model": "gpt-4o-mini-tts",
+  "text": "see",
+  "voice": "fable"
+ },
+ "w-she.mp3": {
+  "id": "c5188b7e306f",
+  "model": "gpt-4o-mini-tts",
+  "text": "she",
+  "voice": "fable"
+ },
+ "w-so.mp3": {
+  "id": "5fc078061039",
+  "model": "gpt-4o-mini-tts",
+  "text": "so",
+  "voice": "fable"
+ },
+ "w-soon.mp3": {
+  "id": "ee09f40008ea",
+  "model": "gpt-4o-mini-tts",
+  "text": "soon",
+  "voice": "fable"
+ },
+ "w-that.mp3": {
+  "id": "4a12470fef7b",
+  "model": "gpt-4o-mini-tts",
+  "text": "that",
+  "voice": "fable"
+ },
+ "w-the.mp3": {
+  "id": "8ffcf6394f50",
+  "model": "gpt-4o-mini-tts",
+  "text": "the",
+  "voice": "fable"
+ },
+ "w-there.mp3": {
+  "id": "6f45e7418022",
+  "model": "gpt-4o-mini-tts",
+  "text": "there",
+  "voice": "fable"
+ },
+ "w-they.mp3": {
+  "id": "8d6b2fd0d90d",
+  "model": "gpt-4o-mini-tts",
+  "text": "they",
+  "voice": "fable"
+ },
+ "w-this.mp3": {
+  "id": "89b42345b986",
+  "model": "gpt-4o-mini-tts",
+  "text": "this",
+  "voice": "fable"
+ },
+ "w-three.mp3": {
+  "id": "4dba121a71b0",
+  "model": "gpt-4o-mini-tts",
+  "text": "three",
+  "voice": "fable"
+ },
+ "w-to.mp3": {
+  "id": "0155c9b6b245",
+  "model": "gpt-4o-mini-tts",
+  "text": "to",
+  "voice": "fable"
+ },
+ "w-too.mp3": {
+  "id": "32a863f83cfe",
+  "model": "gpt-4o-mini-tts",
+  "text": "too",
+  "voice": "fable"
+ },
+ "w-two.mp3": {
+  "id": "b6bb59b2cbc1",
+  "model": "gpt-4o-mini-tts",
+  "text": "two",
+  "voice": "fable"
+ },
+ "w-under.mp3": {
+  "id": "75712f9b7192",
+  "model": "gpt-4o-mini-tts",
+  "text": "under",
+  "voice": "fable"
+ },
+ "w-up.mp3": {
+  "id": "ec51ba5d0c90",
+  "model": "gpt-4o-mini-tts",
+  "text": "up",
+  "voice": "fable"
+ },
+ "w-want.mp3": {
+  "id": "bbf9348108cd",
+  "model": "gpt-4o-mini-tts",
+  "text": "want",
+  "voice": "fable"
+ },
+ "w-was.mp3": {
+  "id": "dac6576b8f9d",
+  "model": "gpt-4o-mini-tts",
+  "text": "was",
+  "voice": "fable"
+ },
+ "w-we.mp3": {
+  "id": "80e6fd0fb4ec",
+  "model": "gpt-4o-mini-tts",
+  "text": "we",
+  "voice": "fable"
+ },
+ "w-well.mp3": {
+  "id": "0eeade8c31b2",
+  "model": "gpt-4o-mini-tts",
+  "text": "well",
+  "voice": "fable"
+ },
+ "w-went.mp3": {
+  "id": "9a4407a1229e",
+  "model": "gpt-4o-mini-tts",
+  "text": "went",
+  "voice": "fable"
+ },
+ "w-what.mp3": {
+  "id": "ed63176852aa",
+  "model": "gpt-4o-mini-tts",
+  "text": "what",
+  "voice": "fable"
+ },
+ "w-where.mp3": {
+  "id": "c5015d6b566c",
+  "model": "gpt-4o-mini-tts",
+  "text": "where",
+  "voice": "fable"
+ },
+ "w-white.mp3": {
+  "id": "4c6713669c3a",
+  "model": "gpt-4o-mini-tts",
+  "text": "white",
+  "voice": "fable"
+ },
+ "w-who.mp3": {
+  "id": "c1cd3d372ffc",
+  "model": "gpt-4o-mini-tts",
+  "text": "who",
+  "voice": "fable"
+ },
+ "w-will.mp3": {
+  "id": "0a2302eef878",
+  "model": "gpt-4o-mini-tts",
+  "text": "will",
+  "voice": "fable"
+ },
+ "w-with.mp3": {
+  "id": "212393ad6d3c",
+  "model": "gpt-4o-mini-tts",
+  "text": "with",
+  "voice": "fable"
+ },
+ "w-yellow.mp3": {
+  "id": "eec74a2bde34",
+  "model": "gpt-4o-mini-tts",
+  "text": "yellow",
+  "voice": "fable"
+ },
+ "w-yes.mp3": {
+  "id": "2b75cafbf599",
+  "model": "gpt-4o-mini-tts",
+  "text": "yes",
+  "voice": "fable"
+ },
+ "w-you.mp3": {
+  "id": "9d778be6a8e9",
+  "model": "gpt-4o-mini-tts",
+  "text": "you",
+  "voice": "fable"
+ }
+}

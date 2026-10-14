@@ -16,6 +16,7 @@
 //     lef_hist_v1    recent reading history
 //     lef_stats_v1   learning days (for the streak), stars earned in total, questions reviewed
 //     lef_badges_v1  badges earned (id -> time)
+//     lef_words_v1   sight words: each word's box and due day, lessons finished
 //     lef_opens_v1   recently opened books
 //     lef_gift       welcome-gift flag
 //     les_review_v1  Smart Review records (merge: the higher box of each card wins)
@@ -52,7 +53,8 @@
   var PLACEMENT = "les_placement_v1";
   var STATS = "lef_stats_v1";
   var BADGES = "lef_badges_v1";
-  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT, STATS, BADGES];
+  var WORDS = "lef_words_v1";
+  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT, STATS, BADGES, WORDS];
   var BOOK_RE = /^les-.+-v1$/;
 
   function isHomeKey(k) {
@@ -300,7 +302,39 @@
     return out;
   }
 
+  // Sight words: for each word the copy with the higher box wins, lessons keep the earlier time, the later review day wins.
+  function mergeWords(a, b) {
+    var out = { words: {}, lessons: {}, rev: {} };
+    [a, b].forEach(function (s) {
+      if (!isObj(s)) return;
+      var w = isObj(s.words) ? s.words : {},
+        l = isObj(s.lessons) ? s.lessons : {},
+        r = isObj(s.rev) ? s.rev : {};
+      Object.keys(w).forEach(function (k) {
+        var x = w[k],
+          o = out.words[k];
+        if (!isObj(x)) return;
+        if (!o || (x.box || 0) > (o.box || 0)) out.words[k] = clone(x);
+        else if ((x.box || 0) === (o.box || 0)) {
+          o.n = Math.max(o.n || 0, x.n || 0);
+          o.ok = Math.max(o.ok || 0, x.ok || 0);
+        }
+      });
+      Object.keys(l).forEach(function (id) {
+        var x = l[id],
+          o = out.lessons[id];
+        if (!isObj(x)) return;
+        if (!o || (x.t || 0) < (o.t || 0)) out.lessons[id] = clone(x);
+      });
+      Object.keys(r).forEach(function (d) {
+        if (!out.rev[d] || r[d] > out.rev[d]) out.rev[d] = r[d];
+      });
+    });
+    return out;
+  }
+
   function mergeValue(key, local, remote) {
+    if (key === WORDS) return mergeWords(local, remote);
     if (key === STATS) return mergeStats(local, remote);
     if (key === BADGES) return mergeBadges(local, remote);
     if (key === REVIEW) return mergeReview(local, remote);
@@ -348,6 +382,7 @@
     mergeOpens: mergeOpens,
     mergeStats: mergeStats,
     mergeBadges: mergeBadges,
+    mergeWords: mergeWords,
     mergeReview: mergeReview,
     mergePlacement: mergePlacement,
     mergeDeep: mergeDeep,

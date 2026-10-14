@@ -14,6 +14,7 @@ function armUp(m){return {happy:-8,love:-8,surprised:-10,excited:-16}[m]||0;}
 function n1(n){return Math.round(n*10)/10;}
 var KP='fill="none" stroke="'+INK+'" stroke-linecap="round" stroke-linejoin="round"';
 function eye1(m,x,ey,r,sd){
+ if(m==='okay')m='happy';   /* 'okay' (used by the sight-words feeding game): the happy eyes with a smaller smile, between hungry and happy */
  if(m==='happy')return '<circle cx="'+x+'" cy="'+ey+'" r="'+r+'" fill="'+INK+'"/><circle cx="'+n1(x+r*.35)+'" cy="'+n1(ey-r*.4)+'" r="'+n1(r*.36)+'" fill="#fff"/><circle cx="'+n1(x-r*.4)+'" cy="'+n1(ey+r*.42)+'" r="'+n1(r*.16)+'" fill="#fff" opacity=".75"/>';
  if(m==='eat')return '<path d="M'+(x-r)+' '+(ey+2)+'Q'+x+' '+n1(ey-r*1.3)+' '+(x+r)+' '+(ey+2)+'" '+KP+' stroke-width="4"/>';
  if(m==='asleep')return '<path d="M'+n1(x-r*1.05)+' '+(ey-1)+'Q'+x+' '+n1(ey+r*1.15)+' '+n1(x+r*1.05)+' '+(ey-1)+'" '+KP+' stroke-width="3.6"/>';
@@ -30,6 +31,7 @@ function eyes(m,cx,ey,dx,r){return [cx-dx,cx+dx].map(function(x){return eye1(m,x
 function blush(m,cx,ey,dx){var op={sleepy:.25,asleep:.35,bored:.3,yawn:.4,surprised:.45,hungry:.4,love:.8,excited:.7}[m];if(op===undefined)op=.55;
  return [cx-dx-9,cx+dx+9].map(function(x){return '<ellipse cx="'+x+'" cy="'+(ey+14)+'" rx="7" ry="4.5" fill="#FF6F9C" opacity="'+op+'"/>';}).join('');}
 function mouthU(m,cx,y,w){w=w||10;
+ if(m==='okay')return '<path d="M'+n1(cx-w*.62)+' '+y+'Q'+cx+' '+n1(y+w*.62+1)+' '+n1(cx+w*.62)+' '+y+'" '+KP+' stroke-width="3.6"/>';
  if(m==='happy'||m==='love')return '<path d="M'+(cx-w)+' '+y+'Q'+cx+' '+(y+w+1)+' '+(cx+w)+' '+y+'" '+KP+' stroke-width="4"/>';
  if(m==='eat')return '<ellipse cx="'+cx+'" cy="'+(y+5)+'" rx="'+n1(w*.7)+'" ry="'+n1(w*.65)+'" fill="'+INK+'"/><ellipse cx="'+cx+'" cy="'+(y+9)+'" rx="'+n1(w*.4)+'" ry="'+n1(w*.3)+'" fill="#FF7A9A"/>';
  if(m==='asleep')return '<path d="M'+n1(cx-w*.55)+' '+(y+2)+'Q'+cx+' '+n1(y+w*.75+2)+' '+n1(cx+w*.55)+' '+(y+2)+'" '+KP+' stroke-width="3.4"/>';
@@ -165,7 +167,7 @@ var ORANGE='#FFA53B',ORANGE_D='#C47A10';
 /* ---- penguin, soft 3D toy look: gradients and gentle highlights, no filters (old Android friendly) ---- */
 var PGN=0;
 function hexMix(h1,h2,t){function e(h){return h.length===4?'#'+h[1]+h[1]+h[2]+h[2]+h[3]+h[3]:h;}h1=e(h1);h2=e(h2);function v(h,i){return parseInt(h.substr(1+i*2,2),16);}var o='#';for(var i=0;i<3;i++){var x=Math.round(v(h1,i)*(1-t)+v(h2,i)*t);o+=(x<16?'0':'')+x.toString(16);}return o;}
-function penguinEyes(m,id){var open=(m==='happy'||m==='excited'||m==='hungry'),r=7,o='';
+function penguinEyes(m,id){var open=(m==='happy'||m==='okay'||m==='excited'||m==='hungry'),r=7,o='';
  if(open){[38,82].forEach(function(x){o+='<circle cx="'+x+'" cy="60" r="'+(r*1.55)+'" fill="url(#'+id('i')+')"/>';});}
  o+=eyes(m,60,60,22,r);
  return o;}
@@ -210,7 +212,7 @@ function beakP(m,cx,y,w,up,dn,fu,fl,hh){var h=hh||OPENH[m];if(h===undefined)retu
  if(m==='surprised'||m==='hungry')w=Math.round(w*.62);else if(m==='yawn')w=Math.round(w*1.12);
  return '<path d="M'+(cx-w+2)+' '+(y+2)+'Q'+cx+' '+(y+2+h)+' '+(cx+w-2)+' '+(y+2)+'Q'+cx+' '+(y+dn)+' '+(cx-w+2)+' '+(y+2)+'Z" fill="'+fl+'" stroke="'+ORANGE_D+'" stroke-width="3" '+SW+'/>'
   +'<path d="M'+(cx-w)+' '+y+'Q'+cx+' '+(y-up)+' '+(cx+w)+' '+y+'Q'+cx+' '+(y+dn)+' '+(cx-w)+' '+y+'Z" fill="'+fu+'" stroke="'+ORANGE_D+'" stroke-width="3" '+SW+'/>';}
-function pandaEyes(m,x1,x2,ey){var o='',K='fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"';[x1,x2].forEach(function(x){var sd=x<60?-1:1;
+function pandaEyes(m,x1,x2,ey){if(m==='okay')m='happy';var o='',K='fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"';[x1,x2].forEach(function(x){var sd=x<60?-1:1;
  if(m==='happy')o+='<circle cx="'+x+'" cy="'+ey+'" r="6.6" fill="#fff"/><circle cx="'+x+'" cy="'+(ey+.4)+'" r="4.2" fill="'+INK+'"/><circle cx="'+(x-1.4)+'" cy="'+(ey-1.8)+'" r="1.8" fill="#fff"/><circle cx="'+(x+1.8)+'" cy="'+(ey+1.8)+'" r=".9" fill="#fff"/>';
  else if(m==='eat')o+='<path d="M'+(x-6)+' '+(ey+2)+'Q'+x+' '+(ey-7)+' '+(x+6)+' '+(ey+2)+'" '+K+' stroke-width="3.6"/>';
  else if(m==='asleep')o+='<path d="M'+(x-6.5)+' '+(ey-1)+'Q'+x+' '+(ey+7)+' '+(x+6.5)+' '+(ey-1)+'" '+K+' stroke-width="3.4"/>';
