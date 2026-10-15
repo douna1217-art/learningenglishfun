@@ -343,7 +343,8 @@
   }
 
   // the map of word islands (360 x 540): the ready islands are bright and open, the rest are grey and locked.
-  // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total}, 2: ...} }. Without stages, island 1 shows known and total.
+  // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total, check}, 2: ...} }. Without stages, island 1 shows known and total.
+  // check: true puts an orange "Quick check" tag next to "Open" (the group with class sw-isl-qc, data-s = the island, is its click target).
   // The group with class sw-isl-go (data-s = the island) is the click target.
   var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 350], 4: [280, 405] };
   function islands(o) {
@@ -361,8 +362,14 @@
             '<text x="0" y="128" text-anchor="middle" font-size="12" fill="#4A5878">' + info.known + " of " + info.total + " words known</text>" +
             '<rect x="' + (n % 2 ? 34 : -96) + '" y="-100" width="62" height="24" rx="12" fill="#6A48E8"/><text x="' + (n % 2 ? 65 : -65) + '" y="-83" text-anchor="middle" font-size="13" fill="#FFFFFF">Open</text>'
           : lock(52, -30) + '<text x="0" y="86" text-anchor="middle" font-size="14" fill="#6B7A99">Stage ' + n + '</text><rect x="-40" y="94" width="80" height="20" rx="10" fill="#FFFFFF"/><text x="0" y="108" text-anchor="middle" font-size="12" fill="#6B7A99">Coming soon</text>';
+      var qx = n % 2 ? 102 : -28,
+        tag = on && info.check
+          ? '<g class="sw-isl-qc" data-s="' + n + '" tabindex="0" role="button" aria-label="Quick check, Stage ' + n + '"><rect x="' + qx + '" y="-100" width="106" height="24" rx="12" fill="#FF8A3D" stroke="#C4501F" stroke-width="2"/>' +
+            '<path transform="translate(' + (qx + 15) + ',-88)" d="M2 -9L-6 2H-1L-3 9L6 -2H1Z" fill="#FFE066" stroke="#B26A00" stroke-width="1.2" stroke-linejoin="round"/>' +
+            '<text x="' + (qx + 62) + '" y="-83" text-anchor="middle" font-size="12" fill="#FFFFFF">Quick check</text></g>'
+          : "";
       if (on)
-        out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + "</g></g>";
+        out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + tag + "</g></g>";
       else out += '<g transform="translate(' + x + "," + y + ')">' + soft(islandArt(n, true)) + label + "</g>";
     });
     return '<svg class="sw-isvg" viewBox="0 0 360 540" role="group" aria-label="Word islands">' +

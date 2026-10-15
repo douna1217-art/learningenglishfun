@@ -627,6 +627,104 @@ else {
   }
   ok(PR.mount(null, "cat", {}) === null && PR.mount(pdoc.createElement("div"), "dragon", {}) === null, "pet rigs: mounting nothing, or an unknown pet, gives null");
 
+  // ---- the quick check on screen: the island card, the questions, the result (a page of its own for each try, with the audio and the timers driven by the test)
+  const SWFILES = ["sightwords-prizes.js", "sightwords-data.js", "sightwords-data2.js", "sightwords-art.js", "sightwords-scenery.js", "pet-art.js", "sightwords-monsters.js", "sightwords.js"];
+  const world = (saved) => {
+    const dom = new JSD.JSDOM("<!doctype html><body></body>", { url: "https://example.test/", runScripts: "outside-only" }), w = dom.window, played = [], timers = [], awarded = [];
+    w.setTimeout = (fn) => { timers.push(fn); return timers.length; };
+    w.clearTimeout = (id) => { if (id > 0 && id <= timers.length) timers[id - 1] = null; };
+    w.Audio = function (src) { played.push(src); this.play = () => ({ catch() {} }); this.pause = () => {}; };
+    if (saved) w.localStorage.setItem("lef_words_v1", JSON.stringify(saved));
+    SWFILES.forEach((f) => w.eval(fs.readFileSync(path.join(SITE, f), "utf8")));
+    w.SightWords.init({ award: (n) => { awarded.push(n); return n; }, toast() {}, burst() {}, pet: () => ({ type: "cat", eq: {}, stars: 0 }) });
+    const flush = () => { for (let i = 0; i < 400 && timers.some((t) => t); i++) { const t = timers.find((x) => x); timers[timers.indexOf(t)] = null; t(); } };
+    const d = w.document, state = () => JSON.parse(w.localStorage.getItem("lef_words_v1") || "{}");
+    const word = () => { const m = /w-([a-z]+)\.mp3/.exec(played[played.length - 1] || ""); return m && m[1]; };
+    const answer = (right) => {
+      const opts = Array.from(d.querySelectorAll(".sw-opt")), good = opts.find((o) => SW.wkey(o.getAttribute("data-w")) === word());
+      (right ? good : opts.find((o) => o !== good)).click(); flush();
+    };
+    return { w, d, flush, state, word, answer, played, awarded, ask: () => { flush(); } };
+  };
+  const toMap = (W) => { W.w.SightWords.open(); W.flush(); W.d.querySelector('.sw-isl-go[data-s="1"]').dispatchEvent(new W.w.MouseEvent("click", { bubbles: true })); W.flush(); return W; };
+  { // the card shows on an island that has not been started; "Not now" removes it and leaves a small link
+    const W = world(); toMap(W);
+    ok(!!W.d.getElementById("swQGo") && /Already know some words/.test(W.d.body.textContent), "quick check: an island that has not been started offers the check");
+    W.d.getElementById("swQNot").click(); W.flush();
+    const sk = W.state().rev;
+    ok(!W.d.getElementById("swQGo") && !!W.d.getElementById("swQLink") && sk.pskip1 > 0, "quick check: \"Not now\" is remembered; the island keeps a small link to the check", sk);
+    // from the link: answer everything right
+    W.d.getElementById("swQLink").click(); W.flush();
+    let n = 0; while (W.d.querySelector(".sw-opt") && n < 80) { W.answer(true); n++; }
+    const st = W.state();
+    ok(n === 36 && Object.keys(st.lessons).length === 18 && Object.keys(st.lessons).every((k) => st.lessons[k].pl === 1), "quick check on screen: all right = 36 questions, every lesson done", [n, Object.keys(st.lessons).length]);
+    ok(/You know this whole island/.test(W.d.body.textContent) && !W.d.getElementById("swQStart") && !!W.d.getElementById("swQMap"), "quick check on screen: knowing everything says so and goes to the map");
+    ok(W.awarded.length === 1 && W.awarded[0] === 2 && st.rev.place1 > 0, "quick check on screen: two stars for taking it, once", W.awarded);
+    W.d.getElementById("swQMap").click(); W.flush();
+    ok(!W.d.getElementById("swQGo") && !W.d.getElementById("swQLink"), "quick check on screen: with nothing left to learn, no card and no link");
+  }
+  { // the home page shows an orange "Quick check" tag next to "Open" on each island that has not been started; it starts the check straight away
+    const W = world(); W.w.SightWords.open(); W.flush();
+    const tags = W.d.querySelectorAll(".sw-isl-qc");
+    ok(tags.length === 2 && /Quick check/.test(tags[0].textContent) && tags[0].getAttribute("role") === "button", "quick check: each open island on the home page has a \"Quick check\" tag", tags.length);
+    tags[1].dispatchEvent(new W.w.MouseEvent("click", { bubbles: true })); W.flush();
+    ok(!!W.d.querySelector(".sw-opt") && /Stage 2/.test(W.d.body.textContent) && !W.d.getElementById("swQGo"), "quick check: the tag starts island 2's check straight away (not the map)");
+    W.d.getElementById("swQuit").click(); W.flush();
+    // once a lesson has been done on island 1 its tag goes, island 2 keeps its tag
+    const W2 = world({ words: {}, lessons: { 1: { t: 1, acc: 100 } }, rev: {} }); W2.w.SightWords.open(); W2.flush();
+    const t2 = W2.d.querySelectorAll(".sw-isl-qc");
+    ok(t2.length === 1 && t2[0].getAttribute("data-s") === "2", "quick check: an island that has been started loses its tag", t2.length);
+    const W3 = world({ words: {}, lessons: {}, rev: { place1: 5, place2: 5 } }); W3.w.SightWords.open(); W3.flush();
+    ok(W3.d.querySelectorAll(".sw-isl-qc").length === 0, "quick check: after the check the tags are gone");
+    // on the map: the first time a card with the bolt, afterwards a bar (not a small link)
+    const W4 = world(); toMap(W4);
+    ok(/sw-bolt/.test(W4.d.querySelector(".sw-qcard").innerHTML), "quick check: the card on the map has the bolt sign");
+    W4.d.getElementById("swQNot").click(); W4.flush();
+    ok(!!W4.d.querySelector("button.sw-qbar") && /Skip the words you already know/.test(W4.d.querySelector(".sw-qbar").textContent), "quick check: after \"Not now\" the island keeps a clear bar for it, not a small link");
+  }
+  { // the beach island has its own check: its own lessons and words, and nothing on island 1 changes
+    const W = world(); W.w.SightWords.open(); W.flush();
+    W.d.querySelector('.sw-isl-go[data-s="2"]').dispatchEvent(new W.w.MouseEvent("click", { bubbles: true })); W.flush();
+    ok(!!W.d.getElementById("swQGo"), "quick check on screen: the beach island offers it too");
+    W.d.getElementById("swQGo").click(); W.flush();
+    let n = 0; const seen = {}; while (W.d.querySelector(".sw-opt") && n < 100) { seen[W.word()] = 1; W.answer(true); n++; }
+    const st = W.state(), ids = Object.keys(st.lessons).map(Number).sort((a, b) => a - b);
+    const stage2 = [].concat(...M.lessons.filter((l) => l.id >= 19).map((l) => l.words)).map((x) => SW.wkey(x));
+    ok(n === 40 && ids.length === 20 && ids[0] === 19 && ids[19] === 38 && st.rev.place2 > 0 && !st.rev.place1, "quick check on screen: island 2 = 40 questions, lessons 19 to 38 done, island 1 untouched", [n, ids.length, ids[0]]);
+    ok(Object.keys(seen).every((k) => stage2.indexOf(k) >= 0), "quick check on screen: island 2 only asks island 2's words");
+  }
+  {
+    const W = world(); toMap(W);
+    W.d.getElementById("swQGo").click(); W.flush();
+    // lessons 1-3 right, then two lessons with slips
+    [true, true, true, true, true, true, false, true, true, false].forEach((r) => W.answer(r)); // 4: wrong first; 5: right then wrong -> stop
+    const st = W.state();
+    ok(!W.d.querySelector(".sw-opt") && Object.keys(st.lessons).join() === "1,2,3" && /You already know 3 lessons/.test(W.d.body.textContent) && /Start at Lesson 4/.test(W.d.body.textContent), "quick check on screen: it stops after two lessons in a row with a miss and says where to start", Object.keys(st.lessons));
+    ok(!!W.d.getElementById("swQStart") && /Start lesson 4/.test(W.d.getElementById("swQStart").textContent), "quick check on screen: a button starts the first lesson that is not known");
+    W.d.getElementById("swQStart").click(); W.flush();
+    ok(/Lesson 4/.test(W.d.body.textContent), "quick check on screen: that button opens the lesson");
+  }
+  {
+    const W = world(); toMap(W);
+    W.d.getElementById("swQGo").click(); W.flush();
+    // "I'm not sure" counts as a miss and shows the answer
+    const first = W.word(); W.d.getElementById("swQNo").click();
+    const msg = W.d.getElementById("swMsg").textContent, okN = W.d.querySelectorAll(".sw-opt.sw-ok").length, badN = W.d.querySelectorAll(".sw-opt.sw-bad").length, okW = W.d.querySelector(".sw-opt.sw-ok");
+    ok(/It was/.test(msg) && okN === 1 && badN === 0 && okW && SW.wkey(okW.getAttribute("data-w")) === first, "quick check on screen: \"I'm not sure\" is fine: it shows the right word, no red, and counts as a miss", [msg, okN, badN]);
+    W.flush();
+    // right on the first lesson's second word? (it was already a miss, so lesson 1 fails)  ... then leave half way after a passed lesson
+    const W2 = world(); toMap(W2);
+    W2.d.getElementById("swQGo").click(); W2.flush();
+    W2.answer(true); W2.answer(true); // lesson 1 passed
+    W2.d.getElementById("swQuit").click(); W2.flush();
+    const st = W2.state();
+    ok(Object.keys(st.lessons).join() === "1" && st.rev.place1 > 0 && !!W2.d.querySelector(".sw-unit"), "quick check on screen: leaving half way keeps the lessons already passed and goes back to the map", Object.keys(st.lessons));
+    const W3 = world(); toMap(W3);
+    W3.d.getElementById("swQGo").click(); W3.flush();
+    W3.d.getElementById("swQuit").click(); W3.flush();
+    ok(Object.keys(W3.state().lessons || {}).length === 0, "quick check on screen: leaving before answering anything changes nothing");
+  }
+
   // ---- the same rig on the adoption page (look, hover, hello hop, still) and in the home scene (faces, walking, sleeping, eating...)
   { // looking to either side
     const bad = [];
@@ -746,6 +844,51 @@ else {
   }
   // a controller leaves the page quietly: a host that is not in the document draws once and does not keep a timer going
   ok(MON.mount(null, 1) === null && MON.mount(rdoc.createElement("div"), 99) === null, "rigs: mounting nothing, or an unknown monster, gives null");
+}
+
+// ---- the quick check before an island (pure parts)
+{
+  const lessons1 = D.lessons;
+  const st0 = SW.cleanState({});
+  const ps = SW.placeInit(lessons1, st0, SW.seeded(5));
+  ok(ps.order.length === 18 && lessons1.every((l) => ps.pick[l.id].length === 2 && ps.pick[l.id].every((w) => l.words.indexOf(w) >= 0)), "quick check: two words are asked from each lesson, from that lesson", ps.order.length);
+  const stDone = SW.cleanState({ lessons: { 1: { t: 1, acc: 100 }, 2: { t: 1, acc: 80 } } });
+  ok(!SW.placeInit(lessons1, stDone, SW.seeded(5)).order.some((id) => id <= 2), "quick check: a lesson that is already finished is not asked again");
+  ok(eq(SW.placeInit(lessons1, st0, SW.seeded(5)).pick, SW.placeInit(lessons1, st0, SW.seeded(5)).pick), "quick check: the same seed asks the same words");
+  // all right
+  const all1 = SW.placeInit(lessons1, st0, SW.seeded(7));
+  let asked = 0;
+  while (!all1.done) { SW.placeAnswer(all1, true); asked++; }
+  ok(asked === 36 && all1.passed.length === 18 && all1.failed.length === 0, "quick check: all right = 36 questions and every lesson passed", [asked, all1.passed.length]);
+  // one slip in a lesson fails it; two failed lessons in a row stop the check, and nothing after them is asked
+  const mix = SW.placeInit(lessons1, st0, SW.seeded(7));
+  [true, true, true, true, true, true, true, false, false, true].forEach((r) => SW.placeAnswer(mix, r)); // lessons 1, 2, 3 pass; 4: right then wrong = fail; 5: wrong then right = fail -> stop
+  ok(eq(mix.passed, [1, 2, 3]) && eq(mix.failed, [4, 5]) && mix.done, "quick check: both right passes a lesson, a slip fails it", [mix.passed, mix.failed]);
+  const stopT = SW.placeInit(lessons1, st0, SW.seeded(7));
+  [true, true, false, false, false, false, true, true].forEach((r) => SW.placeAnswer(stopT, r));
+  ok(stopT.done && eq(stopT.passed, [1]) && eq(stopT.failed, [2, 3]) && SW.placeWord(stopT) === null, "quick check: two failed lessons in a row stop it (the rest is not asked)", [stopT.passed, stopT.failed, stopT.done]);
+  const gap = SW.placeInit(lessons1, st0, SW.seeded(7));
+  [false, false, true, true, false, false, true, true].forEach((r) => SW.placeAnswer(gap, r));
+  ok(!gap.done && eq(gap.failed, [1, 3]) && eq(gap.passed, [2, 4]), "quick check: a lesson passed between two failed ones keeps it going", [gap.passed, gap.failed, gap.done]);
+  // what it changes
+  const stA = SW.cleanState({ words: { the: { box: 5, n: 9, ok: 9, due: "2099-01-01" } } });
+  const run1 = SW.placeInit(lessons1, stA, SW.seeded(7));
+  [true, true, true, true, false, true, false, false].forEach((r) => SW.placeAnswer(run1, r)); // lessons 1 and 2 pass; 3: one slip (fail), 4: two wrong (fail) -> stop
+  const nowT = 1700000000000;
+  SW.placeApply(stA, lessons1, run1, 1, "2026-10-15", nowT);
+  const l1 = lessons1[0], l3 = lessons1[2];
+  ok(run1.passed.length === 2 && stA.lessons[1] && stA.lessons[1].pl === 1 && stA.lessons[1].acc === 0 && stA.lessons[2] && !stA.lessons[3] && !stA.lessons[4], "quick check: passed lessons are marked done (as skipped), the others are left alone", [run1.passed, Object.keys(stA.lessons)]);
+  const dueOf = (w) => stA.words[SW.wkey(w)].due, untested1 = l1.words.filter((w) => run1.pick[1].indexOf(w) < 0);
+  ok(l1.words.every((w) => stA.words[SW.wkey(w)].box >= 3) && lessons1[1].words.every((w) => stA.words[SW.wkey(w)].box >= 3), "quick check: every word of a passed lesson is known (box 3)");
+  ok(untested1.length > 0 && untested1.every((w) => dueOf(w) < dueOf(run1.pick[1][0])), "quick check: the words that were not asked come back for review sooner than the ones that were answered right", [untested1.map(dueOf), dueOf(run1.pick[1][0])]);
+  ok(stA.words.the.box === 5 && stA.words.the.due === "2099-01-01", "quick check: it never lowers a word that is already further on");
+  const missed = run1.pick[3].filter((w) => run1.good.indexOf(SW.wkey(w)) < 0).concat(run1.pick[4].filter((w) => run1.good.indexOf(SW.wkey(w)) < 0));
+  ok(missed.every((w) => !stA.words[SW.wkey(w)]), "quick check: a word answered wrong is left as it was (not met)");
+  ok(run1.pick[3].filter((w) => run1.good.indexOf(SW.wkey(w)) >= 0).every((w) => stA.words[SW.wkey(w)].box >= 3), "quick check: a word answered right in a lesson that failed still counts as known");
+  ok(stA.rev.place1 === nowT && !stA.rev[SW.chestKey(1, 1)], "quick check: it remembers it was taken, and no treasure chest is opened by it");
+  ok(SW.lessonStars(stA.lessons[1]) === 0 && SW.nextLesson(lessons1, stA) === 3, "quick check: a skipped lesson has no stars, and the next lesson to learn is the first one not passed", [SW.lessonStars(stA.lessons[1]), SW.nextLesson(lessons1, stA)]);
+  // the result is plain data that the sync can merge
+  ok(JSON.stringify(stA).indexOf("undefined") < 0 && stA.words.the.box === 5, "quick check: the saved result is plain data");
 }
 
 console.log(`${passed} passed, ${failed} failed`);

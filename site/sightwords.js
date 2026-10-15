@@ -331,7 +331,7 @@
 
   // 1 to 3 stars for a finished lesson from how many words were right on the first try (0 when it is not done)
   function lessonStars(rec) {
-    if (!rec) return 0;
+    if (!rec || rec.pl) return 0; // (a lesson skipped by the quick check has no stars: they are earned by playing it)
     var a = rec.acc || 0;
     return a >= 90 ? 3 : a >= 70 ? 2 : 1;
   }
@@ -425,6 +425,81 @@
     return c[Math.floor(rnd() * c.length)];
   }
 
+  /* the quick check before an island: the child hears a word and taps it. Two words from each lesson, in order: both right = the child knows that lesson;
+     two lessons in a row with a miss = stop there (the rest is learnt the normal way). It only ever adds: nothing goes down and nothing is taken away. */
+  var PLACE_ASK = 2,
+    PLACE_STOP = 2;
+  function placeKey(sid) {
+    return "place" + sid;
+  }
+  function placeSkipKey(sid) {
+    return "pskip" + sid;
+  }
+  // the lessons still to be tested (one that is already finished is not asked again), with the words that will be asked
+  function placeInit(lessons, state, rnd) {
+    var order = [],
+      pick = {};
+    lessons.forEach(function (l) {
+      if (!state.lessons[l.id]) {
+        order.push(l.id);
+        pick[l.id] = shuffle(l.words, rnd).slice(0, PLACE_ASK);
+      }
+    });
+    return { order: order, pick: pick, i: 0, k: 0, ok: 0, misses: 0, passed: [], failed: [], good: [], done: order.length === 0 };
+  }
+  function placeWord(ps) {
+    return ps.done ? null : ps.pick[ps.order[ps.i]][ps.k];
+  }
+  function placeAnswer(ps, right) {
+    if (ps.done) return ps;
+    var id = ps.order[ps.i],
+      w = ps.pick[id][ps.k];
+    if (right) {
+      ps.ok++;
+      ps.good.push(wkey(w));
+    }
+    ps.k++;
+    if (ps.k >= ps.pick[id].length) {
+      if (ps.ok === ps.pick[id].length) {
+        ps.passed.push(id);
+        ps.misses = 0;
+      } else {
+        ps.failed.push(id);
+        ps.misses++;
+      }
+      ps.i++;
+      ps.k = 0;
+      ps.ok = 0;
+      if (ps.i >= ps.order.length || ps.misses >= PLACE_STOP) ps.done = true;
+    }
+    return ps;
+  }
+  // what the check changes: a passed lesson counts as done (no stars and no chest: those are still earned by playing); every word answered right is known
+  // (box 3, back for review in 4 days), and so are the other words of a passed lesson, but they come back sooner (2 days) to be checked for real. Nothing goes down.
+  function placeApply(state, lessons, ps, sid, today, now) {
+    function lift(key, dueBox) {
+      var rec = isObj(state.words[key]) ? state.words[key] : { box: 0, n: 0, ok: 0 };
+      if ((rec.box || 0) < 3) {
+        rec.box = 3;
+        rec.due = addDays(INT[dueBox], today ? new Date(today + "T12:00:00") : null);
+      }
+      state.words[key] = rec;
+    }
+    ps.good.forEach(function (k) {
+      lift(k, 3);
+    });
+    ps.passed.forEach(function (id) {
+      var l = findLesson(lessons, id);
+      if (!l) return;
+      if (!state.lessons[id]) state.lessons[id] = { t: now, acc: 0, pl: 1 };
+      l.words.forEach(function (w) {
+        lift(wkey(w), 2);
+      });
+    });
+    state.rev[placeKey(sid)] = now;
+    return state;
+  }
+
   // the lessons of the later stages go after the ones of stage 1 (ids keep counting: 19-38 are stage 2, units 6-10) and that stage becomes ready
   function mergeData(d1, d2) {
     if (!d1 || !d2) return d1;
@@ -461,6 +536,12 @@
     feelFor: feelFor,
     trailPath: trailPath,
     lessonStars: lessonStars,
+    placeKey: placeKey,
+    placeSkipKey: placeSkipKey,
+    placeInit: placeInit,
+    placeWord: placeWord,
+    placeAnswer: placeAnswer,
+    placeApply: placeApply,
     findLesson: findLesson,
     unitProgress: unitProgress,
     currentUnit: currentUnit,
@@ -1127,6 +1208,22 @@
       "#swOverlay .sw-acts .sw-gt{padding:8px 6px 10px}" +
       "#swOverlay .sw-acts .sw-gi{width:52%;margin-bottom:4px}" +
       "#swOverlay .sw-fl{margin-top:6px}" +
+      "#swOverlay .sw-qcard{display:flex;align-items:center;background:#FFF8EA;border:4px solid #FFB020;border-radius:26px;box-shadow:0 6px 0 #E0A800;padding:12px 16px;margin:14px 0}" +
+      "#swOverlay .sw-bolt{display:inline-block;width:22px;height:28px;vertical-align:-6px;margin-right:6px;flex:none}" +
+      "#swOverlay .sw-qgo{background:#FF8A3D;box-shadow:0 6px 0 #C4501F;animation:swqpulse 1.6s ease-in-out infinite}#swOverlay .sw-qgo .sw-bolt{width:18px;height:22px;vertical-align:-4px}" +
+      "@keyframes swqpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}" +
+      "#swOverlay .sw-qbar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;width:100%;background:#FFF8EA;border:3px solid #FFB020;border-radius:20px;box-shadow:0 4px 0 #E0A800;padding:9px 14px;margin:12px 0;font-size:16px;color:#7A4A00}" +
+      "#swOverlay .sw-qbar b{font-family:'Fredoka',sans-serif;font-size:18px;margin-right:10px}#swOverlay .sw-qbar span{font-weight:700;font-size:14px;color:#9A6A1C}" +
+      "#swOverlay .sw-qcpet{width:84px;flex:none;margin-right:14px}#swOverlay .sw-qcpet svg{display:block;width:100%;height:auto;overflow:visible}" +
+      "#swOverlay .sw-qct{flex:1;min-width:0;text-align:left}#swOverlay .sw-qct b{display:block;font-family:'Fredoka',sans-serif;font-size:22px}" +
+      "#swOverlay .sw-qct span{display:block;font-weight:700;font-size:14px;color:#4A5878;margin:2px 0 6px}" +
+      "#swOverlay .sw-qcb{display:flex;align-items:center;flex-wrap:wrap}#swOverlay .sw-qcb .sw-go{font-size:17px;padding:10px 20px;margin:0 6px 0 0}" +
+      "#swOverlay .sw-qlr{text-align:center;margin:6px 0}" +
+      "#swOverlay .sw-qtrack{display:flex;flex-wrap:wrap;justify-content:center;margin:6px 0 0}" +
+      "#swOverlay .sw-qd{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;margin:3px;font-style:normal;font-weight:800;font-size:12px;background:#E3EAF5;color:#8A97AD;border:2px solid #D2DCEB}" +
+      "#swOverlay .sw-qd.sw-qp{background:#35B779;color:#fff;border-color:#1F8A55}#swOverlay .sw-qd.sw-qf{background:#EDEFF4;color:#B2BACB;border-color:#E1E5EE}" +
+      "#swOverlay .sw-qd.sw-qn{background:#6A48E8;color:#fff;border-color:#4A2FB8;transform:scale(1.2)}" +
+      "#swOverlay .sw-qpet{width:84px;margin:0 auto 2px}#swOverlay .sw-qpet svg{display:block;width:100%;height:auto;overflow:visible}#swOverlay .sw-qpet.sw-qbig{width:130px}" +
       "#swOverlay .sw-linkbtn{display:inline-block;font-weight:800;font-size:15px;color:#4A2FB8;padding:8px 12px;text-decoration:underline}" +
       "@media(min-width:720px){#swOverlay .sw-acts{grid-template-columns:repeat(3,minmax(0,1fr))}#swOverlay .sw-acts .sw-a1{grid-column:auto}}" +
       "#swOverlay .sw-ins{display:flex;align-items:center;margin-top:5px;font-weight:800;font-size:12px;line-height:1.2;color:#4A2FB8}" +
@@ -1181,7 +1278,7 @@
       "#swOverlay .sw-x{position:absolute;right:10px;top:6px;width:34px;height:34px;border-radius:50%;background:#F1F5FA;font-size:24px;line-height:1;font-weight:800;color:#6B7A99}" +
       "#swOverlay .sw-wg:last-child{margin-bottom:210px}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
-      "@media(prefers-reduced-motion:reduce){#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
+      "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
   }
   var SPEAKER = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>';
@@ -1271,6 +1368,7 @@
     { bg: "#EFE9FF", edge: "#8B6BE8", deep: "#5B3FC4", ink: "#4A2FB8" },
   ];
   var CHECK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var BOLT = '<svg class="sw-bolt" viewBox="-8 -10 16 20" aria-hidden="true"><path d="M2 -9L-6 2H-1L-3 9L6 -2H1Z" fill="#FFC93C" stroke="#B26A00" stroke-width="1.4" stroke-linejoin="round"/></svg>';
   var PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>';
   var CHEVRON = '<svg class="sw-uc" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   function scenery(name, arg) {
@@ -1291,6 +1389,7 @@
     }).join("");
   }
   function lessonStarsHtml(rec) {
+    if (rec && rec.pl) return "";
     var n = lessonStars(rec),
       h = "";
     for (var i = 0; i < 3; i++) h += '<span style="color:' + (i < n ? "#FFC93C" : "#D5E0EE") + '">' + scenery("star") + "</span>";
@@ -1310,10 +1409,17 @@
     D.stages.forEach(function (st) {
       if (st.ready) {
         var ws = stageWordsOf(st.id);
-        out[st.id] = { title: st.title, known: knownCount(s, ws), total: ws.length };
+        out[st.id] = { title: st.title, known: knownCount(s, ws), total: ws.length, check: checkOffered(s, st.id) };
       }
     });
     return out;
+  }
+  // the quick check is on offer for an island with lessons left where no lesson has been done yet and the check has not been taken
+  function checkOffered(s, sid) {
+    var ls = lessonsOf(sid);
+    return !s.rev[placeKey(sid)] && !ls.some(function (l) {
+      return s.lessons[l.id];
+    }) && ls.length > 0;
   }
   // how many of the five monsters have been beaten
   function monsDone(s) {
@@ -1422,6 +1528,19 @@
       showBattle();
     };
     document.getElementById("swWall").onclick = showWall;
+    Array.prototype.forEach.call(box.querySelectorAll(".sw-isl-qc"), function (q) {
+      var n = +q.getAttribute("data-s") || 1;
+      q.onclick = function (e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        startPlacement(n);
+      };
+      q.onkeydown = function (e) {
+        if (e.keyCode === 13 || e.keyCode === 32) {
+          if (e.stopPropagation) e.stopPropagation();
+          startPlacement(n);
+        }
+      };
+    });
     Array.prototype.forEach.call(box.querySelectorAll(".sw-isl-go"), function (isl) {
       var n = +isl.getAttribute("data-s") || 1;
       isl.onclick = function () {
@@ -1465,6 +1584,14 @@
     var h = '<div class="sw-home"><div class="sw-top"><button class="sw-back" id="swClose">← Back</button></div>' +
       '<div class="sw-banner"><div class="sw-herobg">' + scenery("banner", sid) + '</div><div class="sw-bncard"><h1>Stage ' + st.id + " · " + esc(st.title) + '</h1><div class="sw-sub">' + esc(st.source) + " · " + words.length + " words · Grades " + esc(st.grades) + "</div></div>" +
       '<div class="sw-bnpet">' + pet("happy") + '</div><div class="sw-bnbar"><div class="sw-bar"><i style="width:' + Math.round((100 * known) / words.length) + '%"></i></div><b>' + known + " / " + words.length + "</b></div></div>";
+    // the quick check: offered on an island the child has not started (and not taken or turned down), and as a small link while there are lessons left
+    var qleft = placeInit(lessonsOf(sid), s, seeded(1)).order.length,
+      qdone = lessonsOf(sid).filter(function (l) {
+        return s.lessons[l.id];
+      }).length;
+    if (qleft && !qdone && !s.rev[placeKey(sid)] && !s.rev[placeSkipKey(sid)])
+      h += '<div class="sw-qcard"><div class="sw-qcpet">' + pet("excited") + '</div><div class="sw-qct"><b>' + BOLT + 'Already know some words?</b><span>Take a quick check and start in the right place. 小测一下，从合适的地方开始</span><div class="sw-qcb"><button class="sw-go sw-qgo" id="swQGo">' + BOLT + 'Start the check</button><button class="sw-linkbtn" id="swQNot">Not now</button></div></div></div>';
+    else if (qleft) h += '<button class="sw-qbar" id="swQLink">' + BOLT + "<b>Quick check · 小测</b><span>Skip the words you already know</span></button>";
     units.forEach(function (u, ui) {
       var up = unitProgress(u, D.lessons, s),
         th = scenery("unitTheme", { s: sid, i: ui }) || { name: "", bg: "#F4FAFF", dash: "#C9D7E8" },
@@ -1504,6 +1631,20 @@
     });
     box.innerHTML = h + "</div>";
     document.getElementById("swClose").onclick = showHome;
+    var qgo = document.getElementById("swQGo") || document.getElementById("swQLink"),
+      qno = document.getElementById("swQNot");
+    if (qgo)
+      qgo.onclick = function () {
+        startPlacement(sid);
+      };
+    if (qno)
+      qno.onclick = function () {
+        var s2 = readState();
+        s2.rev[placeSkipKey(sid)] = Date.now();
+        writeState(s2);
+        trk("sw_place_skip", stageTag(sid), "", "game");
+        showMap(true);
+      };
     Array.prototype.forEach.call(box.querySelectorAll(".sw-uh"), function (b) {
       b.onclick = function () {
         var id = +b.getAttribute("data-u"),
@@ -1523,6 +1664,156 @@
       };
     });
     ov.scrollTop = y;
+  }
+  /* ---- the quick check before an island: hear a word, tap it ("I'm not sure" is fine and counts as a miss, so nobody has to guess) ---- */
+  function startPlacement(sid) {
+    back = showMap;
+    mapStage = sid;
+    var s = readState(),
+      pool = stageWordsOf(sid),
+      rnd = seeded(sid * 104729 + (Date.now() % 9973)),
+      ps = placeInit(lessonsOf(sid), s, rnd),
+      timer = null,
+      locked = false,
+      finished = false;
+    if (ps.done) {
+      showMap(false, sid);
+      return;
+    }
+    gameTag = "game";
+    var me = { mode: "place", sid: sid, ps: ps, done: false, steps: [] };
+    run = me;
+    // leaving half way keeps what was shown so far (it only ever adds)
+    me.stop = function () {
+      clearTimeout(timer);
+      if (!finished && (ps.passed.length || ps.good.length)) {
+        var s2 = readState();
+        placeApply(s2, D.lessons, ps, sid, dayStr(), Date.now());
+        writeState(s2);
+        refreshButton();
+      }
+    };
+    trk("sw_place_start", stageTag(sid), ps.order.length + " lessons", "game");
+    function trail() {
+      var h = "";
+      ps.order.forEach(function (id, n) {
+        var st = ps.passed.indexOf(id) >= 0 ? " sw-qp" : ps.failed.indexOf(id) >= 0 ? " sw-qf" : n === ps.i ? " sw-qn" : "";
+        h += '<i class="sw-qd' + st + '">' + (st === " sw-qp" ? "✓" : id) + "</i>";
+      });
+      return '<div class="sw-qtrack">' + h + "</div>";
+    }
+    function qReact(good) {
+      var e = document.getElementById("swQPet");
+      if (!e) return;
+      e.innerHTML = petArt(good ? "excited" : "surprised");
+      setTimeout(function () {
+        if (document.getElementById("swQPet") === e) e.innerHTML = petArt("happy");
+      }, 1000);
+    }
+    function ask() {
+      if (run !== me || me.done) return;
+      var w = placeWord(ps);
+      if (!w) {
+        finishCheck();
+        return;
+      }
+      locked = false;
+      var opts = shuffle([w].concat(distractors(w, pool, rnd, [], 3)), rnd);
+      box.innerHTML = gTop("Quick check · Stage " + sid) + '<div class="sw-card sw-qc"><div class="sw-kind" style="background:#2A66C9">Quick check</div><div class="sw-qpet" id="swQPet">' + petArt("happy") + "</div>" +
+        trail() + '<div class="sw-sent">Which word do you hear?</div><button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-opts" id="swOpts">' +
+        opts.map(function (o) {
+          return '<button class="sw-opt" data-w="' + esc(o) + '">' + esc(o) + "</button>";
+        }).join("") + '</div><button class="sw-linkbtn" id="swQNo">I’m not sure</button><div class="sw-msg" id="swMsg"></div></div>';
+      bindQuit();
+      document.getElementById("swHear").onclick = function () {
+        play("w", w);
+      };
+      function pick(b) {
+        if (locked) return;
+        locked = true;
+        var right = !!b && wkey(b.getAttribute("data-w")) === wkey(w),
+          all = box.querySelectorAll(".sw-opt");
+        placeAnswer(ps, right);
+        if (b) b.classList.add(right ? "sw-ok" : "sw-bad");
+        if (!right)
+          Array.prototype.forEach.call(all, function (o) {
+            if (wkey(o.getAttribute("data-w")) === wkey(w)) o.classList.add("sw-ok");
+          });
+        sfx(right ? "cheer" : "poke");
+        qReact(right);
+        var m = document.getElementById("swMsg");
+        if (m) m.textContent = right ? "Yes!" : b ? "It was “" + w + "”." : "That’s okay. It was “" + w + "”.";
+        timer = setTimeout(ask, right ? 750 : 1500);
+      }
+      Array.prototype.forEach.call(box.querySelectorAll(".sw-opt"), function (b) {
+        b.onclick = function () {
+          pick(b);
+        };
+      });
+      document.getElementById("swQNo").onclick = function () {
+        pick(null);
+      };
+      timer = setTimeout(function () {
+        play("w", w);
+      }, 200);
+    }
+    function finishCheck() {
+      finished = true;
+      me.done = true;
+      var s2 = readState(),
+        had = !!s2.rev[placeKey(sid)];
+      placeApply(s2, D.lessons, ps, sid, dayStr(), Date.now());
+      writeState(s2);
+      var stars = had ? 0 : 2,
+        got = 0;
+      if (stars && hooks.award) {
+        try {
+          got = hooks.award(stars);
+          if (hooks.toast) hooks.toast([[2, "Took the quick check", "完成入岛小测"]], got, got < stars);
+        } catch (e) {}
+      }
+      trk("sw_place_done", stageTag(sid), ps.passed.length + " of " + ps.order.length + " lessons", "game");
+      refreshButton();
+      var lessons = lessonsOf(sid),
+        next = nextLesson(lessons, s2),
+        n = ps.passed.length,
+        title,
+        line,
+        known = [];
+      ps.passed.forEach(function (id) {
+        known = known.concat(lessonOf(id).words);
+      });
+      if (!next) {
+        title = "You know this whole island!";
+        line = "Play the unit challenges to open the treasure chests.";
+      } else if (n) {
+        title = "You already know " + plural(n, "lesson") + "!";
+        line = "Start at Lesson " + next + ". The words you know will come back in your reviews.";
+      } else {
+        title = "Let’s start at the beginning!";
+        line = "You will learn the words one step at a time. Lesson " + next + " is first.";
+      }
+      sfx(n ? "big" : "cheer");
+      if (n)
+        try {
+          if (hooks.burst) hooks.burst(root.innerWidth / 2, 180);
+        } catch (e) {}
+      box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button></div><div class="sw-card sw-fin"><div class="sw-kind" style="background:#2A66C9">Quick check</div>' +
+        '<div class="sw-qpet sw-qbig">' + petArt(n ? "excited" : "happy") + '</div><div class="sw-big" style="font-size:40px">' + esc(title) + '</div><div class="sw-sent" style="font-size:19px">' + esc(line) + "</div>" +
+        (known.length ? '<div class="sw-wchs">' + chipsHtml(known.slice(0, 12)) + (known.length > 12 ? '<span class="sw-wch" style="background:#F1F5FA;color:#4A5878">+' + (known.length - 12) + "</span>" : "") + "</div>" : "") +
+        (next ? '<button class="sw-go" id="swQStart">Start lesson ' + next + '</button> ' : "") +
+        '<button class="sw-say sw-alt" id="swQMap">' + (next ? "See the map" : "Go to the map") + "</button>" + (got ? '<div class="sw-msg">+' + got + " ★</div>" : "") + "</div>";
+      document.getElementById("swQuit").onclick = goBack;
+      document.getElementById("swQMap").onclick = function () {
+        showMap(false, sid);
+      };
+      var go = document.getElementById("swQStart");
+      if (go)
+        go.onclick = function () {
+          startLesson(next);
+        };
+    }
+    ask();
   }
   // the unit's boss: the balloon game with 8 of the unit's words
   function unitChallenge(id) {
