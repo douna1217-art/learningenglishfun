@@ -334,23 +334,23 @@
   }
 
   // the map of word islands (360 x 540): the ready islands are bright and open, the rest are grey and locked.
-  // o = { known, total, title, ready: {1: true}, stages: [{id, title}] }. The group with class sw-isl-go (data-s = the island) is the click target.
+  // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total}, 2: ...} }. Without stages, island 1 shows known and total.
+  // The group with class sw-isl-go (data-s = the island) is the click target.
   var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 350], 4: [280, 405] };
   function islands(o) {
-    var known = o.known || 0,
-      total = o.total || 1,
-      pct = Math.max(0, Math.min(1, known / total)),
-      ready = o.ready || { 1: true },
+    var ready = o.ready || { 1: true },
       out = "";
     [1, 2, 3, 4].forEach(function (n) {
-      var x = POS[n][0],
+      var info = o.stages && o.stages[n] ? o.stages[n] : n === 1 ? { title: o.title || "First words", known: o.known || 0, total: o.total || 1 } : { title: "", known: 0, total: 1 },
+        pct = Math.max(0, Math.min(1, info.known / (info.total || 1))),
+        x = POS[n][0],
         y = POS[n][1],
         on = !!ready[n],
         label = on
-          ? '<text x="0" y="90" text-anchor="middle" font-size="14" fill="#1E2A4A">Stage ' + n + " · " + esc(n === 1 ? o.title || "First words" : "") + "</text>" +
+          ? '<text x="' + (n % 2 ? 0 : -24) + '" y="90" text-anchor="middle" font-size="14" fill="#1E2A4A">Stage ' + n + " · " + esc(info.title) + "</text>" +
             '<rect x="-65" y="100" width="130" height="10" rx="5" fill="#FFFFFF"/><rect x="-65" y="100" width="' + Math.round(130 * pct) + '" height="10" rx="5" fill="#35B779"/>' +
-            '<text x="0" y="128" text-anchor="middle" font-size="12" fill="#4A5878">' + known + " of " + total + " words known</text>" +
-            '<rect x="34" y="-100" width="62" height="24" rx="12" fill="#6A48E8"/><text x="65" y="-83" text-anchor="middle" font-size="13" fill="#FFFFFF">Open</text>'
+            '<text x="0" y="128" text-anchor="middle" font-size="12" fill="#4A5878">' + info.known + " of " + info.total + " words known</text>" +
+            '<rect x="' + (n % 2 ? 34 : -96) + '" y="-100" width="62" height="24" rx="12" fill="#6A48E8"/><text x="' + (n % 2 ? 65 : -65) + '" y="-83" text-anchor="middle" font-size="13" fill="#FFFFFF">Open</text>'
           : lock(52, -30) + '<text x="0" y="86" text-anchor="middle" font-size="14" fill="#6B7A99">Stage ' + n + '</text><rect x="-40" y="94" width="80" height="20" rx="10" fill="#FFFFFF"/><text x="0" y="108" text-anchor="middle" font-size="12" fill="#6B7A99">Coming soon</text>';
       if (on)
         out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + "</g></g>";

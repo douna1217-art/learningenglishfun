@@ -9,12 +9,14 @@ h1{font-size:22px;margin:14px 16px 4px}p.n{margin:0 16px 10px;color:#4A5878;font
 .c svg{width:100%;height:auto;display:block;border-radius:12px}
 .c b{display:block;margin:6px 4px 0;font-size:15px}.c span{display:block;margin:0 4px 2px;font-size:13px;color:#4A5878;font-weight:700}
 </style></head><body>
-<h1>Sight-word pictures: Stage 1 (92)</h1><p class="n" id="n"></p>
+<h1>Sight-word pictures: Stage 1 (92) and Stage 2 (87)</h1><p class="n" id="n"></p>
 <div class="grid" id="g"></div>
-<script src="pet-art.js"></script><script src="sightwords-data.js"></script><script src="sightwords-art.js"></script>
+<script src="pet-art.js"></script><script src="sightwords-data.js"></script><script src="sightwords-data2.js"></script><script src="sightwords-art.js"></script>
 <script>
-var D=SW_DATA,g=document.getElementById('g'),h='',miss=[];
-D.lessons.forEach(function(l){l.words.forEach(function(w){var k=SWArt.has(w);if(!k){miss.push(w);return;}
- h+='<div class="c" id="w-'+w.toLowerCase()+'">'+SWArt.scene(w)+'<b>'+l.id+'. '+w+'</b><span>'+D.words[w].s+'</span></div>';});});
-g.innerHTML=h;document.getElementById('n').textContent=(92-miss.length)+' of 92 pictures'+(miss.length?'; missing: '+miss.join(', '):'');
+var g=document.getElementById('g'),h='',miss=[],total=0;
+[[SW_DATA,'1'],[SW_DATA2,'2']].forEach(function(p){var D=p[0];
+ h+='<h2 style="grid-column:1/-1;margin:10px 0 0;font-size:18px">Stage '+p[1]+'</h2>';
+ D.lessons.forEach(function(l){l.words.forEach(function(w){total++;var k=SWArt.has(w);if(!k){miss.push(w);return;}
+ h+='<div class="c" id="w-'+w.toLowerCase().replace(/[^a-z]/g,'')+'">'+SWArt.scene(w)+'<b>'+l.id+'. '+w+'</b><span>'+D.words[w].s+'</span></div>';});});});
+g.innerHTML=h;document.getElementById('n').textContent=(total-miss.length)+' of '+total+' pictures'+(miss.length?'; missing: '+miss.join(', '):'');
 </script></body></html>

@@ -1,5 +1,5 @@
-/* Sight words, stage 1 (sample): 18 short lessons for the Dolch pre-primer and primer words, then spaced review.
-   Needs sightwords-data.js (the words, one sentence per word, lessons) and the clips in sightwords/audio/.
+/* Sight words: stage 1 (18 short lessons for the Dolch pre-primer and primer words) and stage 2 (20 lessons for grade 1 and 2), then spaced review.
+   Needs sightwords-data.js (stage 1) and sightwords-data2.js (stage 2): the words, one sentence per word, lessons; and the clips in sightwords/audio/.
    A lesson = meet 5 words, then practise them (listen and tap, find it in the sentence, build the sentence).
    What the child knows is kept in lef_words_v1 (synced like the pet, see state-sync.js):
      words    {word: {box 1-5, due "YYYY-MM-DD", n tries, ok right on the first try}}
@@ -119,6 +119,15 @@
     }
     return a;
   }
+  // words that sound the same: in a game where the child hears a word and taps it, they must never be offered together
+  var SAME_SOUND = [["to", "too", "two"], ["for", "four"], ["no", "know"], ["by", "buy"], ["there", "their"], ["write", "right"], ["were", "where"]];
+  function sameSound(a, b) {
+    var x = wkey(a),
+      y = wkey(b);
+    if (x === y) return true;
+    for (var i = 0; i < SAME_SOUND.length; i++) if (SAME_SOUND[i].indexOf(x) >= 0 && SAME_SOUND[i].indexOf(y) >= 0) return true;
+    return false;
+  }
   // how alike two words look: same first letter, same last letter, similar length
   function likeness(a, b) {
     var x = wkey(a),
@@ -134,7 +143,7 @@
   function distractors(target, pool, rnd, prefer, count) {
     count = count || 2;
     var c = pool.filter(function (w) {
-      return wkey(w) !== wkey(target);
+      return !sameSound(w, target);
     });
     function score(w) {
       return likeness(target, w) + (prefer && prefer.indexOf(w) >= 0 ? 2 : 0);
@@ -185,7 +194,7 @@
   // split a sentence into tappable pieces; words are pieces with a key, the rest (punctuation) is not tappable
   function pieces(sentence) {
     var out = [],
-      re = /[A-Za-z]+|[^A-Za-z]+/g,
+      re = /[A-Za-z]+(?:['\u2019][A-Za-z]+)*|[^A-Za-z]+/g,
       m;
     while ((m = re.exec(sentence))) {
       out.push(/[A-Za-z]/.test(m[0]) ? { t: m[0], k: wkey(m[0]) } : { t: m[0] });
@@ -366,7 +375,30 @@
     return first;
   }
 
+  // the lessons of the later stages go after the ones of stage 1 (ids keep counting: 19-38 are stage 2, units 6-10) and that stage becomes ready
+  function mergeData(d1, d2) {
+    if (!d1 || !d2) return d1;
+    var out = {}, k;
+    for (k in d1) out[k] = d1[k];
+    out.lessons = d1.lessons.concat(d2.lessons || []);
+    out.units = d1.units.concat(d2.units || []);
+    out.words = {};
+    for (k in d1.words) out.words[k] = d1.words[k];
+    for (k in d2.words || {}) out.words[k] = d2.words[k];
+    out.nouns = (d1.nouns || []).concat((d2.nouns || []).filter(function (n) {
+      return (d1.nouns || []).indexOf(n) < 0;
+    }));
+    out.stages = (d1.stages || []).map(function (st) {
+      var o = {};
+      for (var j in st) o[j] = st[j];
+      if (o.id === d2.stage) o.ready = true;
+      return o;
+    });
+    return out;
+  }
+
   var core = {
+    mergeData: mergeData,
     chestKey: chestKey,
     claimChest: claimChest,
     feelFor: feelFor,
@@ -403,6 +435,7 @@
     seeded: seeded,
     shuffle: shuffle,
     likeness: likeness,
+    sameSound: sameSound,
     distractors: distractors,
     pieces: pieces,
   };
@@ -410,7 +443,7 @@
   if (!root || !root.document) return;
 
   /* ------------------------------------------------------------------ browser part */
-  var D = root.SW_DATA,
+  var D = mergeData(root.SW_DATA, root.SW_DATA2),
     ls = null;
   try {
     ls = root.localStorage;
@@ -467,15 +500,52 @@
     }
     return conf(a, b);
   }
+  var winfo = null;
   function wordInfo(w) {
-    return D.words[w] || D.words[w.toLowerCase()] || null;
+    if (!winfo) {
+      winfo = {};
+      Object.keys(D.words).forEach(function (k) {
+        winfo[wkey(k)] = D.words[k];
+      });
+    }
+    return D.words[w] || winfo[wkey(w)] || null;
   }
+  // stages: the lessons, units and words of one stage (a lesson without a stage is stage 1)
+  function stageOfLesson(id) {
+    var l = D.lessons[id - 1];
+    return (l && l.stage) || 1;
+  }
+  function lessonsOf(sid) {
+    return D.lessons.filter(function (l) {
+      return (l.stage || 1) === sid;
+    });
+  }
+  function unitsOf(sid) {
+    return D.units.filter(function (u) {
+      return (u.stage || 1) === sid;
+    });
+  }
+  function stageWordsOf(sid) {
+    var out = [];
+    lessonsOf(sid).forEach(function (l) {
+      out = out.concat(l.words);
+    });
+    return out;
+  }
+  function stageInfo(sid) {
+    for (var i = 0; i < D.stages.length; i++) if (D.stages[i].id === sid) return D.stages[i];
+    return D.stages[0];
+  }
+  var mapStage = 1; // the stage whose map is open
 
   // Anonymous usage numbers, written into the same table as the book opens (see stats.js): the name of the event, what it is about
   // (book_id column), a short detail (book_title) and a kind (category). Nothing here says who the child is.
   var gameTag = "game"; // "challenge" while a unit challenge (the chest) is being played
-  function stageTag() {
-    return "s" + (D.stages && D.stages[0] ? D.stages[0].id : 1);
+  function stageTag(sid) {
+    return "s" + (sid || 1);
+  }
+  function lessonTag(id) {
+    return stageTag(stageOfLesson(id)) + "-l" + id;
   }
   function trk(name, id, detail, kind) {
     try {
@@ -694,6 +764,7 @@
       "#swOverlay .sw-cl1{animation:swdrift 16s ease-in-out infinite alternate}" +
       "#swOverlay .sw-cl2{animation:swdrift 21s ease-in-out infinite alternate-reverse}" +
       "#swOverlay .sw-sect{font-family:'Fredoka',sans-serif;font-weight:700;font-size:21px;margin:6px 0 12px}" +
+      "#swOverlay .sw-wst{font-size:18px;margin:18px 2px 8px}" +
       "#swOverlay .sw-games{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:26px}" +
       "#swOverlay .sw-gt{display:block;text-align:center;border-radius:24px;padding:10px 6px 12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;line-height:1.15;color:#1E2A4A;transition:transform .15s}" +
       "#swOverlay .sw-gt:hover{transform:translateY(-3px)}" +
@@ -962,7 +1033,7 @@
     stopSound();
     // leaving a lesson or a review before its end: say at which step
     if (run && !run.done && (run.mode === "lesson" || run.mode === "review") && run.steps && run.i < run.steps.length) {
-      trk(run.mode === "lesson" ? "sw_lesson_quit" : "sw_review_quit", run.mode === "lesson" ? stageTag() + "-l" + run.id : "review", "step " + (run.i + 1) + "/" + run.steps.length, run.mode);
+      trk(run.mode === "lesson" ? "sw_lesson_quit" : "sw_review_quit", run.mode === "lesson" ? lessonTag(run.id) : "review", "step " + (run.i + 1) + "/" + run.steps.length, run.mode);
       run.done = true;
     }
     back();
@@ -983,7 +1054,7 @@
       (on ? '<path d="M20 22l2.7 5.5 6 .9-4.4 4.2 1 6L20 35.7l-5.3 2.9 1-6-4.4-4.2 6-.9z" fill="#fff"/>' : "") + "</svg>";
   }
   function stageWords(stage) {
-    return stage.id === 1 ? allWords() : [];
+    return stageWordsOf(stage.id);
   }
 
   /* ---- the first page: today's meadow, games, word islands and the word album ---- */
@@ -1028,6 +1099,17 @@
     });
     return r;
   }
+  // what each ready island shows under it: its name and how many of its words are known
+  function islandInfo(s) {
+    var out = {};
+    D.stages.forEach(function (st) {
+      if (st.ready) {
+        var ws = stageWordsOf(st.id);
+        out[st.id] = { title: st.title, known: knownCount(s, ws), total: ws.length };
+      }
+    });
+    return out;
+  }
   function showHome() {
     var s = readState(),
       words = allWords(),
@@ -1061,7 +1143,7 @@
       btn = "Start lesson " + plan.lesson;
     } else {
       say1 = "Wow! You finished";
-      say2 = "Stage 1!";
+      say2 = readyIslands()[2] ? "every stage!" : "Stage 1!";
       pill = "Today · All done";
       btn = "Play a game";
     }
@@ -1093,7 +1175,7 @@
       '<button class="sw-gt sw-g1" id="swMem"><span class="sw-gi">' + scenery("game", "memory") + "</span>Memory match</button>" +
       '<button class="sw-gt sw-g2" id="swBal"><span class="sw-gi">' + scenery("game", "balloon") + "</span>Balloon pop</button>" +
       '<button class="sw-gt sw-g3" id="swFeed"><span class="sw-gi">' + scenery("game", "feed") + "</span>" + esc(feedLabel()) + "</button></div>" +
-      '<div class="sw-sect">Word islands</div><div class="sw-isl-wrap">' + scenery("islands", { known: known, total: words.length, title: D.stages[0].title, ready: readyIslands() }) + '<div class="sw-ipet">' + pet("happy") + "</div></div>" +
+      '<div class="sw-sect">Word islands</div><div class="sw-isl-wrap">' + scenery("islands", { known: known, total: words.length, title: D.stages[0].title, ready: readyIslands(), stages: islandInfo(s) }) + '<div class="sw-ipet">' + pet("happy") + "</div></div>" +
       '<div class="sw-sect">My words</div><button class="sw-album" id="swWall"><span class="sw-bk">' + scenery("book") + '</span><span class="sw-at"><b>My word album</b><span>' + known + " known · " + learning + " learning · " + (words.length - seen) + ' to meet</span></span><span class="sw-stk">' + stickers + "</span></button></div>";
     box.innerHTML = h;
     document.getElementById("swClose").onclick = closeOverlay;
@@ -1118,15 +1200,15 @@
       startFeed(gameWords(s, 6, true));
     };
     document.getElementById("swWall").onclick = showWall;
-    var isl = box.querySelector(".sw-isl-go");
-    if (isl) {
+    Array.prototype.forEach.call(box.querySelectorAll(".sw-isl-go"), function (isl) {
+      var n = +isl.getAttribute("data-s") || 1;
       isl.onclick = function () {
-        showMap();
+        showMap(false, n);
       };
       isl.onkeydown = function (e) {
-        if (e.keyCode === 13 || e.keyCode === 32) showMap();
+        if (e.keyCode === 13 || e.keyCode === 32) showMap(false, n);
       };
-    }
+    });
     ov.scrollTop = 0;
   }
 
@@ -1140,26 +1222,28 @@
   function prizeThumb(id) {
     return root.SWPrizes ? root.SWPrizes.thumb(id) : "";
   }
-  function showMap(keep) {
-    if (keep !== true) trk("sw_view", "stage", stageTag(), "screen");
+  function showMap(keep, sid) {
+    if (sid) mapStage = sid;
+    sid = mapStage;
+    if (keep !== true) trk("sw_view", "stage", stageTag(sid), "screen");
     var y = keep === true ? ov.scrollTop : 0,
       s = readState(),
-      words = allWords(),
+      words = stageWordsOf(sid),
+      units = unitsOf(sid),
       known = knownCount(s, words),
-      next = nextLesson(D.lessons, s),
-      cu = currentUnit(D.units, D.lessons, s),
-      st = D.stages[0],
+      next = nextLesson(lessonsOf(sid), s),
+      cu = currentUnit(units, D.lessons, s),
+      st = stageInfo(sid),
       p = hooks.pet ? hooks.pet() : null,
       type = p && root.PETS && root.PETS[p.type] ? p.type : "cat",
-      eq = p && p.eq ? p.eq : {},
-      sid = st.id;
+      eq = p && p.eq ? p.eq : {};
     function pet(mood) {
       return typeof root.petSvg === "function" ? root.petSvg(type, mood, eq, "full", "width:100%;height:auto;overflow:visible") : "";
     }
     var h = '<div class="sw-home"><div class="sw-top"><button class="sw-back" id="swClose">← Back</button></div>' +
       '<div class="sw-banner"><div class="sw-herobg">' + scenery("banner", sid) + '</div><div class="sw-bncard"><h1>Stage ' + st.id + " · " + esc(st.title) + '</h1><div class="sw-sub">' + esc(st.source) + " · " + words.length + " words · Grades " + esc(st.grades) + "</div></div>" +
       '<div class="sw-bnpet">' + pet("happy") + '</div><div class="sw-bnbar"><div class="sw-bar"><i style="width:' + Math.round((100 * known) / words.length) + '%"></i></div><b>' + known + " / " + words.length + "</b></div></div>";
-    D.units.forEach(function (u, ui) {
+    units.forEach(function (u, ui) {
       var up = unitProgress(u, D.lessons, s),
         th = scenery("unitTheme", { s: sid, i: ui }) || { name: "", bg: "#F4FAFF", dash: "#C9D7E8" },
         open = openU[u.id] === undefined ? u.id === cu.id : openU[u.id],
@@ -1226,7 +1310,7 @@
     });
     if (!u) return;
     back = showMap;
-    chestRun = { s: D.stages[0].id, u: id };
+    chestRun = { s: u.stage || 1, u: id };
     startBalloons(pickWords([], unitProgress(u, D.lessons, readState()).words, 8, seeded(Date.now() % 100003)));
   }
 
@@ -1247,11 +1331,16 @@
       today = dayStr(),
       n = { known: 0, learning: 0, nw: 0 },
       h = '<div class="sw-top"><button class="sw-back" id="swClose">← Back</button></div>' +
-        '<div class="sw-ttl"><span class="sw-bkh">' + scenery("book") + '</span><div><h1>My words</h1><div class="sw-sub">Stage 1 · tap a word to hear it</div></div></div><div class="sw-legend"><span class="sw-wd sw-w-known">I know it</span><span class="sw-wd sw-w-learning">Learning</span><span class="sw-wd sw-w-new">Not met yet</span><span class="sw-wd sw-w-known sw-wdue">Ready for review</span></div>' +
+        '<div class="sw-ttl"><span class="sw-bkh">' + scenery("book") + '</span><div><h1>My words</h1><div class="sw-sub">Tap a word to hear it</div></div></div><div class="sw-legend"><span class="sw-wd sw-w-known">I know it</span><span class="sw-wd sw-w-learning">Learning</span><span class="sw-wd sw-w-new">Not met yet</span><span class="sw-wd sw-w-known sw-wdue">Ready for review</span></div>' +
         '<input class="sw-find" id="swFind" type="text" placeholder="Find a word" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Find a word">';
+    var wallStage = 0;
     D.units.forEach(function (u) {
       var up = unitProgress(u, D.lessons, s);
       var pal = PAL[(u.id - 1) % PAL.length];
+      if ((u.stage || 1) !== wallStage) {
+        wallStage = u.stage || 1;
+        h += '<div class="sw-sect sw-wst">Stage ' + wallStage + " · " + esc(stageInfo(wallStage).title) + "</div>";
+      }
       h += '<div class="sw-wg"><div class="sw-wh" style="background:' + pal.bg + ";color:" + pal.ink + '">Unit ' + u.id + " · " + up.known + " / " + up.words.length + ' known</div><div class="sw-wc">';
       up.words.forEach(function (w) {
         var r = s.words[wkey(w)],
@@ -1327,7 +1416,7 @@
       if (x.id <= id) met = met.concat(x.words);
     });
     run = { mode: "lesson", id: id, words: l.words, pool: met, steps: [], i: 0, first: {}, total: 0, right: 0, rnd: seeded(id * 7919 + Date.now() % 997) };
-    trk("sw_lesson_start", stageTag() + "-l" + id, "", "lesson");
+    trk("sw_lesson_start", lessonTag(id), "", "lesson");
     // meet each word, then practise: listen and tap, find it in the sentence, and build two sentences
     l.words.forEach(function (w) {
       run.steps.push({ t: "meet", w: w });
@@ -1905,7 +1994,7 @@
       k;
     if (first) {
       writeState(s);
-      trk("sw_chest", stageTag() + "-u" + cr.u, "", "chest");
+      trk("sw_chest", stageTag(cr.s) + "-u" + cr.u, "", "chest");
       try {
         if (hooks.gift) hooks.gift(CHEST_STARS);
         if (hooks.toast) hooks.toast([[CHEST_STARS, "Treasure chest", "宝箱奖励"]], CHEST_STARS, false);
@@ -2264,7 +2353,7 @@
     }).length;
     var pct = accuracy(run.right, run.total);
     run.done = true;
-    trk(run.mode === "lesson" ? "sw_lesson_done" : "sw_review_done", run.mode === "lesson" ? stageTag() + "-l" + run.id : "review", pct + "%", run.mode);
+    trk(run.mode === "lesson" ? "sw_lesson_done" : "sw_review_done", run.mode === "lesson" ? lessonTag(run.id) : "review", pct + "%", run.mode);
     keys.forEach(function (k) {
       var ok = run.first[k];
       s.words[k] = applyResult(s.words[k], ok, today);
@@ -2299,9 +2388,9 @@
       if (hooks.burst) hooks.burst(root.innerWidth / 2, 160);
     } catch (e) {}
     var lesson = run.mode === "lesson" ? lessonOf(run.id) : null,
-      known = knownCount(s, allWords()),
+      known = knownCount(s, run.mode === "lesson" ? stageWordsOf(stageOfLesson(run.id)) : allWords()),
       unitNow = unit && !unitWas && unitProgress(unit, D.lessons, s).complete,
-      nextL = nextLesson(D.lessons, s);
+      nextL = (run.mode === "lesson" && nextLesson(lessonsOf(stageOfLesson(run.id)), s)) || nextLesson(D.lessons, s); // the next lesson of the same stage first
     var glad = pct >= 80,
       earned = run.mode === "lesson" ? lessonStars({ acc: pct }) : 0,
       bigStars = "",
@@ -2315,9 +2404,9 @@
       '<div class="sw-fhead"><div class="sw-stage sw-fst">' + (glad ? party() : "") + '<div class="sw-pet sw-pets ' + (glad ? "sw-dance" : "sw-hop") + '">' + petArt(glad ? "excited" : "happy") + "</div></div>" +
       '<div class="sw-ftxt">' + (bigStars ? '<div class="sw-bstars">' + bigStars + "</div>" : "") + '<div class="sw-big sw-fbig">' + title + '</div><div class="sw-sent sw-fsent">' + run.right + " of " + run.total + " words right on the first try</div></div></div>" +
       '<div class="sw-words">' + keys.map(function (k) {
-        return '<span class="' + (run.first[k] ? "" : "sw-miss") + '">' + esc(k) + "</span>";
+        return '<span class="' + (run.first[k] ? "" : "sw-miss") + '">' + esc(shown(k)) + "</span>";
       }).join("") + "</div>" +
-      '<div class="sw-msg sw-good">Words I know: ' + known + " / " + allWords().length + "</div>" +
+      '<div class="sw-msg sw-good">Words I know: ' + known + " / " + (run.mode === "lesson" ? stageWordsOf(stageOfLesson(run.id)) : allWords()).length + "</div>" +
       (misses.length ? '<div class="sw-msg">The red ones will come back for review tomorrow.</div>' : "") +
       (unitNow ? '<div class="sw-unitdone">' + medal(true) + "<div><b>Unit " + unit.id + " complete!</b> Open the chest.</div></div>" : "") +
       '<div class="sw-acts">' + (unitNow ? '<button class="sw-go sw-a1 sw-gold" id="swUnit">Unit challenge · Balloon pop</button>' : "") + (nextL ? '<button class="sw-go sw-a1" id="swNextL">Next lesson →</button>' : "") +

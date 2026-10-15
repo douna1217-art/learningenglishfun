@@ -26,8 +26,19 @@ TRIM = ("silenceremove=start_periods=1:start_threshold=-48dB:start_silence=0.05,
 
 
 def load():
-    s = open(os.path.join(SITE, "sightwords-data.js"), encoding="utf-8").read()
-    return json.loads(s[s.index("{"): s.rindex("}") + 1])
+    """the words of every stage (sightwords-data.js is stage 1, sightwords-data2.js stage 2)"""
+    data = None
+    for fn in ("sightwords-data.js", "sightwords-data2.js"):
+        path = os.path.join(SITE, fn)
+        if not os.path.exists(path):
+            continue
+        s = open(path, encoding="utf-8").read()
+        d = json.loads(s[s.index("{"): s.rindex("}") + 1])
+        if data is None:
+            data = d
+        else:
+            data["words"].update(d["words"])
+    return data
 
 
 def key(w):

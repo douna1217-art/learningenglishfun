@@ -110,11 +110,13 @@
     // the sight words (see sightwords.js): what is counted comes from lef_words_v1, see swMetrics()
     { id: "sw10", tier: "bronze", glyph: "aa", name: "First Words", cn: "第一批单词", metric: "words", need: 10, en: "Know 10 sight words", zh: "认识 10 个高频词" },
     { id: "sw50", tier: "silver", glyph: "aa", name: "Word Collector", cn: "单词收集家", metric: "words", need: 50, en: "Know 50 sight words", zh: "认识 50 个高频词" },
-    { id: "sw92", tier: "gold", glyph: "aa", name: "Word Master", cn: "单词大师", metric: "words", need: 92, en: "Know all 92 words of Stage 1", zh: "认识第一阶段的全部 92 个词" },
+    { id: "sw92", tier: "gold", glyph: "aa", name: "Word Master", cn: "单词大师", metric: "words1", need: 92, en: "Know all 92 words of Stage 1", zh: "认识第一阶段的全部 92 个词" },
+    { id: "sw179", tier: "diamond", glyph: "aa", name: "Word Wizard", cn: "单词魔法师", metric: "words", need: 179, en: "Know all 179 words of Stage 1 and 2", zh: "认识第一、二阶段的全部 179 个词" },
     { id: "swstar3", tier: "silver", glyph: "star", name: "Lesson Star", cn: "课程之星", metric: "stars3", need: 3, en: "Get 3 stars on 3 word lessons", zh: "3 节单词课拿到 3 颗星" },
     { id: "swrev5", tier: "silver", glyph: "check", name: "Memory Keeper", cn: "记忆守护者", metric: "swrev", need: 5, en: "Review your words on 5 different days", zh: "在 5 个不同的日子复习单词" },
     { id: "chest1", tier: "bronze", glyph: "chest", name: "Treasure Hunter", cn: "寻宝小能手", metric: "chests", need: 1, en: "Open a treasure chest", zh: "打开 1 个宝箱" },
-    { id: "chest5", tier: "diamond", glyph: "mountain", name: "Mountain Master", cn: "高山大师", metric: "chests", need: 5, en: "Open all 5 chests on the mountain island", zh: "打开山岛上的全部 5 个宝箱" },
+    { id: "chest5", tier: "diamond", glyph: "mountain", name: "Mountain Master", cn: "高山大师", metric: "chests1", need: 5, en: "Open all 5 chests on the mountain island", zh: "打开山岛上的全部 5 个宝箱" },
+    { id: "chest10", tier: "diamond", glyph: "beach", name: "Beach Master", cn: "海滩大师", metric: "chests2", need: 5, en: "Open all 5 chests on the beach island", zh: "打开沙滩岛上的全部 5 个宝箱" },
   ];
   var DEF_BY = {};
   DEFS.forEach(function (d) {
@@ -136,17 +138,24 @@
 
   // What the sight-word badges count, from lef_words_v1 ({words:{key:{box}}, lessons:{id:{acc}}, rev:{...}}):
   // words = known words (box 3 or more), stars3 = lessons with 3 stars (90% right on the first try), swrev = days a review earned its star,
-  // chests = treasure chests opened (rev keys "chest<island>-<unit>")
-  function swMetrics(sw) {
+  // chests = treasure chests opened (rev keys "chest<island>-<unit>"), chests1 and chests2 = those of the mountain and the beach island;
+  // words1 = known words of stage 1 (stage1 = the lower-case keys of its words; without it every known word counts)
+  function swMetrics(sw, stage1) {
     sw = isObj(sw) ? sw : {};
     var words = 0,
+      words1 = 0,
       stars3 = 0,
       swrev = 0,
-      chests = 0;
+      chests = 0,
+      chests1 = 0,
+      chests2 = 0;
     if (isObj(sw.words))
       Object.keys(sw.words).forEach(function (k) {
         var r = sw.words[k];
-        if (isObj(r) && (r.box || 0) >= 3) words++;
+        if (isObj(r) && (r.box || 0) >= 3) {
+          words++;
+          if (!stage1 || stage1.indexOf(k) >= 0) words1++;
+        }
       });
     if (isObj(sw.lessons))
       Object.keys(sw.lessons).forEach(function (k) {
@@ -156,9 +165,13 @@
     if (isObj(sw.rev))
       Object.keys(sw.rev).forEach(function (k) {
         if (/^\d{4}-\d\d-\d\d$/.test(k) && sw.rev[k]) swrev++;
-        else if (/^chest\d+-\d+$/.test(k) && sw.rev[k]) chests++;
+        else if (/^chest\d+-\d+$/.test(k) && sw.rev[k]) {
+          chests++;
+          if (/^chest1-/.test(k)) chests1++;
+          if (/^chest2-/.test(k)) chests2++;
+        }
       });
-    return { words: words, stars3: stars3, swrev: swrev, chests: chests };
+    return { words: words, words1: words1, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2 };
   }
 
   var core = {
@@ -250,7 +263,14 @@
     try {
       owned = cfg.ownedCount ? cfg.ownedCount() : 0;
     } catch (e) {}
-    var sm = swMetrics(readJ("lef_words_v1", null));
+    var st1 = null;
+    try {
+      if (root.SW_DATA && root.SW_DATA.words)
+        st1 = Object.keys(root.SW_DATA.words).map(function (w) {
+          return w.toLowerCase().replace(/[^a-z]/g, "");
+        });
+    } catch (e) {}
+    var sm = swMetrics(readJ("lef_words_v1", null), st1);
     return {
       books: fin,
       subjects: subjects,
@@ -260,9 +280,12 @@
       owned: owned,
       reviews: S.reviews,
       words: sm.words,
+      words1: sm.words1,
       stars3: sm.stars3,
       swrev: sm.swrev,
       chests: sm.chests,
+      chests1: sm.chests1,
+      chests2: sm.chests2,
     };
   }
 
@@ -298,6 +321,8 @@
       return '<path d="M-13 -1H13V10Q13 12 11 12H-11Q-13 12 -13 10Z" fill="' + F("#C98B5A") + '"' + sw + ' stroke-width="2.2"/><path d="M-13 -1V-5Q-13 -13 0 -13Q13 -13 13 -5V-1Z" fill="' + F("#E0A06A") + '"' + sw + ' stroke-width="2.2"/><rect x="-2.2" y="-13" width="4.4" height="25" fill="' + F("#FFC93C") + '"' + sw + ' stroke-width="1.4"/><rect x="-3.6" y="-4" width="7.2" height="6.4" rx="1.6" fill="' + F("#FFE066") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "mountain")
       return '<path d="M-16 11L-5 -8L3 3L8 -12L16 11Z" fill="' + F("#8FA3C7") + '"' + sw + ' stroke-width="2.2"/><path d="M8 -12L4.5 -5L8 -7.5L11.5 -4.5Z" fill="' + F("#FFFFFF") + '"' + sw + ' stroke-width="1.2"/><path d="M-5 -8L-8 -2L-5 -4L-2 -1.6Z" fill="' + F("#FFFFFF") + '"' + sw + ' stroke-width="1.2"/>';
+    if (g === "beach")
+      return '<path d="M-15 11Q-9 6 -3 11T9 11T16 9V13H-15Z" fill="' + F("#7DD3FC") + '"' + sw + ' stroke-width="2"/><path d="M-14 3Q0 -18 14 3Z" fill="' + F("#FF8FB1") + '"' + sw + ' stroke-width="2.2"/><path d="M0 -11V11" stroke="' + S + '" stroke-width="2.4" stroke-linecap="round"/><circle cx="11" cy="-10" r="3.6" fill="' + F("#FFD54A") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "check") return '<circle r="13" fill="' + F("#7ED957") + '"' + sw + ' stroke-width="2.4"/><path d="M-6 0L-1.5 5L7 -5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';
     return "";
   }

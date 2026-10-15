@@ -82,7 +82,8 @@ NOUNS = set(("cat cats dog ball hat bed bag fish bird frog duck ducks sun mom da
 
 
 def tokens(s):
-    return re.findall(r"[A-Za-z]+", s)
+    # a word may hold an apostrophe inside it ("don't"); quotes around a sentence are not part of a word
+    return re.findall(r"[A-Za-z]+(?:['\u2019][A-Za-z]+)*", s)
 
 
 def check():
@@ -185,11 +186,11 @@ def corpus_stats(words):
     return books, freq, inbooks, cover
 
 
-def best_books(books, lesson_words):
-    """Early books (Kindergarten, Grade 1) that use the most of this lesson's words, per 100 words of text."""
+def best_books(books, lesson_words, grades=("Kindergarten", "Grade 1")):
+    """Early books (Kindergarten, Grade 1 by default) that use the most of this lesson's words, per 100 words of text."""
     best = []
     for b in books:
-        if b["grade"] not in ("Kindergarten", "Grade 1") or b["n"] < 60:
+        if b["grade"] not in grades or b["n"] < 60:
             continue
         have = [w for w in lesson_words if b["counts"].get(w)]
         if len(have) < 3:
