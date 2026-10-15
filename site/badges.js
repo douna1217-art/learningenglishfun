@@ -116,6 +116,8 @@
     { id: "swrev5", tier: "silver", glyph: "check", name: "Memory Keeper", cn: "记忆守护者", metric: "swrev", need: 5, en: "Review your words on 5 different days", zh: "在 5 个不同的日子复习单词" },
     { id: "chest1", tier: "bronze", glyph: "chest", name: "Treasure Hunter", cn: "寻宝小能手", metric: "chests", need: 1, en: "Open a treasure chest", zh: "打开 1 个宝箱" },
     { id: "chest5", tier: "diamond", glyph: "mountain", name: "Mountain Master", cn: "高山大师", metric: "chests1", need: 5, en: "Open all 5 chests on the mountain island", zh: "打开山岛上的全部 5 个宝箱" },
+    { id: "mon1", tier: "bronze", glyph: "monster", name: "Monster Hunter", cn: "怪兽猎人", metric: "monsters", need: 1, en: "Beat a monster", zh: "打败 1 只怪兽" },
+    { id: "mon5", tier: "gold", glyph: "monster", name: "Monster Master", cn: "怪兽大师", metric: "monsters", need: 5, en: "Beat all 5 monsters", zh: "打败全部 5 只怪兽" },
     { id: "chest10", tier: "diamond", glyph: "beach", name: "Beach Master", cn: "海滩大师", metric: "chests2", need: 5, en: "Open all 5 chests on the beach island", zh: "打开沙滩岛上的全部 5 个宝箱" },
   ];
   var DEF_BY = {};
@@ -148,7 +150,8 @@
       swrev = 0,
       chests = 0,
       chests1 = 0,
-      chests2 = 0;
+      chests2 = 0,
+      monsters = 0;
     if (isObj(sw.words))
       Object.keys(sw.words).forEach(function (k) {
         var r = sw.words[k];
@@ -165,13 +168,14 @@
     if (isObj(sw.rev))
       Object.keys(sw.rev).forEach(function (k) {
         if (/^\d{4}-\d\d-\d\d$/.test(k) && sw.rev[k]) swrev++;
+        else if (/^mon[1-9]\d*$/.test(k) && sw.rev[k]) monsters++;
         else if (/^chest\d+-\d+$/.test(k) && sw.rev[k]) {
           chests++;
           if (/^chest1-/.test(k)) chests1++;
           if (/^chest2-/.test(k)) chests2++;
         }
       });
-    return { words: words, words1: words1, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2 };
+    return { words: words, words1: words1, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2, monsters: monsters };
   }
 
   var core = {
@@ -286,6 +290,7 @@
       chests: sm.chests,
       chests1: sm.chests1,
       chests2: sm.chests2,
+      monsters: sm.monsters,
     };
   }
 
@@ -321,6 +326,8 @@
       return '<path d="M-13 -1H13V10Q13 12 11 12H-11Q-13 12 -13 10Z" fill="' + F("#C98B5A") + '"' + sw + ' stroke-width="2.2"/><path d="M-13 -1V-5Q-13 -13 0 -13Q13 -13 13 -5V-1Z" fill="' + F("#E0A06A") + '"' + sw + ' stroke-width="2.2"/><rect x="-2.2" y="-13" width="4.4" height="25" fill="' + F("#FFC93C") + '"' + sw + ' stroke-width="1.4"/><rect x="-3.6" y="-4" width="7.2" height="6.4" rx="1.6" fill="' + F("#FFE066") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "mountain")
       return '<path d="M-16 11L-5 -8L3 3L8 -12L16 11Z" fill="' + F("#8FA3C7") + '"' + sw + ' stroke-width="2.2"/><path d="M8 -12L4.5 -5L8 -7.5L11.5 -4.5Z" fill="' + F("#FFFFFF") + '"' + sw + ' stroke-width="1.2"/><path d="M-5 -8L-8 -2L-5 -4L-2 -1.6Z" fill="' + F("#FFFFFF") + '"' + sw + ' stroke-width="1.2"/>';
+    if (g === "monster")
+      return '<path d="M-13 12Q-17 -2 -8 -9Q0 -14 8 -9Q17 -2 13 12Z" fill="' + F("#7BD65A") + '"' + sw + ' stroke-width="2.2"/><circle cx="-4.5" cy="-1" r="3.4" fill="#fff"/><circle cx="4.5" cy="-1" r="3.4" fill="#fff"/><circle cx="-4" cy="-0.5" r="1.7" fill="' + F("#3A2A5E") + '"/><circle cx="5" cy="-0.5" r="1.7" fill="' + F("#3A2A5E") + '"/><path d="M-4 6Q0 9.5 4 6" fill="none" stroke="' + F("#3A2A5E") + '" stroke-width="1.8" stroke-linecap="round"/><path d="M0 -13Q-3 -19 2 -19" fill="none"' + sw + ' stroke-width="1.8"/>';
     if (g === "beach")
       return '<path d="M-15 11Q-9 6 -3 11T9 11T16 9V13H-15Z" fill="' + F("#7DD3FC") + '"' + sw + ' stroke-width="2"/><path d="M-14 3Q0 -18 14 3Z" fill="' + F("#FF8FB1") + '"' + sw + ' stroke-width="2.2"/><path d="M0 -11V11" stroke="' + S + '" stroke-width="2.4" stroke-linecap="round"/><circle cx="11" cy="-10" r="3.6" fill="' + F("#FFD54A") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "check") return '<circle r="13" fill="' + F("#7ED957") + '"' + sw + ' stroke-width="2.4"/><path d="M-6 0L-1.5 5L7 -5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';

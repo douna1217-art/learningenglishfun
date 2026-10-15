@@ -509,13 +509,13 @@ var SHELF={},ALL=[];
 (function(){Object.keys(ID2NAME).forEach(function(id){var books=BOOKS[id]||[],gg=gradeGroupsFor(books),sj=ID2NAME[id];SHELF[sj]={};
  gg.gradeKeys.forEach(function(g){SHELF[sj][g]={count:gg.groups[g].length,books:gg.groups[g].map(function(b){var o={slug:b.slug,title:b.title,subtitle:b.subtitle||'',grade:b.grade||g,band:b.readingBand||'',minutes:b.minutes||'',subject:sj,id:id,cover:b.cover,file:b.file};ALL.push(o);return o;})};});});})();
 </script>
-<script src="pet-art.js?v=20261014a"></script>
+<script src="pet-art.js?v=20261015a"></script><script src="pet-rig.js?v=20261015a"></script>
 <script src="pet-fest.js?v=20261012a"></script>
-<script src="pet-sound.js?v=20261014b"></script>
-<script src="badges.js?v=20261014b"></script><script src="sightwords-prizes.js?v=20261014b"></script>
+<script src="pet-sound.js?v=20261014c"></script>
+<script src="badges.js?v=20261014c"></script><script src="sightwords-prizes.js?v=20261014c"></script>
 <script src="sightwords-data.js?v=20261014d"></script><script src="sightwords-data2.js?v=20261014a"></script>
-<script src="sightwords-art.js?v=20261014d"></script><script src="sightwords-scenery.js?v=20261014f"></script>
-<script src="sightwords.js?v=20261014u"></script>
+<script src="sightwords-art.js?v=20261014d"></script><script src="sightwords-scenery.js?v=20261014g"></script><script src="sightwords-monsters.js?v=20261014r1"></script>
+<script src="sightwords.js?v=20261015a"></script>
 <script src="pet-life.js?v=20261013a"></script>
 <script>
 /* the pet page needs pet-art.js and pet-life.js; if either did not load, show no pet and never save over the child's saved one */
@@ -744,7 +744,7 @@ function clothCard(id){var it=ITEMS[id],o=OUTFITS[id];
 function rewardCard(id){var it=ITEMS[id],un=Badges.unlocked(id),on=st.eq[it.slot]===id;
  return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">Badge: '+Badges.badgeName(it.badge)+'</span>',on,!un);}
 function prizeCard(id){var it=ITEMS[id],P=SWPrizes.get(id),un=SWPrizes.unlocked(id),on=st.eq[it.slot]===id;
- return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">Chest: '+P.world+'</span>',on,!un);}
+ return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">'+(P.label||'Chest: '+P.world)+'</span>',on,!un);}
 function festDecoCard(id){var d=FEST.deco(id),own=have(id),on=(st.home.fest||[]).indexOf(id)>=0;
  return shopCard('data-fdeco="'+id+'"','<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(d.icon)+'</svg>',d.name,d.cn,priceTag(own,on,d.price,'In the home','Owned · tap to place'),on,!own&&st.stars<d.price);}
 function renderShop(){
@@ -762,7 +762,7 @@ function renderShop(){
   ['hat','face','neck'].forEach(function(sl){h+='<h4 class="shsec">'+SLOTLABEL[sl]+'</h4>'+ACCS.filter(function(id){return ITEMS[id].slot===sl;}).map(function(id){var it=ITEMS[id],own=have(id),on=st.eq[sl]===id,dis=!own&&st.stars<it.price;
     return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,priceTag(own,on,it.price,'Wearing'),on,dis);}).join('');});
   if(window.Badges&&Badges.rewardIds().length)h+='<h4 class="shsec">Badge rewards 徽章奖励</h4>'+Badges.rewardIds().map(rewardCard).join('');
-  if(window.SWPrizes&&SWPrizes.ids().length)h+='<h4 class="shsec">Chest prizes 宝箱奖励</h4>'+SWPrizes.ids().map(prizeCard).join('');
+  if(window.SWPrizes&&SWPrizes.ids().length)h+='<h4 class="shsec">Chest and monster prizes 宝箱和怪兽奖励</h4>'+SWPrizes.ids().map(prizeCard).join('');
   if(col.outfits.length+col.hats.length)h+='<h4 class="shsec">Festival collection 节日收藏</h4>'+col.outfits.concat(col.hats).map(clothCard).join('');
  }else if(st.tab==='toys'){nt.textContent=noCn('Toys sit in the home. Tap a toy in the picture to play! 点一下画面里的玩具，宠物会跳起来。');
   h=TOYS.map(function(id){var it=ITEMS[id],own=have(id),on=st.toys.indexOf(id)>=0,dis=!own&&st.stars<it.price;

@@ -375,53 +375,52 @@
     return first;
   }
 
-  /* ---- the spelling and speed games for older children (pure) ---- */
+  /* ---- the spelling and monster games for older children (pure) ---- */
   // the letters of a word as typed: lower case, a curly apostrophe made straight
   function spellForm(w) {
     return String(w).toLowerCase().replace(/\u2019/g, "'");
   }
-  // words a spelling game can use: at least two letters ("I" and "a" cannot be spelled)
+  // words the spelling game can use: at least two letters ("I" and "a" cannot be spelled)
   function spellable(words) {
     return words.filter(function (w) {
       return wkey(w).length >= 2;
     });
   }
-  // Wordle-style marks for one try: "ok" = the right letter in the right place, "near" = the letter is in the word but elsewhere
-  // (as many times as it is in the word), "no" = it is not in the word. Both words must have the same length.
-  function spellCheck(guess, answer) {
-    var g = spellForm(guess).split(""),
-      a = spellForm(answer).split(""),
-      out = [],
-      left = {},
+  // the letters on the bubbles of one word: its own letters plus a few that are not in it, shuffled (a word with two e's has two e bubbles)
+  function bubbleSet(word, rnd) {
+    var ans = spellForm(word).replace(/[^a-z]/g, ""),
+      n = ans.length,
+      extra = n <= 3 ? 2 : n <= 5 ? 3 : 4,
+      abc = "abcdefghijklmnopqrstuvwxyz",
+      pool = [],
+      out = ans.split(""),
       i;
-    for (i = 0; i < a.length; i++) out.push("no");
-    for (i = 0; i < a.length; i++) {
-      if (g[i] === a[i]) out[i] = "ok";
-      else left[a[i]] = (left[a[i]] || 0) + 1;
-    }
-    for (i = 0; i < a.length; i++)
-      if (out[i] !== "ok" && g[i] && left[g[i]] > 0) {
-        out[i] = "near";
-        left[g[i]]--;
-      }
-    return out;
+    for (i = 0; i < abc.length; i++) if (ans.indexOf(abc.charAt(i)) < 0) pool.push(abc.charAt(i));
+    pool = shuffle(pool, rnd);
+    for (i = 0; i < extra && i < pool.length; i++) out.push(pool[i]);
+    return shuffle(out, rnd);
   }
-  // speed game: a right answer is worth 10 points times the multiplier of the streak (this answer included)
-  function rushMult(streak) {
-    return streak >= 15 ? 4 : streak >= 10 ? 3 : streak >= 5 ? 2 : 1;
+  // Monster battle: a right answer is a hit worth 1 hit point (one cannonball); 3 in a row make a stream of cannonballs (2), 5 in a row the mega laser (3)
+  function battleDmg(streak) {
+    return streak >= 5 ? 3 : streak >= 3 ? 2 : 1;
   }
-  function rushPoints(streak) {
-    return 10 * rushMult(streak);
+  // the beaten monsters are in rev["mon<id>"]; a monster opens when the one before it has been beaten (the first is always open)
+  function monKey(id) {
+    return "mon" + id;
   }
-  // the next word of the speed game: sometimes one that is due for review, never one of the last few (when there are enough words)
-  function rushPick(pool, recent, rnd, due) {
+  function monUnlocked(rev, id) {
+    return id <= 1 || !!(rev && rev[monKey(id - 1)]);
+  }
+  // the next word of a battle: sometimes one that is due for review, never one of the last few (when there are enough words)
+  function battlePick(pool, recent, rnd, due) {
     var src = due && due.length && rnd() < 0.4 ? due : pool,
       c = src.filter(function (w) {
         return recent.indexOf(wkey(w)) < 0;
       });
-    if (!c.length) c = pool.filter(function (w) {
-      return recent.indexOf(wkey(w)) < 0;
-    });
+    if (!c.length)
+      c = pool.filter(function (w) {
+        return recent.indexOf(wkey(w)) < 0;
+      });
     if (!c.length) c = pool;
     return c[Math.floor(rnd() * c.length)];
   }
@@ -451,10 +450,11 @@
   var core = {
     spellForm: spellForm,
     spellable: spellable,
-    spellCheck: spellCheck,
-    rushMult: rushMult,
-    rushPoints: rushPoints,
-    rushPick: rushPick,
+    bubbleSet: bubbleSet,
+    battleDmg: battleDmg,
+    monKey: monKey,
+    monUnlocked: monUnlocked,
+    battlePick: battlePick,
     mergeData: mergeData,
     chestKey: chestKey,
     claimChest: claimChest,
@@ -615,7 +615,7 @@
     if (run && run.stop) {
       var f = run.stop;
       run.stop = null;
-      if (!run.done && (run.mode === "spell" || run.mode === "rush")) trk("sw_game_quit", run.mode, run.mode === "rush" ? (run.score || 0) + " pts" : "word " + ((run.at || 0) + 1), "game");
+      if (!run.done && (run.mode === "spell" || run.mode === "battle")) trk("sw_game_quit", run.mode, run.mode === "battle" ? "monster " + run.at : "word " + ((run.at || 0) + 1), "game");
       run.done = true;
       try {
         f();
@@ -836,61 +836,138 @@
       "#swOverlay .sw-sect{font-family:'Fredoka',sans-serif;font-weight:700;font-size:21px;margin:6px 0 12px}" +
       "#swOverlay .sw-wst{font-size:18px;margin:18px 2px 8px}" +
       "#swOverlay .sw-chal{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:26px}" +
-      "#swOverlay .sw-ct{display:block;text-align:center;border-radius:24px;padding:10px 6px 12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;line-height:1.15;color:#fff;background:linear-gradient(150deg,#34478F,#1E2A55);box-shadow:0 6px 0 #121A38;transition:transform .15s}" +
+      "#swOverlay .sw-ct{display:block;text-align:center;border-radius:24px;padding:10px 6px 12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:17px;line-height:1.15;color:#1E2A4A;transition:transform .15s}" +
       "#swOverlay .sw-ct:hover{transform:translateY(-3px)}" +
-      "#swOverlay .sw-ct small{display:block;font-size:13px;font-weight:700;margin-top:3px;color:#B7C5F5}" +
-      "#swOverlay .sw-ct.sw-c2 small{color:#FFD23F}" +
-      "#swOverlay .sw-ct .sw-gi{width:64%}" +
-      "#swOverlay .sw-dk{background:linear-gradient(170deg,#26356F,#18224A);box-shadow:0 8px 0 #0E1533;color:#fff}" +
-      "#swOverlay .sw-dk .sw-kind{background:#2DD4BF;color:#10264A}" +
-      "#swOverlay .sw-dk .sw-big{color:#FFD23F}" +
-      "#swOverlay .sw-dk .sw-sent{color:#DCE5FF}" +
-      "#swOverlay .sw-dk .sw-msg{color:#C5D3FF}" +
-      "#swOverlay .sw-dk .sw-msg.sw-good{color:#7CF0A8}" +
-      "#swOverlay .sw-dk .sw-msg.sw-bad{color:#FFB199}" +
-      "#swOverlay .sw-dk .sw-say.sw-alt{background:#2E3F7A;color:#DCE5FF;box-shadow:0 5px 0 #1A254F}" +
-      "#swOverlay .sw-dk .sw-say{padding:9px 16px;font-size:16px}" +
-      "#swOverlay .sw-ctx{font-weight:800;font-size:21px;line-height:1.5;color:#DCE5FF;margin:4px 4px 0}" +
-      "#swOverlay .sw-blank{display:inline-block;height:1em;border-bottom:4px solid #2DD4BF;vertical-align:-0.1em;margin:0 3px}" +
-      "#swOverlay .sw-spic{width:132px;margin:6px auto 0}" +
+      "#swOverlay .sw-ct small{display:block;font-size:13px;font-weight:700;margin-top:3px;opacity:.7}" +
+      "#swOverlay .sw-ct .sw-gi{width:62%}" +
+      "#swOverlay .sw-c1{background:#D4F3FF;box-shadow:0 6px 0 #8FCBE6}" +
+      "#swOverlay .sw-c2{background:#FFE2C9;box-shadow:0 6px 0 #EBA877}" +
+      "#swOverlay .sw-bbs{padding:16px 14px 18px}" +
+      "#swOverlay .sw-bhead{display:flex;align-items:center;text-align:left}" +
+      "#swOverlay .sw-bpet{flex:none;width:84px;margin-right:10px}" +
+      "#swOverlay .sw-bq{flex:1;min-width:0}" +
+      "#swOverlay .sw-bq .sw-say{padding:7px 14px;font-size:15px;margin:4px 6px 0 0}" +
+      "#swOverlay .sw-ctx{font-weight:800;font-size:20px;line-height:1.4;color:#1E2A4A}" +
+      "#swOverlay .sw-blank{display:inline-block;height:1em;border-bottom:4px solid #6A48E8;vertical-align:-0.1em;margin:0 3px}" +
+      "#swOverlay .sw-spic{width:120px;margin:8px auto 0}" +
       "#swOverlay .sw-spic .sw-pic{margin:0}" +
-      "#swOverlay .sw-sprow{display:flex;justify-content:center;margin:12px 0 4px}" +
-      "#swOverlay .sw-sl{flex:1 1 0;max-width:48px;min-width:26px;margin:0 3.5px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:3px solid #4A5FA8;background:#1A2650;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;text-transform:lowercase;box-shadow:0 4px 0 #0E1533}" +
-      "#swOverlay .sw-sl.cur{border-color:#2DD4BF;animation:swblink 1s infinite}" +
-      "#swOverlay .sw-sl.ok{background:#2FBF71;border-color:#7CF0A8}" +
-      "#swOverlay .sw-sl.near{background:#F5B83D;border-color:#FFD98A;color:#3D2A00}" +
-      "#swOverlay .sw-sl.no{background:#5B6788;border-color:#8493B8}" +
-      "#swOverlay .sw-sl.rev{background:#3D8BF2;border-color:#9CC6FF}" +
-      "#swOverlay .sw-sl.apo{background:transparent;border-color:transparent;box-shadow:none;max-width:22px;min-width:14px;color:#FFD23F}" +
-      "#swOverlay #swHist .sw-sprow{margin:5px 0 0}" +
-      "#swOverlay #swHist .sw-sl{height:36px;font-size:20px;border-radius:9px;box-shadow:none;border-width:2px}" +
-      "@keyframes swblink{50%{border-color:#4A5FA8}}" +
-      "#swOverlay .sw-kb{margin-top:10px}" +
-      "#swOverlay .sw-kr{display:flex;justify-content:center;margin:5px 0}" +
-      "#swOverlay .sw-key{flex:1 1 0;max-width:40px;margin:0 2.5px;height:46px;border-radius:10px;background:#3A4D8F;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:19px;box-shadow:0 3px 0 #1A254F;text-transform:uppercase}" +
-      "#swOverlay .sw-key.sw-kw{max-width:62px;font-size:22px;background:#5B6788}" +
-      "#swOverlay .sw-key:active{transform:translateY(2px);box-shadow:0 1px 0 #1A254F}" +
-      "#swOverlay .sw-hud{display:flex;align-items:center;margin:4px 0}" +
-      "#swOverlay .sw-tbar{flex:1;height:16px;border-radius:8px;background:#0E1533;overflow:hidden}" +
-      "#swOverlay .sw-tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#2DD4BF,#7CF0A8);border-radius:8px;transition:width .1s linear}" +
-      "#swOverlay .sw-tbar i.low{background:linear-gradient(90deg,#FF6B4A,#FFB199)}" +
-      "#swOverlay .sw-secs{font-family:'Fredoka',sans-serif;font-weight:700;font-size:26px;min-width:44px;margin-left:12px;text-align:right}" +
-      "#swOverlay .sw-hud2{display:flex;align-items:baseline;justify-content:space-between;margin:2px 4px 8px}" +
-      "#swOverlay .sw-score{font-family:'Fredoka',sans-serif;font-weight:700;font-size:42px;color:#FFD23F;line-height:1;min-width:90px;text-align:left}" +
-      "#swOverlay .sw-combo{flex:1;margin:0 10px;font-weight:800;font-size:17px;color:#7CF0A8}" +
-      "#swOverlay .sw-bestl{font-weight:800;font-size:14px;color:#B7C5F5}" +
-      "#swOverlay .sw-rwrap{position:relative;min-height:56px}" +
-      "#swOverlay .sw-plus{position:absolute;right:6px;top:2px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;color:#7CF0A8;opacity:0;pointer-events:none}" +
-      "#swOverlay .sw-plus.sw-plgo{animation:swplus .8s ease-out}" +
-      "#swOverlay .sw-plus.sw-plbad{color:#FF8C6B}" +
-      "@keyframes swplus{0%{opacity:1;transform:translateY(10px) scale(.8)}30%{opacity:1;transform:translateY(0) scale(1.15)}100%{opacity:0;transform:translateY(-22px) scale(1)}}" +
-      "#swOverlay .sw-rg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}" +
-      "#swOverlay .sw-ro{position:relative;border-radius:20px;padding:20px 8px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;color:#fff;background:#3A4D8F;box-shadow:0 6px 0 #1A254F}" +
-      "#swOverlay .sw-ro small{position:absolute;left:12px;top:8px;font-size:13px;color:#9FB1EA}" +
-      "#swOverlay .sw-ro:active{transform:translateY(3px);box-shadow:0 3px 0 #1A254F}" +
-      "#swOverlay .sw-ro.sw-ok{background:#2FBF71;box-shadow:0 6px 0 #167A45}" +
-      "#swOverlay .sw-ro.sw-bad{background:#E5593B;box-shadow:0 6px 0 #9E3520;animation:swshake .3s}" +
-      "#swOverlay .sw-cd{font-size:110px;line-height:1.3;min-height:150px}" +
+      "#swOverlay .sw-sprow{display:flex;justify-content:center;margin:10px 0 4px}" +
+      "#swOverlay .sw-sl{flex:1 1 0;max-width:48px;min-width:26px;margin:0 3.5px;height:54px;display:flex;align-items:center;justify-content:center;border-radius:13px;border:3px solid #C9D7E8;background:#fff;color:#1E2A4A;font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;box-shadow:0 4px 0 #C9D7E8}" +
+      "#swOverlay .sw-sl.cur{border-color:#6A48E8;animation:swblink 1s infinite}" +
+      "#swOverlay .sw-sl.ok{background:#B9EBC9;border-color:#35B779;box-shadow:0 4px 0 #1F8A55}" +
+      "#swOverlay .sw-sl.apo{background:transparent;border-color:transparent;box-shadow:none;max-width:20px;min-width:12px;color:#E0A800}" +
+      "@keyframes swblink{50%{border-color:#C9C0F5}}" +
+      "#swOverlay .sw-bsky{margin:8px 0 4px}" +
+      "#swOverlay .sw-lb{position:absolute;width:62px;height:62px;margin:-31px 0 0 -31px;border-radius:50%;border:3px solid;color:#fff;font-family:'Fredoka',sans-serif;font-weight:700;font-size:32px;line-height:1;animation:swbob 3s ease-in-out infinite;box-shadow:inset -5px -7px 0 rgba(0,0,0,.09),0 5px 0 rgba(0,0,0,.12)}" +
+      "#swOverlay .sw-lb span{text-shadow:0 2px 0 rgba(0,0,0,.22)}" +
+      "#swOverlay .sw-lb.sw-gone{visibility:hidden}" +
+      "#swOverlay .sw-lb.sw-wob{animation:swshake .35s !important}" +
+      "#swOverlay .sw-lb.sw-hint{animation:swhint .5s infinite alternate !important;box-shadow:0 0 0 6px rgba(255,235,120,.95),0 5px 0 rgba(0,0,0,.12)}" +
+      "#swOverlay .sw-lb.sw-away{animation:swaway .8s ease-in forwards}" +
+      "@keyframes swbob{0%,100%{transform:translateY(-5px)}50%{transform:translateY(5px)}}" +
+      "#swOverlay .sw-rst svg{width:30px;height:30px;display:inline-block}" +
+      "#swOverlay .sw-bt{padding:14px 12px 18px}" +
+      "#swOverlay .sw-arena{position:relative;height:216px;border-radius:22px;overflow:hidden;background:linear-gradient(#9ED8FF 0,#D8F1FF 58%,#8BD36A 58%,#6CBF55 100%)}" +
+      "#swOverlay .sw-abg{position:absolute;left:0;top:0;right:0;bottom:0}" +
+      "#swOverlay .sw-abg svg{display:block;width:100%;height:100%}" +
+      "#swOverlay .sw-apet{position:absolute;left:3%;bottom:8px;width:116px;z-index:2}" +
+      "#swOverlay .sw-amon{position:absolute;right:4%;bottom:6px;width:138px;z-index:1}" +
+      "#swOverlay .sw-apet svg,#swOverlay .sw-amon svg{display:block;width:100%;height:auto;overflow:visible}" +
+      "#swOverlay .sw-turn{position:relative;transform-origin:50% 100%;transform-style:preserve-3d}" +
+      "#swOverlay .sw-ly{position:absolute;left:0;top:0;width:100%;height:auto;transform-origin:50% 100%;pointer-events:none}" +
+      "#swOverlay .sw-apet svg{transform:scaleX(-1) rotate(-5deg);transform-origin:50% 100%}" +
+      "#swOverlay .sw-amon svg{transform:rotate(-5deg);transform-origin:50% 100%}" +
+      "#swOverlay .sw-amon svg.sw-rig{transform:none}" +
+      "#swOverlay .sw-apet svg.sw-rig{transform:scaleX(-1)}" +
+      "#swOverlay .sw-shd{position:absolute;left:12%;right:12%;bottom:-5px;height:13px;border-radius:50%;background:radial-gradient(ellipse,rgba(20,10,50,.34),rgba(20,10,50,0) 70%);transition:left .3s,right .3s;pointer-events:none;z-index:-1}" +
+      "#swOverlay .sw-turn.sw-turned + .sw-shd{left:26%;right:26%}" +
+      "#swOverlay .sw-apet .sw-turn.sw-in{animation:swturnin .4s cubic-bezier(.25,.8,.3,1) forwards}" +
+      "#swOverlay .sw-apet .sw-turn.sw-out{animation:swturnout .32s ease-in-out forwards}" +
+      "#swOverlay .sw-amon .sw-turn.sw-in{animation:swturninm .4s cubic-bezier(.25,.8,.3,1) forwards}" +
+      "#swOverlay .sw-amon .sw-turn.sw-out{animation:swturnoutm .32s ease-in-out forwards}" +
+      "@keyframes swturnin{0%{transform:perspective(520px) rotateY(0) scale(1,1)}22%{transform:perspective(520px) rotateY(0) scale(1.07,.9)}62%{transform:perspective(520px) rotateY(66deg) scale(.97,1.07)}100%{transform:perspective(520px) rotateY(54deg) scale(1,1)}}" +
+      "@keyframes swturnout{0%{transform:perspective(520px) rotateY(54deg) scale(1,1)}60%{transform:perspective(520px) rotateY(-8deg) scale(1.03,.96)}100%{transform:perspective(520px) rotateY(0) scale(1,1)}}" +
+      "@keyframes swturninm{0%{transform:perspective(520px) rotateY(0) scale(1,1)}22%{transform:perspective(520px) rotateY(0) scale(1.07,.9)}62%{transform:perspective(520px) rotateY(-66deg) scale(.97,1.07)}100%{transform:perspective(520px) rotateY(-54deg) scale(1,1)}}" +
+      "@keyframes swturnoutm{0%{transform:perspective(520px) rotateY(-54deg) scale(1,1)}60%{transform:perspective(520px) rotateY(8deg) scale(1.03,.96)}100%{transform:perspective(520px) rotateY(0) scale(1,1)}}" +
+      "#swOverlay .sw-apet.sw-pow:before{content:'';position:absolute;left:-6%;top:6%;width:112%;height:92%;border-radius:50%;background:radial-gradient(circle,rgba(255,226,90,.85),rgba(255,226,90,0) 68%);z-index:-1;animation:swaura .9s ease-in-out infinite alternate}" +
+      "@keyframes swaura{from{transform:scale(.88);opacity:.6}to{transform:scale(1.08);opacity:1}}" +
+      "#swOverlay .sw-php{position:absolute;left:10px;top:8px;display:flex;z-index:4}" +
+      "#swOverlay .sw-php i{display:block;width:26px;height:26px;margin-right:3px}" +
+      "#swOverlay .sw-php i svg{display:block;width:100%;height:100%}" +
+      "#swOverlay .sw-php i.sw-lost{opacity:.22}" +
+      "#swOverlay .sw-mhp{position:absolute;right:10px;top:8px;width:46%;text-align:right;font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;color:#fff;text-shadow:0 2px 0 #2B2250,0 0 6px #2B2250;z-index:4}" +
+      "#swOverlay .sw-hpbar{height:14px;border-radius:7px;background:rgba(255,255,255,.85);border:2px solid #2B2250;overflow:hidden;margin-top:2px}" +
+      "#swOverlay .sw-hpbar i{display:block;height:100%;background:linear-gradient(90deg,#FF6B6B,#FFA24D);transition:width .35s}" +
+      "#swOverlay .sw-bfx{position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:5}" +
+      "#swOverlay .sw-banner2{position:absolute;left:0;right:0;top:42%;text-align:center;font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;color:#fff;text-shadow:0 3px 0 #2B2250,0 0 10px #2B2250;animation:swpopb2 .5s}" +
+      "@keyframes swpopb2{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}" +
+      "#swOverlay .sw-dmg{position:absolute;font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;color:#fff;text-shadow:0 3px 0 #2B2250,0 0 6px #2B2250;white-space:nowrap;animation:swdmg 1.1s ease-out forwards}" +
+      "#swOverlay .sw-dmg.sw-d2{color:#FFD23F;font-size:34px}" +
+      "#swOverlay .sw-dmg.sw-d3{color:#FF9A4D;font-size:40px}" +
+      "#swOverlay .sw-dmg.sw-dbad{color:#FFB0C4}" +
+      "@keyframes swdmg{0%{opacity:0;transform:translateY(20px) scale(.6)}20%{opacity:1;transform:translateY(0) scale(1.2)}100%{opacity:0;transform:translateY(-50px) scale(1)}}" +
+      "#swOverlay .sw-shot{position:absolute;pointer-events:none;z-index:6;transform:translate(-50%,-50%)}" +
+      "#swOverlay .sw-ball i{position:relative;display:block;width:32px;height:32px;border-radius:50%;box-shadow:0 0 12px 4px rgba(255,255,255,.8)}" +
+      "#swOverlay .sw-ball i:before{content:'';position:absolute;right:70%;top:22%;width:46px;height:56%;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.8))}" +
+      "#swOverlay .sw-ball0{background:radial-gradient(circle at 32% 30%,#fff 0,#FFE3EE 16%,#FF8FB1 55%,#D9577F 100%)}" +
+      "#swOverlay .sw-ball1{background:radial-gradient(circle at 32% 30%,#fff 0,#FFF6C9 16%,#FFD23F 55%,#E0A800 100%)}" +
+      "#swOverlay .sw-ball2{background:radial-gradient(circle at 32% 30%,#fff 0,#E3F0FF 16%,#6AA7FF 55%,#2F6FD6 100%)}" +
+      "#swOverlay .sw-ball3{background:radial-gradient(circle at 32% 30%,#fff 0,#E5FAD8 16%,#7BD65A 55%,#3F9A3A 100%)}" +
+      "#swOverlay .sw-mshot{width:46px;height:46px}" +
+      "#swOverlay .sw-mshot svg{display:block;width:100%;height:100%;animation:swspin .55s linear infinite}" +
+      "@keyframes swspin{to{transform:rotate(360deg)}}" +
+      "#swOverlay .sw-imp{position:absolute;width:0;height:0;pointer-events:none;z-index:6}" +
+      "#swOverlay .sw-ring{position:absolute;left:-10px;top:-10px;width:20px;height:20px;border-radius:50%;border:5px solid #fff;animation:swring .5s ease-out forwards}" +
+      "@keyframes swring{to{transform:scale(5);opacity:0}}" +
+      "#swOverlay .sw-spk{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:4px;transition:transform .55s ease-out,opacity .55s}" +
+      "#swOverlay .sw-muz{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:radial-gradient(circle,#fff 0,#FFF3B0 38%,rgba(255,200,60,0) 70%);animation:swmuz .38s ease-out forwards;z-index:6}" +
+      "@keyframes swmuz{from{transform:scale(.4);opacity:1}to{transform:scale(1.6);opacity:0}}" +
+      "#swOverlay .sw-beam{position:absolute;height:30px;margin-top:-15px;transform-origin:0 50%;pointer-events:none;z-index:6}" +
+      "#swOverlay .sw-beami{display:block;width:100%;height:100%;border-radius:15px;background:linear-gradient(#FF8FD8,#FFD23F 22%,#FFFFFF 42%,#FFFFFF 58%,#7DE3FF 78%,#6AA7FF);box-shadow:0 0 22px 8px rgba(160,225,255,.85);transform-origin:0 50%;animation:swbeam .85s ease-out forwards}" +
+      "@keyframes swbeam{0%{transform:scaleX(0);opacity:1}18%{transform:scaleX(1);opacity:1}65%{transform:scaleX(1) scaleY(1.2);opacity:1}100%{transform:scaleX(1) scaleY(.15);opacity:0}}" +
+      "#swOverlay .sw-recoil{animation:swrecoil .42s}" +
+      "@keyframes swrecoil{0%{transform:none}30%{transform:translateX(-14px) scale(1.06)}100%{transform:none}}" +
+      "#swOverlay .sw-recoil2{animation:swrecoil2 .46s}" +
+      "@keyframes swrecoil2{0%{transform:none}25%{transform:translateX(16px) rotate(6deg)}55%{transform:translateX(-5px) rotate(-3deg)}100%{transform:none}}" +
+      "#swOverlay .sw-wind{animation:swwind .44s}" +
+      "@keyframes swwind{0%{transform:none}60%{transform:scale(1.16) translateX(12px)}100%{transform:none}}" +
+      "#swOverlay .sw-knock{animation:swknock .52s}" +
+      "@keyframes swknock{0%{transform:none}30%{transform:translateX(-22px) rotate(-8deg)}100%{transform:none}}" +
+      "#swOverlay .sw-ashake{animation:swshake .3s}" +
+      "#swOverlay .sw-fade{animation:swfade .9s forwards}" +
+      "@keyframes swfade{to{opacity:0;transform:scale(.25) rotate(24deg)}}" +
+      "#swOverlay .sw-charge{height:12px;border-radius:6px;background:#E3EAF5;overflow:hidden;margin:12px 4px 0}" +
+      "#swOverlay .sw-charge i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#FFB020,#FF6B4A);border-radius:6px}" +
+      "#swOverlay .sw-streak{min-height:22px;font-weight:800;font-size:15px;color:#E5683A;margin:4px 0 0}" +
+      "#swOverlay .sw-bg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}" +
+      "#swOverlay .sw-bo{position:relative;border-radius:20px;padding:18px 8px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:30px;color:#1E2A4A;border:3px solid}" +
+      "#swOverlay .sw-bo small{position:absolute;left:12px;top:6px;font-size:13px;opacity:.5}" +
+      "#swOverlay .sw-bo:nth-child(4n+1){background:#FFD9E6;border-color:#FF8FB1;box-shadow:0 6px 0 #D9577F}" +
+      "#swOverlay .sw-bo:nth-child(4n+2){background:#FFF1C2;border-color:#FFC93C;box-shadow:0 6px 0 #E0A800}" +
+      "#swOverlay .sw-bo:nth-child(4n+3){background:#DFF5E7;border-color:#35B779;box-shadow:0 6px 0 #1F8A55}" +
+      "#swOverlay .sw-bo:nth-child(4n+4){background:#D6EEFF;border-color:#3D8BF2;box-shadow:0 6px 0 #2A66C9}" +
+      "#swOverlay .sw-bo:last-child:nth-child(odd){grid-column:1/-1}" +
+      "#swOverlay .sw-bo:active{transform:translateY(3px)}" +
+      "#swOverlay .sw-bo.sw-ok{background:#B9EBC9;border-color:#35B779;box-shadow:0 6px 0 #1F8A55;transform:scale(1.05)}" +
+      "#swOverlay .sw-bo.sw-bad{background:#FFE3DE;border-color:#FF6B4A;box-shadow:0 6px 0 #D9462B;animation:swshake .35s}" +
+      "#swOverlay .sw-bo.sw-hint{box-shadow:0 0 0 6px rgba(255,235,120,.95),0 6px 0 #1F8A55}" +
+      "#swOverlay .sw-mons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}" +
+      "#swOverlay .sw-mcard{position:relative;display:block;text-align:center;border-radius:24px;padding:12px 8px 14px;background:#fff;box-shadow:0 6px 0 #C9D7E8;font-family:'Fredoka',sans-serif;color:#1E2A4A}" +
+      "#swOverlay .sw-mcard:last-child:nth-child(odd){grid-column:1/-1}" +
+      "#swOverlay .sw-mcard .sw-mart{width:78%;margin:0 auto}" +
+      "#swOverlay .sw-mcard:last-child:nth-child(odd) .sw-mart{width:36%}" +
+      "#swOverlay .sw-mart{display:block}" +
+      "#swOverlay .sw-mart svg{display:block;width:100%;height:auto;overflow:visible}" +
+      "#swOverlay .sw-mcard b{display:block;font-size:20px}" +
+      "#swOverlay .sw-mcard small{display:block;font-size:13px;opacity:.7}" +
+      "#swOverlay .sw-mlock{background:#EEF2F8;box-shadow:0 6px 0 #D0D8E6}" +
+      "#swOverlay .sw-mlock .sw-mart{opacity:.28}" +
+      "#swOverlay .sw-mlk{position:absolute;right:10px;top:10px;width:28px}" +
+      "#swOverlay .sw-mwon{background:#F0FBF1;box-shadow:0 6px 0 #9AD3A8}" +
+      "#swOverlay .sw-mdrop{display:inline-flex;align-items:center;margin-top:6px;background:#FFF1C2;border-radius:999px;padding:3px 12px 3px 4px;font-size:13px;font-weight:700}" +
+      "#swOverlay .sw-mbig{width:150px;margin:0 auto 6px}" +
+      "#swOverlay .sw-mhead{display:block;flex:none;width:72px;margin-right:12px}" +
+      "#swOverlay .sw-mhead svg{display:block;width:100%;height:auto}" +
       "#swOverlay .sw-games{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:26px}" +
       "#swOverlay .sw-gt{display:block;text-align:center;border-radius:24px;padding:10px 6px 12px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:15px;line-height:1.15;color:#1E2A4A;transition:transform .15s}" +
       "#swOverlay .sw-gt:hover{transform:translateY(-3px)}" +
@@ -1103,7 +1180,7 @@
       "#swOverlay .sw-sht .sw-say{font-size:15px;padding:8px 16px;margin:6px 6px 0 0}" +
       "#swOverlay .sw-x{position:absolute;right:10px;top:6px;width:34px;height:34px;border-radius:50%;background:#F1F5FA;font-size:24px;line-height:1;font-weight:800;color:#6B7A99}" +
       "#swOverlay .sw-wg:last-child{margin-bottom:210px}" +
-      "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-ro{font-size:26px;padding:16px 6px}#swOverlay .sw-sl{height:50px;font-size:26px}#swOverlay .sw-key{height:44px;font-size:17px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
+      "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
   }
@@ -1167,7 +1244,7 @@
     back();
   }
   function backLabel() {
-    return back === showMap ? "Back to the lessons" : "Back to Sight words";
+    return back === showMap ? "Back to the lessons" : back === showBattle ? "Back to the monsters" : "Back to Sight words";
   }
   function niceDate(d) {
     var m = /^\d{4}-(\d\d)-(\d\d)$/.exec(d || "");
@@ -1238,6 +1315,12 @@
     });
     return out;
   }
+  // how many of the five monsters have been beaten
+  function monsDone(s) {
+    var n = 0;
+    for (var m = 1; m <= 5; m++) if (s.rev[monKey(m)]) n++;
+    return n;
+  }
   function showHome() {
     var s = readState(),
       words = allWords(),
@@ -1304,8 +1387,8 @@
       '<button class="sw-gt sw-g2" id="swBal"><span class="sw-gi">' + scenery("game", "balloon") + "</span>Balloon pop</button>" +
       '<button class="sw-gt sw-g3" id="swFeed"><span class="sw-gi">' + scenery("game", "feed") + "</span>" + esc(feedLabel()) + "</button></div>" +
       '<div class="sw-sect">Challenges · 挑战</div><div class="sw-chal">' +
-      '<button class="sw-ct sw-c1" id="swSpell"><span class="sw-gi">' + scenery("game", "spell") + "</span>Spell it<small>拼写挑战</small></button>" +
-      '<button class="sw-ct sw-c2" id="swRush"><span class="sw-gi">' + scenery("game", "rush") + "</span>Word rush<small>" + (+s.rev.rushbest ? "Best " + (+s.rev.rushbest) + " pts" : "60 seconds · 竞速") + "</small></button></div>" +
+      '<button class="sw-ct sw-c1" id="swSpell"><span class="sw-gi">' + scenery("game", "spell") + "</span>Bubble spell<small>泡泡拼词</small></button>" +
+      '<button class="sw-ct sw-c2" id="swBattle"><span class="sw-gi">' + monArt(1, "cheer") + "</span>Monster battle<small>打怪兽 · " + monsDone(s) + " / 5</small></button></div>" +
       '<div class="sw-sect">Word islands</div><div class="sw-isl-wrap">' + scenery("islands", { known: known, total: words.length, title: D.stages[0].title, ready: readyIslands(), stages: islandInfo(s) }) + '<div class="sw-ipet">' + pet("happy") + "</div></div>" +
       '<div class="sw-sect">My words</div><button class="sw-album" id="swWall"><span class="sw-bk">' + scenery("book") + '</span><span class="sw-at"><b>My word album</b><span>' + known + " known · " + learning + " learning · " + (words.length - seen) + ' to meet</span></span><span class="sw-stk">' + stickers + "</span></button></div>";
     box.innerHTML = h;
@@ -1334,9 +1417,9 @@
       back = showHome;
       startSpell(spellList(readState()));
     };
-    document.getElementById("swRush").onclick = function () {
+    document.getElementById("swBattle").onclick = function () {
       back = showHome;
-      startRush();
+      showBattle();
     };
     document.getElementById("swWall").onclick = showWall;
     Array.prototype.forEach.call(box.querySelectorAll(".sw-isl-go"), function (isl) {
@@ -1598,6 +1681,11 @@
     showStep();
   }
   // the child's pet (a cat when there is none) in a mood, for the practice pages and end screens
+  // which pet and what it wears, for drawing it as a living rig in the battle
+  function petRigArgs() {
+    var p = hooks.pet ? hooks.pet() : null;
+    return { type: p && root.PETS && root.PETS[p.type] ? p.type : "cat", eq: p && p.eq ? p.eq : {} };
+  }
   function petArt(mood, eqNow) {
     var p = hooks.pet ? hooks.pet() : null,
       type = p && root.PETS && root.PETS[p.type] ? p.type : "cat",
@@ -2025,7 +2113,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "r" ? "rush" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -2476,14 +2564,9 @@
     show();
   }
 
-  /* ---- challenges for older children: spell the word you hear, and a 60-second speed round ---- */
-  var KEYROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
+  /* ---- two games for older children: Bubble spell and Monster battle ---- */
   function gTop(label) {
     return '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">' + esc(label) + "</span></div>";
-  }
-  // the words of one spelling game: the ones due for review first, then ones already met, each with at least two letters
-  function spellList(s) {
-    return spellable(gameWords(s, 16, true)).slice(0, 8);
   }
   // what a key press means: a letter, "back" or "enter" ("" for anything else); old WebViews only have keyCode
   function keyOf(e) {
@@ -2491,21 +2574,20 @@
     var k = e.key,
       c = e.keyCode || e.which;
     if (k && k.length === 1 && /[a-zA-Z]/.test(k)) return k.toLowerCase();
-    if (k === "Backspace" || c === 8) return "back";
-    if (k === "Enter" || c === 13) return "enter";
     if (c >= 65 && c <= 90) return String.fromCharCode(c + 32);
     return "";
   }
-  function plusText(el, text, bad) {
-    if (!el) return;
-    el.textContent = text;
-    el.className = "sw-plus";
-    void el.offsetWidth;
-    el.className = "sw-plus sw-plgo" + (bad ? " sw-plbad" : "");
+  var BUB = [
+    ["#FF8FB1", "#E5547F"], ["#6AA7FF", "#2F6FD6"], ["#FFD23F", "#E09A00"], ["#4CC76A", "#1F8A55"], ["#B58CFF", "#6A48E8"], ["#FF9E5E", "#E5683A"],
+  ];
+  // the words of one Bubble spell round set: the ones due for review first, then ones already met, each with at least two letters
+  function spellList(s) {
+    return spellable(gameWords(s, 12, true)).slice(0, 6);
   }
 
-  // Spell it: hear the word, type it letter by letter (on the screen keyboard or a real one). Three tries: after a wrong one the right letters
-  // stay in place (green), the others can be fixed; the first wrong try shows the picture. A miss never sends the word back to box 1.
+  // Bubble spell: a picture and a sentence with a gap, letter bubbles floating below: tap the letters in the right order to spell the missing word.
+  // A wrong bubble wobbles (after two slips the right ones glow); a word with no slips is a perfect word and builds the streak.
+  // Slips never send a word back to box 1; a right word moves up.
   function startSpell(list) {
     gameTag = "game";
     if (!list.length) {
@@ -2515,22 +2597,17 @@
     trk("sw_game_start", "spell", "", "game");
     var first = {},
       i = 0,
-      handler = null;
+      perfect = 0,
+      handler = null,
+      rnd = seeded(Date.now() % 100003);
     function stop() {
       if (handler) {
         document.removeEventListener("keydown", handler);
         handler = null;
       }
     }
-    run = { mode: "spell", steps: [], i: 0, first: first, rnd: seeded(1), stop: stop, at: 0 };
-    var me = run,
-      kbHtml = KEYROWS.map(function (row, ri) {
-        var h = row.split("").map(function (c) {
-          return '<button class="sw-key" data-k="' + c + '">' + c + "</button>";
-        }).join("");
-        if (ri === 2) h += '<button class="sw-key sw-kw" data-k="back" aria-label="Delete a letter">←</button>';
-        return '<div class="sw-kr">' + h + "</div>";
-      }).join("");
+    run = { mode: "spell", steps: [], i: 0, first: first, rnd: rnd, stop: stop, at: 0 };
+    var me = run;
     function round() {
       stop();
       if (run !== me) return;
@@ -2546,151 +2623,152 @@
         ans = spellForm(w),
         n = ans.length,
         cur = [],
-        lock = [],
-        hist = [],
-        tries = 0,
+        pos = 0,
+        slips = 0,
         done = false,
-        result = "",
         advanced = false,
+        letters = bubbleSet(w, rnd),
+        cols = letters.length <= 8 ? 4 : 5,
+        rows = Math.ceil(letters.length / cols),
+        cells = [],
         q;
-      for (q = 0; q < n; q++) {
-        cur[q] = ans.charAt(q) === "'" ? "'" : "";
-        lock[q] = ans.charAt(q) === "'";
+      for (q = 0; q < n; q++) cur[q] = ans.charAt(q) === "'" ? "'" : "";
+      function skipApo() {
+        while (pos < n && ans.charAt(pos) === "'") pos++;
       }
-      function nextEmpty() {
-        for (var j = 0; j < n; j++) if (!lock[j] && !cur[j]) return j;
-        return -1;
-      }
-      function row(chars, marks, at) {
+      skipApo();
+      for (q = 0; q < letters.length; q++) cells.push(q);
+      cells = shuffle(cells, rnd);
+      var bubHtml = letters.map(function (ch, bi) {
+        var cell = cells[bi],
+          col = cell % cols,
+          row = Math.floor(cell / cols),
+          c = BUB[(bi + i) % BUB.length],
+          x = ((col + 0.5) * 100) / cols + (rnd() - 0.5) * 5,
+          y = ((row + 0.5) * 100) / rows + (rnd() - 0.5) * 6;
+        return '<button class="sw-lb" data-c="' + ch + '" data-col="' + c[0] + '" style="left:' + x.toFixed(1) + "%;top:" + y.toFixed(1) + "%;animation-delay:-" + (rnd() * 3).toFixed(1) + "s;background:radial-gradient(circle at 32% 28%,#FFFFFF 0,rgba(255,255,255,0) 22%)," + c[0] + ";border-color:" + c[1] + '"><span>' + ch + "</span></button>";
+      }).join("");
+      var ctx = pieces(info.s).map(function (p) {
+        return p.k && p.k === k ? '<span class="sw-blank" style="width:' + (n * 0.62 + 0.5).toFixed(1) + 'em"></span>' : esc(p.t);
+      }).join("");
+      function slotsHtml(all) {
         var h = "";
         for (var j = 0; j < n; j++) {
-          var apo = ans.charAt(j) === "'",
-            m = apo ? "apo" : marks ? marks[j] : lock[j] ? "ok" : "";
-          h += '<span class="sw-sl' + (m ? " " + m : "") + (j === at ? " cur" : "") + '">' + esc(apo ? "’" : chars[j] || "") + "</span>";
+          var apo = ans.charAt(j) === "'";
+          h += '<span class="sw-sl' + (apo ? " apo" : cur[j] ? " ok" : j === pos && !all ? " cur" : "") + '">' + esc(apo ? "’" : cur[j] || "") + "</span>";
         }
         return h;
       }
-      function draw() {
-        var ne = nextEmpty(),
-          marks = null;
-        if (done) {
-          marks = [];
-          for (var j = 0; j < n; j++) marks.push(result);
-        }
-        document.getElementById("swSlots").innerHTML = row(cur, marks, done ? -1 : ne);
-        document.getElementById("swHist").innerHTML = hist.map(function (h) {
-          return '<div class="sw-sprow">' + row(h.g.split(""), h.r, -1) + "</div>";
-        }).join("");
-        document.getElementById("swCheck").disabled = done || ne >= 0;
+      box.innerHTML = gTop("Bubble spell · " + (i + 1) + " / " + list.length) +
+        '<div class="sw-card sw-bbs"><div class="sw-bhead"><div class="sw-bpet" id="swBpet">' + petArt("happy") + '</div><div class="sw-bq"><div class="sw-ctx">' + ctx + "</div>" +
+        '<div><button class="sw-say" id="swHear">' + SPEAKER + ' Hear it</button><button class="sw-say sw-alt" id="swHearS">' + SPEAKER + " Sentence</button></div></div></div>" +
+        '<div class="sw-spic" id="swPic">' + art(w, true) + '</div><div class="sw-sprow" id="swSlots"></div><div class="sw-sky sw-bsky sw-new" id="swSky" style="height:' + (rows * (root.innerWidth <= 560 ? 76 : 90) + 30) + 'px">' + bubHtml + "</div>" +
+        '<div class="sw-msg" id="swMsg">' + (perfect >= 2 ? "Perfect streak: " + perfect + "!" : "Tap the letters in order.") + '</div><button class="sw-go" id="swNext" style="display:none">Next →</button></div>';
+      document.getElementById("swSlots").innerHTML = slotsHtml(false);
+      bindQuit();
+      function mood(m) {
+        var el = document.getElementById("swBpet");
+        if (!el) return;
+        el.innerHTML = petArt(m);
+        if (m !== "happy")
+          setTimeout(function () {
+            if (document.getElementById("swBpet") === el && !done) el.innerHTML = petArt("happy");
+          }, 900);
       }
       function go() {
-        if (advanced || run !== me || !document.getElementById("swKb")) return;
+        if (advanced || run !== me || !document.getElementById("swSlots")) return;
         advanced = true;
         i++;
         round();
       }
-      function finishRound() {
-        document.getElementById("swCheck").style.display = "none";
-        document.getElementById("swNext").style.display = "";
-        document.getElementById("swKb").style.display = "none";
-        draw();
-      }
-      function check() {
-        if (done || nextEmpty() >= 0) return;
-        var guess = cur.join(""),
-          marks = spellCheck(guess, ans),
-          j;
-        tries++;
-        if (first[k] === undefined) first[k] = guess === ans;
-        if (guess === ans) {
-          done = true;
-          result = "ok";
-          sfx("cheer");
-          tell((tries === 1 ? "Perfect! " : "You got it! ") + w, true);
-          finishRound();
-          try {
-            var r = document.getElementById("swSlots").getBoundingClientRect();
-            if (hooks.burst) hooks.burst(r.left + r.width / 2, r.top);
-          } catch (e) {}
-          var late = setTimeout(go, 9000);
-          play("s", w, function () {
-            clearTimeout(late);
-            setTimeout(go, 900);
+      function tap(b) {
+        if (done || b.classList.contains("sw-gone")) return;
+        var ch = b.getAttribute("data-c");
+        if (ch === ans.charAt(pos)) {
+          cur[pos] = ch;
+          pos++;
+          skipApo();
+          b.classList.add("sw-gone");
+          explode(b, b.getAttribute("data-col") || "#6AA7FF");
+          sfx("pop");
+          mood("excited");
+          Array.prototype.forEach.call(box.querySelectorAll(".sw-lb.sw-hint"), function (o) {
+            o.classList.remove("sw-hint");
           });
-          return;
-        }
-        for (j = 0; j < n; j++) if (ans.charAt(j) === "'") marks[j] = "apo";
-        hist.push({ g: guess, r: marks });
-        sfx("poke");
-        if (tries >= 3) {
-          done = true;
-          result = "rev";
-          for (j = 0; j < n; j++) cur[j] = ans.charAt(j);
-          tell("It is “" + w + "”. Look at it once more!", false);
-          finishRound();
-          play("w", w);
-          return;
-        }
-        for (j = 0; j < n; j++) {
-          if (marks[j] === "ok") lock[j] = true;
-          else if (!lock[j]) cur[j] = "";
-        }
-        if (tries === 1) document.getElementById("swPic").innerHTML = art(w, true);
-        tell(tries === 1 ? "Not quite. Green letters are right, fix the rest!" : "Almost! Listen again and look at the picture.", false);
-        draw();
-        if (tries === 2) play("w", w);
-      }
-      function press(c) {
-        if (done) return;
-        if (c === "enter") {
-          check();
-          return;
-        }
-        if (c === "back") {
-          for (var j = n - 1; j >= 0; j--)
-            if (!lock[j] && cur[j]) {
-              cur[j] = "";
-              break;
-            }
+          if (pos >= n) {
+            done = true;
+            if (first[k] === undefined) first[k] = slips === 0;
+            perfect = slips === 0 ? perfect + 1 : 0;
+            document.getElementById("swSlots").innerHTML = slotsHtml(true);
+            Array.prototype.forEach.call(box.querySelectorAll(".sw-lb:not(.sw-gone)"), function (o) {
+              o.classList.add("sw-away");
+            });
+            var sk = document.getElementById("swSky");
+            setTimeout(function () {
+              if (sk) sk.style.display = "none"; // this round's sky folds away so the Next button is on the screen (a new round has a new sky)
+            }, 1300);
+            var stars = slips === 0 ? 3 : slips <= 2 ? 2 : 1,
+              sh = "";
+            for (var si = 0; si < 3; si++) sh += '<span style="color:' + (si < stars ? "#FFC93C" : "#D5E0EE") + '">' + scenery("star") + "</span>";
+            var m = document.getElementById("swMsg");
+            m.className = "sw-msg sw-good";
+            m.innerHTML = '<span class="sw-rst">' + sh + "</span><br>" + (slips === 0 ? (perfect >= 3 ? "Perfect streak: " + perfect + "!" : "Perfect!") : "You spelled it!") + " " + esc(w);
+            sfx(slips === 0 ? "cheer" : "pop");
+            document.getElementById("swBpet").innerHTML = petArt("excited");
+            try {
+              var r = document.getElementById("swSlots").getBoundingClientRect();
+              if (hooks.burst) hooks.burst(r.left + r.width / 2, r.top);
+            } catch (e) {}
+            document.getElementById("swNext").style.display = "";
+            var late = setTimeout(go, 9000);
+            play("s", w, function () {
+              clearTimeout(late);
+              setTimeout(go, 1100);
+            });
+          } else document.getElementById("swSlots").innerHTML = slotsHtml(false);
         } else {
-          var ne = nextEmpty();
-          if (ne < 0) return;
-          cur[ne] = c;
+          slips++;
+          if (first[k] === undefined) first[k] = false;
+          perfect = 0;
+          b.classList.add("sw-wob");
+          sfx("poke");
+          mood("surprised");
+          setTimeout(function () {
+            b.classList.remove("sw-wob");
+          }, 400);
+          if (slips >= 2)
+            Array.prototype.forEach.call(box.querySelectorAll(".sw-lb"), function (o) {
+              if (!o.classList.contains("sw-gone") && o.getAttribute("data-c") === ans.charAt(pos)) o.classList.add("sw-hint");
+            });
+          tell(slips >= 2 ? "The glowing bubble is next!" : "Not that one. Listen again!", false);
+          if (slips === 1) play("w", w);
         }
-        draw();
       }
-      var ctx = pieces(info.s).map(function (p) {
-        return p.k && p.k === k ? '<span class="sw-blank" style="width:' + (n * 0.62 + 0.5).toFixed(1) + 'em"></span>' : esc(p.t);
-      }).join("");
-      box.innerHTML = gTop("Spell it · " + (i + 1) + " / " + list.length) +
-        '<div class="sw-card sw-dk"><div class="sw-kind">Spell it</div><div class="sw-sent" style="font-size:19px;margin:6px 0 0">Listen, then spell the word.</div>' +
-        '<div><button class="sw-say" id="swHear">' + SPEAKER + ' Hear the word</button><button class="sw-say sw-alt" id="swHearS">' + SPEAKER + " Hear the sentence</button></div>" +
-        '<div class="sw-ctx">' + ctx + '</div><div class="sw-spic" id="swPic"></div><div id="swHist"></div><div class="sw-sprow" id="swSlots"></div><div class="sw-msg" id="swMsg"></div>' +
-        '<div class="sw-kb" id="swKb">' + kbHtml + '</div><button class="sw-go" id="swCheck" disabled>Check</button><button class="sw-go" id="swNext" style="display:none">Next →</button></div>';
-      bindQuit();
+      Array.prototype.forEach.call(box.querySelectorAll(".sw-lb"), function (b) {
+        b.onclick = function () {
+          tap(b);
+        };
+      });
       document.getElementById("swHear").onclick = function () {
         play("w", w);
       };
       document.getElementById("swHearS").onclick = function () {
         play("s", w);
       };
-      document.getElementById("swCheck").onclick = check;
       document.getElementById("swNext").onclick = go;
-      Array.prototype.forEach.call(box.querySelectorAll(".sw-key"), function (b) {
-        b.onclick = function () {
-          press(b.getAttribute("data-k"));
-          if (b.blur) b.blur();
-        };
-      });
       handler = function (e) {
-        if (run !== me || !ov || ov.style.display === "none" || !document.getElementById("swKb")) return;
+        if (run !== me || !ov || ov.style.display === "none" || !document.getElementById("swSlots") || done) return;
         var c = keyOf(e);
         if (!c) return;
-        e.preventDefault();
-        press(c);
+        var bs = box.querySelectorAll(".sw-lb"),
+          pick = null;
+        for (var j = 0; j < bs.length; j++) if (!bs[j].classList.contains("sw-gone") && bs[j].getAttribute("data-c") === c) pick = pick || bs[j];
+        if (pick) {
+          e.preventDefault();
+          tap(pick);
+        }
       };
       document.addEventListener("keydown", handler);
-      draw();
       setTimeout(function () {
         if (run === me && !advanced) play("w", w);
       }, 500);
@@ -2707,12 +2785,12 @@
     endGame(
       "s",
       first,
-      "Spell it",
+      "Bubble spell",
       function (r, t) {
         return r + " / " + t;
       },
       function (r, t) {
-        return r >= t ? "Every word spelled right on the first try!" : "words spelled right on the first try.";
+        return r >= t ? "Every word perfect, no slips!" : "words with no slips.";
       },
       function () {
         startSpell(spellList(readState()));
@@ -2722,13 +2800,104 @@
           return '<span class="' + (first[k] ? "" : "sw-miss") + '">' + esc(shown(k)) + "</span>";
         }).join("") + "</div>",
       null,
-      { keepMisses: true, dark: true }
+      { keepMisses: true }
     );
   }
 
-  // Word rush: 60 seconds, hear a word and tap it. A streak multiplies the points (x2 from 5 in a row, x3 from 10, x4 from 15); a wrong tap
-  // ends the streak and costs 2 seconds. The best score is kept in rev.rushbest (the higher one wins when two devices are merged).
-  function startRush() {
+  /* ---- Monster battle: your pet fights a monster. Hear a word and tap it: a right answer is a hit (3 in a row = power hit, 6 = mega hit), a wrong
+     answer or a slow one lets the monster hit back. Beat the monster before the pet runs out of hearts. Each monster is unlocked by the one before. ---- */
+  function monArt(id, mood, gaze) {
+    return root.SWMonsters ? root.SWMonsters.art(id, mood, gaze) : "";
+  }
+  function monById(id) {
+    return root.SWMonsters ? root.SWMonsters.byId(id) : null;
+  }
+  function showBattle() {
+    trk("sw_view", "battle", "", "screen");
+    var s = readState(),
+      p = hooks.pet ? hooks.pet() : null,
+      list = root.SWMonsters ? root.SWMonsters.LIST : [],
+      beaten = 0,
+      h = "";
+    list.forEach(function (m) {
+      var open = monUnlocked(s.rev, m.id),
+        won = !!s.rev[monKey(m.id)],
+        prize = root.SWPrizes ? root.SWPrizes.forMonster(m.id) : null;
+      if (won) beaten++;
+      h += '<button class="sw-mcard' + (open ? "" : " sw-mlock") + (won ? " sw-mwon" : "") + '" data-m="' + m.id + '"' + (open ? "" : " disabled") + '><span class="sw-mart">' + monArt(m.id, "idle") + '</span><b>' + esc(m.name) + "</b><small>" +
+        (open ? esc(m.cn) + " · " + m.hp + " HP" : "Beat the one before") + "</small>" +
+        (prize ? '<span class="sw-mdrop"><span class="sw-ith">' + prizeThumb(prize.id) + "</span>" + (won ? "Got it ✓" : esc(prize.name)) + "</span>" : "") + (open ? "" : '<span class="sw-mlk">' + LOCK + "</span>") + "</button>";
+    });
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swClose">← Back</button>' + (p ? '<span class="sw-starpill">' + scenery("star") + (+p.stars || 0) + "</span>" : "") + "</div>" +
+      '<div class="sw-ttl"><span class="sw-mhead">' + monArt(1, "cheer") + '</span><div><h1>Monster battle</h1><div class="sw-sub">Beat the monsters with your words! · 打怪兽 · ' + beaten + " / " + list.length + "</div></div></div>" +
+      '<div class="sw-mons">' + h + "</div>";
+    document.getElementById("swClose").onclick = showHome;
+    Array.prototype.forEach.call(box.querySelectorAll(".sw-mcard"), function (b) {
+      b.onclick = function () {
+        if (b.disabled) return;
+        back = showBattle;
+        startBattle(+b.getAttribute("data-m"));
+      };
+    });
+    ov.scrollTop = 0;
+  }
+  var LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3" fill="#8A97AD"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="#8A97AD" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  function heartsHtml(n) {
+    var h = "";
+    for (var j = 0; j < 3; j++) h += '<i class="' + (j < n ? "" : "sw-lost") + '">' + HEARTSVG + "</i>";
+    return h;
+  }
+  // the first time a monster is beaten: 5 stars and the prize it drops (with the pet wearing it)
+  function monsterReveal(m) {
+    var P = root.SWPrizes,
+      prize = P ? P.forMonster(m.id) : null,
+      s = readState(),
+      k = monKey(m.id),
+      first = !s.rev[k],
+      p = hooks.pet ? hooks.pet() : null,
+      eq2 = {},
+      q;
+    if (first) {
+      s.rev[k] = Date.now();
+      writeState(s);
+      trk("sw_monster", "m" + m.id, "", "monster");
+      try {
+        if (hooks.gift) hooks.gift(CHEST_STARS);
+        if (hooks.toast) hooks.toast([[CHEST_STARS, "Monster beaten", "打败怪兽"]], CHEST_STARS, false);
+      } catch (e) {}
+    }
+    if (p && p.eq) for (q in p.eq) if (p.eq.hasOwnProperty(q)) eq2[q] = p.eq[q];
+    if (prize && first) eq2[prize.slot] = prize.id;
+    var chip = prize ? '<span class="sw-ritem"><span class="sw-ith sw-rbig">' + prizeThumb(prize.id) + "</span>" + esc(prize.name) + "</span>" : "";
+    return {
+      html: '<div class="sw-reveal"><div class="sw-mart sw-mbig">' + monArt(m.id, "hurt") + '</div><div class="sw-rt">' + (first ? m.name + " is beaten!" : "You beat " + m.name + " again!") + "</div>" +
+        (first ? '<div class="sw-rrow"><span class="sw-rstar">+' + CHEST_STARS + " ★</span>" + chip + "</div>" : "") +
+        (first && prize && p ? '<div class="sw-stage sw-rpet"><div class="sw-pet sw-pets sw-dance">' + petArt("excited", eq2) + '</div></div><button class="sw-go" id="swWear">Wear it now</button>' : first && prize ? '<div class="sw-msg">Adopt a pet on the pet page to wear it.</div>' : "") + "</div>",
+      after: function () {
+        var b = document.getElementById("swWear");
+        if (b)
+          b.onclick = function () {
+            var ok = false;
+            try {
+              ok = hooks.wear ? hooks.wear(prize.id) : false;
+            } catch (e) {}
+            b.textContent = ok ? "Wearing ✓" : "Open the pet page to wear it";
+            b.disabled = true;
+            if (ok) sfx("cheer");
+          };
+        setTimeout(function () {
+          sfx(first ? "sparkle" : "cheer");
+        }, 350);
+      },
+    };
+  }
+  var LAYERS = 6; // pictures stacked behind a fighter while it turns, to give it thickness
+  function startBattle(id) {
+    var m = monById(id);
+    if (!m) {
+      showBattle();
+      return;
+    }
     gameTag = "game";
     var s0 = readState(),
       pool = gamePool(learnedWords(s0), [], firstLessonsWords(), 8),
@@ -2736,187 +2905,538 @@
       dueList = pool.filter(function (w) {
         return dueKeys.indexOf(wkey(w)) >= 0;
       }),
-      best = +s0.rev.rushbest || 0,
       first = {},
       rnd = seeded(Date.now() % 100003),
-      timer = null,
+      timers = [],
+      qT = null,
       handler = null;
-    trk("sw_game_start", "rush", "", "game");
+    trk("sw_game_start", "battle", "monster " + id, "game");
     function stop() {
-      if (timer) {
-        clearInterval(timer);
-        timer = null;
-      }
+      clearTimeout(qT);
+      timers.forEach(clearTimeout);
+      timers = [];
       if (handler) {
         document.removeEventListener("keydown", handler);
         handler = null;
       }
     }
-    run = { mode: "rush", steps: [], i: 0, first: first, rnd: rnd, stop: stop, score: 0 };
-    var me = run;
-    box.innerHTML = gTop("Word rush") +
-      '<div class="sw-card sw-dk"><div class="sw-kind">Word rush</div><div class="sw-big" style="font-size:64px">60 s</div>' +
-      '<div class="sw-sent" style="font-size:19px">Hear the word and tap it as fast as you can.<br>A streak multiplies your points. A wrong tap costs 2 seconds.</div>' +
-      '<div class="sw-msg">' + (best ? "Your best: " + best + " points" : "Set your first score!") + '</div><button class="sw-go" id="swGo">Go!</button></div>';
+    run = { mode: "battle", steps: [], i: 0, first: first, rnd: rnd, stop: stop, at: id };
+    var me = run,
+      hp = m.hp,
+      hearts = 3,
+      streak = 0,
+      recent = [],
+      cur = null,
+      busy = true,
+      shots = 0;
+    function later(fn, ms) {
+      timers.push(
+        setTimeout(function () {
+          if (run === me && !me.done) fn();
+        }, ms)
+      );
+    }
+    function el(x) {
+      return document.getElementById(x);
+    }
+    // inside the fight both look at each other: the pet (drawn flipped, so its tail is behind it) and the monster glance at the other side
+    function pA(mood) {
+      root.__petGaze = -1;
+      var h = petArt(mood);
+      root.__petGaze = 0;
+      return h;
+    }
+    function mA(mood) {
+      return monArt(id, mood, -1);
+    }
+    var canRig = !!(root.SWMonsters && root.SWMonsters.mount),
+      rig = null,
+      canPet = !!(root.PetRig && root.PetRig.mount && root.petSvg),
+      prig = null;
+    box.innerHTML = gTop("Monster battle · " + m.name) +
+      '<div class="sw-card sw-bt"><div class="sw-arena" id="swArena"><div class="sw-abg">' + (root.SWMonsters ? root.SWMonsters.arena(id) : "") + '</div><div class="sw-php" id="swHearts">' + heartsHtml(3) + '</div>' +
+      '<div class="sw-mhp"><b id="swMname">' + esc(m.name) + " " + hp + "/" + m.hp + '</b><div class="sw-hpbar"><i id="swMhp" style="width:100%"></i></div></div>' +
+      '<div class="sw-apet" id="swApet"><div class="sw-turn" id="swPetHost">' + (canPet ? "" : pA("happy")) + "</div>" + (canPet ? "" : '<i class="sw-shd"></i>') + '</div><div class="sw-amon" id="swAmon"><div class="sw-turn" id="swMonHost">' + (canRig ? "" : mA("idle")) + "</div>" + (canRig ? "" : '<i class="sw-shd"></i>') + '</div><div class="sw-bfx" id="swFx"><div class="sw-banner2" id="swBan">' + esc(m.name) + " appears!</div></div></div>" +
+      '<div class="sw-charge"><i id="swCharge"></i></div><div class="sw-streak" id="swStreak"> </div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-bg" id="swOpts"></div></div>';
     bindQuit();
-    document.getElementById("swGo").onclick = function () {
-      var c = 3;
-      box.innerHTML = gTop("Word rush") + '<div class="sw-card sw-dk"><div class="sw-big sw-cd" id="swCd">3</div></div>';
-      bindQuit();
-      function step() {
-        var el = document.getElementById("swCd");
-        if (run !== me || !el) return;
-        c--;
-        if (c > 0) {
-          el.textContent = c;
-          sfx("poke");
-          setTimeout(step, 700);
-        } else {
-          el.textContent = "Go!";
-          sfx("cheer");
-          setTimeout(begin, 500);
-        }
+    // the monster is a living rig (parts that breathe, blink, turn, charge, attack, get hit and are beaten); if that can't be drawn, a still picture is used instead
+    if (canRig) {
+      try {
+        rig = root.SWMonsters.mount(el("swMonHost"), id, { gaze: -1, lean: -4 });
+      } catch (e) {
+        rig = null;
       }
-      sfx("poke");
-      setTimeout(step, 700);
+      if (!rig) el("swMonHost").innerHTML = mA("idle");
+    }
+    // the pet is a living rig too: the very same drawing it has everywhere else (clothes and all), moved part by part
+    if (canPet) {
+      try {
+        var pa = petRigArgs();
+        prig = root.PetRig.mount(el("swPetHost"), pa.type, pa.eq, { gaze: -1, lean: -4, flip: true });
+      } catch (e) {
+        prig = null;
+      }
+      if (!prig) el("swPetHost").innerHTML = pA("happy") + '<i class="sw-shd"></i>';
+    }
+    document.getElementById("swHear").onclick = function () {
+      if (cur) play("w", cur.w);
     };
-    function begin() {
-      if (run !== me || !document.getElementById("swCd")) return;
-      var score = 0,
-        streak = 0,
-        longest = 0,
-        right = 0,
-        recent = [],
-        end = Date.now() + 60000,
-        cur = null,
-        lockIn = false;
-      box.innerHTML = gTop("Word rush") +
-        '<div class="sw-card sw-dk"><div class="sw-hud"><div class="sw-tbar"><i id="swTbar"></i></div><b class="sw-secs" id="swSecs">60</b></div>' +
-        '<div class="sw-hud2"><span class="sw-score" id="swScore">0</span><span class="sw-combo" id="swCombo"></span><span class="sw-bestl">Best ' + best + "</span></div>" +
-        '<div class="sw-rwrap"><button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><span class="sw-plus" id="swPlus"></span></div><div class="sw-rg" id="swOpts"></div></div>';
-      bindQuit();
-      function nextWord() {
-        var w = rushPick(pool, recent, rnd, dueList);
-        recent.push(wkey(w));
-        if (recent.length > 4) recent.shift();
-        cur = { w: w, k: wkey(w), opts: shuffle([w].concat(distractors(w, pool, rnd, [], 3)), rnd) };
-        document.getElementById("swOpts").innerHTML = cur.opts.map(function (o, n) {
-          return '<button class="sw-ro" data-w="' + esc(o) + '"><small>' + (n + 1) + "</small>" + esc(o) + "</button>";
-        }).join("");
-        Array.prototype.forEach.call(box.querySelectorAll(".sw-ro"), function (b) {
-          b.onclick = function () {
-            pick(b);
-          };
+    function setArt(target, html) {
+      var node = el(target),
+        t = node && node.firstChild;
+      if (t) t.innerHTML = html;
+    }
+    // swing a fighter from the front view round to the side (on = true) or back to the front. A flat picture looks like paper when it turns, so for
+    // the turn it gets some thickness: copies of the same picture are stacked behind it, each a little deeper and darker (CSS 3D), and the turn has a
+    // crouch before it, an overshoot and a settle, and the shadow on the ground gets narrower.
+    function side(target, on) {
+      var node = el(target),
+        t = node && node.firstChild;
+      if (!t) return;
+      var flip = target === "swApet";
+      function clearLayers() {
+        Array.prototype.forEach.call(t.querySelectorAll(".sw-ly"), function (n) {
+          t.removeChild(n);
         });
-        play("w", w);
       }
-      function hud() {
-        document.getElementById("swScore").textContent = score;
-        var m = rushMult(streak);
-        document.getElementById("swCombo").textContent = streak >= 2 ? streak + " in a row" + (m > 1 ? " · ×" + m : "") : "";
-      }
-      function pick(b) {
-        if (run !== me || lockIn || !cur) return;
-        var good = wkey(b.getAttribute("data-w")) === cur.k;
-        if (first[cur.k] === undefined) first[cur.k] = good;
-        else if (!good) first[cur.k] = false;
-        if (good) {
-          streak++;
-          right++;
-          if (streak > longest) longest = streak;
-          var pts = rushPoints(streak);
-          score += pts;
-          me.score = score;
-          b.classList.add("sw-ok");
-          sfx("pop");
-          plusText(document.getElementById("swPlus"), "+" + pts, false);
-          hud();
-          lockIn = true;
-          setTimeout(function () {
-            lockIn = false;
-            if (run === me && !me.done) nextWord();
-          }, 140);
-        } else {
-          streak = 0;
-          end -= 2000;
-          b.classList.add("sw-bad");
-          b.disabled = true;
-          sfx("poke");
-          plusText(document.getElementById("swPlus"), "−2 s", true);
-          hud();
-          tick();
-        }
-      }
-      function tick() {
-        if (run !== me || me.done) {
-          stop();
-          return;
-        }
-        var left = end - Date.now(),
-          bar = document.getElementById("swTbar");
-        if (left <= 0) {
-          finishRush();
-          return;
-        }
-        if (bar) {
-          bar.style.width = Math.round((100 * left) / 60000) + "%";
-          bar.className = left < 10000 ? "low" : "";
-        }
-        var sc = document.getElementById("swSecs");
-        if (sc) sc.textContent = Math.ceil(left / 1000);
-      }
-      function finishRush() {
-        stop();
-        me.done = true;
-        var s = readState(),
-          newBest = score > (+s.rev.rushbest || 0);
-        if (newBest) {
-          s.rev.rushbest = score;
-          writeState(s);
-        }
-        var ks = Object.keys(first),
-          missed = ks.filter(function (k) {
-            return !first[k];
-          });
-        sfx("big");
-        endGame(
-          "r",
-          first,
-          "Word rush",
-          function () {
-            return score + " points";
-          },
-          function () {
-            return (newBest && score > 0 ? "New best! " : "Best " + Math.max(best, score) + ". ") + right + " right, longest streak " + longest + ".";
-          },
-          startRush,
-          '<div class="sw-stage"><div class="sw-pet sw-pets ' + (score >= best && score > 0 ? "sw-dance" : "sw-hop") + '">' + petArt(score > 0 ? "excited" : "happy") + "</div></div>" +
-            (missed.length ? '<div class="sw-msg">Words to practise:</div><div class="sw-words">' + missed.map(function (k) {
-              return '<span class="sw-miss">' + esc(shown(k)) + "</span>";
-            }).join("") + "</div>" : ""),
-          null,
-          { keepMisses: true, dark: true }
-        );
-      }
-      document.getElementById("swHear").onclick = function () {
-        if (cur) play("w", cur.w);
-      };
-      handler = function (e) {
-        if (run !== me || !ov || ov.style.display === "none" || !document.getElementById("swOpts")) return;
-        var n = +(e.key || String.fromCharCode(e.keyCode || 0));
-        if (n >= 1 && n <= 4) {
-          var bs = box.querySelectorAll(".sw-ro");
-          if (bs[n - 1] && !bs[n - 1].disabled) {
-            e.preventDefault();
-            pick(bs[n - 1]);
+      if (on) {
+        clearTimeout(t.__off);
+        clearLayers();
+        var svg = t.querySelector("svg");
+        if (svg) {
+          var xml = svg.outerHTML.indexOf("xmlns=") < 0 ? svg.outerHTML.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ') : svg.outerHTML,
+            uri = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+          for (var k = 1; k <= LAYERS; k++) {
+            var im = document.createElement("img");
+            im.className = "sw-ly";
+            im.alt = "";
+            im.src = uri;
+            im.style.transform = "translateZ(-" + (k * 3) + "px) " + (flip ? "scaleX(-1) " : "") + "rotate(-5deg)";
+            im.style.filter = "brightness(" + (0.9 - k * 0.05).toFixed(2) + ")";
+            t.insertBefore(im, t.firstChild);
           }
         }
-      };
-      document.addEventListener("keydown", handler);
-      hud();
-      nextWord();
-      timer = setInterval(tick, 100);
+        t.classList.remove("sw-out");
+        t.classList.add("sw-turned", "sw-in");
+      } else {
+        t.classList.remove("sw-in");
+        t.classList.add("sw-out");
+        t.__off = setTimeout(function () {
+          t.classList.remove("sw-out", "sw-turned");
+          clearLayers();
+        }, 340);
+      }
     }
+    function anim(node, cls, ms) {
+      if (!node) return;
+      node.classList.remove(cls);
+      void node.offsetWidth;
+      node.classList.add(cls);
+      setTimeout(function () {
+        node.classList.remove(cls);
+      }, ms);
+    }
+    // where things are, in pixels inside the arena: the pet's front, the pet's middle, the monster's middle and its front
+    function geo() {
+      var ar = el("swArena").getBoundingClientRect(),
+        pr = el("swApet").getBoundingClientRect(),
+        mr = el("swAmon").getBoundingClientRect(),
+        mz = rig ? rig.muzzle() : { x: 0.2, y: 0.5 },
+        pz = prig ? prig.muzzle() : { x: 0.86, y: 0.5 };
+      return {
+        p: { x: pr.left - ar.left + pr.width * pz.x, y: pr.top - ar.top + pr.height * pz.y },
+        pc: { x: pr.left - ar.left + pr.width * 0.5, y: pr.top - ar.top + pr.height * 0.5 },
+        m: { x: mr.left - ar.left + mr.width * 0.5, y: mr.top - ar.top + mr.height * 0.52 },
+        mf: { x: mr.left - ar.left + mr.width * mz.x, y: mr.top - ar.top + mr.height * mz.y },
+      };
+    }
+    function fxAdd(html, cls, x, y, life) {
+      var fx = el("swFx");
+      if (!fx) return null;
+      var d = document.createElement("div");
+      d.className = cls;
+      d.innerHTML = html || "";
+      d.style.left = x + "px";
+      d.style.top = y + "px";
+      fx.appendChild(d);
+      setTimeout(function () {
+        if (d.parentNode) d.parentNode.removeChild(d);
+      }, life || 1000);
+      return d;
+    }
+    function floatText(txt, cls, where) {
+      var d = fxAdd(esc(txt), "sw-dmg " + cls, 0, 0, 1000);
+      if (d) {
+        d.style.left = where + "%";
+        d.style.top = "22%";
+      }
+    }
+    // something flying from one point to another (a cannonball, or the monster's shot)
+    function fly(html, cls, from, to, ms, delay, cb) {
+      later(function () {
+        var d = fxAdd(html, "sw-shot " + cls, from.x, from.y, ms + 250);
+        if (!d) return;
+        d.style.transform = "translate(-50%,-50%) scale(.55)";
+        void d.offsetWidth;
+        d.style.transition = "left " + ms + "ms linear,top " + ms + "ms linear,transform " + ms + "ms ease-out";
+        d.style.left = to.x + "px";
+        d.style.top = to.y + "px";
+        d.style.transform = "translate(-50%,-50%) scale(1)";
+        sfx("pew");
+      }, delay);
+      later(cb || function () {}, delay + ms);
+    }
+    // a burst where something lands: a ring and a few candy-coloured sparks
+    function impact(pt, n, colors) {
+      var d = fxAdd('<i class="sw-ring"></i>', "sw-imp", pt.x, pt.y, 900);
+      if (!d) return;
+      for (var q = 0; q < n; q++) {
+        var sp = document.createElement("b");
+        sp.className = "sw-spk";
+        sp.style.background = colors[q % colors.length];
+        d.appendChild(sp);
+        (function (node, ang, dist) {
+          setTimeout(function () {
+            node.style.transform = "translate(" + (Math.cos(ang) * dist).toFixed(0) + "px," + (Math.sin(ang) * dist).toFixed(0) + "px) scale(.3)";
+            node.style.opacity = "0";
+          }, 25);
+        })(sp, (q / n) * 6.283 + 0.4, 36 + (q % 3) * 14);
+      }
+    }
+    function muzzle(pt) {
+      fxAdd("", "sw-muz", pt.x, pt.y, 450);
+    }
+    // the big laser: a rainbow beam from the pet to the monster
+    function beam(from, to) {
+      var dx = to.x - from.x,
+        dy = to.y - from.y,
+        d = fxAdd('<i class="sw-beami"></i>', "sw-beam", from.x, from.y, 950);
+      if (!d) return;
+      d.style.width = Math.sqrt(dx * dx + dy * dy) + "px";
+      d.style.transform = "rotate(" + ((Math.atan2(dy, dx) * 180) / Math.PI).toFixed(1) + "deg)";
+      sfx("zap");
+    }
+    function hud() {
+      var b = el("swMhp");
+      if (b) b.style.width = Math.round((100 * hp) / m.hp) + "%";
+      var nm = el("swMname");
+      if (nm) nm.textContent = m.name + " " + hp + "/" + m.hp;
+      var he = el("swHearts");
+      if (he) he.innerHTML = heartsHtml(hearts);
+      var st = el("swStreak");
+      if (st) st.textContent = streak >= 2 ? "Streak " + streak + (streak >= 5 ? " · MEGA laser!" : streak >= 3 ? " · cannon stream!" : "") : " ";
+      var pe = el("swApet");
+      if (pe) {
+        if (streak >= 3) pe.classList.add("sw-pow");
+        else pe.classList.remove("sw-pow");
+      }
+    }
+    var BALLS = ["sw-ball0", "sw-ball1", "sw-ball2", "sw-ball3"],
+      SPARK = ["#FF8FB1", "#FFD23F", "#6AA7FF", "#7BD65A", "#FFFFFF"];
+    // the pet fires: 1 hit = one cannonball, a power hit = a stream of four, a mega hit = the laser. Returns how long it all takes.
+    function petAttack(d) {
+      var g = geo(),
+        landed = 0;
+      if (prig) prig.turn(true);
+      else {
+        setArt("swApet", pA("excited"));
+        side("swApet", true);
+        anim(el("swApet"), "sw-recoil", 420);
+      }
+      function land(big, last) {
+        if (landed === 0) {
+          if (!rig) setArt("swAmon", mA("hurt"));
+          floatText((d >= 3 ? "MEGA LASER " : d === 2 ? "CANNON STREAM " : "") + "-" + d, d >= 3 ? "sw-d3" : d === 2 ? "sw-d2" : "sw-d1", d >= 3 ? 18 : 40);
+          hud();
+        }
+        landed++;
+        if (rig) rig.play("hit", null, big ? 1.7 : 1);
+        else anim(el("swAmon"), "sw-recoil2", 460);
+        impact(g.m, big ? 16 : 8, SPARK);
+        sfx(big ? "thud" : "pop");
+        if (big) anim(el("swArena"), "sw-ashake", 320);
+        try {
+          var r = el("swAmon").getBoundingClientRect();
+          if (hooks.burst && (big || last)) hooks.burst(r.left + r.width / 2, r.top + r.height / 2);
+        } catch (e) {}
+      }
+      // with the rig the pet first turns to the side (0.3 s), then fires: its kick is 0.14 s into the move, so the shot leaves 0.14 s after the move starts
+      var lead = prig ? 120 : 0;
+      if (d === 1) {
+        if (prig)
+          later(function () {
+            prig.play("fire");
+          }, lead);
+        later(function () {
+          muzzle(g.p);
+        }, lead + (prig ? 140 : 150));
+        fly('<i class="' + BALLS[shots++ % 4] + '"></i>', "sw-ball", g.p, g.m, 330, lead + (prig ? 150 : 170), function () {
+          land(false, true);
+        });
+      } else if (d === 2) {
+        for (var k = 0; k < 4; k++)
+          (function (k) {
+            var at = prig ? lead + k * 130 : 120 + k * 120;
+            if (prig)
+              later(function () {
+                prig.play("fire");
+              }, at);
+            later(function () {
+              muzzle(g.p);
+            }, at + (prig ? 140 : 0));
+            fly('<i class="' + BALLS[(shots + k) % 4] + '"></i>', "sw-ball", g.p, g.m, 300, at + (prig ? 150 : 20), function () {
+              land(false, k === 3);
+            });
+          })(k);
+        shots += 4;
+      } else {
+        if (prig)
+          later(function () {
+            prig.play("fire", null, 2);
+          }, 100);
+        later(function () {
+          muzzle(g.p);
+          if (!prig) anim(el("swApet"), "sw-recoil", 420);
+        }, prig ? 400 : 150);
+        later(function () {
+          beam(g.p, g.m);
+        }, prig ? 430 : 300);
+        later(function () {
+          land(true, true);
+        }, prig ? 560 : 430);
+        later(function () {
+          impact(g.m, 10, SPARK);
+        }, prig ? 830 : 700);
+      }
+      later(function () {
+        if (!rig) setArt("swAmon", mA("idle"));
+        if (prig) prig.turn(false);
+        else {
+          setArt("swApet", pA("happy"));
+          side("swApet", false);
+        }
+      }, prig ? (d === 1 ? 800 : d === 2 ? 1150 : 1400) : d === 1 ? 800 : d === 2 ? 1150 : 1250);
+      return prig ? (d === 1 ? 1100 : d === 2 ? 1450 : 1700) : d === 1 ? 850 : d === 2 ? 1200 : 1300;
+    }
+    // the pet gets bumped by the monster's shot, never hurt for real
+    function bump(g, slow) {
+      if (prig) prig.play("hit");
+      else {
+        setArt("swApet", pA("surprised"));
+        anim(el("swApet"), "sw-knock", 520);
+      }
+      impact(g.pc, 8, ["#FFFFFF", "#FFE066", "#FF8FB1"]);
+      floatText(slow ? "Too slow!" : "Oops!", "sw-dbad", 12);
+      sfx("thud");
+      hud();
+    }
+    // the monster shoots back (its own cartoon shot): it turns to the side, gathers a glowing ball, throws itself forward, fires, and turns back
+    function monAttack(slow) {
+      var g = geo();
+      if (rig) {
+        rig.turn(true);
+        rig.charge(0.35);
+        later(function () {
+          rig.play("attack");
+        }, 330);
+        later(function () {
+          muzzle(g.mf);
+        }, 630);
+        fly(root.SWMonsters.shot(id), "sw-mshot", g.mf, g.pc, 400, 640, function () {
+          bump(g, slow);
+        });
+        later(function () {
+          rig.calm();
+          rig.turn(false);
+          if (!prig) setArt("swApet", pA("happy"));
+        }, 1080);
+        return 1450;
+      }
+      setArt("swAmon", mA("cheer"));
+      side("swAmon", true);
+      anim(el("swAmon"), "sw-wind", 440);
+      later(function () {
+        muzzle(g.mf);
+      }, 250);
+      fly(root.SWMonsters ? root.SWMonsters.shot(id) : "", "sw-mshot", g.mf, g.pc, 400, 300, function () {
+        bump(g, slow);
+      });
+      later(function () {
+        setArt("swAmon", mA("idle"));
+        setArt("swApet", pA("happy"));
+        side("swAmon", false);
+      }, 1150);
+      return 1150;
+    }
+    function ask() {
+      if (run !== me || me.done) return;
+      var w = battlePick(pool, recent, rnd, dueList);
+      recent.push(wkey(w));
+      if (recent.length > 4) recent.shift();
+      cur = { w: w, k: wkey(w), done: false };
+      var opts = shuffle([w].concat(distractors(w, pool, rnd, [], m.opts - 1)), rnd);
+      el("swOpts").innerHTML = opts.map(function (o, n) {
+        return '<button class="sw-bo" data-w="' + esc(o) + '"><small>' + (n + 1) + "</small>" + esc(o) + "</button>";
+      }).join("");
+      Array.prototype.forEach.call(box.querySelectorAll(".sw-bo"), function (b) {
+        b.onclick = function () {
+          answer(b);
+        };
+      });
+      var bar = el("swCharge");
+      if (bar) {
+        bar.style.transition = "none";
+        bar.style.width = "100%";
+        void bar.offsetWidth;
+        bar.style.transition = "width " + m.charge + "s linear";
+        bar.style.width = "0%";
+      }
+      if (rig) rig.charge(m.charge); // the monster gets more and more worked up while the bar runs down
+      if (prig) prig.charge(m.charge); // and the pet gets ready, bouncing a little
+      clearTimeout(qT);
+      qT = setTimeout(function () {
+        if (run === me && !me.done) answer(null);
+      }, m.charge * 1000);
+      busy = false;
+      play("w", w);
+    }
+    function answer(b) {
+      if (busy || !cur || cur.done) return;
+      busy = true;
+      cur.done = true;
+      clearTimeout(qT);
+      if (rig) rig.calm();
+      if (prig) prig.calm();
+      var bar = el("swCharge");
+      if (bar) {
+        bar.style.width = getComputedStyle(bar).width;
+        bar.style.transition = "none";
+      }
+      var good = !!b && wkey(b.getAttribute("data-w")) === cur.k;
+      if (first[cur.k] === undefined) first[cur.k] = good;
+      else if (!good) first[cur.k] = false;
+      var wait;
+      if (good) {
+        streak++;
+        var d = battleDmg(streak);
+        hp = Math.max(0, hp - d);
+        b.classList.add("sw-ok");
+        wait = petAttack(d);
+        if (hp <= 0) later(win, wait);
+        else later(ask, wait);
+      } else {
+        streak = 0;
+        hearts--;
+        if (b) {
+          b.classList.add("sw-bad");
+          b.disabled = true;
+        }
+        Array.prototype.forEach.call(box.querySelectorAll(".sw-bo"), function (o) {
+          if (wkey(o.getAttribute("data-w")) === cur.k) o.classList.add("sw-hint");
+        });
+        play("w", cur.w);
+        wait = monAttack(!b);
+        var pe = el("swApet");
+        if (pe) pe.classList.remove("sw-pow");
+        if (hearts <= 0) later(lose, wait + 500);
+        else later(ask, wait + 500);
+      }
+    }
+    function win() {
+      me.done = true;
+      stop();
+      var g = geo();
+      if (rig) rig.play("defeat");
+      else anim(el("swAmon"), "sw-fade", 900);
+      if (prig) {
+        prig.turn(false);
+        prig.play("cheer");
+      }
+      impact(g.m, 16, SPARK);
+      try {
+        var r = el("swAmon").getBoundingClientRect();
+        if (hooks.burst) hooks.burst(r.left + r.width / 2, r.top + r.height / 2);
+      } catch (e) {}
+      sfx("big");
+      setTimeout(function () {
+        if (run !== me) return;
+        var rv = monsterReveal(m);
+        endGame(
+          "m",
+          first,
+          "Monster battle",
+          function () {
+            return hearts >= 3 ? "Flawless!" : "You win!";
+          },
+          function (r, t) {
+            return "Hearts left: " + hearts + " · " + r + " of " + t + " words right first time.";
+          },
+          function () {
+            startBattle(id);
+          },
+          rv.html,
+          rv.after,
+          { keepMisses: true }
+        );
+      }, 1000);
+    }
+    function lose() {
+      me.done = true;
+      stop();
+      var s = readState(),
+        today = dayStr(),
+        miss = [];
+      Object.keys(first).forEach(function (k) {
+        if (first[k] && s.words[k]) s.words[k] = applyResult(s.words[k], true, today);
+        if (!first[k]) miss.push(k);
+      });
+      writeState(s);
+      trk("sw_game_done", "battle", "lost m" + id, "game");
+      sfx("poke");
+      box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button></div><div class="sw-card"><div class="sw-kind" style="background:#E5483A">Monster battle</div>' +
+        '<div class="sw-mart sw-mbig" id="swLoseMon">' + monArt(id, "cheer") + '</div><div class="sw-big" style="font-size:44px">' + esc(m.name) + " won this time!</div>" +
+        '<div class="sw-sent" style="font-size:19px">Practise these words and try again. You can do it!</div>' +
+        '<div class="sw-words">' + miss.map(function (k) {
+          return '<span class="sw-miss">' + esc(shown(k)) + "</span>";
+        }).join("") + '</div><button class="sw-go" id="swAgain">Try again</button> <button class="sw-say sw-alt" id="swMap">' + backLabel() + "</button></div>";
+      document.getElementById("swQuit").onclick = goBack;
+      document.getElementById("swMap").onclick = goBack;
+      document.getElementById("swAgain").onclick = function () {
+        startBattle(id);
+      };
+      if (canRig) {
+        try {
+          root.SWMonsters.mount(document.getElementById("swLoseMon"), id, { mode: "cheer" });
+        } catch (e) {
+          document.getElementById("swLoseMon").innerHTML = monArt(id, "cheer");
+        }
+      }
+      refreshButton();
+    }
+    handler = function (e) {
+      if (run !== me || !ov || ov.style.display === "none" || !el("swOpts")) return;
+      var n = +(e.key || String.fromCharCode(e.keyCode || 0));
+      if (n >= 1 && n <= 4) {
+        var bs = box.querySelectorAll(".sw-bo");
+        if (bs[n - 1] && !bs[n - 1].disabled) {
+          e.preventDefault();
+          answer(bs[n - 1]);
+        }
+      }
+    };
+    document.addEventListener("keydown", handler);
+    sfx("sparkle");
+    later(function () {
+      var ban = el("swBan");
+      if (ban) ban.textContent = "Fight!";
+      sfx("poke");
+    }, 1100);
+    later(function () {
+      var ban = el("swBan");
+      if (ban && ban.parentNode) ban.parentNode.removeChild(ban);
+      ask();
+    }, 1700);
   }
 
   /* ---- the end of a lesson or a review ---- */

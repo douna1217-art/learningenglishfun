@@ -84,28 +84,41 @@ ok(eq(SW.shuffle([1, 2, 3, 4, 5], SW.seeded(3)).slice().sort(), [1, 2, 3, 4, 5])
 ok(SW.accuracy(4, 5) === 80 && SW.accuracy(0, 0) === 0, "accuracy percent");
 
 
-// ---- the spelling and speed games for older children
-ok(SW.spellCheck("three", "three").every((m) => m === "ok"), "spelling: a right word is all green");
-ok(eq(SW.spellCheck("tzzzz", "three"), ["ok", "no", "no", "no", "no"]), "spelling: right letter in the right place is green, others grey");
-ok(eq(SW.spellCheck("hello", "world"), ["no", "no", "no", "ok", "near"]), "spelling: a letter that is in the word elsewhere is yellow (and the first l is grey, the second one is right)");
-ok(eq(SW.spellCheck("teeee", "three"), ["ok", "no", "no", "ok", "ok"]), "spelling: a repeated letter is only yellow as many times as it is in the word");
-ok(eq(SW.spellCheck("eerht", "three"), ["near", "near", "ok", "near", "near"]), "spelling: all the right letters in the wrong places are yellow");
-ok(SW.spellCheck("don\u2019t", "don't").every((m) => m === "ok") && SW.spellForm("Don\u2019t") === "don't", "spelling: a curly and a straight apostrophe are the same");
+// ---- Bubble spell and Monster battle (older children)
+ok(SW.spellForm("Don\u2019t") === "don't" && SW.spellForm("The") === "the", "spelling: a curly apostrophe becomes a straight one, upper case becomes lower");
 ok(eq(SW.spellable(["I", "a", "the", "go", "Don't"]), ["the", "go", "Don't"]), "spelling: words of one letter are left out");
-ok(SW.rushMult(1) === 1 && SW.rushMult(4) === 1 && SW.rushMult(5) === 2 && SW.rushMult(9) === 2 && SW.rushMult(10) === 3 && SW.rushMult(15) === 4 && SW.rushMult(99) === 4, "speed: the multiplier grows at 5, 10 and 15 in a row");
-ok(SW.rushPoints(1) === 10 && SW.rushPoints(5) === 20 && SW.rushPoints(10) === 30 && SW.rushPoints(20) === 40, "speed: points are 10 times the multiplier");
+let bubOk = true, bubDecoys = [];
+["the", "three", "because", "always", "go", "Don\u2019t", "is"].forEach((w) => {
+  for (let k = 0; k < 40; k++) {
+    const set = SW.bubbleSet(w, SW.seeded(k + 7)), own = SW.spellForm(w).replace(/[^a-z]/g, "").split("");
+    // every letter of the word is there (as many times as in the word) plus a few that are not in the word
+    const rest = set.slice();
+    own.forEach((c) => { const j = rest.indexOf(c); if (j < 0) bubOk = false; else rest.splice(j, 1); });
+    if (rest.some((c) => own.indexOf(c) >= 0) || rest.length < 2 || rest.length > 4) bubOk = false;
+    bubDecoys.push(rest.length);
+  }
+});
+ok(bubOk, "bubbles: all the letters of the word and 2 to 4 more that are not in it", bubDecoys.slice(0, 5));
+ok(eq(SW.bubbleSet("three", SW.seeded(3)), SW.bubbleSet("three", SW.seeded(3))) && SW.bubbleSet("three", SW.seeded(3)).length === 8 && SW.bubbleSet("because", SW.seeded(1)).length === 11, "bubbles: the same seed gives the same bubbles; 5 letters make 8 bubbles, 7 letters make 11");
+ok(SW.battleDmg(1) === 1 && SW.battleDmg(2) === 1 && SW.battleDmg(3) === 2 && SW.battleDmg(4) === 2 && SW.battleDmg(5) === 3 && SW.battleDmg(40) === 3, "battle: a hit is 1 (one cannonball), 3 in a row 2 (a stream of cannonballs), 5 in a row 3 (the mega laser)");
+ok(SW.monKey(3) === "mon3" && SW.monUnlocked({}, 1) && !SW.monUnlocked({}, 2) && SW.monUnlocked({ mon1: 5 }, 2) && !SW.monUnlocked({ mon1: 5 }, 3) && !SW.monUnlocked(null, 4), "battle: the first monster is open, each next one opens when the one before is beaten");
 let repeats = 0, badPick = 0;
 for (let k = 0; k < 200; k++) {
   const rnd = SW.seeded(k + 1), recent = [], pool = ["the", "and", "go", "see", "look", "big", "red", "blue", "run", "jump"];
   for (let n = 0; n < 30; n++) {
-    const w = SW.rushPick(pool, recent, rnd, n % 3 === 0 ? ["go", "see"] : []);
+    const w = SW.battlePick(pool, recent, rnd, n % 3 === 0 ? ["go", "see"] : []);
     if (pool.indexOf(w) < 0) badPick++;
     if (recent.indexOf(SW.wkey(w)) >= 0) repeats++;
     recent.push(SW.wkey(w)); if (recent.length > 4) recent.shift();
   }
 }
-ok(repeats === 0 && badPick === 0, "speed: the next word is never one of the last four, always from the pool", [repeats, badPick]);
-ok(["a", "b"].indexOf(SW.rushPick(["a", "b"], ["a", "b", "c", "d"], SW.seeded(3), [])) >= 0 && SW.rushPick(["a"], ["a"], SW.seeded(3), []) === "a", "speed: with a tiny pool a word may come back instead of failing");
+ok(repeats === 0 && badPick === 0, "battle: the next word is never one of the last four, always from the pool", [repeats, badPick]);
+ok(SW.battlePick(["a"], ["a"], SW.seeded(3), []) === "a", "battle: with a tiny pool a word may come back instead of failing");
+const MON = require(path.join(SITE, "sightwords-monsters.js"));
+ok(MON.LIST.length === 5 && eq(MON.LIST.map((m) => m.id), [1, 2, 3, 4, 5]) && MON.LIST.every((m, i) => i === 0 || (m.hp > MON.LIST[i - 1].hp && m.charge <= MON.LIST[i - 1].charge)), "monsters: five, each with more hit points and a faster attack than the one before");
+ok(MON.LIST.every((m) => ["idle", "hurt", "cheer"].every((md) => { const x = MON.art(m.id, md); return /^<svg viewBox="0 0 120 120"/.test(x) && /<\/svg>$/.test(x) && !/NaN|undefined/.test(x) && bal(x, "g") === (x.match(/<\/g>/g) || []).length; })), "monsters: every monster draws in all three moods");
+const PZm = require(path.join(SITE, "sightwords-prizes.js"));
+ok(MON.LIST.every((m) => PZm.forMonster(m.id) && PZm.forMonster(m.id).monster === m.id) && PZm.wonIn({ mon2: 1 }, PZm.forMonster(2).id) && !PZm.wonIn({ mon1: 1 }, PZm.forMonster(2).id) && !PZm.wonIn({ "chest1-2": 1 }, PZm.forMonster(2).id), "monsters: each drops one prize, won when that monster has been beaten (not by a chest)");
 
 // ---- words that sound the same are never offered together when the child has to listen
 ok(SW.sameSound("two", "to") && SW.sameSound("Too", "two") && SW.sameSound("their", "there") && SW.sameSound("were", "where") && SW.sameSound("know", "no") && !SW.sameSound("to", "go") && !SW.sameSound("an", "and"), "same sound: homophones are recognised, look-alikes are not");
@@ -269,9 +282,9 @@ const PZ = require("../site/sightwords-prizes.js");
 const st0 = SW.cleanState(null);
 ok(SW.claimChest(st0, 1, 2, 1000) === true && st0.rev["chest1-2"] === 1000 && SW.claimChest(st0, 1, 2, 2000) === false && st0.rev["chest1-2"] === 1000, "chest: the first opening counts, a second one does not and keeps the first time");
 ok(SW.chestKey(1, 3) === "chest1-3", "chest: the key is made of the island and the unit");
-ok(PZ.STARS === 5 && PZ.ids().length === 10 && new Set(PZ.ids()).size === 10, "prizes: ten different items (five per island), 5 stars per chest");
+ok(PZ.STARS === 5 && PZ.ids().length === 15 && new Set(PZ.ids()).size === 15, "prizes: fifteen different items (five per island chest set, five monster drops), 5 stars per chest");
 ok(D.units.every((u) => PZ.forUnit(1, u.id) && PZ.forUnit(1, u.id).unit === u.id) && PZ.forUnit(2, 1) === null && PZ.forUnit(1, 6) === null, "prizes: every unit of island 1 has one; units of one island are not mixed up with the other");
-ok(PZ.ids().every((id) => /^ch-/.test(id) && ["hat", "face", "neck"].indexOf(PZ.get(id).slot) >= 0 && PZ.isPrize(id) && !PZ.isPrize("x" + id)), "prizes: ids and slots");
+ok(PZ.ids().every((id) => /^(ch|mn)-/.test(id) && ["hat", "face", "neck"].indexOf(PZ.get(id).slot) >= 0 && PZ.isPrize(id) && !PZ.isPrize("x" + id)), "prizes: ids and slots");
 ok(!PZ.wonIn({}, "ch-flower") && PZ.wonIn({ "chest1-1": 5 }, "ch-flower") && !PZ.wonIn({ "chest1-1": 5 }, "ch-pine") && !PZ.wonIn({ "chest1-1": 5 }, "nope"), "prizes: won when the unit's chest has been opened");
 const fakeG = (a, inner) => '<g transform="translate(' + a.hx + "," + a.hy + ") scale(" + a.hs + ')">' + inner + "</g>";
 let artOk = true;
@@ -371,6 +384,251 @@ ok(PZ.wonIn({ "chest2-6": 5 }, "ch-sunhat") && !PZ.wonIn({ "chest1-1": 5 }, "ch-
 const SCN = require("../site/sightwords-scenery.js");
 const isl = SCN.islands({ known: 0, total: 1, ready: { 1: true, 2: true }, stages: { 1: { title: "First words", known: 30, total: 92 }, 2: { title: "Growing readers", known: 5, total: 87 } } });
 ok((isl.match(/sw-isl-go/g) || []).length === 2 && /30 of 92 words known/.test(isl) && /5 of 87 words known/.test(isl) && /Growing readers/.test(isl), "islands: each ready island shows its own name and count", isl.length);
+
+// ---- the monsters as living rigs: parts with pivots that breathe, blink, turn, charge, attack, get hit and are beaten
+//      (these need jsdom:  NODE_PATH=<dir with jsdom> node tools/sightwords_test.js)
+let JSD = null;
+try { JSD = require("jsdom"); } catch (e) {}
+if (!JSD) console.log("   (monster rig tests skipped: jsdom not found)");
+else {
+  const rdoc = new JSD.JSDOM("<!doctype html><body></body>").window.document;
+  const mk = (id, opts) => { const h = rdoc.createElement("div"); rdoc.body.appendChild(h); return MON.mount(h, id, Object.assign({ manual: true }, opts || {})); };
+  const nodeOf = (c, view, name) => c.nodes[view].find((n) => n.pt.n === name);
+  const tf = (c, view, name) => nodeOf(c, view, name).el.getAttribute("transform") || "";
+  const rot = (t) => { const m = /rotate\((-?[\d.]+)\)/.exec(t); return m ? +m[1] : 0; };
+  const dx = (t) => { const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(t); return m ? +m[1] - 60 : 0; };
+  const shown = (c, view, name) => { const n = nodeOf(c, view, name); let v = null; Object.keys(n.vs).forEach((k) => { if (!n.vs[k].getAttribute("display")) v = k; }); return v; };
+  const visible = (c, view, name) => !nodeOf(c, view, name).el.getAttribute("display");
+  const KINDS = ["none", "root", "shadow", "spin", "body", "arm", "foot", "deco", "flame", "tail", "wing", "hem", "face", "star", "orb"];
+  let badStruct = [], badNum = [], badAct = [];
+  MON.LIST.forEach((m) => {
+    const c = mk(m.id);
+    ["front", "side"].forEach((view) => {
+      const parts = c.nodes[view].map((n) => n.pt), names = parts.map((q) => q.n);
+      if (new Set(names).size !== names.length) badStruct.push([m.id, view, "duplicate part names"]);
+      ["root", "shadow", "spin", "body", "eyes", "mouth", "cheeks"].forEach((q) => { if (names.indexOf(q) < 0) badStruct.push([m.id, view, "missing " + q]); });
+      (view === "front" ? ["armL", "armR", "footL", "footR"] : ["arm1", "arm2", "foot1", "foot2"]).filter((q) => m.id !== 2 || !/foot/.test(q)).forEach((q) => { if (names.indexOf(q) < 0) badStruct.push([m.id, view, "missing " + q]); });
+      parts.forEach((q) => {
+        if (q.p !== null && names.indexOf(q.p) < 0) badStruct.push([m.id, view, q.n, "parent " + q.p + " is not a part"]);
+        if (q.p === null && q.n !== "root") badStruct.push([m.id, view, q.n, "no parent"]);
+        if (!(q.o.length === 2 && isFinite(q.o[0]) && isFinite(q.o[1]))) badStruct.push([m.id, view, q.n, "pivot"]);
+        if (KINDS.indexOf(q.mo.k) < 0) badStruct.push([m.id, view, q.n, "motion " + q.mo.k]);
+        if (q.mo.k === "face" && !q.v) badStruct.push([m.id, view, q.n, "face part without variants"]);
+      });
+      if (!(["open", "blink", "hurt", "cheer"].every((k) => nodeOf(c, view, "eyes").vs[k]) && ["smile", "open", "ouch"].every((k) => nodeOf(c, view, "mouth").vs[k]))) badStruct.push([m.id, view, "eye or mouth variants"]);
+    });
+    if (!(c.muzzle().x > 0 && c.muzzle().x < 0.5 && c.muzzle().y > 0.4 && c.muzzle().y < 0.95)) badStruct.push([m.id, "muzzle", c.muzzle()]);
+    // run every move one after the other and look for broken numbers anywhere
+    const c2 = mk(m.id, { gaze: -1, lean: -4 });
+    const acts = { 1: () => c2.turn(true), 2: () => c2.charge(2), 3: () => c2.play("attack"), 4: () => c2.play("hit", null, 1.7), 5: () => c2.calm(), 6: () => c2.turn(false), 7: () => c2.play("defeat") };
+    for (let T = 0; T <= 9; T += 0.05) {
+      T = Math.round(T * 100) / 100;
+      Object.keys(acts).forEach((k) => { if (Math.abs(T - k) < 1e-9) acts[k](); });
+      c2.at(T);
+      ["front", "side"].forEach((view) => c2.nodes[view].forEach((n) => {
+        const a = (n.el.getAttribute("transform") || "") + (n.el.getAttribute("opacity") || "") + (n.el.getAttribute("display") || "");
+        if (/NaN|undefined|Infinity/.test(a)) badNum.push([m.id, T, view, n.pt.n, a]);
+      }));
+    }
+    // still deterministic: the same time draws the same picture
+    c2.at(3.3); const a1 = c2.nodes[c2.view()].map((n) => n.el.getAttribute("transform")).join("|");
+    c2.at(6.1); c2.at(3.3); const a2 = c2.nodes[c2.view()].map((n) => n.el.getAttribute("transform")).join("|");
+    // (the view that is showing may differ between the two visits, so compare the part list that exists in both)
+    if (c2.view() === "front" && a1 !== a2) badNum.push([m.id, "not deterministic"]);
+  });
+  ok(badStruct.length === 0, "rigs: every monster has the same set of parts in both views, parents exist, pivots and motions are valid", badStruct.slice(0, 5));
+  ok(badNum.length === 0, "rigs: no broken numbers in any part during idle, turn, charge, attack, hit and defeat", badNum.slice(0, 3));
+
+  // breathing, blinking, gaze
+  const b1 = mk(1);
+  b1.at(0.3); const s1 = tf(b1, "front", "body"); b1.at(1.2); const s2 = tf(b1, "front", "body");
+  ok(s1 !== s2 && s1 !== "" , "rigs: it breathes (the body's scale changes over time)");
+  let blinks = 0, openSeen = 0;
+  for (let T = 0; T < 12; T += 0.04) { b1.at(T); const e = shown(b1, "front", "eyes"); if (e === "blink") blinks++; if (e === "open") openSeen++; }
+  ok(blinks >= 4 && blinks < openSeen / 8, "rigs: it blinks now and then but keeps its eyes open nearly all the time", [blinks, openSeen]);
+
+  // turning to the side and back
+  MON.LIST.forEach((m) => {
+    const c = mk(m.id);
+    c.at(0); c.turn(true);
+    c.at(0.1); const early = c.view(); c.at(0.2); const mid = c.view(); const midW = /scale\(([\d.]+) /.exec(tf(c, "side", "root"));
+    c.at(0.5);
+    ok(early === "front" && mid === "side" && c.view() === "side" && visible(c, "side", "root") === true && c.svg.querySelector('[data-view="front"]').getAttribute("display") === "none" && !c.svg.querySelector('[data-view="side"]').getAttribute("display"), "rigs: monster " + m.id + " swaps from the front to the side view half way through the turn", [early, mid]);
+    ok(midW && +midW[1] < 0.6, "rigs: monster " + m.id + " squeezes narrow at the middle of the turn (like a card turning over)", midW && midW[1]);
+    c.turn(false); c.at(0.5 + 0.1); c.at(0.5 + 0.2); c.at(1);
+    ok(c.view() === "front" && !c.svg.querySelector('[data-view="front"]').getAttribute("display"), "rigs: monster " + m.id + " turns back to the front", c.view());
+  });
+
+  // worked up: arms lift (left arm turns one way, right arm the other), it crouches and shakes
+  MON.LIST.forEach((m) => {
+    const c = mk(m.id);
+    // (it breathes faster while worked up, so judge the crouch by its average over a second)
+    const avgSy = (from) => { let t = 0, n = 0; for (let T = from; T < from + 1; T += 0.05) { c.at(T); const q = /scale\(([\d.]+) ([\d.]+)\)/.exec(tf(c, "front", "body")); t += q ? +q[2] : 1; n++; } return [{ 2: t / n }, t / n]; };
+    c.at(0.2); const calmL = rot(tf(c, "front", "armL")), calmR = rot(tf(c, "front", "armR")), calmSy = avgSy(0.2)[0];
+    c.charge(0.01); c.at(2.2); c.at(3.2);
+    const wL = rot(tf(c, "front", "armL")), wR = rot(tf(c, "front", "armR")), sy = avgSy(3.2)[0];
+    ok(wL > calmL + 15 && wR < calmR - 15, "rigs: monster " + m.id + " lifts both arms when it is worked up", [calmL, wL, calmR, wR]);
+    ok(sy && calmSy && +sy[2] < 0.97 && Math.abs(+sy[2] - +calmSy[2]) > 0.03, "rigs: monster " + m.id + " crouches when it is worked up", [calmSy && calmSy[2], sy && sy[2]]);
+  });
+
+  // attacking: the glowing ball grows (side view only), mouth opens when it fires, it lunges forward, arm reaches
+  MON.LIST.forEach((m) => {
+    const c = mk(m.id, { view: "side" });
+    c.at(0); c.play("attack");
+    c.at(0.05); const o0 = visible(c, "side", "orb");
+    c.at(0.22); const oMid = visible(c, "side", "orb"), mouthWind = shown(c, "side", "mouth"), backX = dx(tf(c, "side", "root"));
+    c.at(0.45); const mouthFire = shown(c, "side", "mouth"), eyesFire = shown(c, "side", "eyes"), oFire = visible(c, "side", "orb"), fwdX = dx(tf(c, "side", "root"));
+    c.at(1.1); const mouthEnd = shown(c, "side", "mouth"), oEnd = visible(c, "side", "orb");
+    badAct.push(...(oMid && !oFire && !oEnd ? [] : [[m.id, "orb", o0, oMid, oFire, oEnd]]));
+    badAct.push(...(mouthWind === "smile" && mouthFire === "open" && eyesFire === "cheer" && mouthEnd === "smile" ? [] : [[m.id, "face", mouthWind, mouthFire, eyesFire, mouthEnd]]));
+    badAct.push(...(backX > 0.5 && fwdX < -3 ? [] : [[m.id, "lunge", backX, fwdX]]));
+    const fr = mk(m.id); fr.at(0); fr.play("attack"); fr.at(0.22);
+    badAct.push(...(fr.nodes.front.every((n) => n.pt.n !== "orb") ? [] : [[m.id, "orb in front view"]]));
+  });
+  ok(badAct.length === 0, "rigs: attack = gathers a glowing ball, leans back, opens its mouth and lunges forward as it fires, then settles", badAct.slice(0, 3));
+
+  // getting hit: knocked back (away from the pet), squashed, hurt face and dizzy stars, then back to normal
+  let badHit = [];
+  MON.LIST.forEach((m) => {
+    const c = mk(m.id, { gaze: -1 });
+    c.at(1); c.play("hit");
+    c.at(1.1); const e1 = shown(c, "front", "eyes"), m1 = shown(c, "front", "mouth"), st1 = visible(c, "front", "star0"), kx = dx(tf(c, "front", "root"));
+    c.at(1.8); const e2 = shown(c, "front", "eyes"), st2 = visible(c, "front", "star0");
+    if (!(e1 === "hurt" && m1 === "ouch" && st1 && kx > 1 && e2 !== "hurt" && !st2)) badHit.push([m.id, e1, m1, st1, kx, e2, st2]);
+  });
+  ok(badHit.length === 0, "rigs: a hit knocks it back, shows the hurt face and the dizzy stars, then it recovers", badHit.slice(0, 3));
+  const hv = mk(3), hw = mk(1);
+  hv.at(0); hv.play("hit"); hv.at(0.05); hw.at(0); hw.play("hit"); hw.at(0.05);
+  ok(dx(tf(hv, "front", "root")) < dx(tf(hw, "front", "root")), "rigs: heavy Rocky is pushed back less than wobbly Gloop");
+  const bigH = mk(1), smallH = mk(1);
+  bigH.at(0); bigH.play("hit", null, 1.7); bigH.at(0.05); smallH.at(0); smallH.play("hit"); smallH.at(0.05);
+  ok(dx(tf(bigH, "front", "root")) > dx(tf(smallH, "front", "root")), "rigs: a big hit (the mega laser) pushes it back further");
+  // the hit move ends: callbacks run, and a callback given to play() runs once
+  let cbN = 0; const cbm = mk(2); cbm.at(0); cbm.play("hit", () => cbN++); cbm.at(0.3); const early2 = cbN; cbm.at(0.7); cbm.at(0.9);
+  ok(early2 === 0 && cbN === 1, "rigs: the callback of a move runs once, when the move is over", [early2, cbN]);
+
+  // beaten: spins, shrinks, floats up and fades out, and stays gone
+  let badDead = [];
+  MON.LIST.forEach((m) => {
+    const c = mk(m.id);
+    c.at(0); c.play("defeat");
+    c.at(0.1); const start = tf(c, "front", "spin");
+    c.at(0.6); const spin = rot(tf(c, "front", "spin")), mid = nodeOf(c, "front", "spin").el.getAttribute("opacity");
+    c.at(1.05); const end = rot(tf(c, "front", "spin")), gone = !visible(c, "front", "spin") || +nodeOf(c, "front", "spin").el.getAttribute("opacity") < 0.05, sc = /scale\(([\d.]+) /.exec(tf(c, "front", "spin"));
+    c.at(5); const later = !visible(c, "front", "spin") || +nodeOf(c, "front", "spin").el.getAttribute("opacity") < 0.05;
+    if (!(spin > 150 && end >= 700 && sc && +sc[1] < 0.25 && gone && later && mid !== null && +mid < 1)) badDead.push([m.id, spin, end, sc && sc[1], gone, later, mid]);
+  });
+  ok(badDead.length === 0, "rigs: beaten = spins round, shrinks, floats up, fades out and stays gone", badDead.slice(0, 3));
+
+  // cheering: hops with its arms up
+  const ch = mk(4, { mode: "cheer" }); let minY = 0, armUp = true;
+  for (let T = 0; T < 2; T += 0.05) { ch.at(T); const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(tf(ch, "front", "root")); if (m) minY = Math.min(minY, +m[2] - 108); if (rot(tf(ch, "front", "armL")) < 60) armUp = false; }
+  ok(minY < -8 && armUp && shown(ch, "front", "eyes") === "cheer", "rigs: a cheering monster hops, keeps its arms up and shows the happy face", [minY, armUp]);
+  // the still pictures come from the same drawings
+  const st = MON.art(2, "idle"), sth = MON.art(2, "hurt");
+  ok(!/data-p|data-v/.test(st) && sth.length > st.length && /#E0A800/.test(sth) && !/#E0A800/.test(st), "monsters: the still pictures are plain drawings; the hurt one has dizzy stars");
+
+  // ---- the pets as living rigs (pet-art.js marks the parts of every pet; pet-rig.js moves them)
+  const PW = new JSD.JSDOM("<!doctype html><body></body>", { runScripts: "outside-only" }).window;
+  PW.eval(fs.readFileSync(path.join(SITE, "pet-art.js"), "utf8"));
+  PW.eval(fs.readFileSync(path.join(SITE, "pet-rig.js"), "utf8"));
+  const PR = PW.PetRig, pdoc = PW.document;
+  const PETS = ["cat", "dog", "monkey", "bunny", "dino", "duck", "penguin", "panda"];
+  const EQS = [{}, { hat: "party", face: "glasses", neck: "scarf", body: "tshirt" }, { hat: "crown", face: "shades", neck: "bowtie", body: "dress" }, { body: "cape", neck: "bandana" }, { body: "astro", hat: "flower" }];
+  const mkp = (t, eq, opts) => { const h = pdoc.createElement("div"); pdoc.body.appendChild(h); return PR.mount(h, t, eq || {}, Object.assign({ manual: true, gaze: -1, lean: -4 }, opts || {})); };
+  const tfp = (c, n) => (c.byName[n] ? c.byName[n].el.getAttribute("transform") || "" : null);
+  const tx = (t) => { const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(t || ""); return m ? +m[1] : null; };
+  const rotp = (t) => { const m = /rotate\((-?[\d.]+)\)/.exec(t || ""); return m ? +m[1] : 0; };
+  const sxp = (t) => { const m = /scale\((-?[\d.]+) (-?[\d.]+)\)/.exec(t || ""); return m ? +m[1] : 1; };
+  const shownp = (c, name) => { const e = c.svg.querySelector('[data-rg="' + name + '"]'); let v = null; if (e) for (const ch of Array.from(e.children)) if (ch.getAttribute("data-v") && !ch.getAttribute("display")) v = ch.getAttribute("data-v"); return v; };
+  // the markers: every pet and every outfit keeps its drawing and adds these named parts
+  let badMark = [];
+  PETS.forEach((t) => EQS.forEach((eq, i) => {
+    const x = PW.petSvg(t, "happy", eq, "full"), has = (n) => x.indexOf('data-rg="' + n + '"') >= 0;
+    ["armL", "armR", "eyeL", "eyeR", "face", "mouth", "blush"].forEach((n) => { if (!has(n)) badMark.push([t, i, n]); });
+    if (t !== "penguin" && !has("footL")) badMark.push([t, i, "footL"]);
+    if (t === "penguin" && !(has("pw") && has("bw") && has("bs") && has("ps") && has("footL"))) badMark.push([t, i, "penguin whites"]);
+    if (eq.hat && !has("ihat")) badMark.push([t, i, "ihat"]);
+    if (eq.face && !has("iface")) badMark.push([t, i, "iface"]);
+    if (eq.neck && !has("ineck")) badMark.push([t, i, "ineck"]);
+    if (/tshirt|dress|astro/.test(eq.body || "") && t !== "duck" && t !== "penguin" && !has("sleeveL") && eq.body !== "dress") badMark.push([t, i, "sleeveL"]);
+  }));
+  ok(badMark.length === 0, "pets: every pet, with every kind of clothes, marks its parts (arms, feet, eyes, face, mouth, hat, glasses, scarf, sleeves)", badMark.slice(0, 4));
+  let badP = [], badPn = [];
+  PETS.forEach((t) => EQS.forEach((eq, i) => {
+    const c = mkp(t, eq);
+    if (!c) { badP.push([t, i, "no rig"]); return; }
+    const acts = { 1: () => c.turn(true), 2: () => c.charge(1.5), 3: () => c.play("fire"), 4: () => c.play("fire", null, 2), 5: () => c.turn(false), 6: () => c.play("hit"), 7: () => c.play("hit", null, 1.7), 8: () => c.play("cheer") };
+    for (let T = 0; T <= 10; T += 0.1) {
+      T = Math.round(T * 100) / 100;
+      Object.keys(acts).forEach((k) => { if (Math.abs(T - k) < 1e-9) acts[k](); });
+      c.at(T);
+      c.nodes.forEach((n) => { const a = (n.el.getAttribute("transform") || "") + (n.el.getAttribute("display") || ""); if (/NaN|undefined|Infinity/.test(a)) badPn.push([t, i, T, n.n, a]); });
+    }
+  }));
+  ok(badP.length === 0, "pet rigs: every pet in every outfit builds a rig", badP.slice(0, 3));
+  ok(badPn.length === 0, "pet rigs: no broken numbers in any part during turn, tense, fire, laser, hit and cheer", badPn.slice(0, 3));
+  // behaviour
+  PETS.forEach((t) => {
+    const c = mkp(t, EQS[1]);
+    c.at(0.4); const body0 = tfp(c, "body"), face0 = tfp(c, "face"), head0 = tfp(c, "head");
+    c.at(1.3); const body1 = tfp(c, "body");
+    ok(body0 !== body1, "pet rigs: " + t + " breathes");
+    ok(face0 === "" || tx(face0) === null || Math.abs(tx(face0) - 60) < 0.01, "pet rigs: " + t + " looks straight ahead until it turns");
+    c.at(2); c.turn(true); c.at(2.1); const midT = tx(tfp(c, "face")); c.at(2.5); const faceS = tfp(c, "face");
+    ok(tx(faceS) < 60 - 12 && sxp(faceS) < 0.92, "pet rigs: " + t + " slides its face toward the front and narrows it when it turns", faceS);
+    ok(midT > tx(faceS) && midT < 60, "pet rigs: " + t + " turns smoothly (the face is part way across half way through)", [midT, tx(faceS)]);
+    ok(sxp(tfp(c, "body")) < 0.9, "pet rigs: " + t + " gets narrower when it turns");
+    const gl = tfp(c, "iface");
+    if (gl !== null) ok(Math.abs(tx(gl) - tx(faceS)) < 0.01, "pet rigs: " + t + "'s glasses slide with its face");
+    const eL = sxp(tfp(c, "eyeL")), eR = sxp(tfp(c, "eyeR"));
+    ok(eL < 0.8 && eR > 1, "pet rigs: " + t + ": the far eye is smaller, the near eye bigger, when turned", [eL, eR]);
+    c.at(3); c.turn(false); c.at(3.5);
+    ok(c.view() === 0 && (tfp(c, "face") === "" || Math.abs(tx(tfp(c, "face")) - 60) < 0.01), "pet rigs: " + t + " turns back to the front");
+  });
+  { // faces: excited when it fires, surprised when it is hit, a blink now and then
+    const c = mkp("cat", {});
+    c.at(1); c.play("fire"); c.at(1.2); const fireFace = shownp(c, "mouth") + "/" + shownp(c, "eyeL") + "/" + shownp(c, "blush");
+    c.at(2); const after = shownp(c, "mouth");
+    c.play("hit"); c.at(2.1); const hitFace = shownp(c, "mouth") + "/" + shownp(c, "eyeR");
+    c.at(3); const calm = shownp(c, "mouth");
+    ok(fireFace === "excited/excited/excited" && after === "happy" && hitFace === "surprised/surprised" && calm === "happy", "pet rigs: the face is excited when it fires and surprised when it is hit, then happy again", [fireFace, after, hitFace, calm]);
+    let blink = 0, open = 0;
+    for (let T = 0; T < 12; T += 0.04) { c.at(T); const e = shownp(c, "eyeL"); if (e === "asleep") blink++; if (e === "happy") open++; }
+    ok(blink >= 4 && blink < open / 8, "pet rigs: it blinks now and then, with its eyes open nearly all the time", [blink, open]);
+  }
+  { // fire: a kick back (away from the monster = the drawing's right) and the arm swings; the laser holds longer; a hit pushes it back
+    const c = mkp("dog", {}), c2 = mkp("dog", {}), c3 = mkp("dog", {});
+    c.at(0); c.play("fire"); c.at(0.16); const kick = tx(tfp(c, "root")); c.at(0.14); const armUp = rotp(tfp(c, "armR"));
+    c2.at(0); c2.play("fire", null, 2); c2.at(0.6); const holdFace = shownp(c2, "mouth"); c2.at(1.6); const doneFace = shownp(c2, "mouth");
+    c3.at(0); c3.play("hit"); c3.at(0.05); const push = tx(tfp(c3, "root")) - 60; c3.at(1.5); const back = tx(tfp(c3, "root"));
+    ok(kick > 60.3 && armUp < -20, "pet rigs: firing kicks the pet back and swings its arm", [kick, armUp]);
+    ok(holdFace === "excited" && doneFace === "happy", "pet rigs: the laser keeps the pet's mouth open while the beam runs, then it settles", [holdFace, doneFace]);
+    ok(push > 0.5 && Math.abs(back - 60) < 0.5, "pet rigs: a hit pushes the pet away from the monster and it comes back", [push, back]);
+    let cb = 0; const c4 = mkp("duck", {}); c4.at(0); c4.play("fire", () => cb++); c4.at(0.3); const e1 = cb; c4.at(0.6);
+    ok(e1 === 0 && cb === 1, "pet rigs: the callback of a move runs once, when it is over", [e1, cb]);
+  }
+  { // clothes keep pace: sleeves move with the arms, a cape swings with the body, the far arm goes behind the body when the pet is turned
+    const c = mkp("cat", { body: "tshirt" });
+    c.at(0); c.charge(0.01); c.at(1.2);
+    ok(Math.abs(rotp(tfp(c, "sleeveL")) - rotp(tfp(c, "armL"))) < 0.001 && Math.abs(rotp(tfp(c, "sleeveR")) - rotp(tfp(c, "armR"))) < 0.001, "pet rigs: sleeves move exactly with the arms");
+    const d = mkp("cat", {}); const torso = d.svg.querySelector(".torso");
+    const before = Array.from(torso.parentNode.children).indexOf(d.byName.armL.el) > Array.from(torso.parentNode.children).indexOf(torso);
+    d.at(0); d.turn(true); d.at(0.5);
+    const after = Array.from(torso.parentNode.children).indexOf(d.byName.armL.el) < Array.from(torso.parentNode.children).indexOf(torso);
+    d.turn(false); d.at(1); d.at(1.5);
+    const back = Array.from(torso.parentNode.children).indexOf(d.byName.armL.el) > Array.from(torso.parentNode.children).indexOf(torso);
+    ok(before && after && back, "pet rigs: the far arm goes behind the body when the pet is turned and comes back in front when it turns back", [before, after, back]);
+  }
+  { // the muzzle (where the shot leaves) is inside the picture, in front of the pet (right of the middle once mirrored)
+    const bad = [];
+    PETS.forEach((t) => { const c = mkp(t, {}), m = c.muzzle(); if (!(m.x > 0.5 && m.x < 0.9 && m.y > 0.2 && m.y < 0.6)) bad.push([t, m]); });
+    ok(bad.length === 0, "pet rigs: the shot leaves from the mouth, in front of the pet", bad);
+  }
+  ok(PR.mount(null, "cat", {}) === null && PR.mount(pdoc.createElement("div"), "dragon", {}) === null, "pet rigs: mounting nothing, or an unknown pet, gives null");
+  // a controller leaves the page quietly: a host that is not in the document draws once and does not keep a timer going
+  ok(MON.mount(null, 1) === null && MON.mount(rdoc.createElement("div"), 99) === null, "rigs: mounting nothing, or an unknown monster, gives null");
+}
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

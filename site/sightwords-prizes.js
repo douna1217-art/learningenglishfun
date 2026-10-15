@@ -1,5 +1,5 @@
-/* Treasure-chest prizes for the sight-word units: each unit of an island has a chest; opening it the first time gives 5 stars and one pet item
-   that cannot be bought. The items are drawn here in the same way as the badge rewards (see badges.js) and registered in ITEMS, so the pet
+/* Prizes of the sight words: each unit of an island has a treasure chest; opening it the first time gives 5 stars and one pet item
+   that cannot be bought; each monster of the Monster battle drops one more when it is beaten for the first time (rev["mon<id>"]). The items are drawn here in the same way as the badge rewards (see badges.js) and registered in ITEMS, so the pet
    picture and the shop thumbnails draw them like any other accessory. A prize counts as won when the chest of its unit was opened:
    lef_words_v1.rev["chest<island>-<unit>"] is set (that key is also synced with the rest of the sight-words progress).
    SWPrizes.forUnit(island, unit), .unlocked(id), .ids(), .isPrize(id), .get(id), .thumb(id), .key(island, unit), .STARS.
@@ -166,6 +166,74 @@
         return '<g transform="translate(0,' + y + ')">' + o + "</g>";
       },
     },
+
+    // the monsters of the Monster battle each drop one item the first time they are beaten (rev["mon<id>"] is set)
+    {
+      id: "mn-jelly", monster: 1, rk: "mon1", world: "Gloop", label: "Beat Gloop", slot: "hat", name: "Jelly crown", cn: "果冻王冠", vb: "22 4 76 50", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.2)">' +
+          '<path d="M-17 5 Q-19 -19 0 -21 Q19 -19 17 5Z" fill="#6CCB5F" fill-opacity=".92" stroke="#2F7D3F" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<ellipse cx="-7" cy="-12" rx="5" ry="2.8" transform="rotate(-30 -7 -12)" fill="#FFFFFF" opacity=".6"/><circle cx="5" cy="-6" r="2.6" fill="#B7F0A8"/><circle cx="-2" cy="-2" r="1.8" fill="#B7F0A8"/><circle cx="9" cy="-12" r="1.6" fill="#B7F0A8"/>' +
+          '<path d="M-10 -20 L-8 -29 L-3 -23 L0 -31 L3 -23 L8 -29 L10 -20Z" fill="#FFD23F" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/>' +
+          '<circle cx="0" cy="-26" r="1.8" fill="#E5483A"/></g>'
+        );
+      },
+    },
+    {
+      id: "mn-nightcap", monster: 2, rk: "mon2", world: "Boo", label: "Beat Boo", slot: "hat", name: "Night cap", cn: "睡帽", vb: "20 2 86 54", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.15)">' +
+          '<path d="M-19 5 Q-18 -20 3 -29 Q19 -33 29 -17 L24 -13 Q16 -22 8 -13 Q12 -4 19 5Z" fill="#6A48E8" stroke="#3B2A8A" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<rect x="-21" y="-3" width="42" height="10" rx="5" fill="#EDE8FF" stroke="#3B2A8A" stroke-width="2.4"/>' +
+          '<circle cx="29" cy="-15" r="6" fill="#FFE066" stroke="#B8860B" stroke-width="2"/>' +
+          '<path d="M-6 -12 l1.6 3.4 3.6 .4 -2.7 2.4 .8 3.6 -3.3 -1.9 -3.3 1.9 .8 -3.6 -2.7 -2.4 3.6 -.4z" fill="#FFE066"/><circle cx="6" cy="-20" r="1.6" fill="#FFE066"/><circle cx="0" cy="-23" r="1.2" fill="#FFFFFF"/></g>'
+        );
+      },
+    },
+    {
+      id: "mn-visor", monster: 3, rk: "mon3", world: "Rocky", label: "Beat Rocky", slot: "face", name: "Golem visor", cn: "石头面罩", vb: "10 20 100 40", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx,
+          x2 = 60 + a.edx,
+          w = a.er * 2 + 9,
+          h = a.er * 1.7 + 6,
+          y = a.ey;
+        return '<g stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M' + (x1 - w / 2) + " " + y + " L" + (x1 - w / 2 - 12) + " " + (y - 3) + " M" + (x2 + w / 2) + " " + y + " L" + (x2 + w / 2 + 12) + " " + (y - 3) + '" fill="none" stroke="#3E4660" stroke-width="4"/>' +
+          '<path d="M' + (x1 + w / 2) + " " + (y - 1) + " H" + (x2 - w / 2) + '" fill="none" stroke="#3E4660" stroke-width="4.6"/>' +
+          '<rect x="' + (x1 - w / 2) + '" y="' + (y - h / 2) + '" width="' + w + '" height="' + h + '" rx="4" fill="#A9B3C9" stroke="#3E4660" stroke-width="3"/>' +
+          '<rect x="' + (x2 - w / 2) + '" y="' + (y - h / 2) + '" width="' + w + '" height="' + h + '" rx="4" fill="#A9B3C9" stroke="#3E4660" stroke-width="3"/>' +
+          '<rect x="' + (x1 - w / 2 + 3.5) + '" y="' + (y - h / 2 + 3.5) + '" width="' + (w - 7) + '" height="' + (h - 7) + '" rx="2" fill="#FFE066" opacity=".95"/>' +
+          '<rect x="' + (x2 - w / 2 + 3.5) + '" y="' + (y - h / 2 + 3.5) + '" width="' + (w - 7) + '" height="' + (h - 7) + '" rx="2" fill="#FFE066" opacity=".95"/>' +
+          '<path d="M' + (x1 - w / 2 + 6) + " " + (y - 1) + " h5 M" + (x2 - w / 2 + 6) + " " + (y - 1) + 'h5" stroke="#fff" stroke-width="2.2" opacity=".8"/></g>';
+      },
+    },
+    {
+      id: "mn-horns", monster: 4, rk: "mon4", world: "Blaze", label: "Beat Blaze", slot: "hat", name: "Imp horns", cn: "小恶魔角", vb: "18 8 84 46", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.15)">' +
+          '<path d="M-26 5 Q0 -9 26 5" fill="none" stroke="#7A1B14" stroke-width="5.4" stroke-linecap="round"/>' +
+          '<path d="M-24 2 Q-34 -12 -26 -26 Q-14 -18 -14 -2Z" fill="#E5483A" stroke="#7A1B14" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M24 2 Q34 -12 26 -26 Q14 -18 14 -2Z" fill="#E5483A" stroke="#7A1B14" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M-26 -12 Q-24 -18 -22 -20" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity=".6" fill="none"/>' +
+          '<path d="M-6 -4 Q-9 -14 -2 -20 Q-1 -12 3 -10 Q6 -16 8 -22 Q12 -12 6 -4Z" fill="#FFB020" stroke="#B3261E" stroke-width="2" stroke-linejoin="round"/></g>'
+        );
+      },
+    },
+    {
+      id: "mn-fang", monster: 5, rk: "mon5", world: "Drako", label: "Beat Drako", slot: "neck", name: "Dragon fang necklace", cn: "龙牙项链", vb: "20 92 80 54", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny - 104,
+          o = '<path d="M28 100 Q60 130 92 100" fill="none" stroke="#B8860B" stroke-width="5.4" stroke-linecap="round"/><path d="M28 100 Q60 130 92 100" fill="none" stroke="#FFD23F" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 6"/>';
+        o += '<path d="M60 117 Q50 120 52 130 Q56 142 60 148 Q64 142 68 130 Q70 120 60 117Z" fill="#FFF3D6" stroke="#7A5A2B" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M57 124 Q55 132 58 140" fill="none" stroke="#E8D3A8" stroke-width="2" stroke-linecap="round"/>' +
+          '<circle cx="60" cy="115" r="5.4" fill="#8B6BE8" stroke="#3B2A8A" stroke-width="2.2"/><circle cx="58.6" cy="113.6" r="1.6" fill="#FFFFFF"/>';
+        return '<g transform="translate(0,' + y + ')">' + o + "</g>";
+      },
+    },
   ];
 
   var BY_ID = {};
@@ -187,13 +255,18 @@
   // won = the chest of the prize's unit has been opened (rev is lef_words_v1.rev)
   function wonIn(rev, id) {
     var p = BY_ID[id];
-    return !!p && !!rev && !!rev[key(p.island, p.unit)];
+    return !!p && !!rev && !!rev[p.rk || key(p.island, p.unit)];
   }
   function unlocked(id) {
     return wonIn(readRev(), id);
   }
   function forUnit(island, unit) {
     for (var i = 0; i < LIST.length; i++) if (LIST[i].island === island && LIST[i].unit === unit) return LIST[i];
+    return null;
+  }
+  // the prize a monster drops the first time it is beaten
+  function forMonster(id) {
+    for (var i = 0; i < LIST.length; i++) if (LIST[i].monster === id) return LIST[i];
     return null;
   }
   function thumb(id) {
@@ -222,6 +295,7 @@
     STARS: STARS,
     key: key,
     forUnit: forUnit,
+    forMonster: forMonster,
     unlocked: unlocked,
     wonIn: wonIn,
     isPrize: function (id) {

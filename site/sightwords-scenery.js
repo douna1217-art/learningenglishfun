@@ -28,6 +28,12 @@
       "</svg>";
   }
 
+  // one letter bubble for the Bubble spell tile
+  function bub(cx, cy, r, c, ch) {
+    return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + c + '"/><ellipse cx="' + (cx - r * 0.38) + '" cy="' + (cy - r * 0.42) + '" rx="' + r * 0.26 + '" ry="' + r * 0.16 + '" transform="rotate(-35 ' + (cx - r * 0.38) + " " + (cy - r * 0.42) + ')" fill="#FFFFFF" opacity=".75"/>' +
+      '<text x="' + cx + '" y="' + (cy + r * 0.36) + '" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="' + r * 1.1 + '" fill="#FFFFFF">' + ch + "</text>";
+  }
+
   // the picture on each game tile (100 x 84)
   function game(kind) {
     var inner = "";
@@ -41,14 +47,8 @@
         '<path d="M76 18 C62 18 58 34 62 44 C65 52 72 56 76 56 C80 56 87 52 90 44 C94 34 90 18 76 18Z" fill="#3D8BF2"/><path d="M72 56 L76 51 L80 56Z" fill="#3D8BF2"/>' +
         '<ellipse cx="19" cy="22" rx="3.5" ry="8" fill="#FFFFFF" opacity=".5"/><ellipse cx="45" cy="18" rx="3.5" ry="8" fill="#FFFFFF" opacity=".5"/><ellipse cx="69" cy="32" rx="3" ry="7" fill="#FFFFFF" opacity=".5"/>';
     } else if (kind === "spell") {
-      inner = '<g transform="rotate(-8 22 36)"><rect x="6" y="16" width="32" height="38" rx="8" fill="#2DD4BF"/><text x="22" y="44" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="26" fill="#FFFFFF">A</text></g>' +
-        '<rect x="34" y="12" width="32" height="38" rx="8" fill="#FFC93C"/><text x="50" y="40" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="26" fill="#FFFFFF">B</text>' +
-        '<g transform="rotate(8 78 36)"><rect x="62" y="16" width="32" height="38" rx="8" fill="#FF8FB1"/><text x="78" y="44" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="26" fill="#FFFFFF">C</text></g>' +
-        '<g transform="rotate(-32 50 70)"><rect x="22" y="64" width="50" height="11" rx="3" fill="#FFD23F"/><polygon points="72,64 86,69.5 72,75" fill="#F2D3A8"/><polygon points="80,67 86,69.5 80,72" fill="#3A3F4D"/><rect x="14" y="64" width="9" height="11" rx="3" fill="#FF6B8A"/></g>';
-    } else if (kind === "rush") {
-      inner = '<rect x="43" y="4" width="14" height="9" rx="3" fill="#FFC93C"/><rect x="47" y="10" width="6" height="8" fill="#B7C5F5"/><circle cx="50" cy="48" r="32" fill="#2DD4BF"/><circle cx="50" cy="48" r="25" fill="#F4FAFF"/>' +
-        '<path d="M50 48 L50 30" stroke="#1F2A4D" stroke-width="4.5" stroke-linecap="round"/><circle cx="50" cy="48" r="4" fill="#1F2A4D"/>' +
-        '<polygon points="58,26 42,50 51,50 45,70 64,43 54,43" fill="#FFC93C"/><path d="M80 22 L86 16" stroke="#B7C5F5" stroke-width="4" stroke-linecap="round"/>';
+      inner = bub(26, 50, 19, "#FF8FB1", "A") + bub(56, 30, 21, "#6AA7FF", "B") + bub(78, 58, 17, "#FFC93C", "C") +
+        '<path d="M86 14 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z" fill="#FFE066"/>';
     } else {
       inner = '<path d="M50 24 C41 12 28 22 36 32 L50 46 L64 32 C72 22 59 12 50 24Z" fill="#FF6B8A"/>' +
         '<ellipse cx="46" cy="58" rx="16" ry="8" fill="#35B2B7"/><polygon points="60,58 74,49 74,67" fill="#35B2B7"/><circle cx="37" cy="56" r="2.4" fill="#1E2A4A"/>' +

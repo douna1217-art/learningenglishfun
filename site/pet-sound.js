@@ -62,6 +62,10 @@
       tone(c, d, { t: t + .07, f: 1318.5, dur: .3, type: 'sine', vol: .15, k: k });
       tone(c, d, { t: t + .13, f: 1760, dur: .32, type: 'sine', vol: .11, k: k });
     },
+    /* the Monster battle: a cannonball leaving (pew), a soft thud when it lands, and a laser beam sweeping down (all gentle, cartoon-style) */
+    pew: function (c, d, t, k) { tone(c, d, { t: t, f: 1100, f2: 380, dur: .14, type: 'triangle', vol: .3, k: k }); },
+    thud: function (c, d, t, k) { tone(c, d, { t: t, f: 210, f2: 70, dur: .2, type: 'sine', vol: .5, lp: 500, k: k }); tone(c, d, { t: t + .02, f: 880, f2: 520, dur: .1, type: 'sine', vol: .14, k: k }); },
+    zap: function (c, d, t, k) { tone(c, d, { t: t, f: 2200, f2: 260, dur: .5, type: 'sawtooth', vol: .2, lp: 2600, a: .02, k: k }); tone(c, d, { t: t + .05, f: 1100, f2: 130, dur: .5, type: 'sine', vol: .25, k: k }); tone(c, d, { t: t + .35, f: 1568, dur: .3, type: 'sine', vol: .14, k: k }); },
     rumble: function (c, d, t, k) { tone(c, d, { t: t, f: 90, f2: 55, dur: .75, type: 'sawtooth', vol: .3, lp: 220, vib: [11, 9], a: .05, k: k }); },
     /* each pet's own little voice (cartoon-style, not recordings) */
     v_cat: function (c, d, t, k) { tone(c, d, { t: t, f: 520, f2: 900, dur: .26, type: 'sawtooth', vol: .46, bp: [1100, 2.2], a: .04, k: k }); tone(c, d, { t: t + .25, f: 900, f2: 560, dur: .3, type: 'sawtooth', vol: .46, bp: [1100, 2.2], a: .02, k: k }); },
