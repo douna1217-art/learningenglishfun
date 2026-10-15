@@ -11,6 +11,7 @@
   var S = null, host = null, active = false;
   var tickT = null, wT = null, wkT = null, bT = null;
   var L = fresh();
+  var rig = null, rigSig = '';                        // the pet as a living rig (pet-rig.js), when that is available
   var lastStop = 0, lastStars = null, hidAt = 0, pageAway = null, pageAwayAt = 0;
 
   function fresh() { return { act: 'idle', px: 0, idle: 0, busy: false, yawn: false, drowsy: false, cf: null, fc: null, small: false, rumble: false, hc: 0, eating: null, bought: null, timers: [] }; }
@@ -79,16 +80,39 @@
     s += '<rect class="night" x="0" y="0" width="360" height="300" fill="#1B2350"/><g id="psFx" style="pointer-events:none"></g>';
     return s;
   }
-  function sceneClass() { return 'a-' + L.act + (L.act === 'cheer' && L.small ? ' small' : '') + (S.hunger < 50 ? ' hungry' : '') + (L.rumble ? ' rumble' : '') + (L.act === 'sleep' ? ' sleeping' : ''); }
-  function applyClasses() { var sc = $('petScene'); if (sc) sc.setAttribute('class', sceneClass()); }
+  function sceneClass() { return 'a-' + L.act + (L.act === 'cheer' && L.small ? ' small' : '') + (S.hunger < 50 ? ' hungry' : '') + (L.rumble ? ' rumble' : '') + (L.act === 'sleep' ? ' sleeping' : '') + (rig ? ' rigged' : ''); }
+  function applyClasses() { var sc = $('petScene'); if (sc) sc.setAttribute('class', sceneClass()); syncRig(); }
+  /* the rig takes over the pet's own motion: breathing, blinking, walking, sleeping, eating, hopping... (the page's CSS motion is switched off by the class "rigged");
+     what the pet is doing, its face and its flags are handed to it here, in one place */
+  function sig() { return (S.type || '') + '|' + JSON.stringify(S.eq || {}); }
+  function stopRig() { if (rig) { rig.stop(); rig = null; } rigSig = ''; }
+  function mountRig() {
+    stopRig();
+    var e = $('psIn');
+    if (!e || !window.PetRig || !PetRig.mountGroup) return;
+    try { rig = PetRig.mountGroup(e, S.type, S.eq || {}, { face: face(), gaze: 0, noShadow: true, still: RM, faces: ['asleep'], defer: 250 }); } catch (x) { rig = null; }
+    if (rig) rigSig = sig();
+  }
+  function syncRig(restart) {
+    if (!rig || !S) return;
+    rig.setFace(face());
+    rig.setAct(L.act, { small: L.small, dir: L.dir || 0, restart: !!restart });
+    rig.setFlags({ hungry: S.hunger < 50, rumble: L.rumble });
+  }
   function render() {
     if (!active || !S || !S.type || !HOMES[S.type]) return;
     host.innerHTML = '<svg id="petScene" viewBox="' + geo().vb + '" role="img" aria-label="' + (S.name || 'Your pet').replace(/[<>"&]/g, '') + ' at home">' + sceneSVG() + '</svg>';
+    mountRig();
     applyClasses();
     Array.prototype.forEach.call(host.querySelectorAll('.toyg'), function (g) { g.onclick = function () { react('toy'); }; });
     var p = $('psPos'); if (p) p.onclick = function () { react('poke'); };
   }
-  function refreshPet() { var e = $('psIn'); if (e) svgSet(e, petGroup(S.type, face(), S.eq)); applyClasses(); }
+  function refreshPet() {
+    var e = $('psIn');
+    if (rig && e && rigSig === sig()) { applyClasses(); return; }       // the rig changes the face and the pose itself; only new clothes need a new drawing
+    if (e) { svgSet(e, petGroup(S.type, face(), S.eq)); mountRig(); }
+    applyClasses();
+  }
 
   /* ---------- moving, bubbles, little effects ---------- */
   function setPx(x, dur) {
@@ -100,7 +124,7 @@
   function walkTo(x, done) {
     var d = Math.abs(x - L.px);
     if (d < 4 || RM) { setPx(x, 0); if (done) done(); return; }
-    var dur = d / 26; L.act = 'walk'; applyClasses(); setPx(x, dur);
+    var dur = d / 26; L.act = 'walk'; L.dir = x > L.px ? 1 : -1; applyClasses(); setPx(x, dur);
     clearTimeout(wkT);
     wkT = setTimeout(function () { if (!active) return; if (L.act === 'walk') L.act = 'idle'; applyClasses(); if (done) done(); }, dur * 1000 + 80);
   }
@@ -154,12 +178,12 @@
   /* ---------- what the pet does ---------- */
   function settle() { L.act = 'idle'; L.busy = false; L.idle = 0; L.yawn = false; L.cf = null; L.fc = null; L.drowsy = false; refreshPet(); }
   function cheer(msg, big, kind, fc) {
-    clearLater(); L.busy = true; L.act = 'cheer'; L.small = !big; L.cf = fc || (big ? 'excited' : 'happy'); L.fc = null; refreshPet();
+    clearLater(); L.busy = true; L.act = 'cheer'; L.small = !big; L.cf = fc || (big ? 'excited' : 'happy'); L.fc = null; refreshPet(); syncRig(true);
     burst(kind || 'heart', big ? 9 : 5); if (msg) bubble(msg, big ? 3000 : 1800); later(settle, big ? 2300 : 1100);
     if (big) { sfx('big'); voice(); }          // small reactions (poke, toy, decoration) have their own sounds
   }
   function twirl(msg) {
-    clearLater(); L.busy = true; L.act = 'twirl'; refreshPet(); burst('star', 7); bubble(msg || 'I love it!', 2000); later(settle, 1900);
+    clearLater(); L.busy = true; L.act = 'twirl'; refreshPet(); syncRig(true); burst('star', 7); bubble(msg || 'I love it!', 2000); later(settle, 1900);
     setTimeout(function () { sfx('sparkle'); }, 280);
   }
   function wakeUp(why, msg, withStars) {
@@ -239,6 +263,7 @@
   }
   function onResize() { clearTimeout(rzT); rzT = setTimeout(relayout, 150); }
   function halt() {
+    stopRig();
     window.removeEventListener('resize', onResize); clearTimeout(rzT);
     clearInterval(tickT); clearTimeout(wT); clearTimeout(wkT); clearTimeout(bT); clearLater();
     document.removeEventListener('click', touch, true); document.removeEventListener('keydown', touch, true);

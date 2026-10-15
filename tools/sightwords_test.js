@@ -612,7 +612,7 @@ else {
     const c = mkp("cat", { body: "tshirt" });
     c.at(0); c.charge(0.01); c.at(1.2);
     ok(Math.abs(rotp(tfp(c, "sleeveL")) - rotp(tfp(c, "armL"))) < 0.001 && Math.abs(rotp(tfp(c, "sleeveR")) - rotp(tfp(c, "armR"))) < 0.001, "pet rigs: sleeves move exactly with the arms");
-    const d = mkp("cat", {}); const torso = d.svg.querySelector(".torso");
+    const d = mkp("cat", {}); const torso = d.svg.querySelector(".rg-torso");
     const before = Array.from(torso.parentNode.children).indexOf(d.byName.armL.el) > Array.from(torso.parentNode.children).indexOf(torso);
     d.at(0); d.turn(true); d.at(0.5);
     const after = Array.from(torso.parentNode.children).indexOf(d.byName.armL.el) < Array.from(torso.parentNode.children).indexOf(torso);
@@ -626,6 +626,124 @@ else {
     ok(bad.length === 0, "pet rigs: the shot leaves from the mouth, in front of the pet", bad);
   }
   ok(PR.mount(null, "cat", {}) === null && PR.mount(pdoc.createElement("div"), "dragon", {}) === null, "pet rigs: mounting nothing, or an unknown pet, gives null");
+
+  // ---- the same rig on the adoption page (look, hover, hello hop, still) and in the home scene (faces, walking, sleeping, eating...)
+  { // looking to either side
+    const bad = [];
+    PETS.forEach((t) => {
+      const c = mkp(t, {});
+      c.at(0); c.look(-1); c.at(0.5);
+      const fr = tfp(c, "face"), eL = sxp(tfp(c, "eyeL")), eR = sxp(tfp(c, "eyeR"));
+      const farR = Array.from(c.byName.armR.el.parentNode.children).indexOf(c.byName.armR.el) < Array.from(c.byName.armR.el.parentNode.children).indexOf(c.svg.querySelector(".rg-torso"));
+      if (!(tx(fr) > 60 + 12 && sxp(fr) < 0.92 && eR < 0.8 && eL > 1 && farR)) bad.push([t, fr, eL, eR, farR]);
+      c.look(0); c.at(1.2);
+      if (c.view() !== 0) bad.push([t, "view", c.view()]);
+    });
+    ok(bad.length === 0, "pet rigs: looking to the right slides the face to the right, the near eye is then the left one and the right arm goes behind the body", bad.slice(0, 3));
+  }
+  { // faces: every one of the ten, lazily built, no broken drawing; a bunny's ears flop when it is sleepy
+    const c = mkp("bunny", {}, {});
+    const bad = [];
+    ["happy", "excited", "surprised", "asleep", "sleepy", "bored", "yawn", "hungry", "eat", "love"].forEach((f, i) => {
+      c.setFace(f); c.at(i + 1);
+      if (shownp(c, "mouth") !== f || shownp(c, "eyeL") !== (f === "happy" || f === "excited" || f === "surprised" || f === "hungry" || f === "love" ? shownp(c, "eyeL") : f)) bad.push([f, shownp(c, "mouth"), shownp(c, "eyeL")]);
+    });
+    ok(bad.length === 0, "pet rigs: it can wear every one of the ten faces", bad);
+    c.setFace("happy"); c.at(20); const up = rotp(tfp(c, "earL"));
+    c.setFace("sleepy"); c.at(21); const down = rotp(tfp(c, "earL")), downR = rotp(tfp(c, "earR"));
+    ok(down < up - 60 && downR > 60, "pet rigs: a sleepy bunny's ears flop to both sides", [up, down, downR]);
+    const dg = mkp("dog", {}); dg.setFace("sleepy"); dg.at(3);
+    ok(Math.abs(rotp(tfp(dg, "earL"))) < 30, "pet rigs: only the bunny's ears flop");
+  }
+  { // what it is doing
+    const acts = {};
+    const run = (act, opts, T) => { const c = mkp("cat", {}); c.at(0); c.setAct(act, opts || {}); c.at(T); return c; };
+    const w = run("walk", { dir: 1 }, 0.2);
+    ok(rotp(tfp(w, "armL")) * rotp(tfp(w, "armR")) < 0 || Math.abs(rotp(tfp(w, "armL"))) > 10, "pet rigs: walking swings the arms", [rotp(tfp(w, "armL")), rotp(tfp(w, "armR"))]);
+    ok(tx(tfp(w, "face")) > 60, "pet rigs: walking to the right it looks to the right", tfp(w, "face"));
+    const wl = run("walk", { dir: -1 }, 0.2);
+    ok(tx(tfp(wl, "face")) < 60, "pet rigs: walking to the left it looks to the left");
+    const sl = run("sleep", {}, 2), idle = mkp("cat", {}); idle.at(2);
+    ok(rotp(tfp(sl, "head")) > rotp(tfp(idle, "head")) + 5 && tx(tfp(sl, "head")) > tx(tfp(idle, "head")), "pet rigs: asleep, the head droops", [tfp(sl, "head"), tfp(idle, "head")]);
+    let hy = [];
+    const ea = run("eat", {}, 0); for (let T = 0; T < 0.8; T += 0.05) { ea.at(T); const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(tfp(ea, "head")); hy.push(m ? +m[2] : 100); }
+    ok(Math.max.apply(null, hy) - Math.min.apply(null, hy) > 2, "pet rigs: eating, the head moves up and down", hy);
+    const ch = mkp("cat", {}); ch.at(0); ch.setAct("cheer", { small: false }); let hi = 0, hs = [];
+    for (let T = 0; T < 2.4; T += 0.05) { ch.at(T); const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(tfp(ch, "root")); hs.push(m ? +m[2] - 177 : 0); }
+    for (let i = 1; i < hs.length - 1; i++) if (hs[i] < hs[i - 1] && hs[i] <= hs[i + 1] && hs[i] < -15) hi++;
+    ok(hi === 3, "pet rigs: a big cheer is three hops", hi);
+    const sm = mkp("cat", {}); sm.at(0); sm.setAct("cheer", { small: true }); let sh = 0; for (let T = 0; T < 2; T += 0.05) { sm.at(T); const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(tfp(sm, "root")); if (m && +m[2] - 177 < -12) sh++; }
+    ok(sh > 0 && sh < 14, "pet rigs: a small cheer is one hop", sh);
+    const tw = mkp("duck", {}); tw.at(0); tw.setAct("twirl"); let lo = 99, hiX = -99; for (let T = 0; T < 2; T += 0.05) { tw.at(T); const x = tx(tfp(tw, "face")); lo = Math.min(lo, x); hiX = Math.max(hiX, x); }
+    ok(lo < 60 - 12 && hiX > 60 + 12, "pet rigs: twirling, it looks to one side and then to the other", [lo, hiX]);
+    const hg = mkp("cat", {}); hg.at(0); hg.setFlags({ hungry: true, rumble: true }); hg.at(0.013); const x1 = tx(tfp(hg, "root")); hg.at(0.05); const x2 = tx(tfp(hg, "root"));
+    ok(x1 !== x2, "pet rigs: a rumbling tummy shakes it");
+    const st1 = mkp("cat", {}); st1.at(0); st1.setAct("walk", { dir: 1 }); st1.at(0.1); const a1 = tfp(st1, "armL"); st1.setAct("idle"); st1.at(0.12); const a2 = tfp(st1, "armL"); st1.at(0.9);
+    ok(a1 !== a2 && Math.abs(rotp(tfp(st1, "armL"))) < 8, "pet rigs: changing what it does blends smoothly and ends calm");
+  }
+  { // a tail hangs from the body and never slides off it; a dino's back ridge is part of its back, not of its tail
+    const bad = [];
+    PETS.forEach((t) => {
+      const c = mkp(t, {});
+      if (!c.byName.tail) return;
+      const piv = c.byName.tail.o[0];
+      c.at(0); c.turn(true); c.setAct("walk", { dir: 1 });
+      for (let T = 0; T < 4; T += 0.05) {
+        c.at(T);
+        const tf2 = tfp(c, "tail"), x = tx(tf2);
+        if (x !== null && Math.abs(x - piv) > 6) bad.push([t, T, "tail slid off the body", x - piv]);
+        if (sxp(tf2) < 0.999 || sxp(tf2) > 1.3) bad.push([t, T, "tail stretch", sxp(tf2)]);
+      }
+    });
+    const dn = mkp("dino", {});
+    ok(!!dn.byName.spikes && !!dn.byName.tail && dn.byName.spikes.el !== dn.byName.tail.el && !dn.byName.tail.el.contains(dn.byName.spikes.el), "pet rigs: the dino's back spikes and its tail are separate parts");
+    dn.at(0); dn.turn(true); dn.setAct("walk", { dir: 1 });
+    for (let T = 0; T < 3; T += 0.05) { dn.at(T); if (tfp(dn, "spikes") !== "") bad.push(["dino spikes moved on their own", T, tfp(dn, "spikes")]); }
+    ok(bad.length === 0, "pet rigs: every tail stays attached to the body when it wags and the pet turns, and the dino's spikes stay on its back", bad.slice(0, 3));
+  }
+  { // the adoption page: hello hop now and then, hover, a picture that is drawn once for people who ask for less motion
+    const h = mkp("dog", {}, { face: "excited", gaze: 0, hello: { first: 1, every: 4.4 }, fps: 30 });
+    h.at(0.5); const rest = tx(tfp(h, "root")); h.at(1.4); const up = tfp(h, "root"); let my = 0; for (let T = 1; T < 1.9; T += 0.05) { h.at(T); const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(tfp(h, "root")); if (m) my = Math.min(my, +m[2] - 177); }
+    let again = 0; for (let T = 5.4; T < 5.9; T += 0.05) { h.at(T); const m = /^translate\((-?[\d.]+) (-?[\d.]+)\)/.exec(tfp(h, "root")); if (m) again = Math.min(again, +m[2] - 177); }
+    ok(my < -10 && again < -10, "pet rigs: the adoption page's pets hop hello now and then", [my, again]);
+    ok(shownp(h, "mouth") === "excited", "pet rigs: they start with the excited face");
+    h.hover(true); h.at(8.2); const hv = shownp(h, "mouth"); h.hover(false); h.at(9); const hv2 = shownp(h, "mouth");
+    ok(hv === "excited" && hv2 === "excited", "pet rigs: hover keeps the excited face");
+    const k = mkp("dog", {}, { still: true, face: "excited" });
+    ok(k.state.cbs.length === 0 && PR.mount(pdoc.createElement("div"), "dog", {}, { still: true }) !== null, "pet rigs: a still rig is drawn once");
+    const hello = mkp("cat", {}); hello.at(0); hello.play("hello"); hello.at(0.4); const hy2 = tfp(hello, "root"); let cb2 = 0; hello.play("hello", () => cb2++); hello.at(1.5);
+    ok(/translate\(60 (16[0-9]|17[0-5])/.test(hy2) && cb2 === 1, "pet rigs: asked to hello it jumps, and says when it is done", [hy2, cb2]);
+  }
+  { // in the home scene the pet is a group inside a bigger picture
+    const sceneHost = pdoc.createElement("div");
+    sceneHost.innerHTML = '<svg id="scene" viewBox="0 0 360 300"><g id="psTest">' + PW.petGroup("panda", "happy", { hat: "crown", body: "tshirt" }) + "</g></svg>";
+    pdoc.body.appendChild(sceneHost);
+    const g = pdoc.getElementById("psTest"), r = PR.mountGroup(g, "panda", { hat: "crown", body: "tshirt" }, { face: "happy", gaze: 0, noShadow: true, manual: true });
+    r.at(0); r.setAct("sleep"); r.setFace("asleep"); r.at(2);
+    ok(!!r && g.querySelector(".torso") === null && g.querySelector(".headg") === null && g.querySelector(".blink") === null, "pet rigs: in the home scene the page's own CSS motion classes are taken off the pet (the rig moves it)");
+    ok(!g.querySelector("ellipse[fill='#2B1B52']") && /rotate/.test(tfp(r, "head") || ""), "pet rigs: the home scene's own shadow is used, and the pet sleeps with its head down", tfp(r, "head"));
+    ok(PR.mountGroup(null, "cat", {}) === null, "pet rigs: mounting into nothing gives null");
+  }
+  { // the home scene's life (pet-life.js) hands the pet's state to the rig
+    PW.eval(fs.readFileSync(path.join(SITE, "pet-life.js"), "utf8"));
+    PW.eval("window.FEST = undefined; window.HOMES = window.HOMES;");
+    const hostDiv = pdoc.createElement("div"); hostDiv.style.width = "800px"; pdoc.body.appendChild(hostDiv);
+    const stt = { type: "cat", name: "Mochi", hunger: 80, stars: 3, eq: { hat: "party" }, home: {}, toys: [] };
+    let threw = null;
+    try {
+      PW.PetLife.start(hostDiv, stt);
+      const sc = pdoc.getElementById("petScene");
+      ok(!!sc && /rigged/.test(sc.getAttribute("class")) && sc.querySelectorAll("#psIn [data-rg]").length > 10, "pet life: the home scene draws the pet as a rig", sc && sc.getAttribute("class"));
+      PW.PetLife.cheer("Yay", true, "star", "excited");
+      ok(/a-cheer/.test(pdoc.getElementById("petScene").getAttribute("class")) && /rigged/.test(pdoc.getElementById("petScene").getAttribute("class")), "pet life: a cheer is handed to the rig");
+      stt.eq = { hat: "crown" }; PW.PetLife.refresh();
+      ok(pdoc.querySelectorAll("#psIn [data-rg='ihat']").length === 1, "pet life: new clothes rebuild the rig");
+      PW.PetLife.twirl("Wheee");
+      ok(/a-twirl/.test(pdoc.getElementById("petScene").getAttribute("class")), "pet life: a twirl is handed to the rig");
+    } catch (e) { threw = e; }
+    try { PW.PetLife.stop(); } catch (e) {}
+    ok(threw === null, "pet life: no errors while the rig runs the home scene", threw && threw.message);
+  }
   // a controller leaves the page quietly: a host that is not in the document draws once and does not keep a timer going
   ok(MON.mount(null, 1) === null && MON.mount(rdoc.createElement("div"), 99) === null, "rigs: mounting nothing, or an unknown monster, gives null");
 }

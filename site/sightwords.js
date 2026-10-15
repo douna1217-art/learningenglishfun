@@ -2973,7 +2973,7 @@
     if (canPet) {
       try {
         var pa = petRigArgs();
-        prig = root.PetRig.mount(el("swPetHost"), pa.type, pa.eq, { gaze: -1, lean: -4, flip: true });
+        prig = root.PetRig.mount(el("swPetHost"), pa.type, pa.eq, { gaze: -1, lean: -4, flip: true, faces: ["asleep", "excited", "surprised"], defer: 60 });
       } catch (e) {
         prig = null;
       }

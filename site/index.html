@@ -235,6 +235,7 @@ a.card:hover .mascot{animation:wiggle .6s ease-in-out}
 #petScene.a-walk .pbob,#petScene.a-sleep .pbob,#petScene.a-cheer .pbob,#petScene.a-twirl .pbob{animation:none}
 #petScene.a-cheer #psG{animation:psJump .62s cubic-bezier(.3,.7,.4,1) 3}
 #petScene.a-cheer.small #psG{animation-iteration-count:1}
+#petScene.rigged .pbob,#petScene.rigged .waddle,#petScene.rigged #psG{animation:none!important}   /* the living rig (pet-rig.js) moves the pet's parts itself */
 @keyframes psJump{0%,100%{transform:translateY(0)}55%{transform:translateY(-34px)}}
 @keyframes psWad{0%,100%{transform:rotate(-4deg) translateY(0)}25%{transform:rotate(0) translateY(-5px)}50%{transform:rotate(4deg) translateY(0)}75%{transform:rotate(0) translateY(-5px)}}
 @keyframes psLook{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
@@ -279,6 +280,9 @@ a.card:hover .mascot{animation:wiggle .6s ease-in-out}
 #viewPets .pick:nth-child(1) svg{animation-delay:0s,.9s}#viewPets .pick:nth-child(2) svg{animation-delay:.09s,1.4s}#viewPets .pick:nth-child(3) svg{animation-delay:.18s,1.9s}#viewPets .pick:nth-child(4) svg{animation-delay:.27s,2.4s}
 #viewPets .pick:nth-child(5) svg{animation-delay:.36s,2.9s}#viewPets .pick:nth-child(6) svg{animation-delay:.45s,3.4s}#viewPets .pick:nth-child(7) svg{animation-delay:.54s,3.9s}#viewPets .pick:nth-child(8) svg{animation-delay:.63s,4.4s}
 #viewPets .pick:hover svg,#viewPets .pick:focus-visible svg{animation:psWiggle .55s ease-in-out infinite}
+#viewPets .pick .pr{display:block}
+#viewPets .pick svg.sw-rig{animation-name:psPickIn;animation-duration:.7s;animation-timing-function:cubic-bezier(.2,1.5,.4,1);animation-fill-mode:backwards;animation-iteration-count:1}   /* (the pop-in only: the rest of the motion is the rig's; the delays come from the rules above) */
+#viewPets .pick:hover svg.sw-rig,#viewPets .pick:focus-visible svg.sw-rig{animation:none}
 @keyframes psPickIn{from{transform:translateY(26px) scale(.6);opacity:0}to{transform:none;opacity:1}}
 @keyframes psHello{0%,60%,100%{transform:translateY(0) scale(1,1)}66%{transform:translateY(2px) scale(1.06,.92)}76%{transform:translateY(-18px) scale(.97,1.05)}86%{transform:translateY(0) scale(1.04,.95)}92%{transform:translateY(-4px) scale(1,1)}}
 @keyframes psWiggle{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(4deg)}}
@@ -509,14 +513,14 @@ var SHELF={},ALL=[];
 (function(){Object.keys(ID2NAME).forEach(function(id){var books=BOOKS[id]||[],gg=gradeGroupsFor(books),sj=ID2NAME[id];SHELF[sj]={};
  gg.gradeKeys.forEach(function(g){SHELF[sj][g]={count:gg.groups[g].length,books:gg.groups[g].map(function(b){var o={slug:b.slug,title:b.title,subtitle:b.subtitle||'',grade:b.grade||g,band:b.readingBand||'',minutes:b.minutes||'',subject:sj,id:id,cover:b.cover,file:b.file};ALL.push(o);return o;})};});});})();
 </script>
-<script src="pet-art.js?v=20261015a"></script><script src="pet-rig.js?v=20261015a"></script>
+<script src="pet-art.js?v=20261015b"></script><script src="pet-rig.js?v=20261015d"></script>
 <script src="pet-fest.js?v=20261012a"></script>
 <script src="pet-sound.js?v=20261014c"></script>
 <script src="badges.js?v=20261014c"></script><script src="sightwords-prizes.js?v=20261014c"></script>
 <script src="sightwords-data.js?v=20261014d"></script><script src="sightwords-data2.js?v=20261014a"></script>
 <script src="sightwords-art.js?v=20261014d"></script><script src="sightwords-scenery.js?v=20261014g"></script><script src="sightwords-monsters.js?v=20261014r1"></script>
-<script src="sightwords.js?v=20261015a"></script>
-<script src="pet-life.js?v=20261013a"></script>
+<script src="sightwords.js?v=20261015b"></script>
+<script src="pet-life.js?v=20261015a"></script>
 <script>
 /* the pet page needs pet-art.js and pet-life.js; if either did not load, show no pet and never save over the child's saved one */
 var ART_OK=(typeof PETS!=='undefined'&&typeof petSvg==='function'&&typeof HOMES!=='undefined');
@@ -552,8 +556,24 @@ function burst(x,y){if(matchMedia('(prefers-reduced-motion: reduce)').matches)re
 var starSvg='<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.5 1.3 6.6L12 17.2 6.1 20.5l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FFC93C" stroke="#B26A00" stroke-width="1.8" stroke-linejoin="round"/></svg>';
 /* adopt screen */
 var sel=null;
-function renderPicks(){$('pickGrid').innerHTML=PET_ORDER.map(function(k){return '<button class="pick'+(sel===k?' sel':'')+'" data-k="'+k+'" aria-label="Adopt a '+PETS[k].name+'">'+petSvg(k,'excited',null)+'<div class="nm">'+PETS[k].name+'</div></button>';}).join('');
- Array.prototype.forEach.call(document.querySelectorAll('.pick'),function(b){b.onclick=function(e){sel=b.dataset.k;snd();burst(e.clientX,e.clientY);renderPicks();renderSetup();var s=document.querySelector('.pick.sel svg');if(s&&s.animate)s.animate([{transform:'translateY(0)'},{transform:'translateY(-18px) rotate(-5deg)'},{transform:'translateY(0)'}],{duration:450});};});}
+var pickRigs=[];
+function stopPickRigs(){pickRigs.forEach(function(r){if(r)r.stop();});pickRigs=[];}
+function renderPicks(live){stopPickRigs();$('pickGrid').innerHTML=PET_ORDER.map(function(k){return '<button class="pick'+(sel===k?' sel':'')+'" data-k="'+k+'" aria-label="Adopt a '+PETS[k].name+'"><span class="pr">'+petSvg(k,'excited',null)+'</span><div class="nm">'+PETS[k].name+'</div></button>';}).join('');
+ Array.prototype.forEach.call(document.querySelectorAll('.pick'),function(b,i){b.onclick=function(e){pickPet(b,i,e);};});
+ if(live)animatePicks();}
+/* the pets on the adoption page are living rigs (pet-rig.js): they breathe, blink, hop now and then, turn their faces toward the pointer and wave when it is on them;
+   if that cannot be drawn the still picture with its CSS motion stays */
+function animatePicks(){if(!window.PetRig)return;var rm=false;try{rm=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+ Array.prototype.forEach.call(document.querySelectorAll('#pickGrid .pick'),function(b,i){var r=null;
+  try{r=PetRig.mount(b.querySelector('.pr'),b.getAttribute('data-k'),{},{face:'excited',gaze:0,faces:['asleep'],defer:300+i*80,fps:30,still:rm,hello:{first:.9+i*.5,every:4.4}});}catch(e){r=null;}
+  pickRigs[i]=r;if(!r||rm)return;
+  var on=function(){r.hover(true);},off=function(){r.hover(false);r.look(0);};
+  b.addEventListener('mouseenter',on);b.addEventListener('focus',on);b.addEventListener('mouseleave',off);b.addEventListener('blur',off);
+  b.addEventListener('mousemove',function(e){var rc=b.getBoundingClientRect();r.look(Math.max(-1,Math.min(1,((rc.left+rc.width/2)-e.clientX)/(rc.width/2)))*.85);});});}
+function pickPet(b,i,e){sel=b.getAttribute('data-k');snd();burst(e.clientX,e.clientY);
+ Array.prototype.forEach.call(document.querySelectorAll('#pickGrid .pick'),function(x){if(x===b)x.classList.add('sel');else x.classList.remove('sel');});renderSetup();
+ var r=pickRigs[i];if(r){r.play('hello');return;}
+ var s=b.querySelector('svg');if(s&&s.animate)s.animate([{transform:'translateY(0)'},{transform:'translateY(-18px) rotate(-5deg)'},{transform:'translateY(0)'}],{duration:450});}
 function renderSetup(){var su=$('setup');if(!sel){su.classList.remove('on');return;}su.classList.add('on');$('adoptBtn').disabled=!$('nameIn').value.trim();}
 $('nameIn').oninput=function(){$('adoptBtn').disabled=!sel||!this.value.trim();};
 $('adoptBtn').onclick=function(e){st.type=sel;st.name=$('nameIn').value.trim();st.hunger=80;burst(e.clientX,e.clientY);snd();save();showPetHome("Hi, I'm "+st.name+"! "+PETS[st.type].line);};
@@ -569,7 +589,7 @@ function render(){save();renderHomePet();PetLife.render();$('petName').textConte
 function feed(i,e){var c=FCOST[i],g=FGAIN[i];if(st.stars<c||st.busy)return;st.busy=true;st.stars-=c;st.hunger=Math.min(100,st.hunger+g);
  burst(e.clientX,e.clientY);snd('munch');render();say('Nom nom nom...');
  PetLife.eat(MENU[st.type][i],function(){st.busy=false;render();snd();say(i===0?'My favorite! Thank you, friend!':(i===3?'Wow, a special treat! Yummy!':'Yum! I feel better!'));});}
-function showPetHome(msg){st.tab=null;PetLife.setAway(0);$('adopt').style.display='none';$('petHome').style.display='block';render();PetLife.start($('petBox'),st);say(FEST.greet()||msg);}
+function showPetHome(msg){stopPickRigs();st.tab=null;PetLife.setAway(0);$('adopt').style.display='none';$('petHome').style.display='block';render();PetLife.start($('petBox'),st);say(FEST.greet()||msg);}
 $('dBack').onclick=function(){showAdopt();};
 $('shopClose').onclick=function(){st.tab=null;renderShop();};
 /* speaker button: sound effects on the pet page (and the old beeps) can be switched off; the choice is remembered on this device */
@@ -589,7 +609,7 @@ function renderHomePet(){
  var fa0=FEST.active(),t=$('petBtnText');if(t)t.innerHTML=has?st.name+(fa0.length?'<span style="display:block;font-weight:800;font-size:13px;color:#D9531E">'+fa0[0].name+' '+fa0[0].cn+'!</span>':(m==='sleepy'?' misses you<span class="hb-s">想你了</span>':'<span class="hb-s">我的宠物</span>')):'Adopt a pet<span class="hb-s">领养宠物</span>';
  var sc=$('petStars');if(sc){sc.style.display=has?'inline-flex':'none';sc.innerHTML=starSvgH.replace('width="26" height="26"','width="20" height="20"')+'<span id="starNum">'+st.stars+'</span>';}
 }
-function showAdopt(){PetLife.stop();$('petHome').style.display='none';$('adopt').style.display='block';sel=null;$('nameIn').value='';renderPicks();renderSetup();}
+function showAdopt(){PetLife.stop();$('petHome').style.display='none';$('adopt').style.display='block';sel=null;$('nameIn').value='';renderPicks(true);renderSetup();}
 function openPets(){$('viewHome').style.display='none';$('viewShelf').style.display='none';$('viewPets').style.display='block';window.scrollTo(0,0);if(st.type){$('adopt').style.display='none';$('petHome').style.display='block';st.tab=null;render();PetLife.start($('petBox'),st);say(FEST.greet()||(mood()==='happy'?"Hi, I'm "+st.name+"! "+PETS[st.type].line:'I miss you! Let’s read a book together?'));}else{showAdopt();$('topStars').style.display='none';}}
 function openHome(){PetLife.stop();$('viewShelf').style.display='none';$('viewPets').style.display='none';$('viewHome').style.display='block';window.scrollTo(0,0);renderHomePet();}
 function readBook(e){st.stars+=3;save();burst(e.clientX,e.clientY);snd();renderHomePet();var c=$('starChip');if(c&&c.firstChild)c.firstChild.animate([{transform:'scale(1)'},{transform:'scale(1.35) rotate(-4deg)'},{transform:'scale(1)'}],{duration:500});

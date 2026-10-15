@@ -272,8 +272,8 @@ var BODY={
   return RG('tail','<circle cx="98" cy="150" r="11" fill="#fff" stroke="'+d+'" stroke-width="4"/>')+pear(b,d)+RG('belly','<ellipse cx="60" cy="142" rx="18" ry="20" fill="#fff" opacity=".75"/>')+MK+armPaths(b,d,m)
    +RG('footL','<ellipse cx="40" cy="168" rx="19" ry="9" fill="'+b+'" stroke="'+d+'" stroke-width="3.5"/><ellipse cx="40" cy="169.5" rx="9" ry="4.5" fill="'+pad+'"/>')+RG('footR','<ellipse cx="80" cy="168" rx="19" ry="9" fill="'+b+'" stroke="'+d+'" stroke-width="3.5"/><ellipse cx="80" cy="169.5" rx="9" ry="4.5" fill="'+pad+'"/>');},
  dino:function(c,m){var b=c.b,d=c.d,l=c.l;
-  return RG('tail','<path d="M86 100L102 96L92 112ZM90 116L106 114L94 130ZM92 132L108 134L94 146Z" fill="'+d+'" stroke="'+d+'" stroke-width="2" stroke-linejoin="round"/>'
-   +'<path d="M86 146C112 146 130 138 138 116C124 130 108 134 92 126Z" fill="'+b+'" stroke="'+d+'" stroke-width="4" '+SW+'/>')
+  return RG('spikes','<path d="M86 100L102 96L92 112ZM90 116L106 114L94 130ZM92 132L108 134L94 146Z" fill="'+d+'" stroke="'+d+'" stroke-width="2" stroke-linejoin="round"/>')
+   +RG('tail','<path d="M86 146C112 146 130 138 138 116C124 130 108 134 92 126Z" fill="'+b+'" stroke="'+d+'" stroke-width="4" '+SW+'/>')
    +pear(b,d)+RG('belly','<ellipse cx="60" cy="142" rx="18" ry="21" fill="'+l+'"/>')
    +'<path d="M34 128h10M34 138h10M76 128h10M76 138h10" stroke="'+d+'" stroke-width="3" stroke-linecap="round" opacity=".35"/>'+MK
    +armPaths(b,d,m)+feetOf(b,d,16,8.5,'<path d="M32 170v-4M38 171v-5M44 171v-5" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>','<path d="M76 171v-5M82 171v-5M88 170v-4" stroke="'+d+'" stroke-width="2.2" stroke-linecap="round" opacity=".7"/>');}
