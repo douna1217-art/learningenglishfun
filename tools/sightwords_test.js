@@ -84,6 +84,29 @@ ok(eq(SW.shuffle([1, 2, 3, 4, 5], SW.seeded(3)).slice().sort(), [1, 2, 3, 4, 5])
 ok(SW.accuracy(4, 5) === 80 && SW.accuracy(0, 0) === 0, "accuracy percent");
 
 
+// ---- the spelling and speed games for older children
+ok(SW.spellCheck("three", "three").every((m) => m === "ok"), "spelling: a right word is all green");
+ok(eq(SW.spellCheck("tzzzz", "three"), ["ok", "no", "no", "no", "no"]), "spelling: right letter in the right place is green, others grey");
+ok(eq(SW.spellCheck("hello", "world"), ["no", "no", "no", "ok", "near"]), "spelling: a letter that is in the word elsewhere is yellow (and the first l is grey, the second one is right)");
+ok(eq(SW.spellCheck("teeee", "three"), ["ok", "no", "no", "ok", "ok"]), "spelling: a repeated letter is only yellow as many times as it is in the word");
+ok(eq(SW.spellCheck("eerht", "three"), ["near", "near", "ok", "near", "near"]), "spelling: all the right letters in the wrong places are yellow");
+ok(SW.spellCheck("don\u2019t", "don't").every((m) => m === "ok") && SW.spellForm("Don\u2019t") === "don't", "spelling: a curly and a straight apostrophe are the same");
+ok(eq(SW.spellable(["I", "a", "the", "go", "Don't"]), ["the", "go", "Don't"]), "spelling: words of one letter are left out");
+ok(SW.rushMult(1) === 1 && SW.rushMult(4) === 1 && SW.rushMult(5) === 2 && SW.rushMult(9) === 2 && SW.rushMult(10) === 3 && SW.rushMult(15) === 4 && SW.rushMult(99) === 4, "speed: the multiplier grows at 5, 10 and 15 in a row");
+ok(SW.rushPoints(1) === 10 && SW.rushPoints(5) === 20 && SW.rushPoints(10) === 30 && SW.rushPoints(20) === 40, "speed: points are 10 times the multiplier");
+let repeats = 0, badPick = 0;
+for (let k = 0; k < 200; k++) {
+  const rnd = SW.seeded(k + 1), recent = [], pool = ["the", "and", "go", "see", "look", "big", "red", "blue", "run", "jump"];
+  for (let n = 0; n < 30; n++) {
+    const w = SW.rushPick(pool, recent, rnd, n % 3 === 0 ? ["go", "see"] : []);
+    if (pool.indexOf(w) < 0) badPick++;
+    if (recent.indexOf(SW.wkey(w)) >= 0) repeats++;
+    recent.push(SW.wkey(w)); if (recent.length > 4) recent.shift();
+  }
+}
+ok(repeats === 0 && badPick === 0, "speed: the next word is never one of the last four, always from the pool", [repeats, badPick]);
+ok(["a", "b"].indexOf(SW.rushPick(["a", "b"], ["a", "b", "c", "d"], SW.seeded(3), [])) >= 0 && SW.rushPick(["a"], ["a"], SW.seeded(3), []) === "a", "speed: with a tiny pool a word may come back instead of failing");
+
 // ---- words that sound the same are never offered together when the child has to listen
 ok(SW.sameSound("two", "to") && SW.sameSound("Too", "two") && SW.sameSound("their", "there") && SW.sameSound("were", "where") && SW.sameSound("know", "no") && !SW.sameSound("to", "go") && !SW.sameSound("an", "and"), "same sound: homophones are recognised, look-alikes are not");
 const M0 = SW.mergeData(D, (() => { const c = { window: {} }; vm.runInNewContext(fs.readFileSync(path.join(SITE, "sightwords-data2.js"), "utf8"), c); return c.window.SW_DATA2; })());
