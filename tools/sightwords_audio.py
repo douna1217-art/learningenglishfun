@@ -26,9 +26,9 @@ TRIM = ("silenceremove=start_periods=1:start_threshold=-48dB:start_silence=0.05,
 
 
 def load():
-    """the words of every stage (sightwords-data.js is stage 1, sightwords-data2.js stage 2)"""
+    """the words of every stage (sightwords-data.js is stage 1, sightwords-data2.js stage 2, sightwords-data3.js stage 3)"""
     data = None
-    for fn in ("sightwords-data.js", "sightwords-data2.js"):
+    for fn in ("sightwords-data.js", "sightwords-data2.js", "sightwords-data3.js"):
         path = os.path.join(SITE, fn)
         if not os.path.exists(path):
             continue

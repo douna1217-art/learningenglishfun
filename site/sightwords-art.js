@@ -104,7 +104,7 @@
       sh = look * 2;
     s += '<ellipse cx="' + (-ex + sh) + '" cy="-53" rx="1.8" ry="2.2" fill="' + INK + '"/><ellipse cx="' + (ex + sh) + '" cy="-53" rx="1.8" ry="2.2" fill="' + INK + '"/>';
     s += '<circle cx="-7.8" cy="-49" r="2.2" fill="#FF9DB5" opacity=".6"/><circle cx="7.8" cy="-49" r="2.2" fill="#FF9DB5" opacity=".6"/>';
-    s += o.mouth === "open" ? '<path d="M-4.2 -49.6 Q0 -42.2 4.2 -49.6Z" fill="#C0392B"/>' : o.mouth === "o" ? '<ellipse cx="0" cy="-47.5" rx="2" ry="2.6" fill="#C0392B"/>' : '<path d="M-3.6 -49 Q0 -45.6 3.6 -49" fill="none" stroke="#B3442F" stroke-width="1.9" stroke-linecap="round"/>';
+    s += o.mouth === "open" ? '<path d="M-4.2 -49.6 Q0 -42.2 4.2 -49.6Z" fill="#C0392B"/>' : o.mouth === "sad" ? '<path d="M-4 -45.4 Q0 -49.6 4 -45.4" fill="none" stroke="#B3442F" stroke-width="1.9" stroke-linecap="round"/>' : o.mouth === "o" ? '<ellipse cx="0" cy="-47.5" rx="2" ry="2.6" fill="#C0392B"/>' : '<path d="M-3.6 -49 Q0 -45.6 3.6 -49" fill="none" stroke="#B3442F" stroke-width="1.9" stroke-linecap="round"/>';
     if (o.hat) s += '<g transform="translate(0,-62) scale(.62)">' + hat({ c: o.hat }) + "</g>";
     if (p.over) s += arms();
     return '<g transform="translate(0,' + (p.dy || 0) + ") rotate(" + (p.lean || 0) + ' 0 -22)">' + s + "</g>";
@@ -565,7 +565,9 @@
   }
 
   /* ------------------------------------------------------------------ backgrounds */
+  var BGX = {}; // backgrounds added by sightwords-art3.js (stage 3)
   function background(kind) {
+    if (BGX[kind]) return BGX[kind]();
     if (kind === "night") return '<rect width="240" height="160" fill="#3A3F86"/><rect y="118" width="240" height="42" fill="#2B2F6B"/><rect y="114" width="240" height="6" fill="#23275A"/><circle cx="30" cy="30" r="1.8" fill="#fff" opacity=".8"/><circle cx="96" cy="46" r="1.4" fill="#fff" opacity=".7"/><circle cx="214" cy="20" r="1.8" fill="#fff" opacity=".8"/><circle cx="62" cy="76" r="1.4" fill="#fff" opacity=".6"/>';
     if (kind === "sky") return '<rect width="240" height="160" fill="#2B2F6B"/><circle cx="26" cy="26" r="1.8" fill="#fff"/><circle cx="70" cy="50" r="1.4" fill="#fff" opacity=".8"/><circle cx="118" cy="18" r="1.8" fill="#fff"/><circle cx="168" cy="60" r="1.4" fill="#fff" opacity=".8"/><circle cx="226" cy="22" r="1.6" fill="#fff"/><circle cx="42" cy="86" r="1.2" fill="#fff" opacity=".7"/><circle cx="148" cy="96" r="1.2" fill="#fff" opacity=".7"/><path d="M0 124 Q60 112 120 122 Q180 132 240 118 L240 160 L0 160Z" fill="#2F5D4A"/><path d="M0 138 Q80 130 150 138 Q200 144 240 136 L240 160 L0 160Z" fill="#27503F"/>';
     if (kind === "snow") return '<rect width="240" height="160" fill="#CFE4F7"/>' + draw(["cloud", 52, 34, 1, {}]) + draw(["cloud", 170, 24, 0.8, {}]) + '<path d="M0 120 Q60 108 120 118 Q180 128 240 114 L240 160 L0 160Z" fill="#FFFFFE"/><path d="M0 136 Q80 128 150 136 Q200 142 240 134 L240 160 L0 160Z" fill="#E6F0FA"/>';
@@ -802,6 +804,15 @@
   }
 
   root.SWArt = {
+    // more things, scenes and backgrounds from another file (sightwords-art3.js): { kit: {name: fn(o)}, scenes: {word: [items]}, bgk: {word: backgroundKind}, bg: {kind: fn()} }
+    extend: function (spec) {
+      var k;
+      for (k in spec.kit || {}) K[k] = spec.kit[k];
+      for (k in spec.scenes || {}) S[k] = spec.scenes[k];
+      for (k in spec.bgk || {}) BGK[k] = spec.bgk[k];
+      for (k in spec.bg || {}) BGX[k] = spec.bg[k];
+    },
+    h: { C: C, X: X, f: f, ln: ln, path: path, star: star, dk: dk, hexMix: hexMix, lum: lum, INK: INK, G: G, draw: draw, render: render, K: K, kb: kb, kg: kg, ky: ky, kr: kr, background: background },
     scene: scene,
     has: function (w) {
       return !!S[String(w).toLowerCase().replace(/[^a-z]/g, "")];

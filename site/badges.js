@@ -111,7 +111,7 @@
     { id: "sw10", tier: "bronze", glyph: "aa", name: "First Words", cn: "第一批单词", metric: "words", need: 10, en: "Know 10 sight words", zh: "认识 10 个高频词" },
     { id: "sw50", tier: "silver", glyph: "aa", name: "Word Collector", cn: "单词收集家", metric: "words", need: 50, en: "Know 50 sight words", zh: "认识 50 个高频词" },
     { id: "sw92", tier: "gold", glyph: "aa", name: "Word Master", cn: "单词大师", metric: "words1", need: 92, en: "Know all 92 words of Stage 1", zh: "认识第一阶段的全部 92 个词" },
-    { id: "sw179", tier: "diamond", glyph: "aa", name: "Word Wizard", cn: "单词魔法师", metric: "words", need: 179, en: "Know all 179 words of Stage 1 and 2", zh: "认识第一、二阶段的全部 179 个词" },
+    { id: "sw179", tier: "diamond", glyph: "aa", name: "Word Wizard", cn: "单词魔法师", metric: "words12", need: 179, en: "Know all 179 words of Stage 1 and 2", zh: "认识第一、二阶段的全部 179 个词" },
     { id: "swstar3", tier: "silver", glyph: "star", name: "Lesson Star", cn: "课程之星", metric: "stars3", need: 3, en: "Get 3 stars on 3 word lessons", zh: "3 节单词课拿到 3 颗星" },
     { id: "swrev5", tier: "silver", glyph: "check", name: "Memory Keeper", cn: "记忆守护者", metric: "swrev", need: 5, en: "Review your words on 5 different days", zh: "在 5 个不同的日子复习单词" },
     { id: "chest1", tier: "bronze", glyph: "chest", name: "Treasure Hunter", cn: "寻宝小能手", metric: "chests", need: 1, en: "Open a treasure chest", zh: "打开 1 个宝箱" },
@@ -119,6 +119,9 @@
     { id: "mon1", tier: "bronze", glyph: "monster", name: "Monster Hunter", cn: "怪兽猎人", metric: "monsters", need: 1, en: "Beat a monster", zh: "打败 1 只怪兽" },
     { id: "mon5", tier: "gold", glyph: "monster", name: "Monster Master", cn: "怪兽大师", metric: "monsters", need: 5, en: "Beat all 5 monsters", zh: "打败全部 5 只怪兽" },
     { id: "chest10", tier: "diamond", glyph: "beach", name: "Beach Master", cn: "海滩大师", metric: "chests2", need: 5, en: "Open all 5 chests on the beach island", zh: "打开沙滩岛上的全部 5 个宝箱" },
+    { id: "sw136", tier: "gold", glyph: "aa", name: "Kingdom Reader", cn: "王国小读者", metric: "words3", need: 136, en: "Know all 136 words of Stage 3", zh: "认识第三阶段的全部 136 个词" },
+    { id: "sw315", tier: "diamond", glyph: "aa", name: "Word Legend", cn: "单词传奇", metric: "words", need: 315, en: "Know all 315 words of Stages 1 to 3", zh: "认识第一到第三阶段的全部 315 个词" },
+    { id: "chest15", tier: "diamond", glyph: "castle", name: "Castle Master", cn: "城堡大师", metric: "chests3", need: 5, en: "Open all 5 chests in the castle kingdom", zh: "打开城堡王国里的全部 5 个宝箱" },
   ];
   var DEF_BY = {};
   DEFS.forEach(function (d) {
@@ -140,17 +143,19 @@
 
   // What the sight-word badges count, from lef_words_v1 ({words:{key:{box}}, lessons:{id:{acc}}, rev:{...}}):
   // words = known words (box 3 or more), stars3 = lessons with 3 stars (90% right on the first try), swrev = days a review earned its star,
-  // chests = treasure chests opened (rev keys "chest<island>-<unit>"), chests1 and chests2 = those of the mountain and the beach island;
-  // words1 = known words of stage 1 (stage1 = the lower-case keys of its words; without it every known word counts)
-  function swMetrics(sw, stage1) {
+  // chests = treasure chests opened (rev keys "chest<island>-<unit>"), chests1, chests2 and chests3 = those of the mountain, the beach and the castle island;
+  // words1 = known words of stage 1 (stage1 = the lower-case keys of its words; without it every known word counts), words3 = known words of stage 3 (stage3 = its keys; without it 0), words12 = known words that are not in stage 3
+  function swMetrics(sw, stage1, stage3) {
     sw = isObj(sw) ? sw : {};
     var words = 0,
       words1 = 0,
+      words3 = 0,
       stars3 = 0,
       swrev = 0,
       chests = 0,
       chests1 = 0,
       chests2 = 0,
+      chests3 = 0,
       monsters = 0;
     if (isObj(sw.words))
       Object.keys(sw.words).forEach(function (k) {
@@ -158,6 +163,7 @@
         if (isObj(r) && (r.box || 0) >= 3) {
           words++;
           if (!stage1 || stage1.indexOf(k) >= 0) words1++;
+          if (stage3 && stage3.indexOf(k) >= 0) words3++;
         }
       });
     if (isObj(sw.lessons))
@@ -173,9 +179,10 @@
           chests++;
           if (/^chest1-/.test(k)) chests1++;
           if (/^chest2-/.test(k)) chests2++;
+          if (/^chest3-/.test(k)) chests3++;
         }
       });
-    return { words: words, words1: words1, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2, monsters: monsters };
+    return { words: words, words1: words1, words12: words - words3, words3: words3, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2, chests3: chests3, monsters: monsters };
   }
 
   var core = {
@@ -274,7 +281,14 @@
           return w.toLowerCase().replace(/[^a-z]/g, "");
         });
     } catch (e) {}
-    var sm = swMetrics(readJ("lef_words_v1", null), st1);
+    var st3 = null;
+    try {
+      if (root.SW_DATA3 && root.SW_DATA3.words)
+        st3 = Object.keys(root.SW_DATA3.words).map(function (w) {
+          return w.toLowerCase().replace(/[^a-z]/g, "");
+        });
+    } catch (e) {}
+    var sm = swMetrics(readJ("lef_words_v1", null), st1, st3);
     return {
       books: fin,
       subjects: subjects,
@@ -285,11 +299,14 @@
       reviews: S.reviews,
       words: sm.words,
       words1: sm.words1,
+      words12: sm.words12,
+      words3: sm.words3,
       stars3: sm.stars3,
       swrev: sm.swrev,
       chests: sm.chests,
       chests1: sm.chests1,
       chests2: sm.chests2,
+      chests3: sm.chests3,
       monsters: sm.monsters,
     };
   }
@@ -330,6 +347,8 @@
       return '<path d="M-13 12Q-17 -2 -8 -9Q0 -14 8 -9Q17 -2 13 12Z" fill="' + F("#7BD65A") + '"' + sw + ' stroke-width="2.2"/><circle cx="-4.5" cy="-1" r="3.4" fill="#fff"/><circle cx="4.5" cy="-1" r="3.4" fill="#fff"/><circle cx="-4" cy="-0.5" r="1.7" fill="' + F("#3A2A5E") + '"/><circle cx="5" cy="-0.5" r="1.7" fill="' + F("#3A2A5E") + '"/><path d="M-4 6Q0 9.5 4 6" fill="none" stroke="' + F("#3A2A5E") + '" stroke-width="1.8" stroke-linecap="round"/><path d="M0 -13Q-3 -19 2 -19" fill="none"' + sw + ' stroke-width="1.8"/>';
     if (g === "beach")
       return '<path d="M-15 11Q-9 6 -3 11T9 11T16 9V13H-15Z" fill="' + F("#7DD3FC") + '"' + sw + ' stroke-width="2"/><path d="M-14 3Q0 -18 14 3Z" fill="' + F("#FF8FB1") + '"' + sw + ' stroke-width="2.2"/><path d="M0 -11V11" stroke="' + S + '" stroke-width="2.4" stroke-linecap="round"/><circle cx="11" cy="-10" r="3.6" fill="' + F("#FFD54A") + '"' + sw + ' stroke-width="1.6"/>';
+    if (g === "castle")
+      return '<path d="M-14 12V-2H-9V-6H-5V-2H-2V-9H2V-2H5V-6H9V-2H14V12Z" fill="' + F("#C9CEE8") + '"' + sw + ' stroke-width="2.2"/><path d="M-4 12V5Q0 0 4 5V12Z" fill="' + F("#8B6BE8") + '"' + sw + ' stroke-width="1.8"/><path d="M0 -9V-15L7 -13L0 -11" fill="' + F("#E5483A") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "check") return '<circle r="13" fill="' + F("#7ED957") + '"' + sw + ' stroke-width="2.4"/><path d="M-6 0L-1.5 5L7 -5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';
     return "";
   }

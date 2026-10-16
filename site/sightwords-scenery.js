@@ -342,11 +342,11 @@
     return o;
   }
 
-  // the map of word islands (360 x 540): the ready islands are bright and open, the rest are grey and locked.
+  // the map of word islands (360 x 590): the ready islands are bright and open, the rest are grey and locked.
   // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total, check}, 2: ...} }. Without stages, island 1 shows known and total.
   // check: true puts an orange "Quick check" tag next to "Open" (the group with class sw-isl-qc, data-s = the island, is its click target).
   // The group with class sw-isl-go (data-s = the island) is the click target.
-  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 350], 4: [280, 405] };
+  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466] };
   function islands(o) {
     var ready = o.ready || { 1: true },
       out = "";
@@ -372,10 +372,10 @@
         out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + tag + "</g></g>";
       else out += '<g transform="translate(' + x + "," + y + ')">' + soft(islandArt(n, true)) + label + "</g>";
     });
-    return '<svg class="sw-isvg" viewBox="0 0 360 540" role="group" aria-label="Word islands">' +
-      '<rect x="0" y="0" width="360" height="540" rx="28" fill="#DFF1FF"/>' +
-      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="510" rx="24" ry="8"/><ellipse cx="66" cy="504" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/></g>' +
-      '<path d="M84 100 C150 70 200 110 280 150 C330 215 120 290 84 350 C130 405 200 365 280 405" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
+    return '<svg class="sw-isvg" viewBox="0 0 360 590" role="group" aria-label="Word islands">' +
+      '<rect x="0" y="0" width="360" height="590" rx="28" fill="#DFF1FF"/>' +
+      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/></g>' +
+      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
   }
 
   root.SWScenery = { hero: hero, game: game, book: book, star: star, islands: islands, banner: bannerArt, unitArt: unitArt, unitTheme: unitTheme, chest: chest };

@@ -19,7 +19,7 @@
     return o + '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.5).toFixed(1) + '" fill="#FFD23F" stroke="#E0A800" stroke-width="0.8"/>';
   }
 
-  // one prize per unit: island 1 (the mountain, units 1-5) and island 2 (the beach, units 6-10); each has the island, the unit, the world it belongs to, the item
+  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10) and island 3 (the castle kingdom, units 11-15); each has the island, the unit, the world it belongs to, the item
   var LIST = [
     {
       id: "ch-flower", island: 1, unit: 1, world: "Flower foothills", slot: "hat", name: "Flower crown", cn: "花环", vb: "12 26 96 40", a: { hx: 60, hy: 46, hs: 1 },
@@ -164,6 +164,78 @@
         o += '<path d="M60 121 L47 133 Q44 125 49 120 Q52 117 56 118Z M60 121 L73 133 Q76 125 71 120 Q68 117 64 118Z M60 121 L52 136 Q60 140 68 136Z" fill="#FFB38A" stroke="#C45A2C" stroke-width="2.2" stroke-linejoin="round"/>' +
           '<path d="M60 122 L56 134 M60 122 L64 134" stroke="#C45A2C" stroke-width="1.6" stroke-linecap="round"/>';
         return '<g transform="translate(0,' + y + ')">' + o + "</g>";
+      },
+    },
+
+    // island 3 (the castle kingdom): units 11-15
+    {
+      id: "ch-woolhat", island: 3, unit: 11, world: "Village green", slot: "hat", name: "Woolly hat", cn: "羊毛帽", vb: "24 2 72 50", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<ellipse cx="-24" cy="-4" rx="8" ry="4.4" transform="rotate(-24 -24 -4)" fill="#E7CDB8" stroke="#A8826A" stroke-width="2.2"/><ellipse cx="24" cy="-4" rx="8" ry="4.4" transform="rotate(24 24 -4)" fill="#E7CDB8" stroke="#A8826A" stroke-width="2.2"/>' +
+          '<path d="M-22 -1 Q0 6 22 -1 L21 4 Q0 10 -21 4Z" fill="#EEF1F8" stroke="#B9C2D6" stroke-width="2.2" stroke-linejoin="round"/>' +
+          '<circle cx="-15" cy="-8" r="9" fill="#FFFFFE" stroke="#B9C2D6" stroke-width="2.2"/><circle cx="15" cy="-8" r="9" fill="#FFFFFE" stroke="#B9C2D6" stroke-width="2.2"/>' +
+          '<circle cx="-7" cy="-17" r="10" fill="#FFFFFE" stroke="#B9C2D6" stroke-width="2.2"/><circle cx="8" cy="-17" r="10" fill="#FFFFFE" stroke="#B9C2D6" stroke-width="2.2"/><circle cx="0" cy="-9" r="11" fill="#FFFFFE" stroke="#B9C2D6" stroke-width="2.2"/>' +
+          '<path d="M-13 -22 Q-9 -26 -4 -25 M3 -11 Q7 -13 11 -11" fill="none" stroke="#DDE3F0" stroke-width="2" stroke-linecap="round"/>'
+        );
+      },
+    },
+    {
+      id: "ch-knight", island: 3, unit: 12, world: "Castle gate", slot: "hat", name: "Knight helmet", cn: "骑士头盔", vb: "22 -6 76 60", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M0 -26 Q16 -42 27 -36 Q18 -30 10 -26Z" fill="#E5483A" stroke="#A52A22" stroke-width="2.2" stroke-linejoin="round"/>' +
+          '<path d="M-23 3 Q-26 -24 0 -27 Q26 -24 23 3 Q0 8 -23 3Z" fill="#D5DDEB" stroke="#6B7A99" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M-23.4 -1 Q0 5 23.4 -1 L23 4 Q0 9 -23 4Z" fill="#F6C531" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/>' +
+          '<rect x="-15" y="-13" width="30" height="5.4" rx="2.7" fill="#4A5670" stroke="#2F3850" stroke-width="1.6"/><path d="M0 -26 V-14" stroke="#6B7A99" stroke-width="2"/>' +
+          '<circle cx="-18" cy="-6" r="1.6" fill="#F6C531"/><circle cx="18" cy="-6" r="1.6" fill="#F6C531"/><path d="M-14 -22 Q-9 -25 -4 -24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity=".8"/>'
+        );
+      },
+    },
+    {
+      id: "ch-dragoneyes", island: 3, unit: 13, world: "Dragon hill", slot: "face", name: "Dragon goggles", cn: "龙眼镜", vb: "10 20 100 40", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx,
+          x2 = 60 + a.edx,
+          r = a.er + 5.5,
+          y = a.ey;
+        function lens(x) {
+          return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="rgba(255,196,80,.62)" stroke="#2F8A4C" stroke-width="3.8"/>' +
+            '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (r * 0.2).toFixed(1) + '" ry="' + (r * 0.68).toFixed(1) + '" fill="#2B1B0E"/>' +
+            '<polygon points="' + (x - r * 0.5) + "," + (y - r - 1.5) + " " + x + "," + (y - r - 7) + " " + (x + r * 0.5) + "," + (y - r - 1.5) + '" fill="#4FB36B" stroke="#1F6A3A" stroke-width="1.8" stroke-linejoin="round"/>' +
+            '<path d="M' + (x - r * 0.55) + " " + (y - r * 0.2) + " Q" + (x - r * 0.35) + " " + (y - r * 0.6) + " " + (x + r * 0.05) + " " + (y - r * 0.62) + '" fill="none" stroke="#fff" stroke-width="2.2" opacity=".9"/>';
+        }
+        return '<g stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M' + (x1 - r) + " " + y + " L" + (x1 - r - 14) + " " + (y - 2) + " M" + (x2 + r) + " " + y + " L" + (x2 + r + 14) + " " + (y - 2) + '" fill="none" stroke="#2F8A4C" stroke-width="4.6"/>' +
+          '<path d="M' + (x1 + r) + " " + y + " H" + (x2 - r) + '" fill="none" stroke="#2F8A4C" stroke-width="4.4"/>' + lens(x1) + lens(x2) + "</g>";
+      },
+    },
+    {
+      id: "ch-rosegarland", island: 3, unit: 14, world: "Royal garden", slot: "neck", name: "Rose garland", cn: "玫瑰花环", vb: "18 92 84 52", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny - 104,
+          o = "";
+        function rose(x, yy, r, c, d) {
+          return '<circle cx="' + x + '" cy="' + yy + '" r="' + r + '" fill="' + c + '" stroke="' + d + '" stroke-width="1.8"/><path d="M' + (x - r * 0.5) + " " + yy + " Q" + x + " " + (yy - r * 0.7) + " " + (x + r * 0.5) + " " + yy + " Q" + x + " " + (yy + r * 0.6) + " " + (x - r * 0.2) + " " + (yy + r * 0.1) + '" fill="none" stroke="' + d + '" stroke-width="1.4" stroke-linecap="round"/>';
+        }
+        [[30, 101], [38, 109], [48, 114.5], [72, 114.5], [82, 109], [90, 101]].forEach(function (c) {
+          o += '<ellipse cx="' + c[0] + '" cy="' + c[1] + '" rx="6.4" ry="3" transform="rotate(' + (c[0] < 60 ? 28 : -28) + " " + c[0] + " " + c[1] + ')" fill="#5CC27A" stroke="#2F7D48" stroke-width="1.6"/>';
+        });
+        o += rose(32, 101, 4.4, "#FF8FB1", "#C0577F") + rose(46, 112, 4.6, "#FFFFFE", "#C9B0C0") + rose(74, 112, 4.6, "#FFC93C", "#B8860B") + rose(88, 101, 4.4, "#FF8FB1", "#C0577F") +
+          '<ellipse cx="53" cy="117" rx="6" ry="2.8" transform="rotate(20 53 117)" fill="#5CC27A" stroke="#2F7D48" stroke-width="1.6"/><ellipse cx="67" cy="117" rx="6" ry="2.8" transform="rotate(-20 67 117)" fill="#5CC27A" stroke="#2F7D48" stroke-width="1.6"/>' +
+          rose(60, 119, 7.4, "#E5483A", "#8E2A22") + '<circle cx="58" cy="117" r="1.4" fill="#fff" opacity=".7"/>';
+        return '<g transform="translate(0,' + y + ')">' + o + "</g>";
+      },
+    },
+    {
+      id: "ch-crown", island: 3, unit: 15, world: "Throne hall", slot: "hat", name: "Royal crown", cn: "皇冠", vb: "26 -4 68 52", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-21 3 L-24 -20 L-12 -9 L0 -26 L12 -9 L24 -20 L21 3 Q0 8 -21 3Z" fill="#F6C531" stroke="#B8860B" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M-21.4 -1 Q0 5 21.4 -1 L21 3.4 Q0 8.6 -21 3.4Z" fill="#E5483A" stroke="#8E2A22" stroke-width="2" stroke-linejoin="round"/>' +
+          '<circle cx="-24" cy="-21" r="3.2" fill="#8B6BE8" stroke="#4A3A9A" stroke-width="1.6"/><circle cx="0" cy="-27" r="3.6" fill="#E5483A" stroke="#8E2A22" stroke-width="1.6"/><circle cx="24" cy="-21" r="3.2" fill="#3D8BF2" stroke="#1F4F9A" stroke-width="1.6"/>' +
+          '<circle cx="-9" cy="-3" r="2.2" fill="#3D8BF2"/><circle cx="0" cy="-2" r="2.4" fill="#FFFFFF"/><circle cx="9" cy="-3" r="2.2" fill="#6CCB5F"/><path d="M-14 -10 L-10 -14" stroke="#FFF2B8" stroke-width="2.2" stroke-linecap="round"/>'
+        );
       },
     },
 
