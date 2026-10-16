@@ -504,7 +504,7 @@
     corn: [["kid", 66, G, 1.45, kb("hold", { mouth: "open", look: 1 })], ["corn", 80, G - 52, 0.85, { rot: 62 }], ["kid", 172, G, 1.45, kg("hold", { mouth: "open", look: -1 })], ["corn", 186, G - 52, 0.85, { rot: 62 }]],
     grass: [["grass", 120, G + 8, 3.3, { w: 100 }], ["dog", 120, G + 2, 1.6], ["flower", 40, G, 1.0, { c: "#FFFFFE" }], ["flower", 200, G, 1.0, { c: "#FF8FB1" }]],
     seed: [["seeds", 112, G + 2, 2.6], ["bird", 150, G, 2.0, { flip: true }], ["sparkle", 80, 60, 0.9]],
-    egg: [["table", 150, G, 1.5], ["plate", 150, G - 40, 1.7], ["egg", 150, G - 42, 1.35], ["kid", 64, G, 1.45, kb("look", { look: 1, mouth: "open" })]],
+    egg: [["kid", 96, G, 1.45, kb("hold", { look: 1, mouth: "open" })], ["egg", 112, G - 44, 0.8], ["table", 186, G, 1.3], ["plate", 186, G - 34, 1.2], ["egg", 186, G - 36, 0.9]],
     milk: [["kid", 66, G, 1.45, kg("hold", { mouth: "open" })], ["milk", 138, G, 1.9], ["heart", 114, 38, 1.0]],
     bread: [["mom", 62, G, 1.55, { pose: "hold", look: 1 }], ["table", 164, G, 1.3], ["loaf", 164, G - 33, 1.15]],
     apple: [["kid", 80, G, 1.5, kb("hold", { mouth: "open" })], ["apple", 98, G - 36, 1.15], ["heart", 168, 60, 1.1]],
@@ -585,12 +585,12 @@
     bird: [["bird", 120, G, 2.4, {}], ["note", 62, 56, 1.3], ["note", 180, 44, 1.2, { c: "#FF6FA0" }], ["note", 200, 76, 1.0, { c: "#3D8BF2" }]],
     robin: [["cloud", 52, 38, 1.1], ["robin", 120, 108, 2.0, { fly: true }], ["whoosh", 56, 100, 1.0]],
     squirrel: [["tree", 124, G, 1.6], ["squirrel", 150, G - 34, 1.05]],
-    rabbit: [["shade", 120, G + 4, 1.0], ["grass", 120, G + 4, 1.1, { w: 120 }], ["rabbit", 120, G - 32, 1.7], ["whoosh", 60, G - 22, 1.0, { rot: 90 }]],
+    rabbit: [["shade", 120, G + 4, 1.0], ["grass", 120, G + 4, 1.1, { w: 120 }], ["rabbit", 120, G - 34, 1.35, { rot: -10 }], ["arrow", 0, 0, 1, { x1: 62, y1: 112, x2: 88, y2: 74, c: "#6A48E8", dash: true }]],
     bear: [["bear", 148, G, 2.1], ["kid", 56, G, 1.0, kg("wave", { look: 1, mouth: "open" })]],
     cat: [["bed", 124, G, 2.1, { c: "#9ADCF5" }], ["cat", 104, G - 28, 1.3], ["heart", 176, 56, 0.9]],
     dog: [["dog", 112, G, 2.0], ["ball", 168, G, 1.2, { c: C.red }], ["sparkle", 176, 50, 0.9]],
     kitty: [["cat", 140, G, 1.25, { c: "#F5C98A", l: "#FFF0DA" }], ["kid", 56, G, 1.4, kb("look", { look: 1 })], ["heart", 196, 70, 0.8]],
-    fish: [["pond", 150, G + 8, 1.3, { w: 70 }], ["fish", 150, G - 24, 1.5, { rot: -22 }], ["splash", 150, G - 4, 0.9], ["kid", 52, G, 1.45, kg("point", { look: 1 })]],
+    fish: [["pondcut", 166, G + 14, 1.1], ["fish", 160, G + 6, 0.85], ["bubbles", 196, G + 2, 0.45], ["kid", 52, G, 1.45, kg("point", { look: 1 })]],
     duck: [["pond", 120, G + 8, 1.5, { w: 62 }], ["duck", 120, G + 2, 1.7], ["ripple", 120, G - 1, 1.0, { w: 38 }], ["lily", 46, G + 6, 1.1], ["lily", 198, G + 8, 1.0]],
     eye: [["kid", 66, G, 1.5, kb("point", { look: 1 })], ["bubble", 160, 66, 1.0, { w: 92, h: 62, inner: [["eyebig", 0, 0, 1.2, {}]] }]],
     back: [["house", 184, G, 1.6], ["kid", 62, G, 1.1, kb("wave", { look: 1, mouth: "open" })], ["bubble", 120, 44, 0.95, { w: 78, h: 46, inner: [["clock", -17, 8, 0.58, {}], ["house", 18, 11, 0.44, {}]] }]],
@@ -610,7 +610,7 @@
     // ---- Throne hall: parties, toys and numbers
     castle: [["hill", 120, G, 1.0, { dir: "up" }], ["castle", 138, G - 40, 0.75]],
     table: [["table", 120, G, 2.0], ["cake", 120, G - 52, 1.3], ["kid", 40, G, 1.1, kb("look", { look: 1 })]],
-    chair: [["chair", 150, G, 1.95], ["kid", 70, G, 1.5, kg("point", { look: 1 })], ["arrow", 0, 0, 1, { x1: 150, y1: 56, x2: 150, y2: 80 }]],
+    chair: [["chairback", 128, G, 1.4], ["kid", 128, G - 13, 1.25, kg("hands", { look: 0, mouth: "open" })], ["chairfront", 128, G, 1.4], ["heart", 60, 52, 0.9]],
     bed: [["bed", 138, G, 2.5, { c: "#9ADCF5" }], ["kid", 50, G, 1.3, kb("point", { look: 1, mouth: "open" })]],
     box: [["box", 120, G, 2.2], ["qm", 120, 38, 1.2], ["kid", 52, G, 1.35, kg("look", { look: 1 })]],
     party: [["balloons", 60, G, 1.4], ["balloons", 190, G, 1.3], ["kid", 96, G, 1.4, kb("cheer", { mouth: "open" })], ["partyhat", 96, G - 90, 0.9, { c: "#FF6FA0" }], ["kid", 146, G, 1.4, kg("jump", { mouth: "open" })], ["partyhat", 146, G - 106, 0.9, { c: "#3D8BF2" }]],
@@ -670,8 +670,26 @@
     var w = o.w || 36;
     return '<ellipse cx="0" cy="0" rx="' + w + '" ry="9" fill="#7CC4F0" stroke="#5E9FCF" stroke-width="2.2"/><ellipse cx="0" cy="0" rx="' + (w + 9) + '" ry="12" fill="none" stroke="#FFFFFE" stroke-width="2" opacity=".6"/><path d="M-' + (w - 14) + ' 2 Q-' + (w - 22) + ' -2 -' + (w - 30) + ' 2 M' + (w - 30) + ' 3 Q' + (w - 22) + ' -1 ' + (w - 14) + ' 3" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>';
   }
+  // a child's chair seen from the front, in two parts so a child can sit between them: chairback is drawn first, then the child, then chairfront (seat and front legs)
+  function chairback(o) {
+    var c = o.c || "#C48A52";
+    return '<rect x="-17" y="-66" width="5" height="40" ' + f(dk(c, 0.1), 1.8) + '/><rect x="12" y="-66" width="5" height="40" ' + f(dk(c, 0.1), 1.8) + '/><rect x="-17" y="-67" width="34" height="8" rx="3" ' + f(c, 2) + '/><rect x="-12" y="-52" width="24" height="5" rx="2" ' + f(c, 1.6) + '/><rect x="-12" y="-42" width="24" height="5" rx="2" ' + f(c, 1.6) + "/>";
+  }
+  function chairfront(o) {
+    var c = o.c || "#C48A52";
+    return '<rect x="-17" y="-20" width="6" height="20" ' + f(dk(c, 0.1), 1.8) + '/><rect x="11" y="-20" width="6" height="20" ' + f(dk(c, 0.1), 1.8) + '/><rect x="-20" y="-29" width="40" height="10" rx="3.5" ' + f(c, 2.2) + "/>";
+  }
+  // a pond cut open so you can see into the water: soil all round, grass on top, the water inside (put fish in it); 120 units wide, o.h (default 44) high
+  function pondcut(o) {
+    var h = o.h || 44;
+    return '<rect x="-60" y="' + -h + '" width="120" height="' + h + '" rx="6" ' + f("#B98A5A", 2.4) + '/><rect x="-62" y="' + (-h - 4) + '" width="124" height="9" rx="4.5" ' + f("#8FD07A", 2.2) + '/><path d="M-52 ' + (-h + 7) + ' Q-39 ' + (-h + 3) + ' -26 ' + (-h + 7) + ' T0 ' + (-h + 7) + ' T26 ' + (-h + 7) + ' T52 ' + (-h + 7) + ' L52 -9 Q52 -3 46 -3 L-46 -3 Q-52 -3 -52 -9Z" ' + f("#7CC4F0", 2) + '/><path d="M-40 ' + (-h + 11) + ' Q-34 ' + (-h + 8) + ' -28 ' + (-h + 11) + ' M22 ' + (-h + 10) + ' Q28 ' + (-h + 7) + ' 34 ' + (-h + 10) + '" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".7"/><ellipse cx="-34" cy="-6" rx="4" ry="2.4" fill="#9AA6B8"/><ellipse cx="30" cy="-6" rx="5" ry="2.6" fill="#B6BFCD"/>';
+  }
+  // a soft warm glow (two round yellow-orange discs) to put behind someone who is warm
+  function glow(o) {
+    return '<circle cx="0" cy="-40" r="68" fill="#FFD58A" opacity=".4"/><circle cx="0" cy="-40" r="50" fill="#FFC070" opacity=".45"/>';
+  }
   A.extend({
-    kit: { ripple: ripple, retry: retry, longbus: longbus, cow: cow, pig: pig, sheep: sheep, horse: horse, chicken: chicken, rabbit: rabbit, bear: bear, squirrel: squirrel, robin: robin, barn: barn, fence: fence, corn: corn, grass: grass, seeds: seeds, egg: egg, milk: milk, loaf: loaf,
+    kit: { glow: glow, chairback: chairback, chairfront: chairfront, pondcut: pondcut, ripple: ripple, retry: retry, longbus: longbus, cow: cow, pig: pig, sheep: sheep, horse: horse, chicken: chicken, rabbit: rabbit, bear: bear, squirrel: squirrel, robin: robin, barn: barn, fence: fence, corn: corn, grass: grass, seeds: seeds, egg: egg, milk: milk, loaf: loaf,
       flower: flower, door: door, window: windowk, boards: boards, bowl: bowl, sprout: sprout, car: car, boat: boat, bell: bell, school: school, letter: letter, paper: paper, frame: frame, tag: tag, road: road, signpost: signpost,
       hl: hl, bighand: bighand, cbox: cbox, calpage: calpage, feet: feet, bandaid: bandaid, bandhand: bandhand, pain: pain, tears: tears, baby: baby, fire: fire, stick: stick, crate: crate, logs: logs, puddle: puddle, raincloud: raincloud, sled: sled, leaf: leaf, nest: nest, splash: splash, lily: lily, sunbig: sunbig,
       sweat: sweat, castle: castle, chair: chair, partyhat: partyhat, balloons: balloons, xtree: xtree, dice: dice, board: board, staff: staff, doll: doll, robot: robot, top: topk, watch: watchk, coat: coatk, shoe: shoek,
