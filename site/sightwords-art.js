@@ -74,6 +74,9 @@
       look: { L: ST, over: true, A: [HL, [18, -47, 12, -55]] },
       self: { L: ST, A: [HL, [14, -35, 3, -36]] },
       walk: { L: [[-3, -22, -11, -3], [3, -22, 10, -3]], A: [[-13, -30, -10, -20], [14, -31, 17, -22]] },
+      // both arms curve in front and meet low down, like a cradle under something held against the chest (draw it with arms: "only" over the thing)
+      cradle: { L: ST, A: [[-16, -28, 10, -23], [17, -30, -6, -23]] },
+      cradleR: { L: ST, A: [[-14, -28, 27, -24], [25, -31, 3, -23]] }, // the same, with the thing held on the right side
     };
     var p = P[pose] || P.stand;
     function arm(sx, a) {

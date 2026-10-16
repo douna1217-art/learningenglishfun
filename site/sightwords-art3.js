@@ -459,6 +459,18 @@
     var c = o.c || "#DBA860";
     return '<path d="M-22 -27 L-16 -36 H16 L22 -27Z" ' + f("#E8BE7C", 2.2) + '/><rect x="-22" y="-27" width="44" height="27" rx="2.5" ' + f(c, 2.2) + '/><path d="M-4 -36 H4 L5 -27 H-5Z" fill="#F4E1B6" stroke="' + dk(c) + '" stroke-width="1.4"/><rect x="-5" y="-27" width="10" height="13" fill="#F4E1B6" stroke="' + dk(c) + '" stroke-width="1.4"/><rect x="8" y="-10" width="11" height="6" rx="1.4" fill="#FFFFFE" stroke="' + dk(c) + '" stroke-width="1.2"/>';
   }
+  // a page of a calendar with the numbers of three weeks; one day has a red circle round it (o.today = the circled number)
+  function calpage(o) {
+    var today = o.today || 20, s = '<rect x="-40" y="-58" width="80" height="58" rx="7" ' + f("#FFFFFE", 2.2) + '/><path d="M-40 -51 Q-40 -58 -33 -58 H33 Q40 -58 40 -51 V-44 H-40Z" ' + f("#E5483A", 2.2) + '/><circle cx="-20" cy="-58" r="2.6" fill="#8A97AD"/><circle cx="20" cy="-58" r="2.6" fill="#8A97AD"/>', r, c, n, x, y;
+    for (r = 0; r < 3; r++) for (c = 0; c < 7; c++) {
+      n = 10 + r * 7 + c;
+      x = -30 + c * 10;
+      y = -32 + r * 12;
+      if (n === today) s += '<circle cx="' + x + '" cy="' + (y - 3) + '" r="6.6" fill="#FFE3E0" stroke="#E5483A" stroke-width="2.4"/><text x="' + x + '" y="' + y + '" text-anchor="middle" font-family="' + FONT + '" font-weight="700" font-size="8.4" fill="#C62E24">' + n + "</text>";
+      else s += '<text x="' + x + '" y="' + y + '" text-anchor="middle" font-family="' + FONT + '" font-weight="700" font-size="7.4" fill="#6B7A99">' + n + "</text>";
+    }
+    return s;
+  }
   function dirt(o) {
     return '<path d="M-40 0 Q-34 -10 -14 -9 Q0 -14 16 -9 Q36 -10 40 0Z" ' + f("#A8713A", 2) + '/><circle cx="-20" cy="-3" r="2.4" fill="#8A5A2B"/><circle cx="8" cy="-4" r="2" fill="#8A5A2B"/><circle cx="26" cy="-2.4" r="1.8" fill="#C99A5E"/>';
   }
@@ -551,7 +563,7 @@
     night: [["house", 120, G, 1.9], ["moon", 190, 38, 1.7], ["zzz", 156, 66, 1.0], ["star", 40, 34, 0.7], ["star", 84, 22, 0.55], ["star", 222, 84, 0.5]],
     day: [["sunbig", 196, 40, 0.8, { c: "#FFC93C", ray: "#FFE099" }], ["kid", 110, G, 1.55, kb("jump", { mouth: "open" })], ["ball", 160, G, 1.1, { c: C.red }], ["sparkle", 60, 60, 0.9]],
     time: [["clock", 62, 84, 2.2], ["table", 172, G, 1.3], ["plate", 172, G - 33, 1.2], ["apple", 172, G - 36, 0.8], ["kid", 124, G, 1.35, kg("cheer", { mouth: "open" })]],
-    today: [["calendar", 76, 118, 1.7], ["school", 206, G, 0.7], ["kid", 148, G, 1.3, kb("walk", { look: 1 })]],
+    today: [["calpage", 66, 108, 1.5, { today: 20 }], ["school", 214, G, 0.62], ["kid", 160, G, 1.3, kb("walk", { look: 1 })]],
     hot: [["sunbig", 196, 42, 0.9, { c: "#FFC93C", ray: "#FFB347" }], ["kid", 100, G, 1.6, kr("stand", { look: 0 })], ["sweat", 128, 70, 1.1], ["sweat", 70, 76, 0.9]],
     warm: [["bed", 120, G, 2.1, { c: "#FF9A5C", sleeper: true }], ["heart", 178, 52, 1.0], ["heart", 66, 76, 0.7], ["sparkle", 52, 46, 0.8]],
     light: [["bulb", 120, 58, 2.2], ["kid", 56, G, 1.4, kb("look", { look: 1 })]],
@@ -591,7 +603,7 @@
     show: [["kid", 70, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["hat", 114, G - 40, 0.85, { c: C.red }], ["kid", 180, G, 1.5, kg("look", { look: -1 })], ["sparkle", 116, 56, 0.9]],
     draw: [["easel", 164, G, 1.75, { drawn: true }], ["kid", 84, G, 1.5, kb("hold", { look: 1 })], ["pencil", 112, G - 42, 0.9, { rot: -30 }]],
     cut: [["table", 150, G, 1.6], ["cake", 144, G - 40, 1.1], ["knife", 126, 46, 0.75, { rot: 90 }], ["slice", 196, G - 42, 1.1], ["kid", 60, G, 1.5, kg("reach", { look: 1 })]],
-    hold: [["kid", 96, G, 1.6, kb("hold", { mouth: "open", arms: "none" })], ["cat", 130, G - 36, 0.95], ["kid", 96, G, 1.6, kb("hold", { arms: "only" })], ["heart", 184, 52, 1.1]],
+    hold: [["kid", 100, G, 1.8, kb("cradle", { mouth: "open", arms: "none" })], ["cat", 103, G - 24, 0.92], ["kid", 100, G, 1.8, kb("cradle", { arms: "only" })], ["heart", 178, 52, 1.1]],
     myself: [["blocks", 168, G, 1.6], ["kid", 78, G, 1.55, kg("self", { mouth: "open" })], ["check", 204, 44, 0.9]],
     together: [["kid", 90, G, 1.5, kb("hands", { mouth: "open" })], ["kid", 140, G, 1.5, kg("hands", { mouth: "open", look: -1, flip: true })], ["heart", 115, 36, 1.3], ["blocks", 192, G, 1.0]],
     about: [["kid", 74, G, 1.5, kg("hold", { look: 1 })], ["book", 94, G - 30, 0.7], ["thought", 170, 50, 1.0, { w: 80, h: 56, inner: [["frog", 0, 22, 0.8, {}]] }]],
@@ -607,7 +619,7 @@
     christmas: [["xtree", 150, G, 1.5], ["gift", 100, G, 0.8, { c: C.red }], ["gift", 204, G, 0.8, { c: C.blue }], ["kid", 56, G, 1.4, kg("cheer", { mouth: "open", hat: "#E5483A" })]],
     game: [["table", 120, G, 1.7], ["board", 120, G - 50, 1.5], ["dice", 150, G - 52, 0.8, { n: 5 }], ["kid", 46, G, 1.35, kb("reach", { look: 1 })], ["kid", 196, G, 1.35, kg("reach", { look: -1, flip: true })]],
     song: [["staff", 120, 64, 1.9], ["kid", 52, G, 1.4, kb("hands", { mouth: "open" })], ["kid", 188, G, 1.4, kg("hands", { mouth: "open" })], ["note", 80, 44, 1.2], ["note", 160, 96, 1.1, { c: "#FF6FA0" }]],
-    doll: [["kid", 86, G, 1.6, kg("hold", { mouth: "open", arms: "none" })], ["doll", 118, G - 34, 0.9], ["kid", 86, G, 1.6, kg("hold", { arms: "only" })], ["star", 176, 50, 0.9, {}], ["sparkle", 46, 52, 0.8]],
+    doll: [["kid", 90, G, 1.7, kg("cradle", { mouth: "open", arms: "none" })], ["doll", 98, G - 30, 0.78], ["kid", 90, G, 1.7, kg("cradle", { arms: "only" })], ["star", 170, 50, 0.9, {}], ["sparkle", 50, 52, 0.8]],
     toy: [["robot", 150, G, 1.9], ["kid", 56, G, 1.45, kb("look", { look: 1 })], ["sparkle", 204, 50, 0.9]],
     top: [["cbox", 120, G, 1.9], ["top", 120, G - 70, 1.1], ["sparkle", 76, 60, 0.9], ["sparkle", 170, 52, 0.8]],
     ball: [["dog", 112, G, 1.5, { pose: "run" }], ["ball", 158, G - 30, 0.8, { c: C.red }], ["kid", 198, G, 1.4, kb("cheer", { mouth: "open", look: -1 })], ["whoosh", 50, G - 16, 1.0]],
@@ -631,7 +643,7 @@
   A.extend({
     kit: { cow: cow, pig: pig, sheep: sheep, horse: horse, chicken: chicken, rabbit: rabbit, bear: bear, squirrel: squirrel, robin: robin, barn: barn, fence: fence, corn: corn, grass: grass, seeds: seeds, egg: egg, milk: milk, loaf: loaf,
       flower: flower, door: door, window: windowk, boards: boards, bowl: bowl, sprout: sprout, car: car, boat: boat, bell: bell, school: school, letter: letter, paper: paper, frame: frame, tag: tag, road: road, signpost: signpost,
-      hl: hl, bighand: bighand, cbox: cbox, feet: feet, bandaid: bandaid, bandhand: bandhand, pain: pain, tears: tears, baby: baby, fire: fire, stick: stick, crate: crate, logs: logs, puddle: puddle, raincloud: raincloud, sled: sled, leaf: leaf, nest: nest, splash: splash, lily: lily, sunbig: sunbig,
+      hl: hl, bighand: bighand, cbox: cbox, calpage: calpage, feet: feet, bandaid: bandaid, bandhand: bandhand, pain: pain, tears: tears, baby: baby, fire: fire, stick: stick, crate: crate, logs: logs, puddle: puddle, raincloud: raincloud, sled: sled, leaf: leaf, nest: nest, splash: splash, lily: lily, sunbig: sunbig,
       sweat: sweat, castle: castle, chair: chair, partyhat: partyhat, balloons: balloons, xtree: xtree, dice: dice, board: board, staff: staff, doll: doll, robot: robot, top: topk, watch: watchk, coat: coatk, shoe: shoek,
       bills: bills, knife: knife, blocks: blocks, easel: easel, txt: txt, eyebig: eyebig, glass: glass, duck1: duck1, shade: shade, dirt: dirt, jewel: jewel },
     scenes: S3,
