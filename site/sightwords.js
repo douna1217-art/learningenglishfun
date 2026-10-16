@@ -1,5 +1,5 @@
-/* Sight words: stage 1 (18 short lessons for the Dolch pre-primer and primer words), stage 2 (20 lessons for grade 1 and 2) and stage 3 (30 lessons for grade 3 and the nouns), then spaced review.
-   Needs sightwords-data.js (stage 1), sightwords-data2.js (stage 2) and sightwords-data3.js (stage 3): the words, one sentence per word, lessons; and the clips in sightwords/audio/.
+/* Sight words: stage 1 (18 short lessons for the Dolch pre-primer and primer words), stage 2 (20 lessons for grade 1 and 2), stage 3 (30 lessons for grade 3 and the nouns) and stage 4 (30 lessons of common Fry words), then spaced review.
+   Needs sightwords-data.js (stage 1), sightwords-data2.js (stage 2) and sightwords-data3.js (stage 3) and sightwords-data4.js (stage 4): the words, one sentence per word, lessons; and the clips in sightwords/audio/.
    A lesson = meet 5 words, then practise them (listen and tap, find it in the sentence, build the sentence).
    What the child knows is kept in lef_words_v1 (synced like the pet, see state-sync.js):
      words    {word: {box 1-5, due "YYYY-MM-DD", n tries, ok right on the first try}}
@@ -500,7 +500,7 @@
     return state;
   }
 
-  // the lessons of the later stages go after the ones of the stage before (ids keep counting: 19-38 are stage 2, units 6-10; 39-68 are stage 3, units 11-15)
+  // the lessons of the later stages go after the ones of the stage before (ids keep counting: 19-38 are stage 2, units 6-10; 39-68 are stage 3, units 11-15; 69-98 are stage 4, units 16-20)
   // and that stage becomes ready. mergeData(d1, d2, d3...) adds the later data in order; a later data set that is missing is skipped.
   function mergeOne(d1, d2) {
     if (!d1 || !d2) return d1;
@@ -587,7 +587,7 @@
   if (!root || !root.document) return;
 
   /* ------------------------------------------------------------------ browser part */
-  var D = mergeData(root.SW_DATA, root.SW_DATA2, root.SW_DATA3),
+  var D = mergeData(root.SW_DATA, root.SW_DATA2, root.SW_DATA3, root.SW_DATA4),
     ls = null;
   try {
     ls = root.localStorage;

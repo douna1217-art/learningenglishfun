@@ -90,7 +90,7 @@ HEARD = {
 def load():
     """the words of every stage (sightwords-data.js is stage 1, sightwords-data2.js stage 2, sightwords-data3.js stage 3)"""
     data = None
-    for fn in ("sightwords-data.js", "sightwords-data2.js", "sightwords-data3.js"):
+    for fn in ("sightwords-data.js", "sightwords-data2.js", "sightwords-data3.js", "sightwords-data4.js"):
         path = os.path.join(SITE, fn)
         if not os.path.exists(path):
             continue

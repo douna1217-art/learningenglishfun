@@ -46,6 +46,7 @@ ok(D.lessons.every((l) => (l.books || []).every((b) => fs.existsSync(path.join(S
 // ---- the pictures
 const ART = require(path.join(SITE, "sightwords-art.js"));
 require(path.join(SITE, "sightwords-art3.js")); // adds the stage-3 things and pictures to the same SWArt
+require(path.join(SITE, "sightwords-art4.js")); // and the stage-4 ones
 ok(all.every((w) => ART.has(w)), "a picture for every word", all.filter((w) => !ART.has(w)));
 const svgs = all.map((w) => ART.scene(w));
 ok(svgs.every((x) => /^<svg viewBox="0 0 240 160"/.test(x) && /<\/svg>$/.test(x)), "every picture is one svg");
@@ -283,7 +284,7 @@ const PZ = require("../site/sightwords-prizes.js");
 const st0 = SW.cleanState(null);
 ok(SW.claimChest(st0, 1, 2, 1000) === true && st0.rev["chest1-2"] === 1000 && SW.claimChest(st0, 1, 2, 2000) === false && st0.rev["chest1-2"] === 1000, "chest: the first opening counts, a second one does not and keeps the first time");
 ok(SW.chestKey(1, 3) === "chest1-3", "chest: the key is made of the island and the unit");
-ok(PZ.STARS === 5 && PZ.ids().length === 20 && new Set(PZ.ids()).size === 20, "prizes: twenty different items (five per island chest set, five monster drops), 5 stars per chest");
+ok(PZ.STARS === 5 && PZ.ids().length === 25 && new Set(PZ.ids()).size === 25, "prizes: twenty-five different items (five per island chest set, five monster drops), 5 stars per chest");
 ok(D.units.every((u) => PZ.forUnit(1, u.id) && PZ.forUnit(1, u.id).unit === u.id) && PZ.forUnit(2, 1) === null && PZ.forUnit(1, 6) === null, "prizes: every unit of island 1 has one; units of one island are not mixed up with the other");
 ok(PZ.ids().every((id) => /^(ch|mn)-/.test(id) && ["hat", "face", "neck"].indexOf(PZ.get(id).slot) >= 0 && PZ.isPrize(id) && !PZ.isPrize("x" + id)), "prizes: ids and slots");
 ok(!PZ.wonIn({}, "ch-flower") && PZ.wonIn({ "chest1-1": 5 }, "ch-flower") && !PZ.wonIn({ "chest1-1": 5 }, "ch-pine") && !PZ.wonIn({ "chest1-1": 5 }, "nope"), "prizes: won when the unit's chest has been opened");
@@ -452,6 +453,70 @@ ok(M3.units.filter((u) => u.stage === 3).every((u) => PZ.forUnit(3, u.id) && PZ.
 ok(PZ.wonIn({ "chest3-11": 5 }, "ch-woolhat") && !PZ.wonIn({ "chest2-6": 5 }, "ch-woolhat") && !PZ.wonIn({ "chest3-11": 5 }, "ch-crown") && PZ.wonIn({ "chest3-15": 5 }, "ch-crown"), "prizes: island 3 prizes are won by island 3 chests");
 const isl3 = require("../site/sightwords-scenery.js").islands({ known: 0, total: 1, ready: { 1: true, 2: true, 3: true }, stages: { 1: { title: "First words", known: 30, total: 92 }, 2: { title: "Growing readers", known: 5, total: 87 }, 3: { title: "Bigger stories", known: 12, total: 136 } } });
 ok((isl3.match(/sw-isl-go/g) || []).length === 3 && /12 of 136 words known/.test(isl3) && /Bigger stories/.test(isl3), "islands: three open islands, each with its own name and count");
+
+// ---- stage 4 (part 1 of the Fry words): its own data file, merged after stage 3
+const c4 = { window: {} };
+vm.runInNewContext(fs.readFileSync(path.join(SITE, "sightwords-data4.js"), "utf8"), c4);
+const D4 = c4.window.SW_DATA4;
+const w4 = [].concat(...D4.lessons.map((l) => l.words));
+const earlier3 = earlier.concat(w3);
+ok(w4.length === 140 && new Set(w4).size === 140 && w4.every((w) => earlier3.indexOf(w) < 0), "stage 4: 140 different words, none of them in stages 1 to 3", w4.length);
+ok(Object.keys(D4.words).length === 140 && w4.every((w) => D4.words[w] && D4.words[w].s), "stage 4: every word has a sentence");
+ok(eq(D4.lessons.map((l) => l.id), Array.from({ length: 30 }, (_, i) => 69 + i)) && D4.lessons.every((l) => l.stage === 4), "stage 4: lessons 69 to 98");
+ok(D4.lessons.every((l) => l.words.length === 4 || l.words.length === 5) && D4.lessons.filter((l) => l.words.length === 5).length === 20, "stage 4: lessons of 4 or 5 words (20 of them have 5)");
+ok(eq(D4.units.map((u) => u.id), [16, 17, 18, 19, 20]) && D4.units.every((u) => u.stage === 4 && u.lessons.length === 6) && eq([].concat(...D4.units.map((u) => u.lessons)), D4.lessons.map((l) => l.id)), "stage 4: units 16 to 20, six lessons each, every lesson once, in order");
+const M4 = SW.mergeData(D, D2, D3, D4);
+ok(M4.lessons.length === 98 && M4.units.length === 20 && Object.keys(M4.words).length === 455 && M4.stages.length === 4 && M4.stages.every((x) => x.ready), "merge: 98 lessons, 20 units, 455 words, all four stages ready");
+ok(M4.stages[3].words === 140 && M4.stages[3].title === "Word explorers", "stage 4: the stage list says 140 words", M4.stages[3]);
+ok(M4.lessons.every((l, i) => l.id === i + 1), "merge of four: lesson ids count on");
+ok(SW.unitOf(M4.units, 69).id === 16 && SW.unitOf(M4.units, 98).id === 20, "stage 4: the unit of a lesson");
+const s123done = SW.cleanState({ lessons: Object.fromEntries(M3.lessons.map((l) => [l.id, { t: 1, acc: 80 }])) });
+ok(SW.nextLesson(M4.lessons, s123done) === 69 && SW.currentUnit(M4.units.filter((u) => u.stage === 4), M4.lessons, s123done).id === 16, "stage 4: next lesson after stage 3 is lesson 69, its map opens unit 16");
+const allowed4 = new Set(w4.concat(earlier3).map((w) => w.toLowerCase().replace(/’/g, "'")).concat(D.nouns, D2.nouns, D3.nouns, D4.nouns));
+let bad4 = [];
+w4.forEach((w) => {
+  const toks = (D4.words[w].s.match(/[A-Za-z]+(?:['’][A-Za-z]+)*/g) || []).map((t) => t.toLowerCase().replace(/’/g, "'"));
+  if (toks.filter((t) => t === w.toLowerCase()).length !== 1) bad4.push([w, "target not exactly once"]);
+  toks.forEach((t) => { if (!allowed4.has(t)) bad4.push([w, t]); });
+  if (toks.length > 7) bad4.push([w, "too long"]);
+});
+ok(bad4.length === 0, "stage 4: sentences use only words of the four stages and picture nouns, the word once", bad4);
+const miss4 = [];
+w4.forEach((w) => ["w-", "s-"].forEach((p) => {
+  const f = path.join(SITE, "sightwords", "audio", p + SW.wkey(w) + ".mp3");
+  if (!fs.existsSync(f) || fs.statSync(f).size < 1500) miss4.push(p + SW.wkey(w));
+}));
+ok(miss4.length === 0, "stage 4: an audio clip for every word and sentence", miss4.slice(0, 5));
+ok(new Set(w4.concat(earlier3).map(SW.wkey)).size === 455, "no two words of the four stages share an audio file name");
+ok(D4.lessons.every((l) => (l.books || []).every((b) => fs.existsSync(path.join(SITE, b.file)))), "stage 4: every suggested story exists");
+ok(w4.every((w) => ART.has(w)), "stage 4: a picture for every word", w4.filter((w) => !ART.has(w)));
+const svgs4 = w4.map((w) => ART.scene(w));
+ok(svgs4.every((x) => /^<svg viewBox="0 0 240 160"/.test(x) && /<\/svg>$/.test(x) && x.indexOf("undefined") < 0 && x.indexOf("NaN") < 0 && bal(x, "g") === (x.match(/<\/g>/g) || []).length), "stage 4: every picture is one clean svg");
+ok(new Set(svgs4.map((x) => x.length)).size > 120, "stage 4: the pictures differ from each other");
+const sentsM4 = {}; Object.keys(M4.words).forEach((w) => { sentsM4[w] = M4.words[w].s; });
+const allM4 = [].concat(...M4.lessons.map((l) => l.words));
+const confM4 = SW.makeConfusable(sentsM4, (w) => ART.kinds(w), M4.nouns);
+let badChoice4 = [], fewChoice4 = [];
+w4.forEach((w) => {
+  for (let k = 0; k < 12; k++) {
+    const c = SW.sentenceChoices(w, allM4, sentsM4, SW.seeded(k * 31 + 1), confM4);
+    if (c.length !== 3) fewChoice4.push(w);
+    c.filter((x) => x !== w).forEach((x) => { if (confM4(w, x)) badChoice4.push([w, x]); });
+  }
+});
+ok(badChoice4.length === 0, "stage 4 picture quiz: no wrong sentence fits the picture", badChoice4.slice(0, 5));
+ok(fewChoice4.length === 0, "stage 4 picture quiz: always three choices", fewChoice4.slice(0, 5));
+const short4 = [];
+D4.lessons.forEach((l) => {
+  const sub = SW.compatibleSubset(l.words, confM4, 6, 4);
+  if (sub.length < Math.min(4, l.words.length)) short4.push([l.id, sub.length]);
+});
+ok(short4.length === 0, "stage 4 memory: every lesson gives at least 4 pairs that cannot be mixed up", short4);
+console.log("   stage 4 memory pairs per lesson:", D4.lessons.map((l) => SW.compatibleSubset(l.words, confM4, 6, 4).length).join(" "));
+ok(M4.units.filter((u) => u.stage === 4).every((u) => PZ.forUnit(4, u.id) && PZ.forUnit(4, u.id).unit === u.id), "prizes: every unit of island 4 has one");
+ok(PZ.wonIn({ "chest4-16": 5 }, "ch-helmet") && !PZ.wonIn({ "chest3-11": 5 }, "ch-helmet") && PZ.wonIn({ "chest4-20": 5 }, "ch-alien"), "prizes: island 4 prizes are won by island 4 chests");
+const isl4 = require("../site/sightwords-scenery.js").islands({ known: 0, total: 1, ready: { 1: true, 2: true, 3: true, 4: true }, stages: { 1: { title: "First words", known: 30, total: 92 }, 2: { title: "Growing readers", known: 5, total: 87 }, 3: { title: "Bigger stories", known: 12, total: 136 }, 4: { title: "Word explorers", known: 20, total: 140 } } });
+ok((isl4.match(/sw-isl-go/g) || []).length === 4 && /20 of 140 words known/.test(isl4) && /Word explorers/.test(isl4) && !/Coming soon/.test(isl4), "islands: four open islands, none left locked");
 const SCN = require("../site/sightwords-scenery.js");
 const isl = SCN.islands({ known: 0, total: 1, ready: { 1: true, 2: true }, stages: { 1: { title: "First words", known: 30, total: 92 }, 2: { title: "Growing readers", known: 5, total: 87 } } });
 ok((isl.match(/sw-isl-go/g) || []).length === 2 && /30 of 92 words known/.test(isl) && /5 of 87 words known/.test(isl) && /Growing readers/.test(isl), "islands: each ready island shows its own name and count", isl.length);
@@ -699,7 +764,7 @@ else {
   ok(PR.mount(null, "cat", {}) === null && PR.mount(pdoc.createElement("div"), "dragon", {}) === null, "pet rigs: mounting nothing, or an unknown pet, gives null");
 
   // ---- the quick check on screen: the island card, the questions, the result (a page of its own for each try, with the audio and the timers driven by the test)
-  const SWFILES = ["sightwords-prizes.js", "sightwords-data.js", "sightwords-data2.js", "sightwords-data3.js", "sightwords-art.js", "sightwords-art3.js", "sightwords-scenery.js", "pet-art.js", "sightwords-monsters.js", "sightwords.js"];
+  const SWFILES = ["sightwords-prizes.js", "sightwords-data.js", "sightwords-data2.js", "sightwords-data3.js", "sightwords-data4.js", "sightwords-art.js", "sightwords-art3.js", "sightwords-art4.js", "sightwords-scenery.js", "pet-art.js", "sightwords-monsters.js", "sightwords.js"];
   const world = (saved) => {
     const dom = new JSD.JSDOM("<!doctype html><body></body>", { url: "https://example.test/", runScripts: "outside-only" }), w = dom.window, played = [], timers = [], awarded = [];
     w.setTimeout = (fn) => { timers.push(fn); return timers.length; };
@@ -737,15 +802,15 @@ else {
   { // the home page shows an orange "Quick check" tag next to "Open" on each island that has not been started; it starts the check straight away
     const W = world(); W.w.SightWords.open(); W.flush();
     const tags = W.d.querySelectorAll(".sw-isl-qc");
-    ok(tags.length === 3 && /Quick check/.test(tags[0].textContent) && tags[0].getAttribute("role") === "button", "quick check: each open island on the home page has a \"Quick check\" tag", tags.length);
+    ok(tags.length === 4 && /Quick check/.test(tags[0].textContent) && tags[0].getAttribute("role") === "button", "quick check: each open island on the home page has a \"Quick check\" tag", tags.length);
     tags[1].dispatchEvent(new W.w.MouseEvent("click", { bubbles: true })); W.flush();
     ok(!!W.d.querySelector(".sw-opt") && /Stage 2/.test(W.d.body.textContent) && !W.d.getElementById("swQGo"), "quick check: the tag starts island 2's check straight away (not the map)");
     W.d.getElementById("swQuit").click(); W.flush();
-    // once a lesson has been done on island 1 its tag goes, islands 2 and 3 keep theirs
+    // once a lesson has been done on island 1 its tag goes, islands 2 to 4 keep theirs
     const W2 = world({ words: {}, lessons: { 1: { t: 1, acc: 100 } }, rev: {} }); W2.w.SightWords.open(); W2.flush();
     const t2 = W2.d.querySelectorAll(".sw-isl-qc");
-    ok(t2.length === 2 && t2[0].getAttribute("data-s") === "2" && t2[1].getAttribute("data-s") === "3", "quick check: an island that has been started loses its tag", t2.length);
-    const W3 = world({ words: {}, lessons: {}, rev: { place1: 5, place2: 5, place3: 5 } }); W3.w.SightWords.open(); W3.flush();
+    ok(t2.length === 3 && t2[0].getAttribute("data-s") === "2" && t2[2].getAttribute("data-s") === "4", "quick check: an island that has been started loses its tag", t2.length);
+    const W3 = world({ words: {}, lessons: {}, rev: { place1: 5, place2: 5, place3: 5, place4: 5 } }); W3.w.SightWords.open(); W3.flush();
     ok(W3.d.querySelectorAll(".sw-isl-qc").length === 0, "quick check: after the check the tags are gone");
     // on the map: the first time a card with the bolt, afterwards a bar (not a small link)
     const W4 = world(); toMap(W4);
@@ -774,6 +839,17 @@ else {
     const stage3 = [].concat(...M3.lessons.filter((l) => l.id >= 39).map((l) => l.words)).map((x) => SW.wkey(x));
     ok(n === 60 && ids.length === 30 && ids[0] === 39 && ids[29] === 68 && st.rev.place3 > 0 && !st.rev.place1 && !st.rev.place2, "quick check on screen: island 3 = 60 questions, lessons 39 to 68 done, islands 1 and 2 untouched", [n, ids.length, ids[0]]);
     ok(Object.keys(seen).every((k) => stage3.indexOf(k) >= 0), "quick check on screen: island 3 only asks island 3's words");
+  }
+  { // the space island has its own check too
+    const W = world(); W.w.SightWords.open(); W.flush();
+    W.d.querySelector('.sw-isl-go[data-s="4"]').dispatchEvent(new W.w.MouseEvent("click", { bubbles: true })); W.flush();
+    ok(!!W.d.getElementById("swQGo") && /Word explorers/.test(W.d.body.textContent), "quick check on screen: the space island offers it too");
+    W.d.getElementById("swQGo").click(); W.flush();
+    let n = 0; const seen = {}; while (W.d.querySelector(".sw-opt") && n < 140) { seen[W.word()] = 1; W.answer(true); n++; }
+    const st = W.state(), ids = Object.keys(st.lessons).map(Number).sort((a, b) => a - b);
+    const stage4 = [].concat(...M4.lessons.filter((l) => l.id >= 69).map((l) => l.words)).map((x) => SW.wkey(x));
+    ok(n === 60 && ids.length === 30 && ids[0] === 69 && ids[29] === 98 && st.rev.place4 > 0 && !st.rev.place1 && !st.rev.place3, "quick check on screen: island 4 = 60 questions, lessons 69 to 98 done, the other islands untouched", [n, ids.length, ids[0]]);
+    ok(Object.keys(seen).every((k) => stage4.indexOf(k) >= 0), "quick check on screen: island 4 only asks island 4's words");
   }
   {
     const W = world(); toMap(W);

@@ -120,8 +120,11 @@
     { id: "mon5", tier: "gold", glyph: "monster", name: "Monster Master", cn: "怪兽大师", metric: "monsters", need: 5, en: "Beat all 5 monsters", zh: "打败全部 5 只怪兽" },
     { id: "chest10", tier: "diamond", glyph: "beach", name: "Beach Master", cn: "海滩大师", metric: "chests2", need: 5, en: "Open all 5 chests on the beach island", zh: "打开沙滩岛上的全部 5 个宝箱" },
     { id: "sw136", tier: "gold", glyph: "aa", name: "Kingdom Reader", cn: "王国小读者", metric: "words3", need: 136, en: "Know all 136 words of Stage 3", zh: "认识第三阶段的全部 136 个词" },
-    { id: "sw315", tier: "diamond", glyph: "aa", name: "Word Legend", cn: "单词传奇", metric: "words", need: 315, en: "Know all 315 words of Stages 1 to 3", zh: "认识第一到第三阶段的全部 315 个词" },
+    { id: "sw315", tier: "diamond", glyph: "aa", name: "Word Legend", cn: "单词传奇", metric: "words123", need: 315, en: "Know all 315 words of Stages 1 to 3", zh: "认识第一到第三阶段的全部 315 个词" },
     { id: "chest15", tier: "diamond", glyph: "castle", name: "Castle Master", cn: "城堡大师", metric: "chests3", need: 5, en: "Open all 5 chests in the castle kingdom", zh: "打开城堡王国里的全部 5 个宝箱" },
+    { id: "sw140", tier: "gold", glyph: "aa", name: "Space Reader", cn: "太空小读者", metric: "words4", need: 140, en: "Know all 140 words of Stage 4", zh: "认识第四阶段的全部 140 个词" },
+    { id: "sw455", tier: "diamond", glyph: "aa", name: "Word Galaxy", cn: "单词银河", metric: "words", need: 455, en: "Know all 455 words of Stages 1 to 4", zh: "认识第一到第四阶段的全部 455 个词" },
+    { id: "chest20", tier: "diamond", glyph: "rocket", name: "Space Master", cn: "太空大师", metric: "chests4", need: 5, en: "Open all 5 chests on the space island", zh: "打开太空岛上的全部 5 个宝箱" },
   ];
   var DEF_BY = {};
   DEFS.forEach(function (d) {
@@ -143,19 +146,21 @@
 
   // What the sight-word badges count, from lef_words_v1 ({words:{key:{box}}, lessons:{id:{acc}}, rev:{...}}):
   // words = known words (box 3 or more), stars3 = lessons with 3 stars (90% right on the first try), swrev = days a review earned its star,
-  // chests = treasure chests opened (rev keys "chest<island>-<unit>"), chests1, chests2 and chests3 = those of the mountain, the beach and the castle island;
-  // words1 = known words of stage 1 (stage1 = the lower-case keys of its words; without it every known word counts), words3 = known words of stage 3 (stage3 = its keys; without it 0), words12 = known words that are not in stage 3
-  function swMetrics(sw, stage1, stage3) {
+  // chests = treasure chests opened (rev keys "chest<island>-<unit>"), chests1, chests2 and chests3 and chests4 = those of the mountain, the beach, the castle and the space island;
+  // words1 = known words of stage 1 (stage1 = the lower-case keys of its words; without it every known word counts), words3 = known words of stage 3 (stage3 = its keys; without it 0), words4 = known words of stage 4 (stage4 = its keys), words123 = known words that are not in stage 4, words12 = known words that are in neither stage 3 nor stage 4
+  function swMetrics(sw, stage1, stage3, stage4) {
     sw = isObj(sw) ? sw : {};
     var words = 0,
       words1 = 0,
       words3 = 0,
+      words4 = 0,
       stars3 = 0,
       swrev = 0,
       chests = 0,
       chests1 = 0,
       chests2 = 0,
       chests3 = 0,
+      chests4 = 0,
       monsters = 0;
     if (isObj(sw.words))
       Object.keys(sw.words).forEach(function (k) {
@@ -164,6 +169,7 @@
           words++;
           if (!stage1 || stage1.indexOf(k) >= 0) words1++;
           if (stage3 && stage3.indexOf(k) >= 0) words3++;
+          if (stage4 && stage4.indexOf(k) >= 0) words4++;
         }
       });
     if (isObj(sw.lessons))
@@ -180,9 +186,10 @@
           if (/^chest1-/.test(k)) chests1++;
           if (/^chest2-/.test(k)) chests2++;
           if (/^chest3-/.test(k)) chests3++;
+          if (/^chest4-/.test(k)) chests4++;
         }
       });
-    return { words: words, words1: words1, words12: words - words3, words3: words3, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2, chests3: chests3, monsters: monsters };
+    return { words: words, words1: words1, words12: words - words3 - words4, words123: words - words4, words3: words3, words4: words4, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2, chests3: chests3, chests4: chests4, monsters: monsters };
   }
 
   var core = {
@@ -288,7 +295,14 @@
           return w.toLowerCase().replace(/[^a-z]/g, "");
         });
     } catch (e) {}
-    var sm = swMetrics(readJ("lef_words_v1", null), st1, st3);
+    var st4 = null;
+    try {
+      if (root.SW_DATA4 && root.SW_DATA4.words)
+        st4 = Object.keys(root.SW_DATA4.words).map(function (w) {
+          return w.toLowerCase().replace(/[^a-z]/g, "");
+        });
+    } catch (e) {}
+    var sm = swMetrics(readJ("lef_words_v1", null), st1, st3, st4);
     return {
       books: fin,
       subjects: subjects,
@@ -300,13 +314,16 @@
       words: sm.words,
       words1: sm.words1,
       words12: sm.words12,
+      words123: sm.words123,
       words3: sm.words3,
+      words4: sm.words4,
       stars3: sm.stars3,
       swrev: sm.swrev,
       chests: sm.chests,
       chests1: sm.chests1,
       chests2: sm.chests2,
       chests3: sm.chests3,
+      chests4: sm.chests4,
       monsters: sm.monsters,
     };
   }
@@ -347,6 +364,8 @@
       return '<path d="M-13 12Q-17 -2 -8 -9Q0 -14 8 -9Q17 -2 13 12Z" fill="' + F("#7BD65A") + '"' + sw + ' stroke-width="2.2"/><circle cx="-4.5" cy="-1" r="3.4" fill="#fff"/><circle cx="4.5" cy="-1" r="3.4" fill="#fff"/><circle cx="-4" cy="-0.5" r="1.7" fill="' + F("#3A2A5E") + '"/><circle cx="5" cy="-0.5" r="1.7" fill="' + F("#3A2A5E") + '"/><path d="M-4 6Q0 9.5 4 6" fill="none" stroke="' + F("#3A2A5E") + '" stroke-width="1.8" stroke-linecap="round"/><path d="M0 -13Q-3 -19 2 -19" fill="none"' + sw + ' stroke-width="1.8"/>';
     if (g === "beach")
       return '<path d="M-15 11Q-9 6 -3 11T9 11T16 9V13H-15Z" fill="' + F("#7DD3FC") + '"' + sw + ' stroke-width="2"/><path d="M-14 3Q0 -18 14 3Z" fill="' + F("#FF8FB1") + '"' + sw + ' stroke-width="2.2"/><path d="M0 -11V11" stroke="' + S + '" stroke-width="2.4" stroke-linecap="round"/><circle cx="11" cy="-10" r="3.6" fill="' + F("#FFD54A") + '"' + sw + ' stroke-width="1.6"/>';
+    if (g === "rocket")
+      return '<path d="M0 -15Q8 -7 6 8H-6Q-8 -7 0 -15Z" fill="' + F("#F4F6FF") + '"' + sw + ' stroke-width="2.2"/><path d="M-6 6L-12 13L-5 11ZM6 6L12 13L5 11Z" fill="' + F("#E5483A") + '"' + sw + ' stroke-width="1.8"/><circle cx="0" cy="-3" r="3" fill="' + F("#7DD3FC") + '"' + sw + ' stroke-width="1.6"/><path d="M-3 9Q0 17 3 9Z" fill="' + F("#FFB020") + '"' + sw + ' stroke-width="1.4"/>';
     if (g === "castle")
       return '<path d="M-14 12V-2H-9V-6H-5V-2H-2V-9H2V-2H5V-6H9V-2H14V12Z" fill="' + F("#C9CEE8") + '"' + sw + ' stroke-width="2.2"/><path d="M-4 12V5Q0 0 4 5V12Z" fill="' + F("#8B6BE8") + '"' + sw + ' stroke-width="1.8"/><path d="M0 -9V-15L7 -13L0 -11" fill="' + F("#E5483A") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "check") return '<circle r="13" fill="' + F("#7ED957") + '"' + sw + ' stroke-width="2.4"/><path d="M-6 0L-1.5 5L7 -5" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>';

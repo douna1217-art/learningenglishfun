@@ -45,7 +45,7 @@ STAGES = [
     {"id": 1, "title": "First words", "source": "Dolch pre-primer + primer", "grades": "K\u20131", "words": 92, "ready": True},
     {"id": 2, "title": "Growing readers", "source": "Dolch grade 1 + 2", "grades": "1\u20132", "words": 87, "ready": False},
     {"id": 3, "title": "Bigger stories", "source": "Dolch grade 3 + common nouns", "grades": "2\u20133", "words": 136, "ready": False},
-    {"id": 4, "title": "Word explorers", "source": "Fry 1000", "grades": "3+", "words": 700, "plus": True, "ready": False},
+    {"id": 4, "title": "Word explorers", "source": "Fry words, part 1", "grades": "3\u20134", "words": 140, "ready": False},
 ]
 
 # one short sentence per word. The word appears exactly once; "{w}" marks nothing, the app finds it by itself.

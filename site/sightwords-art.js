@@ -77,6 +77,10 @@
       // both arms curve in front and meet low down, like a cradle under something held against the chest (draw it with arms: "only" over the thing)
       cradle: { L: ST, A: [[-16, -28, 10, -23], [17, -30, -6, -23]] },
       cradleR: { L: ST, A: [[-14, -28, 27, -24], [25, -31, 3, -23]] }, // the same, with the thing held on the right side
+      // walking to the right while the left arm reaches back and down to the handle of something pulled behind (draw the wagon first, the child over it)
+      // both arms straight up with the hands above the head, gripping a bar lifted overhead (draw the bar, then the arms again over it with arms: "only")
+      lift: { L: ST, A: [[-15, -57, -15, -76], [15, -57, 15, -76]] },
+      pullL: { L: [[-3, -22, -11, -3], [3, -22, 10, -3]], A: [[-21, -34, -35, -27], [14, -31, 17, -22]] },
     };
     var p = P[pose] || P.stand;
     function arm(sx, a) {

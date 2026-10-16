@@ -19,7 +19,7 @@
     return o + '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.5).toFixed(1) + '" fill="#FFD23F" stroke="#E0A800" stroke-width="0.8"/>';
   }
 
-  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10) and island 3 (the castle kingdom, units 11-15); each has the island, the unit, the world it belongs to, the item
+  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10), island 3 (the castle kingdom, units 11-15) and island 4 (outer space, units 16-20); each has the island, the unit, the world it belongs to, the item
   var LIST = [
     {
       id: "ch-flower", island: 1, unit: 1, world: "Flower foothills", slot: "hat", name: "Flower crown", cn: "花环", vb: "12 26 96 40", a: { hx: 60, hy: 46, hs: 1 },
@@ -235,6 +235,72 @@
           '<path d="M-21.4 -1 Q0 5 21.4 -1 L21 3.4 Q0 8.6 -21 3.4Z" fill="#E5483A" stroke="#8E2A22" stroke-width="2" stroke-linejoin="round"/>' +
           '<circle cx="-24" cy="-21" r="3.2" fill="#8B6BE8" stroke="#4A3A9A" stroke-width="1.6"/><circle cx="0" cy="-27" r="3.6" fill="#E5483A" stroke="#8E2A22" stroke-width="1.6"/><circle cx="24" cy="-21" r="3.2" fill="#3D8BF2" stroke="#1F4F9A" stroke-width="1.6"/>' +
           '<circle cx="-9" cy="-3" r="2.2" fill="#3D8BF2"/><circle cx="0" cy="-2" r="2.4" fill="#FFFFFF"/><circle cx="9" cy="-3" r="2.2" fill="#6CCB5F"/><path d="M-14 -10 L-10 -14" stroke="#FFF2B8" stroke-width="2.2" stroke-linecap="round"/>'
+        );
+      },
+    },
+
+    // island 4 (outer space): units 16-20
+    {
+      id: "ch-helmet", island: 4, unit: 16, world: "Launch pad", slot: "hat", name: "Space helmet", cn: "太空头盔", vb: "20 -4 80 62", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-25 6 Q-30 -26 0 -29 Q30 -26 25 6 Q0 12 -25 6Z" fill="#F4F6FF" stroke="#8A97AD" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M-17 -2 Q-18 -20 0 -21 Q18 -20 17 -2 Q0 4 -17 -2Z" fill="rgba(120,190,255,.55)" stroke="#4F8FD0" stroke-width="2.2" stroke-linejoin="round"/>' +
+          '<path d="M-11 -14 Q-6 -19 -1 -18" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".9"/>' +
+          '<rect x="-26" y="1" width="52" height="7" rx="3.5" fill="#E5483A" stroke="#8E2A22" stroke-width="2"/><circle cx="-14" cy="4.6" r="1.6" fill="#fff"/><circle cx="0" cy="4.6" r="1.6" fill="#fff"/><circle cx="14" cy="4.6" r="1.6" fill="#fff"/>' +
+          '<path d="M24 -14 L36 -24 M36 -24 m-3 0 a3 3 0 1 0 6 0 a3 3 0 1 0 -6 0" fill="none" stroke="#8A97AD" stroke-width="2.4" stroke-linecap="round"/>'
+        );
+      },
+    },
+    {
+      id: "ch-moonneck", island: 4, unit: 17, world: "Moon walk", slot: "neck", name: "Moon medal", cn: "月亮奖牌", vb: "18 92 84 52", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny - 104,
+          o = "";
+        [[30, 101], [37, 108], [46, 113.5], [60, 116], [74, 113.5], [83, 108], [90, 101]].forEach(function (c, i) {
+          o += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="3.2" fill="' + (i % 2 ? "#E6B5F5" : "#C9B6F2") + '" stroke="#7A58C8" stroke-width="1.6"/>';
+        });
+        o += '<path d="M60 118 L60 122" stroke="#7A58C8" stroke-width="2"/><circle cx="60" cy="132" r="13" fill="#2B2670" stroke="#FFD23F" stroke-width="3"/>' +
+          '<path d="M64 122 A10 10 0 1 0 64 142 A7.4 7.4 0 0 1 64 122Z" fill="#FFE58A" stroke="#B8860B" stroke-width="1.4" stroke-linejoin="round"/>' +
+          '<circle cx="66" cy="128" r="1.4" fill="#fff"/><circle cx="55" cy="139" r="1.1" fill="#fff"/>';
+        return '<g transform="translate(0,' + y + ')">' + o + "</g>";
+      },
+    },
+    {
+      id: "ch-cometband", island: 4, unit: 18, world: "Comet trail", slot: "hat", name: "Comet headband", cn: "彗星发带", vb: "16 -6 88 58", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-24 4 Q0 -8 24 4" fill="none" stroke="#7A58C8" stroke-width="6.4" stroke-linecap="round"/><path d="M-24 4 Q0 -8 24 4" fill="none" stroke="#B79CF0" stroke-width="3.4" stroke-linecap="round"/>' +
+          '<path d="M10 -6 L-18 -26 M12 -4 L-14 -16 M8 -8 L-8 -30" stroke="#E6D8FF" stroke-width="4" stroke-linecap="round" opacity=".8"/>' +
+          '<path d="M14 -2 l2.6 -9 l2.6 9 l9 2.6 l-9 2.6 l-2.6 9 l-2.6 -9 l-9 -2.6z" fill="#FFE066" stroke="#B8860B" stroke-width="1.6" stroke-linejoin="round" transform="translate(4,-14) scale(1.1)"/>' +
+          '<circle cx="-20" cy="-26" r="2" fill="#fff"/><circle cx="-8" cy="-31" r="1.6" fill="#fff"/>'
+        );
+      },
+    },
+    {
+      id: "ch-planetglasses", island: 4, unit: 19, world: "Ringed planet", slot: "face", name: "Planet glasses", cn: "星球眼镜", vb: "6 14 108 48", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx,
+          x2 = 60 + a.edx,
+          r = a.er + 5.5,
+          y = a.ey;
+        function lens(x) {
+          return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="rgba(186,150,255,.45)" stroke="#7A58C8" stroke-width="3.8"/>' +
+            '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (r + 6) + '" ry="' + (r * 0.34).toFixed(1) + '" transform="rotate(-16 ' + x + " " + y + ')" fill="none" stroke="#FFB05C" stroke-width="3"/>' +
+            '<path d="M' + (x - r * 0.55) + " " + (y - r * 0.2) + " Q" + (x - r * 0.35) + " " + (y - r * 0.6) + " " + (x + r * 0.05) + " " + (y - r * 0.62) + '" fill="none" stroke="#fff" stroke-width="2.2" opacity=".9"/>';
+        }
+        return '<g stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M' + (x1 - r) + " " + y + " L" + (x1 - r - 14) + " " + (y - 2) + " M" + (x2 + r) + " " + y + " L" + (x2 + r + 14) + " " + (y - 2) + '" fill="none" stroke="#7A58C8" stroke-width="4.6"/>' +
+          '<path d="M' + (x1 + r) + " " + y + " H" + (x2 - r) + '" fill="none" stroke="#7A58C8" stroke-width="4.4"/>' + lens(x1) + lens(x2) + "</g>";
+      },
+    },
+    {
+      id: "ch-alien", island: 4, unit: 20, world: "Alien base", slot: "hat", name: "Alien antennas", cn: "外星触角", vb: "20 -8 80 62", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-20 4 Q0 -6 20 4" fill="none" stroke="#2F8A4C" stroke-width="6.4" stroke-linecap="round"/><path d="M-20 4 Q0 -6 20 4" fill="none" stroke="#6CCB5F" stroke-width="3.4" stroke-linecap="round"/>' +
+          '<path d="M-12 -2 Q-22 -16 -18 -30" fill="none" stroke="#2F8A4C" stroke-width="3.4" stroke-linecap="round"/><path d="M12 -2 Q22 -16 18 -30" fill="none" stroke="#2F8A4C" stroke-width="3.4" stroke-linecap="round"/>' +
+          '<circle cx="-18" cy="-33" r="6.4" fill="#FF6FA0" stroke="#B8305F" stroke-width="2.2"/><circle cx="18" cy="-33" r="6.4" fill="#FFD23F" stroke="#B8860B" stroke-width="2.2"/><circle cx="-20" cy="-35" r="1.8" fill="#fff" opacity=".8"/><circle cx="16" cy="-35" r="1.8" fill="#fff" opacity=".8"/>'
         );
       },
     },

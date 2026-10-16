@@ -70,20 +70,22 @@ ok(S.mergeValue("lef_stats_v1", { days: [1], total: 1, reviews: 0 }, { days: [2]
 // ---- the sight-word badges
 const swSample = { words: { a: { box: 3 }, b: { box: 2 }, c: { box: 5 }, dont: { box: 4 } }, lessons: { 1: { acc: 100 }, 2: { acc: 89 }, 3: { acc: 90 } },
   rev: { "2026-10-14": 123, "2026-10-15": 0, "g2026-10-14": 5, "b2026-10-14": 4, "chest1-1": 9, "chest1-2": 9, "chest2-6": 9, mon1: 7, mon2: 8, mon9x: 1, m1: 5 } };
-ok(eq(B.swMetrics(swSample), { words: 3, words1: 3, words12: 3, words3: 0, stars3: 2, swrev: 1, chests: 3, chests1: 2, chests2: 1, chests3: 0, monsters: 2 }), "sight words: known words (box 3+), 3-star lessons, review days and opened chests (all, mountain, beach) are counted; game days are not", B.swMetrics(swSample));
+ok(eq(B.swMetrics(swSample), { words: 3, words1: 3, words12: 3, words123: 3, words3: 0, words4: 0, stars3: 2, swrev: 1, chests: 3, chests1: 2, chests2: 1, chests3: 0, chests4: 0, monsters: 2 }), "sight words: known words (box 3+), 3-star lessons, review days and opened chests (all, mountain, beach) are counted; game days are not", B.swMetrics(swSample));
 ok(B.swMetrics(swSample, ["a", "b", "c"]).words1 === 2 && B.swMetrics(swSample, ["a", "b", "c"]).words === 3, "sight words: stage 1 words are counted on their own when the list of them is given", B.swMetrics(swSample, ["a", "b", "c"]));
 ok(B.swMetrics(swSample, null, ["a", "c"]).words3 === 2 && B.swMetrics(swSample, null, ["a", "c"]).words12 === 1 && B.swMetrics(swSample, null, ["a", "c"]).words === 3, "sight words: stage 3 words are counted on their own when the list of them is given; the rest is stages 1 and 2");
 ok(B.swMetrics({ words: {}, lessons: {}, rev: { "chest3-11": 5, "chest3-12": 5, "chest2-6": 5 } }).chests3 === 2, "sight words: castle island chests are counted on their own");
-const zero = { words: 0, words1: 0, words12: 0, words3: 0, stars3: 0, swrev: 0, chests: 0, chests1: 0, chests2: 0, chests3: 0, monsters: 0 };
+ok(B.swMetrics(swSample, null, ["a"], ["c"]).words4 === 1 && B.swMetrics(swSample, null, ["a"], ["c"]).words3 === 1 && B.swMetrics(swSample, null, ["a"], ["c"]).words12 === 1 && B.swMetrics(swSample, null, ["a"], ["c"]).words123 === 2, "sight words: stage 4 words are counted on their own; words12 leaves out stages 3 and 4, words123 leaves out stage 4");
+ok(B.swMetrics({ words: {}, lessons: {}, rev: { "chest4-16": 5, "chest4-17": 5, "chest3-11": 5 } }).chests4 === 2, "sight words: space island chests are counted on their own");
+const zero = { words: 0, words1: 0, words12: 0, words123: 0, words3: 0, words4: 0, stars3: 0, swrev: 0, chests: 0, chests1: 0, chests2: 0, chests3: 0, chests4: 0, monsters: 0 };
 ok(eq(B.swMetrics(null), zero) && eq(B.swMetrics({ words: 5, rev: "x" }), zero), "sight words: missing or broken progress counts as zero");
-const swIds = ["sw10", "sw50", "sw92", "sw179", "sw136", "sw315", "swstar3", "swrev5", "chest1", "chest5", "chest10", "chest15", "mon1", "mon5"];
-ok(swIds.every((id) => B.DEFS.some((d) => d.id === id)) && B.DEFS.length === 27, "sight words: fourteen badges were added to the thirteen that were there");
+const swIds = ["sw10", "sw50", "sw92", "sw179", "sw136", "sw315", "sw140", "sw455", "swstar3", "swrev5", "chest1", "chest5", "chest10", "chest15", "chest20", "mon1", "mon5"];
+ok(swIds.every((id) => B.DEFS.some((d) => d.id === id)) && B.DEFS.length === 30, "sight words: seventeen badges were added to the thirteen that were there");
 let swr = B.evaluate({ words: 10, words1: 10, stars3: 0, swrev: 0, chests: 0 }, {});
 ok(eq(swr.fresh, ["sw10"]), "sight words: ten known words earn First Words only", swr.fresh);
-swr = B.evaluate({ words: 315, words1: 92, words12: 179, words3: 136, stars3: 3, swrev: 5, chests: 15, chests1: 5, chests2: 5, chests3: 5, monsters: 5 }, {});
+swr = B.evaluate({ words: 455, words1: 92, words12: 179, words123: 315, words3: 136, words4: 140, stars3: 3, swrev: 5, chests: 20, chests1: 5, chests2: 5, chests3: 5, chests4: 5, monsters: 5 }, {});
 ok(eq(swr.fresh.slice().sort(), swIds.slice().sort()), "sight words: every one of them can be earned", swr.fresh);
 swr = B.evaluate({ words: 120, words1: 80, chests: 5, chests1: 3, chests2: 2 }, {});
-ok(swr.fresh.indexOf("sw92") < 0 && swr.fresh.indexOf("sw179") < 0 && swr.fresh.indexOf("chest5") < 0 && swr.fresh.indexOf("chest10") < 0 && swr.fresh.indexOf("chest15") < 0 && swr.fresh.indexOf("sw136") < 0 && swr.fresh.indexOf("sw315") < 0 && swr.fresh.indexOf("sw50") >= 0, "sight words: Word Master, Mountain Master and the stage 3 badges count their own stage and island, not the total", swr.fresh);
+ok(swr.fresh.indexOf("sw92") < 0 && swr.fresh.indexOf("sw179") < 0 && swr.fresh.indexOf("chest5") < 0 && swr.fresh.indexOf("chest10") < 0 && swr.fresh.indexOf("chest15") < 0 && swr.fresh.indexOf("chest20") < 0 && swr.fresh.indexOf("sw136") < 0 && swr.fresh.indexOf("sw140") < 0 && swr.fresh.indexOf("sw315") < 0 && swr.fresh.indexOf("sw455") < 0 && swr.fresh.indexOf("sw50") >= 0, "sight words: Word Master, Mountain Master and the stage 3 and 4 badges count their own stage and island, not the total", swr.fresh);
 swr = B.evaluate({ monsters: 1 }, {});
 ok(eq(swr.fresh, ["mon1"]), "sight words: one beaten monster earns Monster Hunter only", swr.fresh);
 swr = B.evaluate({ chests: 1 }, { sw10: 5 });
