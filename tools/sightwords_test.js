@@ -891,5 +891,81 @@ else {
   ok(JSON.stringify(stA).indexOf("undefined") < 0 && stA.words.the.box === 5, "quick check: the saved result is plain data");
 }
 
+// ---- the motion guard: a phone that cannot keep up is slowed to 30 pictures a second, then nearly still
+{
+  const loadGuard = (opts) => {
+    opts = opts || {};
+    const store = opts.store || {}, doc = { hidden: false };
+    const win = { location: { search: opts.search || "" }, document: doc, localStorage: { getItem: (k) => (k in store ? store[k] : null), setItem: (k, v) => { store[k] = String(v); } } };
+    vm.runInNewContext(fs.readFileSync(path.join(SITE, "motion-guard.js"), "utf8"), { window: win, Date, JSON });
+    return { g: win.MotionGuard, store, doc };
+  };
+  const feed = (g, ms, seconds, start) => { let t = start || 1000; const end = t + seconds * 1000; while (t < end) { g.note(t); t += ms; } return t; };
+  { const { g } = loadGuard(); feed(g, 16.7, 12); ok(g.level() === 0, "motion guard: a phone that keeps up (60 frames a second) stays at full speed", g.level()); }
+  { const { g, store } = loadGuard(); const t = feed(g, 33.3, 12); ok(g.level() === 1 && JSON.parse(store.lef_motion_v1).l === 1, "motion guard: a phone that manages 30 frames a second goes to level 1 and stays there (and remembers it)", g.level()); }
+  { const { g } = loadGuard(); feed(g, 55, 14); ok(g.level() === 2, "motion guard: a phone that manages only about 18 frames a second ends nearly still", g.level()); }
+  { const { g } = loadGuard(); let t = feed(g, 60, 2.4); feed(g, 16.7, 10, t); ok(g.level() === 0, "motion guard: slow frames while the page is starting do not count", g.level()); }
+  { const { g } = loadGuard(); let t = 1000; for (let i = 0; i < 700; i++) { g.note(t); t += i % 90 === 89 ? 1500 : 16.7; } ok(g.level() === 0, "motion guard: a long pause (phone asleep or busy) is not counted as slow frames", g.level()); }
+  { const { g, doc } = loadGuard(); doc.hidden = true; feed(g, 80, 12); ok(g.level() === 0, "motion guard: a hidden page is not counted", g.level()); }
+  { const { g } = loadGuard(); let t = 1000, n = 0; while (t < 13000) { for (let k = 0; k < 8; k++) g.note(t); t += 16.7; n++; } ok(g.level() === 0, "motion guard: eight pets in the same frame count as one frame", g.level()); }
+  { const { g } = loadGuard(); let t = 1000; while (t < 14000) { g.note(t); g.note(t + 0.4); g.note(t + 1.1); t += 55; } ok(g.level() === 2, "motion guard: loops that get stamps a hair apart in the same frame still count as one frame", g.level()); }
+  { const { g } = loadGuard(); feed(g, 55, 14); const was = g.level(); feed(g, 16.7, 20, 40000); ok(was === 2 && g.level() === 2, "motion guard: it never speeds up again by itself", g.level()); }
+  { const a = loadGuard(); feed(a.g, 33.3, 12); const b = loadGuard({ store: a.store }); ok(b.g.level() === 1, "motion guard: the level is remembered on the device");
+    const old = JSON.parse(a.store.lef_motion_v1); old.t = Date.now() - 4 * 24 * 3600 * 1000; a.store.lef_motion_v1 = JSON.stringify(old); const c = loadGuard({ store: a.store });
+    ok(c.g.level() === 0, "motion guard: after three days it tries full speed again"); }
+  { const { g, store } = loadGuard({ search: "?x=1&motion=2" }); feed(g, 16.7, 12); ok(g.level() === 2 && !store.lef_motion_v1, "motion guard: ?motion=2 in the address forces a level (to try it) and remembers nothing", g.level()); }
+  { const { g } = loadGuard(); const a = g.gap(0); g.force(1); const b = g.gap(0), b2 = g.gap(0.05); g.force(2); const c = g.gap(0); g.force(null);
+    ok(a === 0 && b > 0.028 && b < 0.034 && b2 === 0.05 && c >= 0.3 && g.level() === 0, "motion guard: gaps between pictures: none, about 1/30 s, about 0.4 s", [a, b, c]); }
+}
+// ---- the pets and the monsters hold still at the lowest level and are drawn less often at the other levels
+if (JSD) {
+  const gw = new JSD.JSDOM("<!doctype html><body></body>", { runScripts: "outside-only" }).window;
+  ["motion-guard.js", "pet-art.js", "pet-rig.js", "sightwords-monsters.js"].forEach((f) => gw.eval(fs.readFileSync(path.join(SITE, f), "utf8")));
+  const gdoc = gw.document, GG = gw.MotionGuard;
+  const mkg = (kind, id, opts) => { const h = gdoc.createElement("div"); gdoc.body.appendChild(h); return kind === "pet" ? gw.PetRig.mount(h, id, {}, Object.assign({ manual: true }, opts || {})) : gw.SWMonsters.mount(h, id, Object.assign({ manual: true }, opts || {})); };
+  const sample = (c, names, times) => times.map((T) => { c.at(T); return names.map((n) => (c.byName ? (c.byName[n] ? c.byName[n].el.getAttribute("transform") : "") : c.nodes[c.view()].filter((x) => x.pt.n === n).map((x) => x.el.getAttribute("transform")).join(""))).join("|"); });
+  const bad = [];
+  ["cat", "bunny", "dino", "penguin"].forEach((t) => {
+    GG.force(0); const live = mkg("pet", t); const a = sample(live, ["body", "head", "armL", "tail", "earL"], [1.0, 2.3, 3.1]);
+    GG.force(2); const calm = mkg("pet", t); const b = sample(calm, ["body", "head", "armL", "tail", "earL"], [1.0, 2.3, 3.1]);
+    if (new Set(a).size < 2) bad.push([t, "full speed does not move", a]);
+    if (new Set(b).size !== 1) bad.push([t, "level 2 still moves", b]);
+    calm.play("hit"); calm.at(3.2); const h1 = calm.byName.root.el.getAttribute("transform"); calm.at(3.3); const h2 = calm.byName.root.el.getAttribute("transform");
+    if (!(h1 && h1 !== h2)) bad.push([t, "a hit does not show at level 2", h1, h2]);
+  });
+  ok(bad.length === 0, "motion guard: at level 2 a pet stops breathing, swaying and waving, but what happens (a hit) still shows; at full speed it moves", bad.slice(0, 2));
+  const badM = [];
+  [1, 2, 3, 4, 5].forEach((id) => {
+    GG.force(0); const live = mkg("mon", id); const a = sample(live, ["body", "arm" + (id === 5 || true ? "L" : ""), "foot" + "L"], [1.0, 2.3, 3.1]);
+    GG.force(2); const calm = mkg("mon", id); const b = sample(calm, ["body", "armL", "footL"], [1.0, 2.3, 3.1]);
+    if (new Set(a).size < 2) badM.push([id, "full speed does not move", a]);
+    if (new Set(b).size !== 1) badM.push([id, "level 2 still moves", b]);
+    calm.play("hit"); calm.at(3.2); const h1 = calm.nodes[calm.view()].filter((x) => x.pt.n === "root")[0].el.getAttribute("transform"); calm.at(3.3); const h2 = calm.nodes[calm.view()].filter((x) => x.pt.n === "root")[0].el.getAttribute("transform");
+    if (!(h1 && h1 !== h2)) badM.push([id, "a hit does not show at level 2", h1, h2]);
+  });
+  GG.force(null);
+  ok(badM.length === 0, "motion guard: at level 2 a monster stops breathing, swaying and waving, but a hit still shows; at full speed it moves", badM.slice(0, 2));
+  // the loop: pictures drawn in 60 frames at each level
+  const loopCount = (level) => {
+    const w = new JSD.JSDOM("<!doctype html><body></body>", { runScripts: "outside-only" }).window, q = [];
+    let now = 100000;
+    w.requestAnimationFrame = (f) => { q.push(f); return q.length; };
+    w.Date.now = () => now;
+    ["motion-guard.js", "pet-art.js", "pet-rig.js"].forEach((f) => w.eval(fs.readFileSync(path.join(SITE, f), "utf8")));
+    w.MotionGuard.force(level);
+    const h = w.document.createElement("div"); w.document.body.appendChild(h);
+    Object.defineProperty(w.document, "hidden", { value: false });
+    h.getClientRects = () => [1];
+    const c = w.PetRig.mount(h, "cat", {}, {});
+    c.play("hit", null, 1.7); // (something that keeps changing the picture, so that every picture drawn can be counted)
+    let n = 0; const root = c.byName.root.el, orig = root.setAttribute.bind(root); root.setAttribute = (k, v) => { if (k === "transform") n++; return orig(k, v); };
+    for (let i = 0; i < 60; i++) { now += 16.7; const f = q.shift(); if (f) f(now); }
+    c.stop();
+    return n;
+  };
+  const n0 = loopCount(0), n1 = loopCount(1), n2 = loopCount(2);
+  ok(n0 >= 50 && n1 >= n0 * 0.4 && n1 <= n0 * 0.6 && n2 >= 1 && n2 <= 4, "motion guard: in one second the loop draws every picture at level 0, every other one (30 a second) at level 1 and only a few at level 2", [n0, n1, n2]);
+}
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

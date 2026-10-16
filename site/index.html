@@ -513,13 +513,13 @@ var SHELF={},ALL=[];
 (function(){Object.keys(ID2NAME).forEach(function(id){var books=BOOKS[id]||[],gg=gradeGroupsFor(books),sj=ID2NAME[id];SHELF[sj]={};
  gg.gradeKeys.forEach(function(g){SHELF[sj][g]={count:gg.groups[g].length,books:gg.groups[g].map(function(b){var o={slug:b.slug,title:b.title,subtitle:b.subtitle||'',grade:b.grade||g,band:b.readingBand||'',minutes:b.minutes||'',subject:sj,id:id,cover:b.cover,file:b.file};ALL.push(o);return o;})};});});})();
 </script>
-<script src="pet-art.js?v=20261015b"></script><script src="pet-rig.js?v=20261015d"></script>
+<script src="motion-guard.js?v=20261015a"></script><script src="pet-art.js?v=20261015b"></script><script src="pet-rig.js?v=20261015e"></script>
 <script src="pet-fest.js?v=20261012a"></script>
 <script src="pet-sound.js?v=20261014c"></script>
 <script src="badges.js?v=20261014c"></script><script src="sightwords-prizes.js?v=20261014c"></script>
 <script src="sightwords-data.js?v=20261014d"></script><script src="sightwords-data2.js?v=20261014a"></script>
-<script src="sightwords-art.js?v=20261014d"></script><script src="sightwords-scenery.js?v=20261015a"></script><script src="sightwords-monsters.js?v=20261014r1"></script>
-<script src="sightwords.js?v=20261015e"></script>
+<script src="sightwords-art.js?v=20261014d"></script><script src="sightwords-scenery.js?v=20261015a"></script><script src="sightwords-monsters.js?v=20261015a"></script>
+<script src="sightwords.js?v=20261015f"></script>
 <script src="pet-life.js?v=20261015a"></script>
 <script>
 /* the pet page needs pet-art.js and pet-life.js; if either did not load, show no pet and never save over the child's saved one */

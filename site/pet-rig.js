@@ -111,25 +111,25 @@
   }
   var KEYS = ["rx", "ry", "rr", "hr", "hx", "hy", "arm", "swing", "step", "sy", "sx", "v", "wag", "flap"];
   // what each thing the pet is doing adds to its pose (u = seconds since it started)
-  function actDelta(S, act, u, T) {
+  function actDelta(S, act, u, T, kc) {
     var a = { rx: 0, ry: 0, rr: 0, hr: 0, hx: 0, hy: 0, arm: 0, swing: 0, step: 0, sy: 0, sx: 0, v: 0, wag: 0, flap: 0 },
       s,
       k;
     if (act === "walk") {
-      s = Math.sin((TAU * T) / 0.5); // a waddle: it rocks from side to side, bobs, swings its arms and lifts its feet one after the other
+      s = kc * Math.sin((TAU * T) / 0.5); // a waddle: it rocks from side to side, bobs, swings its arms and lifts its feet one after the other
       a.rr = 4 * s; a.ry = -3 * Math.abs(s); a.hr = -3 * s; a.swing = 22 * s; a.step = s; a.wag = 0.6;
       a.v = -0.42 * (S.dir || 0);
     } else if (act === "bored") {
-      a.v = 0.55 * Math.sin(0.8 * T); a.hr = 3 * Math.sin(0.8 * T + 1); a.sy = -0.03; a.arm = -4;
+      a.v = kc * 0.55 * Math.sin(0.8 * T); a.hr = kc * 3 * Math.sin(0.8 * T + 1); a.sy = -0.03; a.arm = -4;
     } else if (act === "sleep") {
       k = ease(u);
-      a.hr = 9 * k; a.hx = 4 * k; a.hy = 4 * k; a.ry = 2 * k; a.sy = 0.03 * Math.sin((TAU * T) / 3.6); a.arm = -6 * k; a.wag = -0.8;
+      a.hr = 9 * k; a.hx = 4 * k; a.hy = 4 * k; a.ry = 2 * k; a.sy = kc * 0.03 * Math.sin((TAU * T) / 3.6); a.arm = -6 * k; a.wag = -0.8;
     } else if (act === "wake") {
       s = Math.sin(Math.PI * cl01(u / 1.3));
       a.sy = 0.08 * s; a.arm = 100 * s; a.hr = -7 * s; a.hy = -3 * s;
     } else if (act === "eat") {
-      s = Math.sin(TAU * 2.5 * T);
-      a.hy = 2.2 * s; a.hr = 3 * Math.sin(TAU * 2.5 * T + 1); a.rr = 1.2 * s;
+      s = kc * Math.sin(TAU * 2.5 * T);
+      a.hy = 2.2 * s; a.hr = kc * 3 * Math.sin(TAU * 2.5 * T + 1); a.rr = 1.2 * s;
     } else if (act === "cheer") {
       var per = 0.62,
         n = S.small ? 1 : 3;
@@ -145,23 +145,26 @@
     return a;
   }
   function blendAct(S, T) {
-    var cur = actDelta(S, S.act, T - S.at0, T),
+    var kc = S.calm ? 0 : 1,
+      cur = actDelta(S, S.act, T - S.at0, T, kc),
       w = ease((T - S.at0) / 0.25);
     if (S.prev && w < 1) {
-      var pv = actDelta(S.prev, S.prev.act, T - S.prev.at0, T);
+      var pv = actDelta(S.prev, S.prev.act, T - S.prev.at0, T, kc);
       for (var i = 0; i < KEYS.length; i++) cur[KEYS[i]] = pv[KEYS[i]] * (1 - w) + cur[KEYS[i]] * w;
     }
     return cur;
   }
   function core(S, T) {
     var p = chargeAt(S, T),
-      br = Math.sin((2.3 + 2 * p) * T),
+      km = S.calm ? 0 : 1, // 0 on a phone that cannot keep up (see motion-guard.js): no breathing, swaying or waving, only what happens
+      br = km * Math.sin((2.3 + 2 * p) * T),
       ad = blendAct(S, T),
       b = {
-        rx: 0, ry: 0, rr: S.lean + 0.9 * Math.sin(1.1 * T + S.seed), rsx: 1, rsy: 1, // the whole pet
+        k: km,
+        rx: 0, ry: 0, rr: S.lean + km * 0.9 * Math.sin(1.1 * T + S.seed), rsx: 1, rsy: 1, // the whole pet
         sx: 1 - 0.01 * br, sy: 1 + (0.022 + 0.015 * p) * br - 0.04 * p, // body: breathing, a little crouch when tense
-        hr: 1.4 * Math.sin(1.3 * T + 0.6), hx: 0, hy: 0, // head: tilt and where it sits
-        arm: 3 * Math.sin(2.1 * T) + 5 * p, swing: 0, step: 0, reach: 1, flap: 0, // arms raised (degrees); the ears' extra fling
+        hr: km * 1.4 * Math.sin(1.3 * T + 0.6), hx: 0, hy: 0, // head: tilt and where it sits
+        arm: km * 3 * Math.sin(2.1 * T) + 5 * p, swing: 0, step: 0, reach: 1, flap: 0, // arms raised (degrees); the ears' extra fling
         wag: 1 + 0.8 * p, v: viewAt(S, T), p: p, droop: S.droopOn ? droopAt(S, T) : 0,
         eyes: S.face, mouth: S.face,
       },
@@ -174,22 +177,22 @@
       else b[k] += ad[k];
     }
     if (S.hungry) b.sy -= 0.015;
-    if (S.rumble) b.rx += 0.9 * Math.sin(110 * T);
+    if (S.rumble) b.rx += km * 0.9 * Math.sin(110 * T);
     if (S.mode === "cheer") {
-      var hp = Math.abs(Math.sin(TAU * 0.7 * T));
+      var hp = km ? Math.abs(Math.sin(TAU * 0.7 * T)) : 0.5;
       b.ry -= 12 * hp;
       b.sy *= 1 + 0.06 * hp - 0.08 * (1 - hp);
       b.sx *= 1 - 0.04 * hp + 0.05 * (1 - hp);
-      b.arm = 150 + 14 * Math.sin(TAU * 1.4 * T);
+      b.arm = 150 + km * 14 * Math.sin(TAU * 1.4 * T);
       b.wag = 2.6;
       b.eyes = b.mouth = "excited";
     } else if (S.mode === "hover") {
       // pointed at: it hops on the spot and waves, looking pleased
-      var hh = hop((T * 1.8) % 1, 9);
-      b.ry += hh.y; b.sy += hh.sy; b.arm = 45 + 25 * Math.sin(TAU * 2.2 * T); b.wag = 2.4; b.rr += 4 * Math.sin(TAU * 1.8 * T); b.flap += 15;
+      var hh = km ? hop((T * 1.8) % 1, 9) : { y: 0, sy: 0 };
+      b.ry += hh.y; b.sy += hh.sy; b.arm = 45 + km * 25 * Math.sin(TAU * 2.2 * T); b.wag = 2.4; b.rr += km * 4 * Math.sin(TAU * 1.8 * T); b.flap += 15;
       b.eyes = b.mouth = "excited";
-    } else if (OPEN[S.face] && (T + S.seed) % 3.3 < 0.12) b.eyes = "asleep";
-    var hl = S.hello && T >= S.hello.first ? hop(((T - S.hello.first) % S.hello.every) / 0.8, 16) : null, // the little hello hop of the adoption page
+    } else if (km && OPEN[S.face] && (T + S.seed) % 3.3 < 0.12) b.eyes = "asleep";
+    var hl = km && S.hello && T >= S.hello.first ? hop(((T - S.hello.first) % S.hello.every) / 0.8, 16) : null, // the little hello hop of the adoption page
       ho = S.hop ? hop((T - S.hop.t0) / 0.8, 16) : null;
     if (!hl || hl.y === 0 && hl.sy === 0) hl = ho; // (a hop that was asked for wins over the repeating one when it is the only one going)
     if (hl) {
@@ -282,21 +285,21 @@
         x = c.hx - 1.5 * c.v;
         break;
       case "arm":
-        r = -m.s * (c.arm + 2.5 * Math.sin(2.1 * T + (m.s > 0 ? 1.1 : 0))) + m.s * c.swing + 1.2 * (q.rr - c.rr);
+        r = -m.s * (c.arm + c.k * 2.5 * Math.sin(2.1 * T + (m.s > 0 ? 1.1 : 0))) + m.s * c.swing + 1.2 * (q.rr - c.rr);
         x = -m.z * sin;
         sx = 1 - 0.1 * av;
         break;
       case "foot":
-        y = -2 * c.p * Math.max(0, Math.sin(6.5 * T + (m.s > 0 ? Math.PI : 0))) - 5 * Math.max(0, -m.s * c.step);
+        y = -2 * c.p * c.k * Math.max(0, Math.sin(6.5 * T + (m.s > 0 ? Math.PI : 0))) - 5 * Math.max(0, -m.s * c.step);
         x = -m.z * sin;
         break;
       case "tail": // it hangs from the body, so it only swings from its root; turned, it is stretched outward from there (it never slides off the body)
-        r = m.s * 6 * c.wag * Math.sin(4.1 * T) + 2.2 * (q.rr - c.rr) + 0.6 * (q.rx - c.rx);
+        r = m.s * 6 * c.k * c.wag * Math.sin(4.1 * T) + 2.2 * (q.rr - c.rr) + 0.6 * (q.rx - c.rx);
         x = -m.z * sin;
         sx = 1 + 0.25 * c.v;
         break;
       case "ear": // follow the head, a moment late and with a bit more swing; squeezed toward the middle when the pet turns
-        r = m.g * (2.2 * (q.rr - c.rr) + 0.7 * (q.rx - c.rx)) + m.s * (1.2 * Math.sin(1.7 * T + m.l) + 0.2 * c.flap) + (d.droop ? m.s * d.droop * c.droop : 0);
+        r = m.g * (2.2 * (q.rr - c.rr) + 0.7 * (q.rx - c.rx)) + m.s * (c.k * 1.2 * Math.sin(1.7 * T + m.l) + 0.2 * c.flap) + (d.droop ? m.s * d.droop * c.droop : 0);
         sx = cos;
         x = (m.o[0] - 60) * (cos - 1) + 1.5 * c.v;
         sy = 1 + 0.8 * (q.sy - c.sy);
@@ -538,6 +541,7 @@
       if (hn) hn.home = { parent: hn.el.parentNode, next: hn.el.nextSibling };
     }
     function render(T) {
+      S.calm = !!(root.MotionGuard && root.MotionGuard.level() >= 2);
       var tn = S.turn;
       if (tn && T >= tn.t0 + tn.d) {
         S.v = tn.to;
@@ -584,7 +588,7 @@
         };
     var watch = group ? svg : host,
       gap = opts.fps ? 1 / opts.fps - 0.004 : 0;
-    function loop() {
+    function loop(ts) {
       if (dead) return;
       var dd = host.ownerDocument;
       if (dd && dd.documentElement && !dd.documentElement.contains(host)) {
@@ -594,8 +598,10 @@
       if (manual === null) {
         var T = now();
         // not drawn while it cannot be seen (page hidden, or a screen that is switched off), and at a lower rate when asked to
-        var seen = !dd.hidden && (!watch || !watch.getClientRects || watch.getClientRects().length > 0);
-        if (seen && T - lastDraw >= gap) {
+        var seen = !dd.hidden && (!watch || !watch.getClientRects || watch.getClientRects().length > 0),
+          mg = root.MotionGuard;
+        if (mg && seen) mg.note(ts); // a phone that cannot keep up is slowed to 30 pictures a second, then nearly still (motion-guard.js)
+        if (seen && T - lastDraw >= (mg ? mg.gap(gap) : gap)) {
           lastDraw = T;
           render(T);
         }

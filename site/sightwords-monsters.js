@@ -382,24 +382,26 @@
   function core(S, tr, T, id) {
     var p = chargeAt(S, T),
       W = 2.4 * (1 + 1.6 * p),
-      br = Math.sin(W * T),
+      km = S.calm ? 0 : 1, // 0 on a phone that cannot keep up (see motion-guard.js): no breathing, swaying or waving, only what happens
+      br = km * Math.sin(W * T),
       b = {
-        rx: 0, ry: 0, rr: S.lean + 1.2 * Math.sin(1.2 * T + id), rsx: 1, rsy: 1, // the whole monster: sideways, up, tilt, squeeze (turning)
+        k: km,
+        rx: 0, ry: 0, rr: S.lean + km * 1.2 * Math.sin(1.2 * T + id), rsx: 1, rsy: 1, // the whole monster: sideways, up, tilt, squeeze (turning)
         sx: 1 + 0.04 * p - (0.014 + 0.015 * p) * br, sy: 1 - 0.07 * p + (0.028 + 0.03 * p) * br, // the body: breathing, crouching when worked up
         scl: 1, dy: 0, spin: 0, op: 1, // shrinking, rising, spinning and fading away (beaten)
-        arm: 32 * p + 3 * p * Math.sin(23 * T), reach: 1, spread: 0, flap: 1 + 2 * p, wag: 1 + 1.4 * p, whip: 0, orb: 0, dz: 0, p: p,
+        arm: 32 * p + km * 3 * p * Math.sin(23 * T), reach: 1, spread: 0, flap: 1 + 2 * p, wag: 1 + 1.4 * p, whip: 0, orb: 0, dz: 0, p: p,
         eyes: "open", mouth: "smile",
       },
       u, a, h, d;
-    b.rx = p * p * 0.8 * Math.sin(41 * T);
-    if (tr.float) b.ry = -5 - 3 * Math.sin(2.1 * T + 1);
-    if ((T + id * 0.7) % 3.7 < 0.13) b.eyes = "blink";
+    b.rx = km * p * p * 0.8 * Math.sin(41 * T);
+    if (tr.float) b.ry = -5 - km * 3 * Math.sin(2.1 * T + 1);
+    if (km && (T + id * 0.7) % 3.7 < 0.13) b.eyes = "blink";
     if (S.mode === "cheer") {
-      var hp = Math.abs(Math.sin(TAU * 0.65 * T));
+      var hp = km ? Math.abs(Math.sin(TAU * 0.65 * T)) : 0.5;
       b.ry += -13 * hp;
       b.sy *= 1 + 0.07 * hp - 0.08 * (1 - hp);
       b.sx *= 1 - 0.05 * hp + 0.06 * (1 - hp);
-      b.arm = 150 + 14 * Math.sin(TAU * 1.3 * T);
+      b.arm = 150 + km * 14 * Math.sin(TAU * 1.3 * T);
       b.flap = 3;
       b.wag = 2.5;
       b.eyes = "cheer";
@@ -507,30 +509,30 @@
         sx = c.sx; sy = c.sy;
         break;
       case "arm":
-        r = -s * (c.arm + 2.6 * Math.sin(2.4 * T + m.l * 0.8 + (s > 0 ? 0.9 : 0))) + 1.2 * (q.rr - c.rr);
+        r = -s * (c.arm + c.k * 2.6 * Math.sin(2.4 * T + m.l * 0.8 + (s > 0 ? 0.9 : 0))) + 1.2 * (q.rr - c.rr);
         sx = c.reach;
         break;
       case "foot":
-        y = -2.2 * c.p * Math.max(0, Math.sin(6.5 * T + (s > 0 ? Math.PI : 0)));
+        y = -2.2 * c.p * c.k * Math.max(0, Math.sin(6.5 * T + (s > 0 ? Math.PI : 0)));
         break;
       case "deco":
-        r = g * (1.8 * (q.rr - c.rr) + 0.5 * (q.rx - c.rx)) + g * 2.4 * Math.sin(2.4 * T - 1.2 - m.l * 0.5) - s * 0.15 * c.spread;
+        r = g * (1.8 * (q.rr - c.rr) + 0.5 * (q.rx - c.rx)) + c.k * g * 2.4 * Math.sin(2.4 * T - 1.2 - m.l * 0.5) - s * 0.15 * c.spread;
         sy = 1 + 0.9 * (q.sy - c.sy);
         break;
       case "flame":
-        sy = 1 + 0.09 * Math.sin(9 * T + 1) + 0.9 * (q.sy - c.sy);
-        sx = 1 - 0.05 * Math.sin(11 * T);
-        r = 2.4 * Math.sin(5 * T) + 1.8 * (q.rr - c.rr) + 0.5 * (q.rx - c.rx);
+        sy = 1 + c.k * 0.09 * Math.sin(9 * T + 1) + 0.9 * (q.sy - c.sy);
+        sx = 1 - c.k * 0.05 * Math.sin(11 * T);
+        r = c.k * 2.4 * Math.sin(5 * T) + 1.8 * (q.rr - c.rr) + 0.5 * (q.rx - c.rx);
         break;
       case "tail":
-        r = s * (7 * c.wag * Math.sin(4.3 * T) + c.whip) * g + 2 * (q.rr - c.rr) + 0.6 * (q.rx - c.rx);
+        r = s * (7 * c.k * c.wag * Math.sin(4.3 * T) + c.whip) * g + 2 * (q.rr - c.rr) + 0.6 * (q.rx - c.rx);
         break;
       case "wing":
-        r = s * (3 + 5 * c.flap * Math.sin(5.2 * T + (s > 0 ? 0 : 0.4)) + c.spread) + 1.5 * (q.rr - c.rr);
+        r = s * (3 + 5 * c.k * c.flap * Math.sin(5.2 * T + (s > 0 ? 0 : 0.4)) + c.spread) + 1.5 * (q.rr - c.rr);
         break;
       case "hem":
-        x = 2.6 * Math.sin(2.4 * T - 1.4) + 1.8 * (q.rx - c.rx);
-        sx = 1 + 0.025 * Math.sin(2.4 * T);
+        x = c.k * 2.6 * Math.sin(2.4 * T - 1.4) + 1.8 * (q.rx - c.rx);
+        sx = 1 + c.k * 0.025 * Math.sin(2.4 * T);
         break;
       case "star":
         an = 5 * T + m.i * 2.094;
@@ -678,6 +680,7 @@
       return manual === null ? (Date.now() - t0) / 1000 : manual;
     }
     function render(T) {
+      S.calm = !!(root.MotionGuard && root.MotionGuard.level() >= 2);
       var tn = S.turn,
         i;
       if (tn) {
@@ -741,14 +744,23 @@
       : function (f) {
           return setTimeout(f, 33);
         };
-    function loop() {
+    var lastDraw = -1;
+    function loop(ts) {
       if (dead) return;
       var d = host.ownerDocument;
       if (d && d.documentElement && !d.documentElement.contains(host)) {
         dead = true; // the battle was left: nothing to draw into any more
         return;
       }
-      if (manual === null) render(now());
+      if (manual === null) {
+        var T = now(),
+          mg = root.MotionGuard;
+        if (mg) mg.note(ts); // a phone that cannot keep up is slowed to 30 pictures a second, then nearly still (motion-guard.js)
+        if (T - lastDraw >= (mg ? mg.gap(0) : 0)) {
+          lastDraw = T;
+          render(T);
+        }
+      }
       rq(loop);
     }
     var ctl = {
