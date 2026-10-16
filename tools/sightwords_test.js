@@ -737,7 +737,7 @@ else {
       if (it.slot === "hat" && !c.byName.ihat) bad.push([t, it.id, "hat not found"]);
       if (it.slot === "body" && it.id === "tg-turkey" && !c.svg.querySelector('[data-rg="oback"] path')) bad.push([t, it.id, "feathers not drawn"]);
     })));
-    ok(bad.length === 0 && fest.length === 3, "pet rigs: every Halloween, Thanksgiving and Christmas outfit and hat works on every pet when it turns", bad.slice(0, 3));
+    ok(bad.length === 0 && fest.length === 5, "pet rigs: every festival outfit and hat works on every pet when it turns", bad.slice(0, 3));
   }
   // ---- the same rig on the adoption page (look, hover, hello hop, still) and in the home scene (faces, walking, sleeping, eating...)
   { // looking to either side

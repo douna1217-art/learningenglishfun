@@ -256,10 +256,235 @@
       { id: 'xm-d-snow', name: 'Snowfall', cn: '飘雪', price: 4, icon: '<g>' + flake(18, 18, 9, '#6FA8DC', 2.4) + flake(40, 30, 7, '#6FA8DC', 2) + flake(22, 44, 6, '#6FA8DC', 2) + '</g>',
         svg: function () { return snowFall(52, 112, 7, 0) + snowFall(318, 108, 8, 0.9) + snowFall(96, 168, 6, 1.7) + snowFall(268, 160, 7, 2.3) + snowFall(188, 122, 6, 0.4) + snowFall(24, 210, 5.5, 1.3) + snowFall(340, 214, 6, 2.8) + snowFall(150, 196, 5, 3.4); } }
     ] };
-  var NEWYEAR = { id: 'newyear', name: 'Chinese New Year', cn: '中国新年', greet: 'Happy Chinese New Year! 新年快乐！', outfits: [], hats: [], decos: [],
-    date: function (y) { var s = CNY[y]; if (!s) return null; var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); } };
+  /* ---------- Chinese New Year: red and gold, lanterns, lion dance, Tang suits, red envelopes, dumplings ---------- */
+  var CRED = '#D92B2B', CRED_D = '#8A1717', CRED_L = '#F0584B', CGOLD = '#F6C531', CGOLD_D = '#B8860B', CJK_FONT = 'PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif';
+  // an old Chinese coin: a round coin with a square hole
+  function coin(x, y, r, fill, stroke, hole) {
+    return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.4"/><rect x="' + f1(x - r * 0.32) + '" y="' + f1(y - r * 0.32) + '" width="' + f1(r * 0.64) + '" height="' + f1(r * 0.64) + '" fill="' + hole + '" stroke="' + stroke + '" stroke-width="1"/>';
+  }
+  // a gold frog button (盘扣) of a Tang suit
+  function knot(x, y) {
+    var l = 'M' + (x - 3) + ' ' + y + 'Q' + (x - 9) + ' ' + (y - 4) + ' ' + (x - 9) + ' ' + y + 'Q' + (x - 9) + ' ' + (y + 4) + ' ' + (x - 3) + ' ' + y,
+      r = 'M' + (x + 3) + ' ' + y + 'Q' + (x + 9) + ' ' + (y - 4) + ' ' + (x + 9) + ' ' + y + 'Q' + (x + 9) + ' ' + (y + 4) + ' ' + (x + 3) + ' ' + y;
+    return '<path d="' + l + r + '" fill="none" stroke="' + CGOLD + '" stroke-width="2.2" stroke-linecap="round"/><circle cx="' + x + '" cy="' + y + '" r="3" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1"/>';
+  }
+  function lantern(x, y, s) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><ellipse cx="0" cy="0" rx="21" ry="17" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2.4"/>'
+      + '<path d="M-9 -16Q-15 0 -9 16M0 -17V17M9 -16Q15 0 9 16" fill="none" stroke="' + CRED_D + '" stroke-width="1.6" opacity=".55"/><ellipse cx="-9" cy="-6" rx="3.6" ry="7" fill="#FFFFFF" opacity=".28"/>'
+      + '<rect x="-9" y="-22" width="18" height="6" rx="2" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.8"/><rect x="-9" y="16" width="18" height="6" rx="2" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.8"/>'
+      + '<circle cx="0" cy="29" r="2.8" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.2"/><path d="M-4 32L-6 45M0 32V47M4 32L6 45" stroke="' + CRED + '" stroke-width="2.4" stroke-linecap="round" fill="none"/></g>';
+  }
+  function lanternHung(x, top, drop, s, delay) {
+    var cy = top + drop;
+    return '<path d="M' + x + ' ' + top + 'V' + f1(cy - 22 * s) + '" stroke="' + CRED_D + '" stroke-width="2" fill="none"/><g class="twinkle" style="animation-delay:' + delay + 's"><circle cx="' + x + '" cy="' + f1(cy) + '" r="' + f1(34 * s) + '" fill="#FFB347" opacity=".22"/></g>' + lantern(x, cy, s);
+  }
+  // the 福 diamond hung upside down; plain = no character (shop icons lose their Chinese text), a coin instead
+  function fuDiamond(x, y, s, plain) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M0 -27L27 0L0 27L-27 0Z" fill="' + CRED + '" stroke="' + CGOLD + '" stroke-width="3.2" stroke-linejoin="round"/><path d="M0 -20L20 0L0 20L-20 0Z" fill="none" stroke="' + CGOLD + '" stroke-width="1.2" opacity=".75"/>'
+      + (plain ? coin(0, 0, 9, CGOLD, CGOLD_D, CRED) : '<text x="0" y="8" text-anchor="middle" font-size="23" font-weight="700" fill="' + CGOLD + '" font-family="' + CJK_FONT + '">福</text>')
+      + '<path d="M0 27V33M-4 33L-5 48M0 33V50M4 33L5 48" stroke="' + CRED + '" stroke-width="2.4" stroke-linecap="round" fill="none"/></g>';
+  }
+  function couplet(x, y, chars, plain) {
+    var o = '<g><rect x="' + (x - 13) + '" y="' + y + '" width="26" height="104" rx="3" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2.4"/><rect x="' + (x - 10) + '" y="' + (y + 3) + '" width="20" height="98" rx="2" fill="none" stroke="' + CGOLD + '" stroke-width="1.2" opacity=".85"/>', i;
+    for (i = 0; i < 4; i++) {
+      if (plain) o += '<rect x="' + (x - 5) + '" y="' + (y + 12 + i * 22) + '" width="10" height="12" rx="2" fill="' + CGOLD + '" opacity=".9"/>';
+      else o += '<text x="' + x + '" y="' + (y + 24 + i * 22) + '" text-anchor="middle" font-size="18" font-weight="700" fill="' + CGOLD + '" font-family="' + CJK_FONT + '">' + chars.charAt(i) + '</text>';
+    }
+    return o + '</g>';
+  }
+  function burst(x, y, r, col, col2, delay) {
+    var o = '<g class="twinkle" style="animation-delay:' + delay + 's"><g transform="translate(' + x + ',' + y + ')">', i, a, c, s;
+    for (i = 0; i < 10; i++) {
+      a = i * 36 * Math.PI / 180; c = Math.cos(a); s = Math.sin(a);
+      o += '<path d="M' + f1(c * r * 0.35) + ' ' + f1(s * r * 0.35) + 'L' + f1(c * r * 0.78) + ' ' + f1(s * r * 0.78) + '" fill="none" stroke="' + (i % 2 ? col : col2) + '" stroke-width="3" stroke-linecap="round"/><circle cx="' + f1(c * r) + '" cy="' + f1(s * r) + '" r="2.6" fill="' + (i % 2 ? col2 : col) + '"/>';
+    }
+    return o + '<circle r="3.4" fill="' + col2 + '"/></g></g>';
+  }
+  // a gold ingot (元宝)
+  function ingot(x, y, s) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-20 -6Q-22 -15 -12 -13Q0 -5 12 -13Q22 -15 20 -6Q18 8 10 8L-10 8Q-18 8 -20 -6Z" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="2.2" stroke-linejoin="round"/>'
+      + '<ellipse cx="0" cy="-8" rx="9" ry="5.5" fill="#FFE27A" stroke="' + CGOLD_D + '" stroke-width="1.8"/><path d="M-12 1Q0 5 12 1" fill="none" stroke="' + CGOLD_D + '" stroke-width="1.4" opacity=".6"/></g>';
+  }
+  function redEnvelope(x, y, w, h, rot) {
+    return '<g transform="translate(' + x + ',' + y + ') rotate(' + rot + ')"><rect x="' + (-w / 2) + '" y="' + (-h) + '" width="' + w + '" height="' + h + '" rx="3" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2"/>'
+      + '<path d="M' + (-w / 2) + ' ' + (-h) + 'L0 ' + f1(-h + h * 0.42) + 'L' + (w / 2) + ' ' + (-h) + 'Z" fill="' + CRED_L + '" stroke="' + CRED_D + '" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<rect x="' + f1(-w / 2 + 2.4) + '" y="' + f1(-h + 2.4) + '" width="' + f1(w - 4.8) + '" height="' + f1(h - 4.8) + '" rx="2" fill="none" stroke="' + CGOLD + '" stroke-width="1" opacity=".8"/>'
+      + '<circle cx="0" cy="' + f1(-h + h * 0.42) + '" r="' + f1(w * 0.2) + '" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.4"/></g>';
+  }
+  function dumpling(x, y, s) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-12 4Q-12 -10 0 -10Q12 -10 12 4Q0 9 -12 4Z" fill="#FFFDF4" stroke="#C9B98C" stroke-width="1.8" stroke-linejoin="round"/><path d="M-8 -7Q-6 -3 -8 1M-3 -9Q-1 -4 -3 0M2 -9Q4 -4 2 0M7 -7Q9 -3 7 1" fill="none" stroke="#C9B98C" stroke-width="1.2" stroke-linecap="round"/></g>';
+  }
+  function tangerine(x, y, r) {
+    return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#FF9A1F" stroke="#C25F00" stroke-width="1.8"/><path d="M' + x + ' ' + f1(y - r) + 'q4 -5 8 -3q-3 5 -8 3z" fill="#4E9B3A" stroke="#2F6E22" stroke-width="1"/><ellipse cx="' + f1(x - r * 0.35) + '" cy="' + f1(y - r * 0.3) + '" rx="' + f1(r * 0.22) + '" ry="' + f1(r * 0.34) + '" fill="#FFFFFF" opacity=".4"/>';
+  }
+  function feastTable(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')"><path d="M-34 -28L-38 0M34 -28L38 0" stroke="#7A4A22" stroke-width="5" stroke-linecap="round" fill="none"/>'
+      + '<path d="M-46 -32Q-46 -21 -40 -19Q-20 -14 0 -14Q20 -14 40 -19Q46 -21 46 -32Z" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2.4" stroke-linejoin="round"/><path d="M-38 -22Q0 -15 38 -22" fill="none" stroke="' + CGOLD + '" stroke-width="2.4" stroke-linecap="round"/>'
+      + '<ellipse cx="0" cy="-32" rx="46" ry="10" fill="#E24A3C" stroke="' + CRED_D + '" stroke-width="2.4"/>'
+      + '<ellipse cx="-15" cy="-34" rx="20" ry="5.6" fill="#FFFFFF" stroke="#C9B98C" stroke-width="1.8"/>' + dumpling(-26, -36, 0.62) + dumpling(-14, -39, 0.62) + dumpling(-3, -36, 0.62)
+      + '<path d="M13 -38Q13 -28 24 -27Q35 -28 35 -38Z" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="2" stroke-linejoin="round"/>' + tangerine(19, -43, 6) + tangerine(30, -43, 6) + tangerine(24.5, -50, 6) + '</g>';
+  }
+  function luckyPile(x, y) {
+    return redEnvelope(x - 38, y, 18, 28, -12) + redEnvelope(x + 36, y, 18, 28, 12) + ingot(x - 14, y - 2, 1) + ingot(x + 16, y - 2, 1) + ingot(x, y - 16, 0.9)
+      + '<g>' + coin(x - 30, y - 3, 5.5, CGOLD, CGOLD_D, '#FFE27A') + coin(x + 34, y - 4, 5.5, CGOLD, CGOLD_D, '#FFE27A') + '</g>';
+  }
+  var NEWYEAR = { id: 'newyear', name: 'Chinese New Year', cn: '春节', greet: 'Happy Chinese New Year! 新年快乐！',
+    date: function (y) { var s = CNY[y]; if (!s) return null; var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); },
+    outfits: [
+      { id: 'cn-tang', name: 'Tang suit', cn: '唐装', price: 12, draw: function (A, m) { var t = A.top, y1 = A.hem - 2, f = CRED, s = CRED_D, kn = '', i;
+        for (i = 0; i < 3; i++) kn += knot(60, t + 14 + i * 12);
+        return { back: '', under: body(A, y1, 3, 8, f, s, 7) + '<path d="M60 ' + (t + 7) + 'V' + (y1 - 2) + '" stroke="' + s + '" stroke-width="2" opacity=".6"/>' + strip(A, y1 - 3, y1, 3, 8, CGOLD, 5, 1)
+          + '<circle cx="41" cy="' + (t + 34) + '" r="7" fill="none" stroke="' + CGOLD + '" stroke-width="2.2"/><circle cx="41" cy="' + (t + 34) + '" r="2.4" fill="' + CGOLD + '"/><circle cx="79" cy="' + (t + 34) + '" r="7" fill="none" stroke="' + CGOLD + '" stroke-width="2.2"/><circle cx="79" cy="' + (t + 34) + '" r="2.4" fill="' + CGOLD + '"/>'
+          + kn + '<ellipse cx="60" cy="' + (t + 1) + '" rx="' + f1(hw(A, t) + 5) + '" ry="9" fill="' + CRED + '" stroke="' + CGOLD + '" stroke-width="3"/>', over: sleeves(A, f, s, m, CGOLD) }; } },
+      { id: 'cn-lion', name: 'Lion dance suit', cn: '舞狮装', price: 12, draw: function (A, m) { var t = A.top, y1 = A.hem - 5, f = '#E8412F', s = '#9A2418', fur = '', mane = '', i, a, wl = gw(A, y1, y1, 3, 8), st = (2 * wl) / 7, rx = hw(A, t) + 5;
+        for (i = 0; i < 7; i++) fur += (i ? 'L' : 'M') + f1(60 - wl + i * st) + ' ' + y1 + 'L' + f1(60 - wl + i * st + st / 2) + ' ' + (y1 + 10) + 'L' + f1(60 - wl + (i + 1) * st) + ' ' + y1;
+        for (i = 0; i < 7; i++) { a = i * Math.PI / 6; mane += '<circle cx="' + f1(60 - rx + (rx * 2) * (i / 6)) + '" cy="' + f1(t + 2 + 7 * Math.sin(a)) + '" r="7.4" fill="#F28A1E" stroke="#B85A0A" stroke-width="2"/>'; }
+        return { back: '', under: body(A, y1, 3, 8, f, s, 4) + '<path d="' + fur + 'Z" fill="#F6C531" stroke="#B8860B" stroke-width="2" stroke-linejoin="round"/>'
+          + '<path d="M44 ' + (t + 22) + 'L50 ' + (t + 28) + 'L56 ' + (t + 22) + 'L62 ' + (t + 28) + 'L68 ' + (t + 22) + 'L74 ' + (t + 28) + 'M44 ' + (t + 34) + 'L50 ' + (t + 40) + 'L56 ' + (t + 34) + 'L62 ' + (t + 40) + 'L68 ' + (t + 34) + 'L74 ' + (t + 40) + '" fill="none" stroke="#F6C531" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'
+          + mane + '<circle cx="60" cy="' + (t + 14) + '" r="4.6" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.6"/><path d="M60 ' + (t + 10) + 'V' + (t + 18) + '" stroke="' + CGOLD_D + '" stroke-width="1.2"/>', over: sleeves(A, f, s, m, CGOLD) }; } },
+      { id: 'cn-vest', name: 'Lucky vest', cn: '福气背心', price: 10, draw: function (A, m) { var t = A.top, y1 = A.hem - 2, f = '#F4C23A', s = '#B8860B', o = '', pts = [[46, 24], [74, 24], [60, 35], [46, 46], [74, 46]], i;
+        for (i = 0; i < pts.length; i++) o += coin(pts[i][0], t + pts[i][1], 6.2, CRED, CRED_D, '#F4C23A');
+        return { back: '', under: body(A, y1, 3, 8, f, s, 6) + strip(A, y1 - 3, y1, 3, 8, CRED, 5, 1) + '<path d="M60 ' + (t + 8) + 'V' + (y1 - 2) + '" stroke="' + s + '" stroke-width="2" opacity=".5"/>' + o + '<ellipse cx="60" cy="' + (t + 1) + '" rx="' + f1(hw(A, t) + 5) + '" ry="9" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="3"/>', over: sleeves(A, CRED, CRED_D, m, CGOLD) }; } },
+      { id: 'cn-envelope', name: 'Red envelope suit', cn: '红包装', price: 12, draw: function (A, m) { var t = A.top, y1 = A.hem - 2, f = '#CC2323', s = '#7E1212', xl = hw(A, t) + 2;
+        return { back: '', under: body(A, y1, 3, 8, f, s, 6) + strip(A, y1 - 4, y1, 3, 8, CGOLD, 2.4, 1) + strip(A, y1 - 9, y1, 3, 8, CGOLD, 1.6, .8)
+          + '<path d="M' + f1(60 - xl) + ' ' + (t + 2) + 'L60 ' + (t + 26) + 'L' + f1(60 + xl) + ' ' + (t + 2) + 'Z" fill="' + CRED_L + '" stroke="' + CGOLD + '" stroke-width="2.4" stroke-linejoin="round"/>'
+          + '<circle cx="60" cy="' + (t + 26) + '" r="7.2" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.8"/><path d="M60 ' + (t + 21) + 'L65 ' + (t + 26) + 'L60 ' + (t + 31) + 'L55 ' + (t + 26) + 'Z" fill="' + CRED + '"/>'
+          + '<path d="M49 ' + (t + 42) + 'Q60 ' + (t + 36) + ' 71 ' + (t + 42) + '" fill="none" stroke="' + CGOLD + '" stroke-width="1.8" stroke-linecap="round" opacity=".8"/>', over: sleeves(A, f, s, m, CGOLD) }; } }
+    ],
+    hats: [
+      { id: 'cn-cap', name: 'Lucky cap', cn: '瓜皮帽', price: 5, vb: '22 6 76 52', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<path d="M-22 5Q-23 -22 0 -24Q23 -22 22 5Q0 10 -22 5Z" fill="#2B2230" stroke="#120C16" stroke-width="2.6" stroke-linejoin="round"/>'
+        + '<path d="M-11 7Q-13 -11 -6 -22M0 8V-24M11 7Q13 -11 6 -22" fill="none" stroke="' + CGOLD + '" stroke-width="1.5" opacity=".75"/><path d="M-15 -6Q-12 -16 -5 -20" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" opacity=".28"/>'
+        + '<rect x="-24" y="-1" width="48" height="10" rx="5" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2.4"/><circle cx="-13" cy="4" r="1.8" fill="' + CGOLD + '"/><circle cx="0" cy="4" r="1.8" fill="' + CGOLD + '"/><circle cx="13" cy="4" r="1.8" fill="' + CGOLD + '"/>'
+        + '<circle cx="0" cy="-29" r="5.6" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2"/><circle cx="-1.6" cy="-30.8" r="1.6" fill="#FFFFFF" opacity=".75"/>'); } },
+      { id: 'cn-tiger', name: 'Tiger hat', cn: '虎头帽', price: 5, vb: '22 6 76 54', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<circle cx="-17" cy="-19" r="8.5" fill="#F5A623" stroke="#B3700F" stroke-width="2.4"/><circle cx="-17" cy="-19" r="4.2" fill="#FFB6C8"/><circle cx="17" cy="-19" r="8.5" fill="#F5A623" stroke="#B3700F" stroke-width="2.4"/><circle cx="17" cy="-19" r="4.2" fill="#FFB6C8"/>'
+        + '<path d="M-23 6Q-25 -24 0 -27Q25 -24 23 6Q0 12 -23 6Z" fill="#F5A623" stroke="#B3700F" stroke-width="2.6" stroke-linejoin="round"/>'
+        + '<path d="M-8 -19H8M-6 -12H6M-9 -5H9M0 -21V-3" fill="none" stroke="#2B2230" stroke-width="3" stroke-linecap="round"/><path d="M-23 -8L-16 -6M-23 -1L-16 -1M23 -8L16 -6M23 -1L16 -1" fill="none" stroke="#2B2230" stroke-width="2.4" stroke-linecap="round"/>'
+        + '<path d="M-25 4Q-12 12 0 6Q12 12 25 4L25 9Q12 16 0 11Q-12 16 -25 9Z" fill="#FFF3D6" stroke="#B3700F" stroke-width="2" stroke-linejoin="round"/>'); } },
+      { id: 'cn-lantern', name: 'Lantern hat', cn: '灯笼帽', price: 5, vb: '26 0 68 66', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<path d="M-13 4L-15 14M13 4L15 14" stroke="' + CRED + '" stroke-width="2.4" stroke-linecap="round" fill="none"/><circle cx="-15" cy="15" r="2.6" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1"/><circle cx="15" cy="15" r="2.6" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1"/>'
+        + '<rect x="-12" y="-3" width="24" height="7" rx="2.4" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="2"/><ellipse cx="0" cy="-16" rx="19" ry="14" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2.6"/>'
+        + '<path d="M-8 -28Q-14 -16 -8 -4M0 -30V-2M8 -28Q14 -16 8 -4" fill="none" stroke="' + CRED_D + '" stroke-width="1.6" opacity=".55"/><ellipse cx="-8" cy="-20" rx="3.4" ry="6" fill="#FFFFFF" opacity=".3"/>'
+        + '<rect x="-8" y="-33" width="16" height="6" rx="2" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.8"/><path d="M0 -33V-38" stroke="' + CGOLD_D + '" stroke-width="2" stroke-linecap="round"/><circle cx="0" cy="-40" r="3" fill="' + CGOLD + '" stroke="' + CGOLD_D + '" stroke-width="1.4"/>'); } },
+      { id: 'cn-plum', name: 'Plum blossom', cn: '梅花', price: 0, vb: '40 2 68 60', a: { hx: 36, hy: 38, hs: 1.2 }, draw: function (a) { var x = a.hx + 30 * a.hs, y = a.hy - 6 * a.hs, bl = function (cx, cy, r) { var o = '', i, an; for (i = 0; i < 5; i++) { an = (i * 72 - 90) * Math.PI / 180; o += '<circle cx="' + f1(cx + Math.cos(an) * r * 0.62) + '" cy="' + f1(cy + Math.sin(an) * r * 0.62) + '" r="' + f1(r * 0.52) + '" fill="#F9A9C4" stroke="#D95E8C" stroke-width="1.1"/>'; } return o + '<circle cx="' + cx + '" cy="' + cy + '" r="' + f1(r * 0.34) + '" fill="#F6C531" stroke="#B8860B" stroke-width="0.9"/>'; };
+        return '<g transform="translate(' + x + ',' + y + ') scale(' + f1(a.hs * 1.3) + ')"><path d="M-14 16Q-8 6 -2 4Q4 2 12 -6M-2 4Q-4 -4 -10 -8" fill="none" stroke="#7A4A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>' + bl(-9, -7, 6) + bl(12, -7, 7.4) + bl(2, 5, 6.4) + '<circle cx="-14" cy="12" r="2.4" fill="#F9A9C4" stroke="#D95E8C" stroke-width="1"/></g>'; } }
+    ],
+    decos: [
+      { id: 'cn-d-lanterns', name: 'Red lanterns', cn: '红灯笼', price: 6, icon: '<g transform="translate(30,19) scale(.78)">' + lantern(0, 0, 1) + '</g><path d="M30 0V-3" stroke="' + CRED_D + '" stroke-width="2"/>',
+        svg: function (v) { var y = v.y0; return lanternHung(66, y, 58, 1, 0) + lanternHung(294, y, 58, 1, 0.8) + lanternHung(104, y, 30, 0.6, 1.6) + lanternHung(256, y, 30, 0.6, 2.2); } },
+      { id: 'cn-d-couplets', name: 'Spring couplets', cn: '春联', price: 6, icon: '<rect x="5" y="6" width="15" height="42" rx="2.4" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2"/><rect x="40" y="6" width="15" height="42" rx="2.4" fill="' + CRED + '" stroke="' + CRED_D + '" stroke-width="2"/><g fill="' + CGOLD + '"><rect x="9.5" y="11" width="6" height="7" rx="1.4"/><rect x="9.5" y="22" width="6" height="7" rx="1.4"/><rect x="9.5" y="33" width="6" height="7" rx="1.4"/><rect x="44.5" y="11" width="6" height="7" rx="1.4"/><rect x="44.5" y="22" width="6" height="7" rx="1.4"/><rect x="44.5" y="33" width="6" height="7" rx="1.4"/></g>' + fuDiamond(30, 16, 0.5, true),
+        svg: function (v) { var y = v.y0; return '<path d="M180 ' + y + 'V' + (y + 6) + '" stroke="' + CRED_D + '" stroke-width="2" fill="none"/>' + fuDiamond(180, y + 33, 1, false) + couplet(19, y + 46, '万事如意', false) + couplet(341, y + 46, '心想事成', false); } },
+      { id: 'cn-d-fireworks', name: 'Fireworks', cn: '烟花', price: 5, icon: '<g transform="translate(30,30)">' + burst(0, 0, 22, CGOLD, CRED_L, 0) + '</g>',
+        svg: function (v) { var y = v.y0; return burst(104, y + 104, 26, CGOLD, CRED_L, 0) + burst(262, y + 98, 24, '#FF8FB1', CGOLD, 0.9) + '<g class="twinkle" style="animation-delay:1.6s">' + star5(146, y + 62, 6, '#FFE27A', CGOLD_D) + star5(222, y + 70, 5, '#FFFFFF', CGOLD_D) + star5(60, y + 150, 4.4, '#FFE27A', CGOLD_D) + star5(304, y + 156, 4.4, '#FFFFFF', CGOLD_D) + '</g>'; } },
+      { id: 'cn-d-feast', name: 'Dumpling table', cn: '饺子桌', price: 8, icon: '<g transform="translate(30,56) scale(.6)">' + feastTable(0, 0) + '</g>',
+        svg: function () { return feastTable(68, 282); } },
+      { id: 'cn-d-lucky', name: 'Lucky pile', cn: '红包和元宝', price: 6, front: true, icon: '<g transform="translate(30,44) scale(.52)">' + luckyPile(0, 8) + '</g>',
+        svg: function () { return luckyPile(298, 292); } }
+    ] };
+  /* ---------- Easter: eggs, bunnies, chicks and spring flowers in pastels (no religious scenes) ---------- */
+  var EP = { pink: '#F8A5C8', pinkD: '#D86B9A', lav: '#C9B6F2', lavD: '#8E6FD0', mint: '#9EE0C2', mintD: '#4FB38A', yel: '#FFE27A', yelD: '#D9A900', sky: '#9ED8F5', skyD: '#4F9BD0', ink: '#6B5B7B' };
+  var EGGP = 'M0 -16C9 -16 14 -4 14 4C14 12 8 17 0 17C-8 17 -14 12 -14 4C-14 -4 -9 -16 0 -16Z';
+  function egg(x, y, s, pat, c1, c2, ink) {
+    var o = '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="' + EGGP + '" fill="' + c1 + '"/>';
+    if (pat === 'zig') o += '<path d="M-13 0L-9 5L-4.5 0L0 5L4.5 0L9 5L13 0" fill="none" stroke="' + c2 + '" stroke-width="3" stroke-linejoin="round"/>';
+    else if (pat === 'stripe') o += '<path d="M-11 -6H11M-13.5 3H13.5M-11 11H11" fill="none" stroke="' + c2 + '" stroke-width="2.8"/>';
+    else if (pat === 'dots') o += '<circle cx="-5" cy="-6" r="2.4" fill="' + c2 + '"/><circle cx="5" cy="-4" r="2.4" fill="' + c2 + '"/><circle cx="0" cy="4" r="2.6" fill="' + c2 + '"/><circle cx="-8" cy="8" r="2.2" fill="' + c2 + '"/><circle cx="8" cy="9" r="2.2" fill="' + c2 + '"/>';
+    else if (pat === 'wave') o += '<path d="M-13 -2Q-9 -6 -4.5 -2Q0 2 4.5 -2Q9 -6 13 -2M-13 8Q-9 4 -4.5 8Q0 12 4.5 8Q9 4 13 8" fill="none" stroke="' + c2 + '" stroke-width="2.6" stroke-linecap="round"/>';
+    else if (pat === 'band') o += '<path d="M-13.5 0H13.5" fill="none" stroke="' + c2 + '" stroke-width="6"/><circle cx="-7" cy="0" r="1.8" fill="#FFFFFF"/><circle cx="0" cy="0" r="1.8" fill="#FFFFFF"/><circle cx="7" cy="0" r="1.8" fill="#FFFFFF"/>';
+    return o + '<path d="' + EGGP + '" fill="none" stroke="' + ink + '" stroke-width="2.2"/><ellipse cx="-5" cy="-7" rx="2.6" ry="4.6" fill="#FFFFFF" opacity=".5" transform="rotate(18 -5 -7)"/></g>';
+  }
+  var EGGSET = [['zig', EP.pink, '#FFFFFF', EP.pinkD], ['dots', EP.yel, EP.pink, EP.yelD], ['stripe', EP.sky, '#FFFFFF', EP.skyD], ['wave', EP.mint, '#FFFFFF', EP.mintD], ['band', EP.lav, EP.pink, EP.lavD]];
+  function eggN(x, y, s, k) { var e = EGGSET[k % EGGSET.length]; return egg(x, y, s, e[0], e[1], e[2], e[3]); }
+  function flower(x, y, r, c1, c2, cc) {
+    var o = '<g transform="translate(' + x + ',' + y + ')">', i, a;
+    for (i = 0; i < 5; i++) { a = (i * 72 - 90) * Math.PI / 180; o += '<circle cx="' + f1(Math.cos(a) * r * 0.58) + '" cy="' + f1(Math.sin(a) * r * 0.58) + '" r="' + f1(r * 0.5) + '" fill="' + c1 + '" stroke="' + c2 + '" stroke-width="1.2"/>'; }
+    return o + '<circle r="' + f1(r * 0.34) + '" fill="' + cc + '" stroke="' + c2 + '" stroke-width="1"/></g>';
+  }
+  function tulip(x, y, h, c1, c2) {
+    return '<g transform="translate(' + x + ',' + y + ')"><path d="M0 0V' + (-h) + '" stroke="#3FA45E" stroke-width="3.4" stroke-linecap="round" fill="none"/><path d="M0 -4Q-13 -8 -14 ' + f1(-h * 0.7) + 'Q-5 ' + f1(-h * 0.5) + ' 0 -5Z" fill="#4DB86C" stroke="#2F8F4E" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<g transform="translate(0,' + (-h) + ')"><path d="M-7 -1L-7 -12L-3.5 -7.5L0 -14L3.5 -7.5L7 -12L7 -1Q7 7 0 7Q-7 7 -7 -1Z" fill="' + c1 + '" stroke="' + c2 + '" stroke-width="1.8" stroke-linejoin="round"/><ellipse cx="-2.6" cy="-1" rx="1.6" ry="4" fill="#FFFFFF" opacity=".4"/></g></g>';
+  }
+  function butterfly(x, y, s, c1, c2, delay) {
+    return '<g class="flutter" style="animation-delay:' + delay + 's"><g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M0 0Q-12 -16 -18 -8Q-20 2 0 2Z" fill="' + c1 + '" stroke="' + c2 + '" stroke-width="1.6" stroke-linejoin="round"/><path d="M0 0Q12 -16 18 -8Q20 2 0 2Z" fill="' + c1 + '" stroke="' + c2 + '" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<path d="M0 2Q-10 4 -12 12Q-4 14 0 4Z" fill="' + c1 + '" stroke="' + c2 + '" stroke-width="1.4" stroke-linejoin="round"/><path d="M0 2Q10 4 12 12Q4 14 0 4Z" fill="' + c1 + '" stroke="' + c2 + '" stroke-width="1.4" stroke-linejoin="round"/><path d="M0 -3V10" stroke="' + EP.ink + '" stroke-width="2" stroke-linecap="round"/><circle cx="-7" cy="-5" r="2" fill="#FFFFFF" opacity=".7"/><circle cx="7" cy="-5" r="2" fill="#FFFFFF" opacity=".7"/></g></g>';
+  }
+  function chick(x, y, s, shell) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')">' + (shell ? '' : '<ellipse cx="-5" cy="0" rx="3.6" ry="2" fill="#F28A1E"/><ellipse cx="5" cy="0" rx="3.6" ry="2" fill="#F28A1E"/>')
+      + '<circle cx="0" cy="-14" r="14" fill="#FFD84D" stroke="#D9A100" stroke-width="2.4"/><ellipse cx="-13" cy="-12" rx="4.4" ry="7" transform="rotate(18 -13 -12)" fill="#FFC93C" stroke="#D9A100" stroke-width="1.8"/><ellipse cx="13" cy="-12" rx="4.4" ry="7" transform="rotate(-18 13 -12)" fill="#FFC93C" stroke="#D9A100" stroke-width="1.8"/>'
+      + '<path d="M-1 -28Q-4 -35 -7 -32M1 -28Q3 -36 6 -33" fill="none" stroke="#D9A100" stroke-width="2" stroke-linecap="round"/><circle cx="-5" cy="-17" r="2" fill="#2B2B33"/><circle cx="5" cy="-17" r="2" fill="#2B2B33"/><circle cx="-4.4" cy="-17.7" r=".7" fill="#FFFFFF"/><circle cx="5.6" cy="-17.7" r=".7" fill="#FFFFFF"/>'
+      + '<path d="M-3.4 -12.4L0 -8L3.4 -12.4Z" fill="#F28A1E" stroke="#B85A0A" stroke-width="1.2" stroke-linejoin="round"/><circle cx="-9" cy="-12" r="2.6" fill="#FFB6C8" opacity=".7"/><circle cx="9" cy="-12" r="2.6" fill="#FFB6C8" opacity=".7"/>'
+      + (shell ? '<path d="M-16 -7L-11 -13L-5.5 -7L0 -13L5.5 -7L11 -13L16 -7L16 0Q16 8 0 8Q-16 8 -16 0Z" fill="#FFF8EA" stroke="#C9B58A" stroke-width="1.8" stroke-linejoin="round"/><path d="M-9 1H9" stroke="' + EP.pink + '" stroke-width="2.6" stroke-linecap="round"/>' : '') + '</g>';
+  }
+  function basket(x, y, s) {
+    var o = '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-25 -14Q0 -52 25 -14" fill="none" stroke="#8A5A22" stroke-width="6" stroke-linecap="round"/><path d="M-25 -14Q0 -52 25 -14" fill="none" stroke="#E8B873" stroke-width="3" stroke-linecap="round"/>'
+      + '<ellipse cx="0" cy="-16" rx="24" ry="7" fill="#7FD08A" stroke="#3FA45E" stroke-width="2"/><path d="M-20 -16L-16 -26L-12 -17L-7 -28L-3 -17L2 -27L6 -17L11 -26L14 -17L19 -24L21 -16Z" fill="#7FD08A" stroke="#3FA45E" stroke-width="1.6" stroke-linejoin="round"/>';
+    o += eggN(-10, -24, 0.82, 0) + eggN(9, -26, 0.82, 2) + eggN(0, -30, 0.74, 4);
+    return o + '<path d="M-28 -15L28 -15L22 14Q0 19 -22 14Z" fill="#D9A25B" stroke="#8A5A22" stroke-width="2.6" stroke-linejoin="round"/><path d="M-26 -6Q0 -1 26 -6M-24 3Q0 8 24 3" fill="none" stroke="#B07A38" stroke-width="2" stroke-linecap="round"/><path d="M-14 -13L-12 15M0 -13V17M14 -13L12 15" stroke="#B07A38" stroke-width="1.6" fill="none" opacity=".7"/>'
+      + '<ellipse cx="0" cy="-15" rx="28" ry="5.4" fill="#E8B873" stroke="#8A5A22" stroke-width="2.4"/><g transform="translate(-24,-15)"><path d="M0 0L-9 -7L-9 7Z M0 0L9 -7L9 7Z" fill="' + EP.pink + '" stroke="' + EP.pinkD + '" stroke-width="1.6" stroke-linejoin="round"/><circle r="3" fill="' + EP.pink + '" stroke="' + EP.pinkD + '" stroke-width="1.4"/></g></g>';
+  }
+  function eggGarland(v) {
+    var y0 = v.y0, ax = 4, ay = y0 + 8, bx = 356, by = y0 + 8, cx = 180, cy = y0 + 40, i, o = '<path d="M' + ax + ' ' + ay + 'Q' + cx + ' ' + cy + ' ' + bx + ' ' + by + '" fill="none" stroke="#7FB88F" stroke-width="2.4" stroke-linecap="round"/>';
+    for (i = 0; i < 9; i++) {
+      var t = (i + 0.7) / 9.4, u = 1 - t, x = u * u * ax + 2 * u * t * cx + t * t * bx, y = u * u * ay + 2 * u * t * cy + t * t * by;
+      o += '<g class="twinkle" style="animation-delay:' + f1((i % 3) * 0.6) + 's"><path d="M' + f1(x) + ' ' + f1(y) + 'V' + f1(y + 8) + '" stroke="#7FB88F" stroke-width="1.6"/>' + eggN(f1(x), f1(y + 20), 0.78, i) + '</g>';
+    }
+    return o;
+  }
+  var EASTER = { id: 'easter', name: 'Easter', cn: '复活节', greet: 'Happy Easter! Hop, hop, hop!',
+    date: function (y) { // the Sunday after the first full moon of spring (the usual computus)
+      var a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30,
+        i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451), mo = Math.floor((h + l - 7 * m + 114) / 31), da = ((h + l - 7 * m + 114) % 31) + 1;
+      return new Date(y, mo - 1, da); },
+    outfits: [
+      { id: 'es-bunny', name: 'Bunny suit', cn: '兔子装', price: 12, draw: function (A, m) { var t = A.top, y1 = A.hem - 3, f = '#FFFFFF', s = '#C4C8E0', px = 60 + gw(A, y1 - 8, y1, 3, 7) + 1;
+        return { back: '<circle cx="' + f1(px) + '" cy="' + (y1 - 5) + '" r="8.4" fill="#FFFFFF" stroke="' + s + '" stroke-width="2.4"/><path d="M' + f1(px - 3) + ' ' + (y1 - 9) + 'Q' + f1(px) + ' ' + (y1 - 11) + ' ' + f1(px + 3) + ' ' + (y1 - 9) + '" fill="none" stroke="' + s + '" stroke-width="1.4" opacity=".7"/>',
+          under: body(A, y1, 3, 7, f, s, 6) + '<ellipse cx="60" cy="' + (t + 30) + '" rx="15" ry="19" fill="#FFD0E2" stroke="#F5A9C6" stroke-width="2"/><path d="M52 ' + (t + 28) + 'Q60 ' + (t + 33) + ' 68 ' + (t + 28) + '" fill="none" stroke="#F5A9C6" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>'
+            + '<g transform="translate(60,' + (t + 5) + ')"><path d="M0 0L-10 -6L-10 6Z M0 0L10 -6L10 6Z" fill="' + EP.pink + '" stroke="' + EP.pinkD + '" stroke-width="1.8" stroke-linejoin="round"/><circle r="3.2" fill="' + EP.pink + '" stroke="' + EP.pinkD + '" stroke-width="1.4"/></g>', over: sleeves(A, f, s, m, '#FFB6D0') }; } },
+      { id: 'es-chick', name: 'Hatching chick suit', cn: '破壳小鸡装', price: 12, draw: function (A, m) { var t = A.top, y1 = A.hem - 3, f = '#FFD84D', s = '#C99A00', zig = '', i, xl = function (y) { return 60 - gw(A, y, y1, 3, 7) - 1; }, xr = function (y) { return 60 + gw(A, y, y1, 3, 7) + 1; }, fl = '', ya = t + 31, yb = t + 24, n = 7, x0 = xl(ya), st = (xr(ya) - x0) / n;
+        for (i = 0; i < n; i++) zig += 'L' + f1(x0 + i * st + st / 2) + ' ' + yb + 'L' + f1(x0 + (i + 1) * st) + ' ' + ya;
+        for (i = 0; i < 4; i++) fl += '<path d="M' + f1(46 + i * 9.4) + ' ' + (t + 10) + 'q4.7 5 9.4 0" fill="none" stroke="#E5B800" stroke-width="2" stroke-linecap="round"/>';
+        for (i = 0; i < 3; i++) fl += '<path d="M' + f1(51 + i * 9.4) + ' ' + (t + 17) + 'q4.7 5 9.4 0" fill="none" stroke="#E5B800" stroke-width="2" stroke-linecap="round"/>';
+        return { back: '', under: body(A, y1, 3, 7, f, s, 6) + fl + '<path d="M' + f1(x0) + ' ' + ya + zig + 'L' + f1(xr(y1)) + ' ' + y1 + 'Q60 ' + (y1 + 7) + ' ' + f1(xl(y1)) + ' ' + y1 + 'Z" fill="#FFF8EA" stroke="#C9B58A" stroke-width="2.4" stroke-linejoin="round"/>'
+          + '<path d="M' + f1(xl(t + 42) + 3) + ' ' + (t + 42) + 'L' + f1(xr(t + 42) - 3) + ' ' + (t + 42) + '" stroke="' + EP.pink + '" stroke-width="3.4" stroke-linecap="round"/>' + dot(48, t + 36, 2, EP.sky) + dot(60, t + 36, 2, EP.yel) + dot(72, t + 36, 2, EP.mint), over: sleeves(A, f, s, m, '#FFF8EA') }; } },
+      { id: 'es-overalls', name: 'Spring overalls', cn: '春日背带裤', price: 10, draw: function (A, m) { var t = A.top, y1 = A.hem - 2, pk = '#F7A8C8', pkd = '#D86B9A', yb = t + 15, L = [], R = [], y, w, w1, i, fl = '';
+        for (y = yb; y < y1; y += 6) { w = gw(A, y, y1, 3, 8); L.push([f1(60 - w), y]); R.push([f1(60 + w), y]); }
+        w1 = hw(A, y1) + 8; L.push([f1(60 - w1), y1]); R.push([f1(60 + w1), y1]); R.reverse();
+        fl = flower(60, t + 33, 7.6, '#FFFFFF', '#E0A8C0', '#FFE27A');
+        return { back: '', under: body(A, y1, 3, 8, '#FFF1B8', '#D9B84A', 6) + '<path d="' + sm(L, true) + 'Q60 ' + (y1 + 6) + ' ' + R[0][0] + ' ' + R[0][1] + sm(R, false) + 'Z" fill="' + pk + '" stroke="' + pkd + '" stroke-width="3" stroke-linejoin="round"/>'
+          + '<path d="M44 ' + yb + 'L41 ' + (t + 2) + 'M76 ' + yb + 'L79 ' + (t + 2) + '" stroke="' + pkd + '" stroke-width="7" stroke-linecap="round"/><path d="M44 ' + yb + 'L41 ' + (t + 2) + 'M76 ' + yb + 'L79 ' + (t + 2) + '" stroke="' + pk + '" stroke-width="3.6" stroke-linecap="round"/>'
+          + '<rect x="49" y="' + (t + 24) + '" width="22" height="18" rx="4" fill="#FFD0E2" stroke="' + pkd + '" stroke-width="2"/>' + fl + dot(44, yb + 1, 2.6, '#FFE27A') + dot(76, yb + 1, 2.6, '#FFE27A'), over: sleeves(A, '#FFF1B8', '#D9B84A', m, pk) }; } },
+      { id: 'es-sweater', name: 'Easter egg sweater', cn: '彩蛋毛衣', price: 10, draw: function (A, m) { var t = A.top, y1 = A.hem - 3, f = EP.lav, s = EP.lavD, zg = '', i;
+        for (i = 0; i < 8; i++) zg += (i ? 'L' : 'M') + f1(36 + i * 6.8) + ' ' + (t + (i % 2 ? 12 : 17));
+        return { back: '', under: body(A, y1, 2.4, 5, f, s, 6) + '<path d="' + zg + '" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" opacity=".9"/>' + strip(A, y1 - 3, y1, 2.4, 5, EP.pink, 5, 1)
+          + eggN(43, t + 36, 0.62, 0) + eggN(60, t + 33, 0.62, 1) + eggN(77, t + 36, 0.62, 3) + '<ellipse cx="60" cy="' + (t + 1) + '" rx="' + f1(hw(A, t) + 5) + '" ry="9" fill="#DCCDF7" stroke="' + s + '" stroke-width="3"/>', over: sleeves(A, f, s, m, EP.pink) }; } }
+    ],
+    hats: [
+      { id: 'es-ears', name: 'Bunny ears', cn: '兔耳朵', price: 5, vb: '24 -14 72 66', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { var ear = '<path d="M-6 4Q-17 -18 -13 -42Q-8 -52 -3 -44Q2 -22 0 4Z" fill="#FFFFFF" stroke="#C4C8E0" stroke-width="2.4" stroke-linejoin="round"/><path d="M-6 -2Q-13 -18 -10 -38Q-7 -42 -5 -36Q-1 -18 -2 -2Z" fill="#FFC0D8"/>';
+        return G(a, '<g transform="translate(-9,0) rotate(-8)">' + ear + '</g><g transform="translate(9,0) rotate(14 0 4) scale(-1,1)">' + ear + '</g><path d="M-19 5Q0 -3 19 5" fill="none" stroke="' + EP.pinkD + '" stroke-width="6.4" stroke-linecap="round"/><path d="M-19 5Q0 -3 19 5" fill="none" stroke="' + EP.pink + '" stroke-width="3.4" stroke-linecap="round"/>'); } },
+      { id: 'es-crown', name: 'Flower crown', cn: '花环', price: 5, vb: '26 22 68 38', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { var o = '<path d="M-27 6Q0 -12 27 6" fill="none" stroke="#3FA45E" stroke-width="4.4" stroke-linecap="round"/>', pts = [[-25, 3], [-17, -4], [-8.5, -8], [0, -9], [8.5, -8], [17, -4], [25, 3]], cl = [[EP.pink, EP.pinkD, '#FFE27A'], ['#FFFFFF', '#C9B0D0', EP.yel], [EP.yel, EP.yelD, '#FFFFFF'], [EP.lav, EP.lavD, '#FFE27A']], i;
+        for (i = 0; i < pts.length; i++) o += '<path d="M' + pts[i][0] + ' ' + (pts[i][1] + 1) + 'l' + (i % 2 ? 5 : -5) + ' 4l' + (i % 2 ? -1 : 1) + ' -7z" fill="#4DB86C" stroke="#2F8F4E" stroke-width="1"/>';
+        for (i = 0; i < pts.length; i++) o += flower(pts[i][0], pts[i][1], 7.6, cl[i % 4][0], cl[i % 4][1], cl[i % 4][2]);
+        return G(a, o); } },
+      { id: 'es-bonnet', name: 'Easter bonnet', cn: '复活节帽', price: 5, vb: '24 18 72 42', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<ellipse cx="0" cy="3" rx="31" ry="7.4" fill="#F3D68A" stroke="#B8902F" stroke-width="2.4"/><path d="M-18 3Q-19 -19 0 -21Q19 -19 18 3Q0 8 -18 3Z" fill="#F3D68A" stroke="#B8902F" stroke-width="2.4" stroke-linejoin="round"/>'
+        + '<path d="M-14 -4Q0 0 14 -4M-12 -11Q0 -7 12 -11" fill="none" stroke="#D4B15F" stroke-width="1.6" stroke-linecap="round" opacity=".8"/><path d="M-18.4 -2Q0 4 18.4 -2L18.2 4Q0 9 -18.2 4Z" fill="' + EP.pink + '" stroke="' + EP.pinkD + '" stroke-width="2" stroke-linejoin="round"/>'
+        + '<g transform="translate(18,1)"><path d="M0 0L9 -7L9 7Z M0 0L-3 8L-8 4Z" fill="' + EP.pink + '" stroke="' + EP.pinkD + '" stroke-width="1.6" stroke-linejoin="round"/></g>' + flower(-14, -13, 6.4, '#FFFFFF', '#C9B0D0', EP.yel) + flower(-6, -18, 5.4, EP.lav, EP.lavD, '#FFE27A') + '<path d="M-20 -8l-5 -3l1 6z" fill="#4DB86C" stroke="#2F8F4E" stroke-width="1"/>'); } },
+      { id: 'es-tulip', name: 'Tulip', cn: '郁金香', price: 0, vb: '34 -22 72 72', a: { hx: 36, hy: 38, hs: 1.2 }, draw: function (a) { var x = a.hx + 30 * a.hs, y = a.hy - 6 * a.hs;
+        return '<g transform="translate(' + x + ',' + y + ') scale(' + f1(a.hs * 1.5) + ')"><path d="M0 14Q-1 6 0 -2" stroke="#3FA45E" stroke-width="3.2" stroke-linecap="round" fill="none"/><path d="M0 12Q-12 8 -13 -2Q-4 0 0 9Z" fill="#4DB86C" stroke="#2F8F4E" stroke-width="1.4" stroke-linejoin="round"/><path d="M0 11Q10 6 11 -3Q4 0 0 8Z" fill="#4DB86C" stroke="#2F8F4E" stroke-width="1.4" stroke-linejoin="round"/>'
+          + '<path d="M-7 -3L-7 -14L-3.5 -9.5L0 -16L3.5 -9.5L7 -14L7 -3Q7 6 0 6Q-7 6 -7 -3Z" fill="#F26BA4" stroke="#B83A74" stroke-width="1.8" stroke-linejoin="round"/><ellipse cx="-2.6" cy="-4" rx="1.6" ry="4.2" fill="#FFFFFF" opacity=".4"/></g>'; } }
+    ],
+    decos: [
+      { id: 'es-d-basket', name: 'Egg basket', cn: '彩蛋篮', price: 6, front: true, icon: '<g transform="translate(30,48) scale(.8)">' + basket(0, 0, 1) + '</g>',
+        svg: function () { return basket(112, 277, 1); } },
+      { id: 'es-d-eggs', name: 'Hidden eggs', cn: '草里的彩蛋', price: 4, icon: '<g>' + eggN(18, 36, 0.9, 0) + eggN(36, 40, 0.8, 2) + eggN(26, 24, 0.7, 4) + '</g><path d="M6 50Q12 40 14 50M40 52Q44 42 48 52" fill="none" stroke="#3FA45E" stroke-width="2.6" stroke-linecap="round"/>',
+        svg: function () { var g = function (x, y) { return '<path d="M' + (x - 8) + ' ' + y + 'L' + (x - 6) + ' ' + (y - 9) + 'L' + (x - 2) + ' ' + y + 'L' + x + ' ' + (y - 11) + 'L' + (x + 3) + ' ' + y + 'L' + (x + 7) + ' ' + (y - 9) + 'L' + (x + 9) + ' ' + y + 'Z" fill="#7FD08A" stroke="#3FA45E" stroke-width="1.6" stroke-linejoin="round"/>'; };
+          return g(76, 287) + eggN(76, 278, 0.8, 1) + g(332, 289) + eggN(332, 280, 0.82, 3) + g(208, 292) + eggN(208, 284, 0.62, 4); } },
+      { id: 'es-d-garland', name: 'Egg garland', cn: '彩蛋彩旗', price: 4, icon: '<path d="M2 10Q30 30 58 10" fill="none" stroke="#7FB88F" stroke-width="2.4"/>' + eggN(14, 30, 0.6, 0) + eggN(30, 36, 0.6, 2) + eggN(46, 30, 0.6, 4),
+        svg: function (v) { return eggGarland(v); } },
+      { id: 'es-d-tulips', name: 'Spring flowers', cn: '春天的花', price: 5, icon: '<g transform="translate(30,54)">' + tulip(-12, 0, 24, '#F26BA4', '#B83A74') + tulip(2, 0, 32, '#FFD84D', '#C99A00') + tulip(15, 0, 22, '#B79CF0', '#7A58C8') + '</g>',
+        svg: function (v) { var y = v.y0; return tulip(16, 284, 46, '#F26BA4', '#B83A74') + tulip(32, 286, 60, '#FFD84D', '#C99A00') + tulip(48, 284, 38, '#B79CF0', '#7A58C8') + tulip(350, 284, 52, '#F26BA4', '#B83A74') + butterfly(86, y + 120, 1, '#F8A5C8', '#D86B9A', 0) + butterfly(300, y + 100, 0.9, '#9ED8F5', '#4F9BD0', 1.4); } },
+      { id: 'es-d-chicks', name: 'Little chicks', cn: '小鸡', price: 6, icon: '<g transform="translate(18,50)">' + chick(0, 0, 0.8, false) + '</g><g transform="translate(42,50)">' + chick(0, 0, 0.8, true) + '</g>',
+        svg: function () { return chick(262, 281, 1, false) + chick(294, 283, 1, true) + chick(236, 284, 0.7, false); } }
+    ] };
   var CHILDREN = { id: 'children', name: "Children's Day", cn: '六一儿童节', greet: "Happy Children's Day! 儿童节快乐！", outfits: [], hats: [], decos: [], date: function (y) { return new Date(y, 5, 1); } };   // June 1
-  var LIST = [HALLOWEEN, THANKSGIVING, CHRISTMAS, NEWYEAR, CHILDREN];
+  var LIST = [HALLOWEEN, THANKSGIVING, CHRISTMAS, NEWYEAR, EASTER, CHILDREN];
 
   /* ---------- registry ---------- */
   var byItem = {}, decoBy = {}, vbOutfit = '18 90 84 80';
