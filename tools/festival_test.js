@@ -48,22 +48,32 @@ ok(F.list.length === 5 && F.list.map((f) => f.id).join() === "halloween,thanksgi
 (function () { let overlap = 0; for (let y = 2026; y <= 2040; y++) for (let day = new Date(y, 0, 1); day < new Date(y + 1, 0, 1); day.setDate(day.getDate() + 1)) { let n = 0; F.list.forEach((f) => { const x = F.windowOf(f.id, new Date(day)); if (x) n++; }); if (n > 1) overlap++; } ok(overlap === 0, "festival windows never overlap (2026-2040)", overlap); })();
 ok(win("newyear", "2030-01-27") === "2030-01-27..2030-02-10", "Chinese New Year window 2030 (Feb 3)", win("newyear", "2030-01-27"));
 
+// ---- Thanksgiving is on the shelf only in its window (Nov 19 - Dec 3 in 2026) and Halloween's things move to the collection
+ok(act("2026-11-18").length === 0 && act("2026-11-19").join() === "thanksgiving" && act("2026-11-26").join() === "thanksgiving" && act("2026-12-03").join() === "thanksgiving" && act("2026-12-04").length === 0, "the Thanksgiving shelf is open Nov 19 - Dec 3 2026 and only then");
+ok(act("2027-11-25").join() === "thanksgiving" && act("2027-11-17").length === 0 && act("2027-11-18").join() === "thanksgiving", "it comes back next year (Nov 25 2027)");
+ok(load("?festdate=2026-11-26").FEST.greet() === "Happy Thanksgiving! I'm thankful for you!", "the Thanksgiving greeting");
+{ const t = load("?festdate=2026-11-26").FEST.active()[0]; ok(t.ends === "Dec 3" && t.outfits.length === 4 && t.hats.length === 3 && t.decos.length === 5, "the shelf says it ends Dec 3 and lists 4 outfits, 3 hats, 5 decorations", t.ends); }
+{ const c = load("?festdate=2026-12-10").FEST.collection(["tg-turkey", "tg-leaf", "tg-d-table", "hw-pumpkin", "cape"]); ok(c.outfits.join() === "hw-pumpkin,tg-turkey" && c.hats.join() === "tg-leaf" && c.decos.join() === "tg-d-table", "after Thanksgiving the owned things move to the collection", JSON.stringify(c)); }
+{ const c = load("?festdate=2026-11-26").FEST.collection(["tg-turkey", "hw-pumpkin"]); ok(c.outfits.join() === "hw-pumpkin", "during Thanksgiving only Halloween things are in the collection", JSON.stringify(c)); }
+
 // ---- registry
 const K = w.PetKit, ids = {};
 const items = [];
 F.list.forEach((f) => { f.outfits.forEach((o) => items.push(["outfit", o, f])); f.hats.forEach((h) => items.push(["hat", h, f])); f.decos.forEach((d) => items.push(["deco", d, f])); });
-ok(items.length >= 12, "Halloween has outfits, hats and decorations", items.length);
+ok(items.length >= 24, "Halloween and Thanksgiving have outfits, hats and decorations", items.length);
+const PREFIX = { halloween: "hw-", thanksgiving: "tg-" };
+F.list.forEach((f) => { const n = items.filter((x) => x[2] === f).length; if (PREFIX[f.id]) ok(f.outfits.length >= 4 && f.hats.length >= 3 && f.decos.length >= 5, f.id + " has 4+ outfits, 3+ hats, 5+ decorations", [f.outfits.length, f.hats.length, f.decos.length]); else ok(n === 0, f.id + " has no items yet"); });
 items.forEach(([kind, it, f]) => {
   ok(!ids[it.id], "unique id " + it.id); ids[it.id] = 1;
-  ok(it.id.indexOf("hw-") === 0, "id has the festival prefix " + it.id);
+  ok(it.id.indexOf(PREFIX[f.id]) === 0, "id has the festival prefix " + it.id);
   ok(Number.isInteger(it.price) && it.price >= 0 && it.price <= 20, "sensible price " + it.id + " " + it.price);
   ok(it.name && it.cn, "has English and Chinese name " + it.id);
   ok(F.festOf(it.id) === f, "festOf finds " + it.id);
   if (kind === "deco") ok(F.deco(it.id) === it && typeof it.svg({ y0: 0 }) === "string" && typeof it.svg({ y0: 85 }) === "string" && it.icon.length > 40, "deco draws in both picture sizes " + it.id);
 });
 ok(K.OUTFITS["hw-pumpkin"] && K.ITEMS["hw-witchhat"] && K.OUTFITS["hw-pumpkin"].slot === "body" && K.ITEMS["hw-witchhat"].slot === "hat", "items are registered in the clothes tables");
-ok(w.OUTFIT_IDS.every((id) => id.indexOf("hw-") !== 0) && w.ACCS.every((id) => id.indexOf("hw-") !== 0), "festival items are not in the always-on shelves");
-ok(items.filter((x) => x[0] === "hat" && x[1].price === 0).length === 1, "exactly one free gift hat");
+ok(w.OUTFIT_IDS.every((id) => !/^(hw|tg)-/.test(id)) && w.ACCS.every((id) => !/^(hw|tg)-/.test(id)), "festival items are not in the always-on shelves");
+F.list.filter((f) => PREFIX[f.id]).forEach((f) => ok(f.hats.filter((h) => h.price === 0).length === 1, "exactly one free gift hat in " + f.id));
 
 // ---- collection: owned things from festivals that are not on the shelf
 const c1 = load("?festdate=2026-10-31").FEST.collection(["hw-pumpkin", "hw-bat", "hw-d-ghost", "cape"]);

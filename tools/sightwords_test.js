@@ -725,6 +725,20 @@ else {
     ok(Object.keys(W3.state().lessons || {}).length === 0, "quick check on screen: leaving before answering anything changes nothing");
   }
 
+  { // festival clothes (Halloween, Thanksgiving) work with the rig too: their back layers (the turkey's feathers, capes) move with the body
+    PW.eval(fs.readFileSync(path.join(SITE, "pet-fest.js"), "utf8"));
+    const bad = [], fest = PW.FEST.list.filter((f) => f.outfits.length);
+    fest.forEach((f) => PETS.forEach((t) => f.outfits.concat(f.hats).forEach((it) => {
+      const eq = it.slot === "body" ? { body: it.id } : { hat: it.id };
+      const c = mkp(t, eq);
+      if (!c) { bad.push([t, it.id, "no rig"]); return; }
+      c.at(0); c.turn(true);
+      for (let T = 0; T < 1.5; T += 0.1) { c.at(T); c.nodes.forEach((n) => { if (/NaN|undefined|Infinity/.test(n.el.getAttribute("transform") || "")) bad.push([t, it.id, n.n]); }); }
+      if (it.slot === "hat" && !c.byName.ihat) bad.push([t, it.id, "hat not found"]);
+      if (it.slot === "body" && it.id === "tg-turkey" && !c.svg.querySelector('[data-rg="oback"] path')) bad.push([t, it.id, "feathers not drawn"]);
+    })));
+    ok(bad.length === 0 && fest.length === 2, "pet rigs: every Halloween and Thanksgiving outfit and hat works on every pet when it turns", bad.slice(0, 3));
+  }
   // ---- the same rig on the adoption page (look, hover, hello hop, still) and in the home scene (faces, walking, sleeping, eating...)
   { // looking to either side
     const bad = [];
