@@ -85,12 +85,14 @@
     function leg(a) {
       return ln(a[0], a[1], a[2], a[3], 6.5, pants) + '<ellipse cx="' + (a[2] + (a[2] > a[0] ? 2 : -1)) + '" cy="' + (a[3] + 1.5) + '" rx="5.5" ry="3" ' + f("#E5483A", 1.8) + "/>";
     }
+    // arms: "none" leaves the arms out, "only" draws just the arms (drawn again over something the child holds against the body)
+    if (o.arms === "only") return '<g transform="translate(0,' + (p.dy || 0) + ") rotate(" + (p.lean || 0) + ' 0 -22)">' + arms() + "</g>";
     var s = "";
     if (girl) s += '<ellipse cx="0" cy="-52" rx="14.5" ry="15" ' + f(hair, 2) + "/>";
     s += leg(p.L[0]) + leg(p.L[1]);
     if (girl) s += path("M-8 -43 Q0 -46 8 -43 L14 -17 Q0 -12 -14 -17Z", shirt, 2.4) + path("M-9 -31 Q0 -28 9 -31", dk(shirt, 0.12), 1);
     else s += '<rect x="-9" y="-43" width="18" height="22" rx="7" ' + f(shirt, 2.4) + "/>";
-    if (!p.over) s += arms();
+    if (!p.over && o.arms !== "none") s += arms();
     s += '<circle cx="0" cy="-53" r="11.5" ' + f(skin, 2.4) + "/>";
     if (girl) {
       s += '<circle cx="-14" cy="-47" r="4.6" ' + f(hair, 1.8) + '/><circle cx="14" cy="-47" r="4.6" ' + f(hair, 1.8) + "/>";
@@ -106,7 +108,7 @@
     s += '<circle cx="-7.8" cy="-49" r="2.2" fill="#FF9DB5" opacity=".6"/><circle cx="7.8" cy="-49" r="2.2" fill="#FF9DB5" opacity=".6"/>';
     s += o.mouth === "open" ? '<path d="M-4.2 -49.6 Q0 -42.2 4.2 -49.6Z" fill="#C0392B"/>' : o.mouth === "sad" ? '<path d="M-4 -45.4 Q0 -49.6 4 -45.4" fill="none" stroke="#B3442F" stroke-width="1.9" stroke-linecap="round"/>' : o.mouth === "o" ? '<ellipse cx="0" cy="-47.5" rx="2" ry="2.6" fill="#C0392B"/>' : '<path d="M-3.6 -49 Q0 -45.6 3.6 -49" fill="none" stroke="#B3442F" stroke-width="1.9" stroke-linecap="round"/>';
     if (o.hat) s += '<g transform="translate(0,-62) scale(.62)">' + hat({ c: o.hat }) + "</g>";
-    if (p.over) s += arms();
+    if (p.over && o.arms !== "none") s += arms();
     return '<g transform="translate(0,' + (p.dy || 0) + ") rotate(" + (p.lean || 0) + ' 0 -22)">' + s + "</g>";
   }
   function mom(o) {
