@@ -56,12 +56,20 @@ ok(load("?festdate=2026-11-26").FEST.greet() === "Happy Thanksgiving! I'm thankf
 { const c = load("?festdate=2026-12-10").FEST.collection(["tg-turkey", "tg-leaf", "tg-d-table", "hw-pumpkin", "cape"]); ok(c.outfits.join() === "hw-pumpkin,tg-turkey" && c.hats.join() === "tg-leaf" && c.decos.join() === "tg-d-table", "after Thanksgiving the owned things move to the collection", JSON.stringify(c)); }
 { const c = load("?festdate=2026-11-26").FEST.collection(["tg-turkey", "hw-pumpkin"]); ok(c.outfits.join() === "hw-pumpkin", "during Thanksgiving only Halloween things are in the collection", JSON.stringify(c)); }
 
+// ---- Christmas is on the shelf Dec 18 - Jan 1 (year wrap), Thanksgiving's things move to the collection
+ok(act("2026-12-17").length === 0 && act("2026-12-18").join() === "christmas" && act("2026-12-25").join() === "christmas" && act("2027-01-01").join() === "christmas" && act("2027-01-02").length === 0, "the Christmas shelf is open Dec 18 - Jan 1 and only then");
+ok(act("2027-12-25").join() === "christmas", "Christmas comes back next year");
+ok(load("?festdate=2026-12-25").FEST.greet() === "Merry Christmas! Ho ho ho!", "the Christmas greeting");
+{ const t = load("?festdate=2026-12-25").FEST.active()[0]; ok(t.ends === "Jan 1" && t.outfits.length === 4 && t.hats.length === 4 && t.decos.length === 5, "the shelf says it ends Jan 1 and lists 4 outfits, 4 hats, 5 decorations", t.ends + " " + t.outfits.length + "/" + t.hats.length + "/" + t.decos.length); }
+{ const c = load("?festdate=2027-01-01").FEST.collection(["xm-santa", "xm-holly", "xm-d-tree", "tg-turkey", "cape"]); ok(c.outfits.join() === "tg-turkey" && c.hats.length === 0 && c.decos.length === 0, "during Christmas only older festivals' things are in the collection", JSON.stringify(c)); }
+{ const c = load("?festdate=2027-02-20").FEST.collection(["xm-santa", "xm-holly", "xm-d-tree", "cape"]); ok(c.outfits.join() === "xm-santa" && c.hats.join() === "xm-holly" && c.decos.join() === "xm-d-tree", "after Christmas the owned things move to the collection", JSON.stringify(c)); }
+
 // ---- registry
 const K = w.PetKit, ids = {};
 const items = [];
 F.list.forEach((f) => { f.outfits.forEach((o) => items.push(["outfit", o, f])); f.hats.forEach((h) => items.push(["hat", h, f])); f.decos.forEach((d) => items.push(["deco", d, f])); });
-ok(items.length >= 24, "Halloween and Thanksgiving have outfits, hats and decorations", items.length);
-const PREFIX = { halloween: "hw-", thanksgiving: "tg-" };
+ok(items.length >= 36, "Halloween, Thanksgiving and Christmas have outfits, hats and decorations", items.length);
+const PREFIX = { halloween: "hw-", thanksgiving: "tg-", christmas: "xm-" };
 F.list.forEach((f) => { const n = items.filter((x) => x[2] === f).length; if (PREFIX[f.id]) ok(f.outfits.length >= 4 && f.hats.length >= 3 && f.decos.length >= 5, f.id + " has 4+ outfits, 3+ hats, 5+ decorations", [f.outfits.length, f.hats.length, f.decos.length]); else ok(n === 0, f.id + " has no items yet"); });
 items.forEach(([kind, it, f]) => {
   ok(!ids[it.id], "unique id " + it.id); ids[it.id] = 1;
@@ -72,7 +80,7 @@ items.forEach(([kind, it, f]) => {
   if (kind === "deco") ok(F.deco(it.id) === it && typeof it.svg({ y0: 0 }) === "string" && typeof it.svg({ y0: 85 }) === "string" && it.icon.length > 40, "deco draws in both picture sizes " + it.id);
 });
 ok(K.OUTFITS["hw-pumpkin"] && K.ITEMS["hw-witchhat"] && K.OUTFITS["hw-pumpkin"].slot === "body" && K.ITEMS["hw-witchhat"].slot === "hat", "items are registered in the clothes tables");
-ok(w.OUTFIT_IDS.every((id) => !/^(hw|tg)-/.test(id)) && w.ACCS.every((id) => !/^(hw|tg)-/.test(id)), "festival items are not in the always-on shelves");
+ok(w.OUTFIT_IDS.every((id) => !/^(hw|tg|xm)-/.test(id)) && w.ACCS.every((id) => !/^(hw|tg|xm)-/.test(id)), "festival items are not in the always-on shelves");
 F.list.filter((f) => PREFIX[f.id]).forEach((f) => ok(f.hats.filter((h) => h.price === 0).length === 1, "exactly one free gift hat in " + f.id));
 
 // ---- collection: owned things from festivals that are not on the shelf

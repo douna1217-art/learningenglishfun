@@ -164,7 +164,7 @@
     hats: [
       { id: 'tg-acorn', name: 'Acorn cap', cn: '橡果帽', price: 5, vb: '20 -10 80 60', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<path d="M-24 5Q-27 -17 0 -23Q27 -17 24 5Q0 12 -24 5Z" fill="#9A6428" stroke="#5B3A12" stroke-width="2.6" stroke-linejoin="round"/><path d="M-17 -2L-9 -17M-6 0L1 -21M7 0L14 -17M18 -2L21 -10M-22 -9L-13 -3M-9 -11L1 -2M7 -12L16 -3" stroke="#6B4418" stroke-width="1.8" stroke-linecap="round" opacity=".7"/><path d="M0 -23Q-1 -31 3 -35" fill="none" stroke="#5B3A12" stroke-width="5" stroke-linecap="round"/><path d="M-18 -9Q-10 -18 -2 -19" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".45"/>'); } },
       { id: 'tg-chefhat', name: 'Chef hat', cn: '厨师帽', price: 5, vb: '14 -42 92 90', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<g transform="scale(1.3)"><path d="M-17 6L-17 -4Q-30 -6 -27 -20Q-25 -33 -11 -31Q-6 -43 6 -37Q20 -42 24 -27Q33 -15 17 -4L17 6Z" fill="#FFFFFF" stroke="#AEB8CE" stroke-width="2.6" stroke-linejoin="round"/><path d="M-9 -4L-10 -24M0 -4L0 -30M9 -4L10 -24" stroke="#D5DCEB" stroke-width="2" stroke-linecap="round"/><rect x="-18" y="-3" width="36" height="10" rx="3" fill="#F2F5FB" stroke="#AEB8CE" stroke-width="2.4"/></g>'); } },
-      { id: 'tg-leaf', name: 'Autumn leaf', cn: '红叶', price: 0, vb: '20 14 80 50', a: { hx: 36, hy: 38, hs: 1.2 }, draw: function (a) { var x = a.hx + 30 * a.hs, y = a.hy - 9 * a.hs;
+      { id: 'tg-leaf', name: 'Autumn leaf', cn: '红叶', price: 0, vb: '34 -22 72 72', a: { hx: 36, hy: 38, hs: 1.2 }, draw: function (a) { var x = a.hx + 30 * a.hs, y = a.hy - 9 * a.hs;
         return '<g transform="translate(' + x + ',' + y + ') rotate(24) scale(' + f1(a.hs * 1.5) + ')">' + mapleLeaf('#E8603A', '#A8381A') + '<path d="M0 12Q3 15 7 14" fill="none" stroke="#6B4A2A" stroke-width="2" stroke-linecap="round"/><circle cx="7" cy="14" r="2" fill="#B8531E" stroke="#6B3A12" stroke-width="1"/></g>'; } }
     ],
     decos: [
@@ -179,7 +179,83 @@
       { id: 'tg-d-scarecrow', name: 'Friendly scarecrow', cn: '稻草人朋友', price: 6, icon: '<g transform="translate(30,56) scale(.42)">' + scarecrow(0, 0) + '</g>',
         svg: function () { return scarecrow(44, 284); } }
     ] };
-  var CHRISTMAS = { id: 'christmas', name: 'Christmas', cn: '圣诞节', greet: 'Merry Christmas!', outfits: [], hats: [], decos: [], date: function (y) { return new Date(y, 11, 25); } };
+  /* ---------- Christmas: Santa, elves, gingerbread, snowmen and a tree (no religious scenes) ---------- */
+  var XRED = '#D9382F', XRED_D = '#8E2A22', XGREEN = '#2F8F4E', XGREEN_D = '#1B5E34', XGOLD = '#F6C531', XGOLD_D = '#B8860B';
+  function flake(x, y, r, col, w) {
+    var o = '<g transform="translate(' + x + ',' + y + ')" stroke="' + col + '" stroke-width="' + (w || 1.8) + '" stroke-linecap="round" fill="none">', i, a;
+    for (i = 0; i < 3; i++) { a = i * 60 * Math.PI / 180; var dx = f1(r * Math.cos(a)), dy = f1(r * Math.sin(a)); o += '<path d="M' + (-dx) + ' ' + (-dy) + 'L' + dx + ' ' + dy + '"/>'; }
+    return o + '</g>';
+  }
+  function snowFall(x, y, r, delay) {
+    return '<g class="flutter" style="animation-delay:' + delay + 's">' + flake(x, y, r, '#FFFFFF', 2) + '<circle cx="' + x + '" cy="' + y + '" r="' + f1(r * 0.28) + '" fill="#FFFFFF"/><g opacity=".55">' + flake(x, y, r + 1.2, '#9CC6EE', 1) + '</g></g>';
+  }
+  function xmasTree(x, y, s) {
+    var o = '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><rect x="-8" y="-14" width="16" height="16" rx="3" fill="#8B5A2B" stroke="#5B3A12" stroke-width="2.4"/>',
+      tiers = [[-46, -62, 46, -14, 1], [-38, -100, 38, -50, 1], [-28, -134, 28, -88, 1]], i, c;
+    for (i = 0; i < tiers.length; i++) { var t = tiers[i]; o += '<path d="M' + t[0] + ' ' + t[3] + 'Q0 ' + (t[3] + 6) + ' ' + t[2] + ' ' + t[3] + 'L0 ' + t[1] + 'Z" fill="' + (i % 2 ? '#3FA45E' : XGREEN) + '" stroke="' + XGREEN_D + '" stroke-width="2.6" stroke-linejoin="round"/>'; }
+    o += '<path d="M-30 -22Q0 -8 30 -22M-24 -58Q0 -44 24 -58M-17 -96Q0 -84 17 -96" fill="none" stroke="#FFE9A8" stroke-width="3" stroke-linecap="round" opacity=".9"/>';
+    [[-20, -24, XRED], [14, -30, '#4D96FF'], [-4, -60, XGOLD], [22, -52, XRED], [-16, -94, '#4D96FF'], [10, -100, XRED]].forEach(function (b, k) { o += '<g class="twinkle" style="animation-delay:' + (k * 0.4) + 's"><circle cx="' + b[0] + '" cy="' + b[1] + '" r="5.4" fill="' + b[2] + '" stroke="#fff" stroke-width="1.4"/><circle cx="' + (b[0] - 1.6) + '" cy="' + (b[1] - 1.8) + '" r="1.5" fill="#fff"/></g>'; });
+    o += '<g class="twinkle">' + star5(0, -142, 12, XGOLD, XGOLD_D) + '</g></g>';
+    return o;
+  }
+  function present(x, y, w, h, box, rib) {
+    return '<g transform="translate(' + x + ',' + y + ')"><rect x="' + (-w / 2) + '" y="' + (-h) + '" width="' + w + '" height="' + h + '" rx="3" fill="' + box + '" stroke="#00000033" stroke-width="2"/><rect x="' + (-w / 2 + 1) + '" y="' + (-h * 0.62) + '" width="' + (w - 2) + '" height="' + f1(h * 0.18) + '" fill="#FFFFFF" opacity=".16"/>'
+      + '<rect x="-3.5" y="' + (-h) + '" width="7" height="' + h + '" fill="' + rib + '"/><path d="M0 ' + (-h) + 'Q-12 ' + (-h - 12) + ' -10 ' + (-h - 3) + 'Q-4 ' + (-h) + ' 0 ' + (-h) + 'Q4 ' + (-h) + ' 10 ' + (-h - 3) + 'Q12 ' + (-h - 12) + ' 0 ' + (-h) + 'Z" fill="' + rib + '" stroke="#00000033" stroke-width="1.6" stroke-linejoin="round"/></g>';
+  }
+  function snowman(x, y, s) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + s + ')"><path d="M-18 -52L-38 -64M-38 -64L-44 -73M-38 -64L-47 -62M18 -52L38 -64M38 -64L44 -73M38 -64L47 -62" stroke="#6B4A2A" stroke-width="4" stroke-linecap="round" fill="none"/>'
+      + '<ellipse cx="0" cy="-22" rx="26" ry="23" fill="#FFFFFF" stroke="#9CB6D8" stroke-width="2.6"/><ellipse cx="0" cy="-58" rx="20" ry="18" fill="#FFFFFF" stroke="#9CB6D8" stroke-width="2.6"/><circle cx="0" cy="-90" r="15" fill="#FFFFFF" stroke="#9CB6D8" stroke-width="2.6"/>'
+      + '<circle cx="-5" cy="-93" r="2.2" fill="#2B2B33"/><circle cx="5" cy="-93" r="2.2" fill="#2B2B33"/><path d="M0 -89L13 -86L0 -84Z" fill="#F28A1E" stroke="#A8520A" stroke-width="1.4" stroke-linejoin="round"/><path d="M-6 -82Q0 -78 6 -82" fill="none" stroke="#2B2B33" stroke-width="1.8" stroke-linecap="round"/><circle cx="-9" cy="-85" r="2.4" fill="#F0A0A0" opacity=".6"/><circle cx="9" cy="-85" r="2.4" fill="#F0A0A0" opacity=".6"/>'
+      + '<circle cx="0" cy="-60" r="2.4" fill="#2B2B33"/><circle cx="0" cy="-48" r="2.4" fill="#2B2B33"/><circle cx="0" cy="-30" r="2.6" fill="#2B2B33"/><circle cx="0" cy="-18" r="2.6" fill="#2B2B33"/>'
+      + '<path d="M-16 -76Q0 -70 16 -76L16 -70Q0 -64 -16 -70Z" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="2" stroke-linejoin="round"/><path d="M8 -70L12 -52L20 -54L16 -70Z" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="2" stroke-linejoin="round"/>'
+      + '<rect x="-14" y="-118" width="28" height="22" rx="3" fill="#2B2B33" stroke="#15151A" stroke-width="2"/><rect x="-14" y="-104" width="28" height="6" fill="' + XRED + '"/><ellipse cx="0" cy="-97" rx="22" ry="5" fill="#2B2B33" stroke="#15151A" stroke-width="2"/></g>';
+  }
+  function lightsString(v) {
+    var y0 = v.y0, cols = [XRED, XGOLD, '#4D96FF', '#6BCB77'], ax = 4, ay = y0 + 6, bx = 356, by = y0 + 6, cx = 180, cy = y0 + 40, i, o = '<path d="M' + ax + ' ' + ay + 'Q' + cx + ' ' + cy + ' ' + bx + ' ' + by + '" fill="none" stroke="#3B6B4A" stroke-width="2.6" stroke-linecap="round"/>';
+    for (i = 0; i < 12; i++) {
+      var t = (i + 0.6) / 12.4, u = 1 - t, x = u * u * ax + 2 * u * t * cx + t * t * bx, y = u * u * ay + 2 * u * t * cy + t * t * by, c = cols[i % 4];
+      o += '<g class="twinkle" style="animation-delay:' + f1((i % 4) * 0.5) + 's"><g transform="translate(' + f1(x) + ',' + f1(y) + ')"><rect x="-2.6" y="-2" width="5.2" height="5" rx="1" fill="#3B6B4A"/><ellipse cx="0" cy="8" rx="5.2" ry="7.4" fill="' + c + '" stroke="#00000033" stroke-width="1.4"/><ellipse cx="-1.8" cy="5.5" rx="1.4" ry="2.4" fill="#fff" opacity=".7"/></g></g>';
+    }
+    return o;
+  }
+  var CHRISTMAS = { id: 'christmas', name: 'Christmas', cn: '圣诞节', greet: 'Merry Christmas! Ho ho ho!', date: function (y) { return new Date(y, 11, 25); },
+    outfits: [
+      { id: 'xm-santa', name: 'Santa suit', cn: '圣诞老人装', price: 12, draw: function (A, m) { var t = A.top, y1 = A.hem, f = XRED, s = XRED_D;
+        return { back: '', under: body(A, y1, 3, 8, f, s, 7) + '<path d="M60 ' + (t + 8) + 'L60 ' + (y1 - 2) + '" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>' + strip(A, y1 - 7, y1, 3, 8, '#FFFFFF', 11, 1) + strip(A, t + 30, y1, 3, 8, '#2B2B33', 8, 1) + '<rect x="53" y="' + (t + 25) + '" width="14" height="11" rx="2" fill="' + XGOLD + '" stroke="' + XGOLD_D + '" stroke-width="2"/><rect x="57" y="' + (t + 28) + '" width="6" height="5" rx="1" fill="#2B2B33"/>'
+          + '<ellipse cx="60" cy="' + (t + 1) + '" rx="' + f1(hw(A, t) + 5) + '" ry="9" fill="#FFFFFF" stroke="#B9C2D6" stroke-width="2.4"/>', over: sleeves(A, f, s, m, '#FFFFFF') }; } },
+      { id: 'xm-sweater', name: 'Snowflake sweater', cn: '雪花毛衣', price: 10, draw: function (A, m) { var t = A.top, y1 = A.hem - 3, f = XGREEN, s = XGREEN_D, fl = '', i;
+        for (i = 0; i < 3; i++) fl += flake(44 + i * 16, t + 31, 5.2, '#FFFFFF', 1.8);
+        for (i = 0; i < 2; i++) fl += flake(52 + i * 16, t + 50, 4.6, '#FFFFFF', 1.6);
+        return { back: '', under: body(A, y1, 2.4, 5, f, s, 6) + strip(A, t + 31, y1, 2.4, 5, XRED, 15, 1) + fl + '<ellipse cx="60" cy="' + (t + 1) + '" rx="' + f1(hw(A, t) + 5) + '" ry="9" fill="#3FA45E" stroke="' + s + '" stroke-width="3"/>', over: sleeves(A, f, s, m, XRED) }; } },
+      { id: 'xm-elf', name: 'Elf outfit', cn: '小精灵装', price: 10, draw: function (A, m) { var t = A.top, y1 = A.hem - 6, f = '#3DAA5C', s = '#1E6E36', zig = '', i, wl = gw(A, y1, y1, 3, 8), st = (2 * wl) / 6;
+        for (i = 0; i < 6; i++) zig += (i ? 'L' : 'M') + f1(60 - wl + i * st) + ' ' + y1 + 'L' + f1(60 - wl + i * st + st / 2) + ' ' + (y1 + 9) + 'L' + f1(60 - wl + (i + 1) * st) + ' ' + y1;
+        return { back: '', under: body(A, y1, 3, 8, f, s, 4) + '<path d="' + zig + 'Z" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="2" stroke-linejoin="round"/>' + strip(A, t + 32, y1, 3, 8, '#7A4A22', 7, 1) + '<rect x="54" y="' + (t + 27) + '" width="12" height="10" rx="2" fill="' + XGOLD + '" stroke="' + XGOLD_D + '" stroke-width="2"/>'
+          + dot(60, t + 12, 2.6, XGOLD) + dot(60, t + 20, 2.6, XGOLD) + '<path d="M40 ' + (t + 1) + 'L47 ' + (t + 10) + 'L54 ' + (t + 1) + 'L60 ' + (t + 10) + 'L66 ' + (t + 1) + 'L73 ' + (t + 10) + 'L80 ' + (t + 1) + 'Q60 ' + (t + 12) + ' 40 ' + (t + 1) + 'Z" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="2" stroke-linejoin="round"/>', over: sleeves(A, f, s, m, XRED) }; } },
+      { id: 'xm-gingerbread', name: 'Gingerbread suit', cn: '姜饼装', price: 12, draw: function (A, m) { var t = A.top, y1 = A.hem - 2, f = '#C98A4B', s = '#8A5A2B', ic = '', i, wl = gw(A, y1, y1, 3, 8), st = (2 * wl) / 7;
+        for (i = 0; i < 7; i++) ic += (i ? 'L' : 'M') + f1(60 - wl + i * st) + ' ' + (y1 - 5) + 'Q' + f1(60 - wl + i * st + st / 2) + ' ' + (y1 + 5) + ' ' + f1(60 - wl + (i + 1) * st) + ' ' + (y1 - 5);
+        return { back: '', under: body(A, y1, 3, 8, f, s, 6) + '<path d="' + ic + '" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M42 ' + (t + 8) + 'Q51 ' + (t + 14) + ' 60 ' + (t + 8) + 'Q69 ' + (t + 2) + ' 78 ' + (t + 8) + '" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round"/>'
+          + dot(60, t + 24, 5, XRED) + dot(60, t + 38, 5, '#4D96FF') + dot(60, t + 52, 5, '#6BCB77') + '<circle cx="58.4" cy="' + (t + 22.4) + '" r="1.6" fill="#fff" opacity=".8"/><circle cx="58.4" cy="' + (t + 36.4) + '" r="1.6" fill="#fff" opacity=".8"/><circle cx="58.4" cy="' + (t + 50.4) + '" r="1.6" fill="#fff" opacity=".8"/>', over: sleeves(A, f, s, m, '#FFFFFF') }; } }
+    ],
+    hats: [
+      { id: 'xm-santahat', name: 'Santa hat', cn: '圣诞帽', price: 5, vb: '14 -24 92 72', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<path d="M-22 3Q-23 -18 -7 -32Q8 -45 25 -35Q32 -30 29 -23Q17 -34 7 -22Q11 -6 22 3Z" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="2.6" stroke-linejoin="round"/><path d="M-14 -8Q-6 -22 4 -26" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".4"/><rect x="-27" y="-3" width="54" height="12" rx="6" fill="#FFFFFF" stroke="#B9C2D6" stroke-width="2.4"/><circle cx="29" cy="-27" r="7.5" fill="#FFFFFF" stroke="#B9C2D6" stroke-width="2.4"/>'); } },
+      { id: 'xm-antlers', name: 'Reindeer antlers', cn: '驯鹿角', price: 5, vb: '14 -28 92 70', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { var br = '<path d="M-12 4Q-19 -10 -14 -24M-16 -12Q-24 -14 -27 -22M-15 -19Q-9 -24 -8 -31" fill="none" stroke="#6B4418" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M-12 4Q-19 -10 -14 -24M-16 -12Q-24 -14 -27 -22M-15 -19Q-9 -24 -8 -31" fill="none" stroke="#B07A3A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>';
+        return G(a, '<g>' + br + '</g><g transform="scale(-1,1)">' + br + '</g><circle cx="-8" cy="-31" r="3.4" fill="' + XRED + '"/><circle cx="8" cy="-31" r="3.4" fill="' + XRED + '"/><path d="M-16 5Q0 -2 16 5" fill="none" stroke="' + XRED + '" stroke-width="5" stroke-linecap="round"/>'); } },
+      { id: 'xm-elfhat', name: 'Elf hat', cn: '小精灵帽', price: 5, vb: '14 -30 92 78', a: { hx: 60, hy: 46, hs: 1 }, draw: function (a) { return G(a, '<path d="M-21 3Q-22 -20 -4 -34Q10 -46 24 -34Q28 -28 24 -22Q14 -32 6 -20Q10 -6 21 3Z" fill="#3DAA5C" stroke="#1E6E36" stroke-width="2.6" stroke-linejoin="round"/><path d="M-12 -8Q-6 -20 2 -26" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".4"/><path d="M-24 3L-18 -5L-12 3L-6 -5L0 3L6 -5L12 3L18 -5L24 3Q0 9 -24 3Z" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="2.2" stroke-linejoin="round"/><circle cx="25" cy="-26" r="5.4" fill="' + XGOLD + '" stroke="' + XGOLD_D + '" stroke-width="2"/><circle cx="23.6" cy="-27.4" r="1.5" fill="#fff" opacity=".8"/>'); } },
+      { id: 'xm-holly', name: 'Holly sprig', cn: '冬青叶', price: 0, vb: '34 -22 72 72', a: { hx: 36, hy: 38, hs: 1.2 }, draw: function (a) { var x = a.hx + 30 * a.hs, y = a.hy - 8 * a.hs, lf = '<path d="M0 0Q-4 -8 -2 -12L-6 -12L-5 -17L-9 -18L-6 -22Q2 -26 8 -20Q12 -14 8 -8Q6 -4 0 0Z" fill="#2F8F4E" stroke="#1B5E34" stroke-width="1.6" stroke-linejoin="round"/>';
+        return '<g transform="translate(' + x + ',' + y + ') scale(' + f1(a.hs * 1.4) + ')"><g transform="rotate(-50)">' + lf + '</g><g transform="rotate(30)">' + lf + '</g><circle cx="-2" cy="4" r="4.4" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="1.4"/><circle cx="5" cy="2" r="4.4" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="1.4"/><circle cx="1" cy="9" r="4.4" fill="' + XRED + '" stroke="' + XRED_D + '" stroke-width="1.4"/><circle cx="-3.2" cy="2.6" r="1.2" fill="#fff" opacity=".8"/><circle cx="3.8" cy=".6" r="1.2" fill="#fff" opacity=".8"/></g>'; } }
+    ],
+    decos: [
+      { id: 'xm-d-tree', name: 'Christmas tree', cn: '圣诞树', price: 8, icon: '<g transform="translate(30,56) scale(.28)">' + xmasTree(0, 0, 1) + '</g>',
+        svg: function () { return xmasTree(54, 284, 1); } },
+      { id: 'xm-d-gifts', name: 'Present pile', cn: '礼物堆', price: 5, front: true, icon: '<g transform="translate(30,54)">' + present(-8, 0, 28, 22, XRED, XGOLD) + present(14, 0, 20, 15, '#4D96FF', '#FFFFFF') + present(2, -22, 18, 14, XGREEN, XRED) + '</g>',
+        svg: function () { return present(98, 289, 30, 22, XRED, XGOLD) + present(124, 289, 22, 16, '#4D96FF', '#FFFFFF') + present(108, 267, 20, 14, XGREEN, XRED); } },
+      { id: 'xm-d-lights', name: 'String lights', cn: '彩灯', price: 4, icon: '<path d="M2 12Q30 32 58 12" fill="none" stroke="#3B6B4A" stroke-width="2.4"/><ellipse cx="14" cy="26" rx="4.6" ry="6.6" fill="' + XRED + '" stroke="#00000033" stroke-width="1.2"/><ellipse cx="30" cy="30" rx="4.6" ry="6.6" fill="' + XGOLD + '" stroke="#00000033" stroke-width="1.2"/><ellipse cx="46" cy="26" rx="4.6" ry="6.6" fill="#4D96FF" stroke="#00000033" stroke-width="1.2"/>',
+        svg: function (v) { return lightsString(v || { y0: 0 }); } },
+      { id: 'xm-d-snowman', name: 'Snowman friend', cn: '雪人朋友', price: 6, icon: '<g transform="translate(30,56) scale(.42)">' + snowman(0, 0, 1) + '</g>',
+        svg: function () { return snowman(308, 284, 1); } },
+      { id: 'xm-d-snow', name: 'Snowfall', cn: '飘雪', price: 4, icon: '<g>' + flake(18, 18, 9, '#6FA8DC', 2.4) + flake(40, 30, 7, '#6FA8DC', 2) + flake(22, 44, 6, '#6FA8DC', 2) + '</g>',
+        svg: function () { return snowFall(52, 112, 7, 0) + snowFall(318, 108, 8, 0.9) + snowFall(96, 168, 6, 1.7) + snowFall(268, 160, 7, 2.3) + snowFall(188, 122, 6, 0.4) + snowFall(24, 210, 5.5, 1.3) + snowFall(340, 214, 6, 2.8) + snowFall(150, 196, 5, 3.4); } }
+    ] };
   var NEWYEAR = { id: 'newyear', name: 'Chinese New Year', cn: '中国新年', greet: 'Happy Chinese New Year! 新年快乐！', outfits: [], hats: [], decos: [],
     date: function (y) { var s = CNY[y]; if (!s) return null; var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); } };
   var CHILDREN = { id: 'children', name: "Children's Day", cn: '六一儿童节', greet: "Happy Children's Day! 儿童节快乐！", outfits: [], hats: [], decos: [], date: function (y) { return new Date(y, 5, 1); } };   // June 1
