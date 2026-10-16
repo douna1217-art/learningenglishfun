@@ -111,9 +111,6 @@
     var c = o.c || "#E5483A";
     return '<path d="M-8 -26 V-32 H8 V-26" fill="none" stroke="' + dk(c) + '" stroke-width="3.4" stroke-linejoin="round"/><rect x="-18" y="-26" width="36" height="26" rx="4" ' + f(c, 2.4) + '/><path d="M-18 -13 H18" stroke="' + dk(c, 0.35) + '" stroke-width="2"/><rect x="-3" y="-16" width="6" height="6" rx="1.4" fill="#FFD23F"/>';
   }
-  function wagon(o) {
-    return '<rect x="-22" y="-22" width="44" height="14" rx="3" ' + f("#E5483A", 2.2) + '/><circle cx="-14" cy="-4" r="6.4" ' + f("#3A3F4D", 1.8) + '/><circle cx="14" cy="-4" r="6.4" ' + f("#3A3F4D", 1.8) + '/><path d="M22 -14 L' + (o.hx || 48) + " " + (o.hy || -6) + '" stroke="#8A5A2B" stroke-width="3.2" stroke-linecap="round"/>';
-  }
   function blackboard(o) {
     return '<rect x="-52" y="-66" width="104" height="60" rx="4" ' + f("#2F6B4A", 2.8) + '/><rect x="-47" y="-61" width="94" height="50" rx="2" fill="#3F8A60"/><rect x="-52" y="-8" width="104" height="5" rx="2" fill="#8A5A2B"/>' + (o.t ? '<text x="0" y="-32" text-anchor="middle" font-family="' + FONT + '" font-weight="700" font-size="22" fill="#FFFFFE">' + o.t + "</text>" : "");
   }
@@ -216,11 +213,11 @@
     travel: [["pond", 168, G + 8, 1.5, { w: 76 }], ["boat", 176, G + 4, 1.3], ["kid", 50, G, 1.4, kb("walk", { look: 1 })], ["suitcase", 74, G, 1.0], ["kid", 104, G, 1.3, kg("walk", { look: 1 })], ["suitcase", 126, G, 0.8, { c: C.blue }]],
     step: [["prints", 20, G + 8, 1.2, { n: 3 }], ["kid", 128, G, 1.6, kb("walk", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 56, y1: 150, x2: 164, y2: 150, c: "#6A48E8" }]],
     move: [["cat", 86, G, 1.9], ["arrow", 0, 0, 1, { x1: 150, y1: 96, x2: 214, y2: 96, c: "#6B7285" }], ["nosign", 182, 96, 1.1]],
-    turn: [["road", 0, 0, 1], ["house", 196, G - 26, 1.0], ["arrow", 0, 0, 1, { x1: 30, y1: 142, x2: 120, y2: 142, c: "#6A48E8" }], ["arrow", 0, 0, 1, { x1: 120, y1: 142, x2: 120, y2: 90, c: "#6A48E8" }], ["kid", 56, G - 20, 1.0, kb("walk", { look: 1 })]],
+    turn: [["road", 0, 0, 1], ["house", 196, G - 26, 1.0, { c: "#E5604F", rc: "#7A4A2A" }], ["arrow", 0, 0, 1, { x1: 30, y1: 142, x2: 120, y2: 142, c: "#6A48E8" }], ["arrow", 0, 0, 1, { x1: 120, y1: 142, x2: 120, y2: 90, c: "#6A48E8" }], ["kid", 56, G - 20, 1.0, kb("walk", { look: 1 })]],
     follow: [["duck", 56, G, 1.35], ["duck", 120, G, 0.8], ["duck", 156, G, 0.7], ["duck", 188, G, 0.6], ["prints", 100, G + 8, 0.6, { n: 6 }], ["arrow", 0, 0, 1, { x1: 96, y1: 40, x2: 214, y2: 40, c: "#6A48E8" }]],
     across: [["road", 0, 0, 1], ["cat", 118, G + 6, 1.3, { pose: "run" }], ["arrow", 0, 0, 1, { x1: 30, y1: 100, x2: 210, y2: 100, c: "#6A48E8", dash: true }]],
     along: [["road", 0, 0, 1], ["kid", 70, G - 8, 1.1, kb("walk", { look: 1 })], ["kid", 120, G - 8, 1.1, kg("walk", { look: 1 })], ["arrow", 0, 0, 1, { x1: 30, y1: 30, x2: 210, y2: 30, c: "#6A48E8" }]],
-    through: [["house", 150, G, 2.1], ["dog", 150, G, 1.0, { pose: "run" }], ["arrow", 0, 0, 1, { x1: 40, y1: 110, x2: 100, y2: 110, c: "#6A48E8" }], ["arrow", 0, 0, 1, { x1: 190, y1: 110, x2: 226, y2: 110, c: "#6A48E8" }]],
+    through: [["house", 150, G, 1.9, { open: true }], ["dog", 150, G, 0.9, { pose: "run" }], ["arrow", 0, 0, 1, { x1: 40, y1: 110, x2: 100, y2: 110, c: "#6A48E8" }], ["arrow", 0, 0, 1, { x1: 190, y1: 110, x2: 226, y2: 110, c: "#6A48E8" }]],
     toward: [["dog", 90, G, 1.5, { pose: "run" }], ["kid", 198, G, 1.5, kg("wave", { look: -1, mouth: "open", flip: true })], ["arrow", 0, 0, 1, { x1: 110, y1: 70, x2: 170, y2: 70, c: "#6A48E8" }]],
     behind: [["cat", 150, G, 1.9], ["cbox", 114, G, 2.4]],
     front: [["kid", 122, G - 4, 1.5, kb("stand", { look: 0 })], ["dog", 100, G + 6, 1.9]],
@@ -246,7 +243,7 @@
     river: [["tree", 40, 96, 0.85], ["tree", 196, 84, 0.72], ["river", 112, 152, 1.7], ["boat", 120, 138, 0.8]],
     field: [["grass", 120, G + 8, 3.4, { w: 100 }], ["kid", 70, G, 1.3, kb("jump", { mouth: "open" })], ["kid", 160, G, 1.3, kg("run", { mouth: "open" })], ["ball", 118, G, 1.0, { c: C.red }]],
     city: [["skyscraper", 30, G, 1.0, { w: 34, h: 80, c: "#8B9BC4" }], ["skyscraper", 70, G, 1.0, { w: 36, h: 118, c: "#7A8BB8" }], ["skyscraper", 112, G, 1.0, { w: 40, h: 92, c: "#8B9BC4" }], ["skyscraper", 156, G, 1.0, { w: 34, h: 108, c: "#6F7FAE" }], ["skyscraper", 198, G, 1.0, { w: 40, h: 76, c: "#8B9BC4" }]],
-    town: [["road", 0, 0, 1], ["house", 48, G - 22, 1.0], ["house", 112, G - 22, 1.1], ["house", 178, G - 22, 1.0], ["tree", 214, G - 24, 0.7]],
+    town: [["road", 0, 0, 1], ["house", 48, G - 22, 1.0], ["house", 112, G - 22, 1.1, { c: "#CFE6F8", rc: "#6A8FD8" }], ["house", 178, G - 22, 1.0, { c: "#F8D6DE", rc: "#8B6BE8" }], ["tree", 214, G - 24, 0.7]],
     building: [["skyscraper", 150, G, 1.2, { w: 42, h: 100 }], ["kid", 60, G, 1.4, kb("look", { look: 1 })]],
     room: [["window", 62, G - 10, 1.3, { sun: true }], ["bed", 166, G, 1.7, { c: "#F59AB7" }], ["chair", 214, G, 0.9]],
     class: [["blackboard", 170, G - 18, 1.0, { t: "ABC" }], ["kid", 40, G, 1.2, kb("hold", { look: 0 })], ["kid", 92, G, 1.2, kg("hold", { look: 0 })], ["table", 44, G + 4, 0.6], ["table", 96, G + 4, 0.6]],
@@ -276,7 +273,7 @@
     usually: [["weekrow", 120, 112, 1.1, { icon: "house", marks: [0, 1, 2, 3, 4, 6], s: 0.4 }]],
     slowly: [["cat", 84, G, 1.8], ["snail", 178, G, 1.1], ["prints", 100, G + 8, 0.7, { n: 3 }]],
     quickly: [["dog", 128, G, 1.6, { pose: "run" }], ["whoosh", 56, G - 20, 1.3], ["whoosh", 64, G - 40, 1.0], ["clock", 200, 46, 1.0]],
-    finally: [["house", 172, G, 1.9], ["kid", 70, G, 1.5, kb("cheer", { mouth: "open" })], ["kid", 116, G, 1.3, kg("cheer", { mouth: "open" })], ["heart", 172, 36, 1.0], ["sweat", 94, 52, 0.8]],
+    finally: [["house", 176, G, 1.7], ["kid", 66, G, 1.1, kb("cheer", { mouth: "open" })], ["kid", 108, G, 1.0, kg("cheer", { mouth: "open" })], ["heart", 134, 30, 1.0], ["sweat", 86, 62, 0.8]],
     almost: [["bar", 120, 64, 1.9, { p: 0.9 }], ["kid", 120, G, 1.4, kg("cheer", { mouth: "open" })]],
     few: [["tree", 150, G, 1.5], ["bird", 92, G, 1.1], ["bird", 126, G, 1.0, { flip: true }], ["bird", 62, G, 0.9]],
     enough: [["table", 150, G, 1.6], ["coin", 124, G - 48, 1.3], ["coin", 146, G - 50, 1.3], ["coin", 168, G - 48, 1.3], ["hat", 196, G - 52, 0.9, { c: C.red }], ["kid", 56, G, 1.4, kb("reach", { look: 1 })], ["check", 190, 44, 0.9]],
@@ -359,7 +356,7 @@
     problem: "in", idea: "in", learn: "in", understand: "in", remember: "in", thought: "in", knew: "in", rest: "in", stay: "out", almost: "in", change: "in", size: "in", shape: "out", circle: "in", plan: "in", friends: "out", family: "out", life: "out", heat: "outns", during: "outns", until: "outns" };
   A.extend({
     kit: { rocket: rocket, planet: planet, plane: plane, globe: globe, bigship: bigship, skyscraper: skyscraper, waves: waves, river: river, island: island, torch: torch, ruler: ruler, crown: crown, ear: ear, soundwave: soundwave,
-      palette: palette, tiles: tiles, hundreds: hundreds, bar: bar, clipboard: clipboard, hoop: hoop, suitcase: suitcase, wagon: wagon, blackboard: blackboard, thermo: thermo, barbell: barbell, pot: pot, snail: snail, puzzle: puzzle, cookie: cookie, halfcake: halfcake, mound: mound,
+      palette: palette, tiles: tiles, hundreds: hundreds, bar: bar, clipboard: clipboard, hoop: hoop, suitcase: suitcase, blackboard: blackboard, thermo: thermo, barbell: barbell, pot: pot, snail: snail, puzzle: puzzle, cookie: cookie, halfcake: halfcake, mound: mound,
       mapk: mapk, podium: podium, callist: callist, weekrow: weekrow, flag: flag, circ: circ },
     scenes: S4,
     bgk: BG4,

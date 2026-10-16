@@ -80,6 +80,10 @@
       // walking to the right while the left arm reaches back and down to the handle of something pulled behind (draw the wagon first, the child over it)
       // both arms straight up with the hands above the head, gripping a bar lifted overhead (draw the bar, then the arms again over it with arms: "only")
       lift: { L: ST, A: [[-15, -57, -15, -76], [15, -57, 15, -76]] },
+      // walking to the right with the right arm held out in front, holding a leash
+      leash: { L: [[-3, -22, -11, -3], [3, -22, 10, -3]], A: [[-13, -30, -10, -20], [19, -44, 33, -45]] },
+      // the same, with the left hand lower (a smaller child holding the bar lower down)
+      pullLow: { L: [[-3, -22, -11, -3], [3, -22, 10, -3]], A: [[-20, -30, -33, -20], [14, -31, 17, -22]] },
       pullL: { L: [[-3, -22, -11, -3], [3, -22, 10, -3]], A: [[-21, -34, -35, -27], [14, -31, 17, -22]] },
     };
     var p = P[pose] || P.stand;
@@ -179,6 +183,7 @@
     if (isDog) s += '<ellipse cx="17" cy="-37" rx="5.5" ry="10" transform="rotate(14 17 -37)" ' + f(dk(b, 0.28)) + "/>";
     else s += path("M16 -41 L18 -57 L26 -45Z", b) + '<path d="M18 -44 L19 -52 L23 -46Z" fill="#FF9DB5"/>';
     s += '<circle cx="23" cy="-34" r="11.5" ' + f(b) + "/>";
+    if (isDog && o.collar) s += '<path d="M12.6 -43 Q15.6 -33 11.8 -24" fill="none" stroke="#9E2A20" stroke-width="5.4" stroke-linecap="round"/><path d="M12.6 -43 Q15.6 -33 11.8 -24" fill="none" stroke="#E5483A" stroke-width="3.2" stroke-linecap="round"/>';
     if (isDog) s += '<ellipse cx="31.5" cy="-30" rx="6.8" ry="5" fill="' + l + '"/><ellipse cx="35.5" cy="-32" rx="2.7" ry="2.1" fill="' + INK + '"/>';
     else s += '<path d="M32 -34 L35.5 -33 L33 -30.8Z" fill="#FF8FB1"/><path d="M33 -30.8 Q31 -28 28 -29.5" fill="none" stroke="' + INK + '" stroke-width="1.3" stroke-linecap="round"/>';
     s += '<ellipse cx="26" cy="-37" rx="2.1" ry="2.7" fill="' + ec + '"/><circle cx="26.6" cy="-38" r="0.9" fill="#fff"/>';
@@ -266,8 +271,9 @@
     // o.lift raises the mattress on longer legs so there is room under the bed
     return '<rect x="-34" y="' + (-30 - up) + '" width="7" height="' + (30 + up) + '" rx="2" ' + f("#B27A43", 2) + '/><rect x="27" y="' + (-22 - up) + '" width="7" height="' + (22 + up) + '" rx="2" ' + f("#B27A43", 2) + '/><g transform="translate(0,' + -up + ')">' +
       '<rect x="-30" y="-14" width="60" height="13" rx="4" ' + f("#FFF3E0", 2) + '/><rect x="-28" y="-8" width="56" height="6" fill="#B27A43"/><rect x="-27" y="-23" width="22" height="10" rx="5" ' + f("#FFFFFE", 2) + "/>" +
-      (o.sleeper ? '<circle cx="-16" cy="-26" r="9" ' + f("#FFD7B5", 2) + '/><path d="M-25 -28 Q-24 -37 -15 -36 Q-7 -35 -7 -28 Q-12 -32 -18 -31 Q-22 -30 -25 -28Z" ' + f("#6B4423", 1.6) + '/><path d="M-20.5 -25 Q-18.5 -22.8 -16.5 -25 M-14 -25 Q-12 -22.8 -10 -25" fill="none" stroke="' + INK + '" stroke-width="1.6" stroke-linecap="round"/><circle cx="-21" cy="-21.5" r="2" fill="#FF9DB5" opacity=".6"/>' : "") +
-      path("M-6 -20 L28 -20 L28 -8 L-6 -8Z", c, 2) + '<path d="M2 -20 L2 -8 M10 -20 L10 -8 M18 -20 L18 -8" stroke="' + dk(c, 0.2) + '" stroke-width="1.2" opacity=".6"/></g>';
+      // a sleeper lies on the pillow: the head is sunk into it and tilted, and the blanket has a hump for the body
+      (o.sleeper ? '<g transform="translate(0,6) rotate(-10 -16 -26)"><circle cx="-16" cy="-26" r="9" ' + f("#FFD7B5", 2) + '/><path d="M-25 -28 Q-24 -37 -15 -36 Q-7 -35 -7 -28 Q-12 -32 -18 -31 Q-22 -30 -25 -28Z" ' + f("#6B4423", 1.6) + '/><path d="M-20.5 -25 Q-18.5 -22.8 -16.5 -25 M-14 -25 Q-12 -22.8 -10 -25" fill="none" stroke="' + INK + '" stroke-width="1.6" stroke-linecap="round"/><circle cx="-21" cy="-21.5" r="2" fill="#FF9DB5" opacity=".6"/></g>' : "") +
+      (o.sleeper ? path("M-9 -16 Q-3 -21 8 -22 Q20 -23 25 -19 Q28 -18 28 -14 L28 -8 L-9 -8Z", c, 2) + '<path d="M4 -20 L4 -9 M12 -21 L12 -9 M20 -20 L20 -9" stroke="' + dk(c, 0.2) + '" stroke-width="1.2" opacity=".6"/>' : path("M-6 -20 L28 -20 L28 -8 L-6 -8Z", c, 2) + '<path d="M2 -20 L2 -8 M10 -20 L10 -8 M18 -20 L18 -8" stroke="' + dk(c, 0.2) + '" stroke-width="1.2" opacity=".6"/>') + "</g>";
   }
   function bus(o) {
     var c = o.c || "#FFC83D", s = "";
@@ -297,6 +303,8 @@
     return s;
   }
   function cake(o) {
+    // o.flat = one wide layer with a few berries on top and no candle (a cake to cut, seen from the side)
+    if (o.flat) return '<rect x="-26" y="-24" width="52" height="24" rx="6" ' + f("#F7C99C", 2.4) + '/><path d="M-26 -18 Q-19 -11 -13 -18 Q-6 -11 0 -18 Q7 -11 13 -18 Q20 -11 26 -18 L26 -24 L-26 -24Z" fill="#fff" stroke="' + dk("#F7C99C") + '" stroke-width="1.5"/><circle cx="6" cy="-27" r="3" fill="#E5483A"/><circle cx="15" cy="-26.5" r="3" fill="#E5483A"/><circle cx="22" cy="-26" r="2.6" fill="#E5483A"/>';
     return '<rect x="-24" y="-22" width="48" height="22" rx="6" ' + f("#F7C99C", 2.4) + '/><path d="M-24 -17 Q-18 -11 -12 -17 Q-6 -11 0 -17 Q6 -11 12 -17 Q18 -11 24 -17 L24 -22 L-24 -22Z" fill="#fff" stroke="' + dk("#F7C99C") + '" stroke-width="1.5"/>' +
       '<rect x="-16" y="-36" width="32" height="15" rx="5" ' + f(o.c || "#FF8FB1", 2.4) + '/><path d="M-16 -30 Q-10 -25 -4 -30 Q2 -25 8 -30 Q12 -26 16 -30 L16 -36 L-16 -36Z" fill="#fff" stroke="' + dk("#FF8FB1") + '" stroke-width="1.4"/>' +
       '<rect x="-2" y="-47" width="4" height="11" rx="1.5" fill="#6AA7FF"/><path d="M0 -55 Q-4.5 -50 0 -47 Q4.5 -50 0 -55Z" fill="#FFB020"/><circle cx="-9" cy="-37" r="2.6" fill="#E5483A"/><circle cx="9" cy="-37" r="2.6" fill="#E5483A"/>';
@@ -313,7 +321,20 @@
     return '<rect x="-17" y="-26" width="34" height="26" rx="3" ' + f(c, 2.4) + '/><rect x="-19" y="-33" width="38" height="9" rx="3" ' + f(dk(c, 0.12), 2.2) + '/><rect x="-3.5" y="-33" width="7" height="33" fill="#FFD23F" stroke="' + dk("#FFD23F") + '" stroke-width="1.4"/>' +
       '<path d="M0 -33 Q-14 -48 -9 -34Z M0 -33 Q14 -48 9 -34Z" ' + f("#FFD23F", 1.8) + "/>";
   }
+  // a house with a door as tall as a child, two windows and a chimney; o.c = wall colour, o.rc = roof colour, o.open = the doorway is open (dark), o.lit = lit windows
   function house(o) {
+    var wall = o.c || "#F3DDB0", roof = o.rc || "#C4533F", glass = o.lit ? "#FFE58A" : "#BFE3FA", s = "";
+    s += '<rect x="12" y="-70" width="8" height="22" ' + f(dk(roof, 0.1), 2) + "/>";
+    s += '<rect x="-24" y="-40" width="48" height="40" ' + f(wall, 2.4) + "/>";
+    s += path("M-32 -38 L0 -67 L32 -38Z", roof, 2.6) + '<path d="M-22 -41 L0 -61 L22 -41" fill="none" stroke="' + dk(roof, 0.3) + '" stroke-width="1.4" opacity=".5"/>';
+    s += '<rect x="-21" y="-32" width="11" height="11" ' + f(glass, 2) + '/><path d="M-15.5 -32 V-21 M-21 -26.5 H-10" stroke="#fff" stroke-width="1.4"/>';
+    s += '<rect x="10" y="-32" width="11" height="11" ' + f(glass, 2) + '/><path d="M15.5 -32 V-21 M10 -26.5 H21" stroke="#fff" stroke-width="1.4"/>';
+    if (o.open) s += '<rect x="-6.5" y="-31" width="13" height="31" rx="2.5" fill="#3B2A20" stroke="#1E1410" stroke-width="1.8"/>';
+    else s += '<rect x="-6.5" y="-31" width="13" height="31" rx="2.5" ' + f("#9A6A38", 2) + '/><circle cx="3" cy="-14" r="1.5" fill="#FFD23F"/>';
+    return s;
+  }
+  // a small kennel (the old, low house with an arched doorway) for a dog
+  function doghouse(o) {
     return '<rect x="-24" y="-28" width="48" height="28" ' + f("#D9A66B", 2.4) + "/>" + path("M-30 -26 L0 -52 L30 -26Z", "#C4533F", 2.6) + '<path d="M-8 0 L-8 -12 Q0 -22 8 -12 L8 0Z" fill="#3B2A20" stroke="#1E1410" stroke-width="1.6"/>';
   }
   function clock(o) {
@@ -322,6 +343,16 @@
   // a clock with an arrow going round it backwards: "a while ago"
   function rewind(o) {
     return clock(o) + '<path d="M17 -31 A24 24 0 0 0 -17 3" fill="none" stroke="#8B6BE8" stroke-width="3.4" stroke-linecap="round"/><path d="M-13.5 -0.5 L-12.1 7.9 L-20.5 6.5Z" fill="#8B6BE8" stroke="#8B6BE8" stroke-width="1.6" stroke-linejoin="round"/>';
+  }
+  // a paper shopping bag (rolled top, side fold, two handles) with apples looking out of the top
+  function applebag(o) {
+    var s = '<path d="M-14 -40 Q-14 -66 0 -66 Q14 -66 14 -40" fill="none" stroke="#8A5A2B" stroke-width="3.2" stroke-linecap="round"/>', k, ax = [-12, 2, 15], ay = [-45, -49, -44];
+    for (k = 0; k < 3; k++) s += '<circle cx="' + ax[k] + '" cy="' + ay[k] + '" r="9.4" ' + f("#E5483A", 2) + '/><ellipse cx="' + (ax[k] - 3.4) + '" cy="' + (ay[k] - 3) + '" rx="2.2" ry="3.4" fill="#fff" opacity=".5"/>';
+    s += '<path d="M-22 0 L-24 -36 L24 -36 L22 0Z" ' + f("#D9A86C", 2.4) + '/><path d="M9 -36 L24 -36 L22 0 L7 0Z" fill="' + dk("#D9A86C", 0.12) + '" stroke="none"/><path d="M-24 -36 H24 M9 -36 L7 0" fill="none" stroke="' + dk("#D9A86C", 0.35) + '" stroke-width="1.8"/><rect x="-24" y="-41" width="48" height="6" rx="2" ' + f("#E8C089", 2) + '/><circle cx="-8" cy="-17" r="6.4" fill="#E5483A" stroke="' + dk("#E5483A", 0.3) + '" stroke-width="1.4"/><path d="M-8 -23 q1 -4 5 -4 q0 4 -5 4Z" fill="#5DBB5A"/>';
+    return s;
+  }
+  function wagon(o) {
+    return '<rect x="-22" y="-22" width="44" height="14" rx="3" ' + f("#E5483A", 2.2) + '/><circle cx="-14" cy="-4" r="6.4" ' + f("#3A3F4D", 1.8) + '/><circle cx="14" cy="-4" r="6.4" ' + f("#3A3F4D", 1.8) + '/><path d="M22 -14 L' + (o.hx || 48) + " " + (o.hy || -6) + '" stroke="#8A5A2B" stroke-width="3.2" stroke-linecap="round"/>';
   }
   function table(o) {
     return '<rect x="-40" y="-26" width="80" height="8" rx="3" ' + f("#C48A52", 2.2) + '/><rect x="-35" y="-18" width="6" height="18" ' + f("#A8713A", 1.8) + '/><rect x="29" y="-18" width="6" height="18" ' + f("#A8713A", 1.8) + "/>";
@@ -442,6 +473,14 @@
   function tub(o) {
     return '<path d="M-40 -36 L40 -36 L35 -8 Q33 0 25 0 L-25 0 Q-33 0 -35 -8Z" ' + f("#8FD0F2", 2.4) + '/><rect x="-43" y="-40" width="86" height="8" rx="4" ' + f("#CBE9FA", 2.2) + '/><ellipse cx="-24" cy="2" rx="6" ry="3" ' + f("#8FA3C7", 1.6) + '/><ellipse cx="24" cy="2" rx="6" ry="3" ' + f("#8FA3C7", 1.6) + "/>";
   }
+  // a wash stand: a basin on two legs with a tap running; the origin is the middle of the rim (o.h = how far down the floor is), so a child can wash hands in it
+  function sink(o) {
+    var h = o.h || 40, s = '<path d="M-21 14 L-32 ' + h + ' M21 14 L32 ' + h + ' M-27 ' + (h - 14) + ' L27 ' + (h - 14) + '" fill="none" stroke="' + dk("#8A97AD", 0.3) + '" stroke-width="6" stroke-linecap="round"/><path d="M-21 14 L-32 ' + h + ' M21 14 L32 ' + h + ' M-27 ' + (h - 14) + ' L27 ' + (h - 14) + '" fill="none" stroke="#B8C4D8" stroke-width="3.2" stroke-linecap="round"/>';
+    s += '<path d="M-30 0 L30 0 Q28 20 0 22 Q-28 20 -30 0Z" ' + f("#F4F9FF", 2.4) + '/><rect x="-32" y="-4" width="64" height="7" rx="3" ' + f("#DCE8F5", 2.2) + "/>";
+    s += '<path d="M0 -3 V-19 Q0 -26 8 -26 H14 V-19" fill="none" stroke="' + dk("#8A97AD", 0.3) + '" stroke-width="6.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M0 -3 V-19 Q0 -26 8 -26 H14 V-19" fill="none" stroke="#B8C4D8" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>';
+    s += '<path d="M14 -17 V-3" fill="none" stroke="#6EC3F2" stroke-width="3.4" stroke-linecap="round"/><path d="M11 -9 V-5 M17 -12 V-8" fill="none" stroke="#BDE6FA" stroke-width="1.8" stroke-linecap="round"/>';
+    return s;
+  }
   function foam(o) {
     var s = "", P = [[-26, 0, 8], [-12, -5, 9], [4, -1, 8], [18, -6, 10], [30, 0, 7], [-4, -11, 7], [10, -12, 6]];
     for (var i = 0; i < P.length; i++) s += '<circle cx="' + P[i][0] + '" cy="' + P[i][1] + '" r="' + P[i][2] + '" fill="#FFFFFE" stroke="#BFE0F5" stroke-width="1.6"/>';
@@ -560,7 +599,7 @@
     return '<path d="M-26 0 Q-20 -12 0 -12 Q20 -12 26 0Z" ' + f("#F0DDA8", 1.8) + "/>";
   }
 
-  var K = { kid: kid, mom: mom, cat: cat, dog: dog, duck: duck, frog: frog, bird: bird, fish: fish, ball: ball, hat: hat, bag: bag, box: box, bed: bed, bus: bus, kite: kite, tree: tree, cake: cake, slice: slice, gift: gift, house: house, clock: clock, rewind: rewind, table: table, rock: rock, stairs: stairs, pond: pond, hill: hill, bush: bush, sun: sun, cloud: cloud, arrow: arrow, line: line, qm: qm, num: num, check: check, cross: cross, heart: heart, sparkle: sparkle, star: starK, whoosh: whoosh, bubble: bubble, thought: thought, dots: dots, eyes: eyes, medal: medal, crumbs: crumbs, plate: plate, mag: mag,
+  var K = { kid: kid, mom: mom, cat: cat, dog: dog, duck: duck, frog: frog, bird: bird, fish: fish, ball: ball, hat: hat, bag: bag, box: box, bed: bed, bus: bus, kite: kite, tree: tree, cake: cake, slice: slice, gift: gift, house: house, doghouse: doghouse, clock: clock, rewind: rewind, sink: sink, applebag: applebag, wagon: wagon, table: table, rock: rock, stairs: stairs, pond: pond, hill: hill, bush: bush, sun: sun, cloud: cloud, arrow: arrow, line: line, qm: qm, num: num, check: check, cross: cross, heart: heart, sparkle: sparkle, star: starK, whoosh: whoosh, bubble: bubble, thought: thought, dots: dots, eyes: eyes, medal: medal, crumbs: crumbs, plate: plate, mag: mag,
     apple: apple, note: note, moon: moon, zzz: zzz, tub: tub, foam: foam, bubbles: bubbles, book: book, pencil: pencil, laptop: laptop, umbrella: umbrella, coin: coin, phone: phone, snowman: snowman, flake: flake, shiver: shiver, trophy: trophy, tank: tank, tape: tape, bulb: bulb, nosign: nosign, ring: ring, calendar: calendar, trafficlight: trafficlight, prints: prints, stopsign: stopsign, pad: pad, comet: comet, sandy: sandy };
 
   function draw(it, uid) {
@@ -700,7 +739,7 @@
     but: [["kid", 56, G, 1.3, kb("run", { mouth: "open" })], ["check", 56, 36, 0.9], ["kid", 186, G, 1.3, kb("stand", { look: -1 })], ["arrow", 0, 0, 1, { x1: 148, y1: 124, x2: 148, y2: 64, c: "#6A48E8", dash: true }], ["cross", 148, 92, 0.9]],
     into: [["box", 150, G, 1.9, {}], ["cat", 96, 74, 1.1, { pose: "jump" }], ["arrow", 0, 0, 1, { x1: 120, y1: 54, x2: 150, y2: 78, c: "#6A48E8" }]],
     must: [["kid", 44, G, 1.1, kb("run", { mouth: "o" })], ["kid", 78, G, 1.1, kg("run", { mouth: "o" })], ["bus", 188, G - 4, 0.7], ["clock", 124, 70, 1.3], ["whoosh", 20, G - 26, 0.7]],
-    out: [["house", 176, G, 1.7], ["dog", 70, G, 1.5, { flip: true, pose: "run" }], ["arrow", 0, 0, 1, { x1: 172, y1: 112, x2: 118, y2: 112 }]],
+    out: [["doghouse", 176, G, 1.7], ["dog", 70, G, 1.5, { flip: true, pose: "run" }], ["arrow", 0, 0, 1, { x1: 172, y1: 112, x2: 118, y2: 112 }]],
     our: [["bus", 118, G - 4, 1.4], ["kid", 40, G, 1.1, kb("point", { look: 1 })], ["kid", 206, G, 1.1, kg("point", { look: -1, flip: true })]],
     with: [["kid", 76, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["dog", 168, G, 1.5, { flip: true, tongue: true }], ["ball", 122, G, 1]],
     will: [["kid", 66, G, 1.5, kg("reach", { look: 1 })], ["rock", 168, G, 1.3], ["kid", 166, G - 22, 1.2, kb("reach", { look: -1, flip: true })], ["heart", 118, 56, 1]],
@@ -713,7 +752,7 @@
 
   /* ------------------------------------------------------------------ stage 2 scenes (Dolch grade 1 and 2) */
   var S2 = {
-    walk: [["prints", 18, G + 7, 1, { n: 4 }], ["kid", 104, G, 1.5, kb("walk", { look: 1 })], ["dog", 178, G, 1.5, { pose: "stand" }], ["heart", 142, 46, 0.9]],
+    walk: [["prints", 14, G + 7, 1, { n: 4 }], ["dog", 178, G, 1.5, { pose: "stand", collar: true }], ["line", 0, 0, 1, { x1: 136, y1: 66, x2: 197, y2: 75, c: "#8A5A2B", w: 2.6 }], ["kid", 88, G, 1.5, kb("leash", { look: 1 })], ["heart", 120, 38, 0.9]],
     stop: [["bus", 88, G - 4, 1.15], ["stopsign", 178, G, 1.5], ["kid", 206, G, 1.0, kg("wave", { look: -1 })]],
     open: [["kid", 62, G, 1.45, kg("reach", { look: 1, mouth: "open" })], ["gift", 130, G, 1.55, { open: true }]],
     sit: [["dog", 100, G, 1.9], ["kid", 206, G, 1.35, kg("point", { look: -1, flip: true, mouth: "open" })], ["sparkle", 164, 44, 0.9]],
@@ -728,7 +767,7 @@
     give: [["kid", 62, G, 1.5, kb("reach", { look: 1 })], ["gift", 118, G - 52, 0.75], ["mom", 178, G, 1.6, { pose: "reach", look: -1, flip: true }], ["heart", 120, 38, 1.0]],
     take: [["table", 168, G, 1.2], ["bag", 164, G - 31, 1.0, { c: C.blue }], ["kid", 108, G, 1.5, kg("reach", { look: 1 })], ["sparkle", 200, 70, 0.9]],
     put: [["box", 184, G, 1.7], ["ball", 184, 58, 1.2, { c: C.red }], ["arrow", 0, 0, 1, { x1: 184, y1: 80, x2: 184, y2: 98, c: "#6A48E8" }], ["kid", 112, G, 1.5, kb("reach", { look: 1 })]],
-    pull: [["box", 194, G, 1.3], ["kid", 40, G, 1.35, kb("reach", { look: 1, rot: -8 })], ["kid", 92, G, 1.35, kg("reach", { look: 1, rot: -8 })], ["line", 0, 0, 1, { x1: 74, y1: G - 46, x2: 126, y2: G - 46, c: "#8A6A3A", w: 3 }], ["line", 0, 0, 1, { x1: 126, y1: G - 46, x2: 158, y2: G - 20, c: "#8A6A3A", w: 3 }], ["arrow", 0, 0, 1, { x1: 186, y1: 56, x2: 150, y2: 56 }]],
+    pull: [["whoosh", 26, G - 20, 1.0], ["wagon", 60, G, 1.3, { hx: 85, hy: -28 }], ["box", 60, G - 27, 0.8], ["kid", 148, G, 1.0, kg("pullLow", { look: 1, rot: 8 })], ["kid", 206, G, 1.15, kb("pullL", { look: 1, rot: 8 })]],
     buy: [["table", 178, G, 1.3], ["hat", 158, G - 34, 0.8, { c: C.red }], ["hat", 198, G - 34, 0.8, { c: C.blue }], ["mom", 82, G, 1.55, { pose: "reach", look: 1 }], ["coin", 124, G - 56, 1.0]],
     call: [["kid", 80, G, 1.5, kb("look", { look: 0, mouth: "open" })], ["phone", 100, G - 86, 1.0, { rot: 8 }], ["thought", 170, 54, 1.0, { w: 66, h: 48, inner: [["mom", 0, 20, 0.52, {}]] }]],
     old: [["cat", 120, G, 2.1, { old: true, c: "#B9BFCC", l: "#EEF1F5" }]],
@@ -757,10 +796,10 @@
     tell: [["kid", 62, G, 1.45, kb("point", { look: 1, mouth: "open" })], ["bubble", 120, 46, 1.0, { w: 58, h: 42, inner: [["cat", 0, 15, 0.45, {}]] }], ["mom", 184, G, 1.6, { pose: "hands", look: -1 }], ["heart", 158, 92, 0.8]],
     may: [["kid", 88, G, 1.55, kb("wave", { look: 1, mouth: "o" })], ["bubble", 162, 54, 1.0, { w: 60, h: 44, inner: [["ball", 0, 14, 0.9, {}]] }], ["qm", 206, 100, 1.0]],
     thank: [["kid", 60, G, 1.45, kg("hold", { look: 1, mouth: "open" })], ["gift", 86, G - 44, 0.65], ["bubble", 120, 42, 1.0, { w: 46, h: 34, inner: [["heart", 0, 2, 0.9, {}]] }], ["mom", 184, G, 1.6, { pose: "stand", look: -1 }]],
-    live: [["house", 152, G, 2.1], ["kid", 66, G, 1.5, kb("self", { look: 1, mouth: "open" })], ["heart", 108, 56, 0.9]],
-    let: [["house", 158, G, 2.1], ["kid", 100, G, 1.5, kg("reach", { look: 1, mouth: "o" })], ["bubble", 56, 40, 1.0, { w: 46, h: 34, inner: [["heart", 0, 2, 0.9, {}]] }]],
+    live: [["house", 150, G, 1.9], ["kid", 68, G, 1.1, kb("self", { look: 1, mouth: "open" })], ["heart", 110, 66, 0.8]],
+    let: [["house", 156, G, 1.9], ["kid", 98, G, 1.1, kg("reach", { look: 1, mouth: "o" })], ["bubble", 58, 44, 1.0, { w: 46, h: 34, inner: [["heart", 0, 2, 0.9, {}]] }]],
     going: [["rock", 56, G, 1.3], ["kid", 56, G - 30, 1.35, kb("stand", { look: 1, mouth: "open" })], ["pond", 188, G + 8, 1.0, { w: 46 }], ["arrow", 0, 0, 1, { x1: 94, y1: 78, x2: 166, y2: 106, dash: true }]],
-    had: [["cat", 88, G, 1.8], ["plate", 168, G, 1.3], ["fish", 168, G - 12, 0.85], ["clock", 206, 84, 0.9], ["arrow", 0, 0, 1, { x1: 224, y1: 118, x2: 196, y2: 118, c: "#8B6BE8" }]],
+    had: [["cat", 88, G, 1.8], ["plate", 168, G, 1.3], ["fish", 168, G - 12, 0.85], ["rewind", 208, 98, 1.05]],
     has: [["mom", 82, G, 1.6, { pose: "hold", look: 1 }], ["cake", 112, G - 46, 0.7], ["sparkle", 160, 56, 1], ["sparkle", 36, 84, 0.9]],
     does: [["dog", 80, G, 1.8, { tongue: true }], ["table", 170, G, 1.1], ["cake", 170, G - 28, 1.0], ["qm", 120, 44, 1.5]],
     dont: [["bed", 100, G, 1.8, { c: "#7FB8F2" }], ["kid", 100, G - 24, 1.1, kb("jump", { mouth: "open" })], ["nosign", 196, 54, 1.7]],
@@ -768,14 +807,14 @@
     again: [["frog", 62, 108, 1.2, { pose: "jump" }], ["frog", 178, 108, 1.2, { pose: "jump" }], ["ring", 120, 56, 1, { rx: 18, ry: 18 }], ["sparkle", 120, 100, 0.8]],
     then: [["num", 46, 34, 0.9, { n: 1 }], ["kid", 56, G, 1.25, kb("run", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 96, y1: 78, x2: 134, y2: 78 }], ["num", 128, 36, 0.9, { n: 2 }], ["kid", 180, G, 1.35, kb("jump", { mouth: "open" })]],
     when: [["trafficlight", 48, G, 1.5, { on: 2 }], ["kid", 124, G, 1.25, kb("run", { mouth: "open" })], ["kid", 180, G, 1.25, kg("run", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 96, y1: 40, x2: 150, y2: 40, c: "#4CC76A" }]],
-    were: [["pond", 112, G + 6, 1.5, { w: 56 }], ["duck", 84, G - 4, 1.2], ["duck", 140, G - 4, 1.2], ["clock", 206, 62, 1.1], ["arrow", 0, 0, 1, { x1: 224, y1: 112, x2: 194, y2: 112, c: "#8B6BE8" }]],
+    were: [["pond", 112, G + 6, 1.5, { w: 56 }], ["duck", 84, G - 4, 1.2], ["duck", 140, G - 4, 1.2], ["rewind", 208, 92, 1.05]],
     over: [["pond", 120, G + 8, 1.1, { w: 50 }], ["kid", 120, G - 14, 1.35, kg("jump", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 36, y1: 112, x2: 76, y2: 80, dash: true }], ["arrow", 0, 0, 1, { x1: 164, y1: 76, x2: 206, y2: 112, dash: true }]],
     around: [["tree", 120, G + 4, 1.4], ["ring", 120, G - 6, 1, { rx: 76, ry: 16 }], ["kid", 40, G, 1.0, kb("run", {})], ["kid", 204, G + 4, 1.0, kg("run", {})]],
     off: [["rock", 78, G, 1.6], ["kid", 134, G - 12, 1.25, ky("jump", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 160, y1: 62, x2: 184, y2: 112, dash: true }]],
     by: [["cat", 92, G, 1.8], ["box", 172, G, 1.7], ["sparkle", 132, 60, 0.9]],
     from: [["mom", 50, G, 1.5, { pose: "reach", look: 1 }], ["arrow", 0, 0, 1, { x1: 88, y1: 56, x2: 148, y2: 56, c: "#6A48E8", dash: true }], ["kid", 182, G, 1.4, kb("hold", { look: -1, flip: true })], ["gift", 164, G - 42, 0.7]],
     upon: [["rock", 120, G, 1.9], ["frog", 120, G - 40, 1.3], ["sparkle", 66, 56, 1], ["sparkle", 176, 50, 0.9]],
-    of: [["apple", 90, 78, 0.95], ["apple", 116, 70, 1.0], ["apple", 142, 80, 0.95], ["bag", 112, G, 2.1, { c: C.brown }], ["apple", 182, G, 1.1]],
+    of: [["applebag", 120, G, 2.0], ["sparkle", 196, 60, 0.9]],
     an: [["table", 160, G, 1.2], ["apple", 160, G - 31, 2.0], ["kid", 78, G, 1.5, kg("point", { look: 1 })]],
     any: [["tree", 160, G + 4, 1.5], ["kid", 70, G, 1.5, kb("look", { look: 1, mouth: "o" })], ["qm", 118, 40, 1.4]],
     as: [["kid", 56, G, 1.4, kg("point", { look: 1 })], ["kid", 170, G + 4, 1.4, kb("jump", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 100, y1: 62, x2: 136, y2: 62, c: "#6A48E8", dash: true }]],
@@ -786,24 +825,24 @@
     him: [["kid", 56, G, 1.4, kg("point", { look: 1 })], ["kid", 170, G + 4, 1.4, kb("jump", { mouth: "open" })]],
     his: [["kid", 46, G, 1.3, kg("point", { look: 1 })], ["kid", 124, G, 1.4, kb("stand", { look: 0 })], ["dog", 196, G, 1.4, { flip: true, tongue: true }], ["heart", 160, 56, 0.9]],
     them: [["kid", 46, G, 1.35, kb("look", { look: 1 })], ["kid", 152, G, 1.2, kg("reach", { look: 1, mouth: "open" })], ["kid", 208, G, 1.2, ky("reach", { look: -1, flip: true, mouth: "open" })], ["ball", 180, 92, 0.9]],
-    their: [["house", 176, G, 1.7], ["kid", 108, G, 1.15, kb("stand", { look: 1 })], ["kid", 140, G, 1.15, kg("stand", { look: 1 })], ["kid", 40, G, 1.3, kr("point", { look: 1 })]],
+    their: [["house", 186, G, 1.5], ["kid", 100, G, 0.95, kb("stand", { look: 1 })], ["kid", 128, G, 0.95, kg("stand", { look: 1 })], ["kid", 40, G, 1.1, kr("point", { look: 1 })]],
     your: [["kid", 60, G, 1.4, kg("hold", { look: 1 })], ["hat", 90, G - 48, 0.75, { c: C.red }], ["kid", 180, G, 1.4, kb("stand", { look: -1, mouth: "o" })], ["qm", 136, 46, 1.3]],
     its: [["dog", 100, G, 1.8, { tongue: true }], ["ball", 160, G, 1.0, { c: C.blue }], ["heart", 150, 52, 0.9]],
     us: [["kid", 52, G, 1.3, kb("wave", { look: 1, mouth: "open" })], ["kid", 94, G, 1.3, kg("wave", { look: 1, mouth: "open" })], ["dog", 192, G, 1.4, { pose: "run", flip: true }], ["arrow", 0, 0, 1, { x1: 168, y1: 70, x2: 128, y2: 70, c: "#6A48E8" }]],
     or: [["bag", 66, G, 2.0, { c: C.red }], ["bag", 174, G, 2.0, { c: C.blue }], ["kid", 120, G, 1.1, kb("hands", { look: 0, mouth: "o" })], ["qm", 120, 38, 1.3]],
     these: [["cat", 76, G, 1.4], ["cat", 126, G, 1.4, CATB], ["kid", 188, G, 1.5, kg("hold", { look: -1 })], ["heart", 100, 40, 1]],
-    those: [["kid", 56, G, 1.5, kb("point", { look: 1 })], ["tree", 184, G - 22, 0.55, { op: 0.92 }], ["tree", 216, G - 26, 0.5, { op: 0.92 }], ["arrow", 0, 0, 1, { x1: 108, y1: 78, x2: 160, y2: 78, c: "#6A48E8", dash: true }]],
+    those: [["kid", 52, G, 1.5, kb("point", { look: 1 })], ["tree", 166, G + 2, 1.1], ["tree", 208, G - 2, 0.9], ["arrow", 0, 0, 1, { x1: 104, y1: 72, x2: 142, y2: 72, c: "#6A48E8", dash: true }]],
     every: [["cat", 46, G, 1.3], ["hat", 46, G - 70, 0.55, { c: C.red }], ["cat", 120, G, 1.3, CATW], ["hat", 120, G - 70, 0.55, { c: C.blue }], ["cat", 194, G, 1.3, CATB], ["hat", 194, G - 70, 0.55, { c: C.yellow }]],
     some: [["cat", 40, G, 1.15], ["cat", 94, G, 1.15, CATB], ["cat", 148, G, 1.15], ["cat", 202, G, 1.15, CATB]],
     once: [["kid", 70, G, 1.5, kb("hands", { look: 1 })], ["thought", 158, 54, 1.0, { w: 72, h: 50, inner: [["frog", 0, 17, 0.55, {}]] }], ["num", 210, 112, 1.3, { n: 1 }]],
     because: [["dog", 52, G, 1.5, { tongue: true }], ["kid", 172, G, 1.5, kb("run", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 98, y1: 70, x2: 134, y2: 70 }], ["whoosh", 146, G - 20, 0.8]],
-    before: [["num", 38, 32, 0.9, { n: 1 }], ["kid", 40, G, 1.2, kg("reach", { look: 1, mouth: "open" })], ["tub", 94, G, 0.8], ["foam", 94, G - 34, 0.7], ["arrow", 0, 0, 1, { x1: 130, y1: 84, x2: 152, y2: 84 }], ["num", 204, 32, 0.9, { n: 2 }], ["kid", 196, G, 1.2, kb("hold", { look: -1, mouth: "open", flip: true })], ["slice", 176, G - 46, 0.6, { flip: true }]],
+    before: [["num", 38, 26, 0.9, { n: 1 }], ["kid", 60, G, 1.45, kg("hands", { look: 0, mouth: "open" })], ["sink", 46, 94, 1.0], ["foam", 61, 91, 0.45], ["arrow", 0, 0, 1, { x1: 112, y1: 84, x2: 148, y2: 84 }], ["num", 204, 26, 0.9, { n: 2 }], ["kid", 196, G, 1.2, kb("hold", { look: -1, mouth: "open", flip: true })], ["slice", 176, G - 46, 0.6, { flip: true }]],
     been: [["kid", 62, G, 1.5, kb("look", { look: 1 })], ["prints", 94, G + 6, 1, { n: 5 }], ["pond", 198, G + 6, 0.95, { w: 42 }], ["qm", 118, 50, 1.3]],
     always: [["calendar", 176, 112, 1.2], ["kid", 70, G, 1.5, kg("hands", { look: 1, mouth: "o" })], ["bubble", 112, 44, 1.0, { w: 46, h: 34, inner: [["heart", 0, 2, 0.9, {}]] }]],
   };
   for (var k2 in S2) S[k2] = S2[k2];
   // pictures that are not out in the park
-  var BGK = { four: "sea", look: "in", on: "in", under: "in", in: "in", was: "in", who: "in", sleep: "night", wish: "sky", cold: "snow", use: "rain", wash: "in", write: "in", read: "in", work: "in", call: "in", old: "in", always: "in", open: "in", dont: "in" };
+  var BGK = { four: "sea", look: "in", before: "in", on: "in", under: "in", in: "in", was: "in", who: "in", sleep: "night", wish: "sky", cold: "snow", use: "rain", wash: "in", write: "in", read: "in", work: "in", call: "in", old: "in", always: "in", open: "in", dont: "in" };
 
   var uidN = 0;
   function scene(word, opt) {

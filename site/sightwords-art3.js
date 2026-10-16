@@ -424,7 +424,7 @@
     return '<g transform="rotate(-8)"><rect x="-22" y="-14" width="44" height="22" rx="3" ' + f("#7FD08A", 2.2) + '/><circle cx="0" cy="-3" r="6.4" fill="none" stroke="' + dk("#7FD08A", 0.35) + '" stroke-width="1.8"/><text x="0" y="1.6" text-anchor="middle" font-family="' + FONT + '" font-weight="700" font-size="8" fill="' + dk("#7FD08A", 0.4) + '">$</text><circle cx="-15" cy="-3" r="2" fill="' + dk("#7FD08A", 0.3) + '"/><circle cx="15" cy="-3" r="2" fill="' + dk("#7FD08A", 0.3) + '"/></g>';
   }
   function knife(o) {
-    return '<rect x="-30" y="-6" width="18" height="9" rx="4" ' + f("#8A5A2B", 1.8) + '/><path d="M-12 -6 H32 Q34 -6 30 -1 L-12 3Z" ' + f("#D5DDEB", 1.8) + '/><path d="M-8 -3 H24" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".8"/>';
+    return '<rect x="-30" y="-6" width="18" height="9" rx="4" ' + f("#8A5A2B", 1.8) + '/><path d="M-12 -8 H32 Q36 -8 31 -1 L-12 5Z" ' + f("#C3CCDC", 2.4) + '/><path d="M-8 -4 H24" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>';
   }
   function blocks(o) {
     var s = "", P = [[-14, -9, "#E5483A"], [4, -9, "#3D8BF2"], [22, -9, "#FFC93C"], [-5, -27, "#6CCB5F"], [13, -27, "#8B6BE8"], [4, -45, "#FF8FB1"]], i;
@@ -499,7 +499,7 @@
     cow: [["kid", 48, G, 1.3, kb("look", { look: 1 })], ["cow", 140, G, 1.85]],
     pig: [["shade", 126, G + 3, 1.2], ["whoosh", 56, G - 30, 1.3], ["pig", 128, G - 8, 1.9, { rot: -6 }], ["prints", 14, G + 6, 1, { n: 3 }], ["sparkle", 176, 62, 0.9]],
     sheep: [["kid", 52, G, 1.35, kg("point", { look: 1 })], ["sheep", 152, G, 1.9]],
-    horse: [["horse", 124, G, 1.4], ["kid", 112, G - 56, 0.95, kb("hold", { mouth: "open" })], ["heart", 50, 44, 0.9]],
+    horse: [["kid", 94, G - 53, 1.0, kb("reach", { look: 1, mouth: "open" })], ["horse", 110, G, 1.4], ["line", 0, 0, 1, { x1: 121, y1: 49, x2: 170, y2: 41, c: "#8A5A2B", w: 2.6 }], ["heart", 40, 44, 0.9]],
     chicken: [["kid", 50, G, 1.3, kg("point", { look: 1 })], ["chicken", 146, G, 1.45], ["crumbs", 100, G, 1.3]],
     corn: [["kid", 66, G, 1.45, kb("hold", { mouth: "open", look: 1 })], ["corn", 80, G - 52, 0.85, { rot: 62 }], ["kid", 172, G, 1.45, kg("hold", { mouth: "open", look: -1 })], ["corn", 186, G - 52, 0.85, { rot: 62 }]],
     grass: [["grass", 120, G + 8, 3.3, { w: 100 }], ["dog", 120, G + 2, 1.6], ["flower", 40, G, 1.0, { c: "#FFFFFE" }], ["flower", 200, G, 1.0, { c: "#FF8FB1" }]],
@@ -514,8 +514,8 @@
     grow: [["sprout", 46, G, 1.5, { k: 1 }], ["arrow", 0, 0, 1, { x1: 66, y1: 108, x2: 90, y2: 108 }], ["tree", 118, G, 0.7], ["arrow", 0, 0, 1, { x1: 140, y1: 108, x2: 160, y2: 108 }], ["tree", 190, G, 1.2]],
     pick: [["ball", 100, G, 1.1, { c: C.blue }], ["ball", 134, G, 1.1, { c: C.red }], ["ball", 168, G, 1.1, { c: "#FFC93C" }], ["hl", 134, G - 14, 0.9, { r: 18 }], ["kid", 52, G, 1.45, kg("reach", { look: 1, mouth: "open" })]],
     got: [["kid", 90, G, 1.55, kb("cheer", { mouth: "open", hat: "#E5483A" })], ["gift", 170, G, 1.5, { open: true }]],
-    house: [["house", 150, G, 2.1], ["kid", 52, G, 1.45, kb("look", { look: 1 })]],
-    home: [["house", 168, G, 2.1], ["mom", 168, G + 1, 0.62, { pose: "wave", look: 0 }], ["kid", 54, G, 1.4, kb("walk", { look: 1 })], ["heart", 168, 34, 1.0]],
+    house: [["house", 150, G, 2.0, { c: "#E5604F", rc: "#7A4A2A" }], ["kid", 52, G, 1.1, kb("look", { look: 1 })]],
+    home: [["house", 168, G, 1.9, { open: true }], ["mom", 168, G + 1, 0.62, { pose: "wave", look: 0 }], ["kid", 56, G, 1.1, kb("walk", { look: 1 })], ["heart", 112, 48, 0.9]],
     door: [["door", 150, G, 1.9], ["kid", 78, G, 1.5, kg("reach", { look: 1 })], ["sparkle", 204, 60, 0.9]],
     window: [["window", 160, G - 14, 2.0, { sun: true }], ["kid", 68, G, 1.5, kb("look", { look: 1 })]],
     floor: [["boards", 0, 0, 1], ["cat", 112, G + 6, 1.9], ["arrow", 0, 0, 1, { x1: 204, y1: 84, x2: 204, y2: 118 }]],
@@ -560,20 +560,20 @@
     sun: [["sunbig", 120, 78, 1.5], ["kid", 60, G, 1.3, kb("point", { look: 1 })]],
     water: [["tank", 120, G, 1.0, { w: 160, h: 106 }], ["fish", 118, G - 50, 1.2], ["bubbles", 70, G - 40, 0.6]],
     morning: [["sunbig", 206, 112, 0.85, { c: "#FFC93C", ray: "#FFE099" }], ["bird", 196, 44, 0.8, { fly: true }], ["kid", 58, G, 1.45, kb("wave", { look: 1, mouth: "open" })], ["mom", 150, G, 1.5, { pose: "wave", look: -1, flip: true }], ["sparkle", 112, 100, 0.8]],
-    night: [["house", 120, G, 1.9], ["moon", 190, 38, 1.7], ["zzz", 156, 66, 1.0], ["star", 40, 34, 0.7], ["star", 84, 22, 0.55], ["star", 222, 84, 0.5]],
+    night: [["house", 120, G, 1.9, { lit: true }], ["moon", 190, 38, 1.7], ["zzz", 188, 92, 1.0], ["star", 40, 34, 0.7], ["star", 84, 22, 0.55], ["star", 222, 84, 0.5]],
     day: [["sunbig", 196, 40, 0.8, { c: "#FFC93C", ray: "#FFE099" }], ["kid", 110, G, 1.55, kb("jump", { mouth: "open" })], ["ball", 160, G, 1.1, { c: C.red }], ["sparkle", 60, 60, 0.9]],
     time: [["clock", 62, 84, 2.2], ["table", 172, G, 1.3], ["plate", 172, G - 33, 1.2], ["apple", 172, G - 36, 0.8], ["kid", 124, G, 1.35, kg("cheer", { mouth: "open" })]],
     today: [["calpage", 66, 108, 1.5, { today: 20 }], ["school", 214, G, 0.62], ["kid", 160, G, 1.3, kb("walk", { look: 1 })]],
     hot: [["sunbig", 196, 42, 0.9, { c: "#FFC93C", ray: "#FFB347" }], ["kid", 100, G, 1.6, kr("stand", { look: 0 })], ["sweat", 128, 70, 1.1], ["sweat", 70, 76, 0.9]],
-    warm: [["bed", 120, G, 2.1, { c: "#FF9A5C", sleeper: true }], ["heart", 178, 52, 1.0], ["heart", 66, 76, 0.7], ["sparkle", 52, 46, 0.8]],
+    warm: [["bed", 120, G, 2.1, { c: "#FF9A5C", sleeper: true }], ["heart", 178, 52, 1.0], ["heart", 58, 62, 0.7], ["sparkle", 52, 46, 0.8]],
     light: [["bulb", 120, 58, 2.2], ["kid", 56, G, 1.4, kb("look", { look: 1 })]],
     far: [["hill", 150, G, 1.0, { dir: "up" }], ["house", 206, G - 56, 0.55], ["kid", 56, G, 1.55, kb("look", { look: 1 })], ["line", 0, 0, 1, { x1: 84, y1: 110, x2: 196, y2: 82, dash: true, c: "#6A48E8", w: 3 }]],
-    long: [["bus", 54, G, 0.62, { c: "#FFC83D" }], ["bus", 120, G, 0.62, { c: "#FFC83D" }], ["bus", 186, G, 0.62, { c: "#FFC83D" }], ["arrow", 0, 0, 1, { x1: 114, y1: 150, x2: 22, y2: 150 }], ["arrow", 0, 0, 1, { x1: 126, y1: 150, x2: 218, y2: 150 }]],
+    long: [["longbus", 120, G - 10, 0.8, {}], ["line", 0, 0, 1, { x1: 40, y1: 146, x2: 200, y2: 146, c: "#6A48E8", w: 3.4 }], ["line", 0, 0, 1, { x1: 40, y1: 138, x2: 40, y2: 154, c: "#6A48E8", w: 3.4 }], ["line", 0, 0, 1, { x1: 200, y1: 138, x2: 200, y2: 154, c: "#6A48E8", w: 3.4 }]],
     fall: [["ball", 168, 26, 1.0, { c: C.red }], ["arrow", 0, 0, 1, { x1: 168, y1: 48, x2: 168, y2: 92 }], ["kid", 90, G, 1.5, kb("cheer", { mouth: "open", look: 1 })], ["whoosh", 200, 40, 0.8]],
     hurt: [["kid", 88, G, 1.6, kb("wave", { mouth: "sad", look: 0 })], ["tears", 88, G - 85, 1.45], ["pain", 122, 38, 1.0, { r: 16 }], ["bandhand", 122, 40, 1.35], ["bubble", 184, 50, 1.0, { w: 64, h: 36, inner: [["txt", 0, 6, 1, { t: "Ouch!", size: 15, c: "#E5483A" }]] }]],
     clean: [["cat", 120, G, 2.0, CATW], ["sparkle", 76, 60, 1.2], ["sparkle", 172, 52, 1.0], ["sparkle", 180, 96, 0.8], ["bubbles", 56, 104, 0.9]],
     start: [["trafficlight", 214, G, 1.2, { on: 2 }], ["kid", 70, G, 1.45, kb("run", { mouth: "open" })], ["kid", 128, G, 1.45, kg("run", { mouth: "open" })], ["whoosh", 20, G - 26, 1.0]],
-    try: [["kid", 56, G, 1.35, kb("run", { op: 0.3 })], ["cbox", 116, G, 1.1], ["kid", 172, G - 4, 1.5, kg("jump", { mouth: "open" })], ["check", 204, 44, 0.9], ["sparkle", 150, 40, 0.8]],
+    try: [["cbox", 152, G, 1.7], ["kid", 84, G, 1.5, kb("reach", { look: 1, mouth: "o" })], ["sweat", 56, 56, 0.8], ["retry", 152, 68, 1.5]],
     thing: [["cbox", 120, G, 2.2], ["qm", 76, 56, 1.0], ["qm", 164, 48, 1.2], ["qm", 120, 24, 0.9], ["kid", 40, G, 1.1, kb("point", { look: 1 })]],
     done: [["kid", 100, G, 1.6, kg("cheer", { mouth: "open" })], ["check", 176, 70, 1.6], ["sparkle", 56, 50, 0.9], ["sparkle", 204, 38, 0.7]],
     never: [["kid", 82, G, 1.5, kb("hands", { mouth: "open" })], ["dog", 148, G, 1.5, { flip: true }], ["heart", 116, 42, 1.2], ["arrow", 0, 0, 1, { x1: 182, y1: 92, x2: 232, y2: 92, c: "#6B7285" }], ["nosign", 207, 92, 1.0]],
@@ -591,9 +591,9 @@
     dog: [["dog", 112, G, 2.0], ["ball", 168, G, 1.2, { c: C.red }], ["sparkle", 176, 50, 0.9]],
     kitty: [["cat", 140, G, 1.25, { c: "#F5C98A", l: "#FFF0DA" }], ["kid", 56, G, 1.4, kb("look", { look: 1 })], ["heart", 196, 70, 0.8]],
     fish: [["pond", 150, G + 8, 1.3, { w: 70 }], ["fish", 150, G - 24, 1.5, { rot: -22 }], ["splash", 150, G - 4, 0.9], ["kid", 52, G, 1.45, kg("point", { look: 1 })]],
-    duck: [["duck", 120, G - 6, 1.7], ["pond", 120, G + 8, 1.5, { w: 82 }], ["lily", 52, G + 6, 1.1], ["lily", 196, G + 8, 1.0]],
+    duck: [["pond", 120, G + 8, 1.5, { w: 62 }], ["duck", 120, G + 2, 1.7], ["ripple", 120, G - 1, 1.0, { w: 38 }], ["lily", 46, G + 6, 1.1], ["lily", 198, G + 8, 1.0]],
     eye: [["kid", 66, G, 1.5, kb("point", { look: 1 })], ["bubble", 160, 66, 1.0, { w: 92, h: 62, inner: [["eyebig", 0, 0, 1.2, {}]] }]],
-    back: [["house", 184, G, 1.5], ["kid", 62, G, 1.5, kb("wave", { look: 1, mouth: "open" })], ["bubble", 120, 44, 0.95, { w: 78, h: 46, inner: [["clock", -17, 8, 0.58, {}], ["house", 18, 11, 0.44, {}]] }]],
+    back: [["house", 184, G, 1.6], ["kid", 62, G, 1.1, kb("wave", { look: 1, mouth: "open" })], ["bubble", 120, 44, 0.95, { w: 78, h: 46, inner: [["clock", -17, 8, 0.58, {}], ["house", 18, 11, 0.44, {}]] }]],
     small: [["bird", 96, G, 0.7, { c: "#4FA8F0" }], ["bird", 184, G, 1.9, { c: "#9AA3B8" }], ["kid", 40, G, 1.4, kg("point", { look: 1 })], ["sparkle", 100, 84, 0.8]],
     full: [["box", 120, G, 2.1, { inner: [["ball", -12, -18, 0.9, { c: C.red }], ["ball", 8, -20, 0.9, { c: C.blue }], ["ball", -2, -28, 0.9, { c: "#FFC93C" }], ["ball", 14, -30, 0.8, { c: "#6CCB5F" }], ["ball", -14, -32, 0.8, { c: "#8B6BE8" }]] }], ["check", 196, 56, 1.0]],
     much: [["kid", 100, G, 1.55, kg("hands", { mouth: "open" })], ["cake", 100, G - 22, 0.9], ["heart", 150, 52, 1.2], ["heart", 176, 82, 0.9], ["heart", 60, 46, 0.9], ["heart", 130, 30, 0.8]],
@@ -602,7 +602,7 @@
     laugh: [["kid", 76, G, 1.45, kb("hands", { mouth: "open" })], ["kid", 164, G, 1.45, kg("hands", { mouth: "open" })], ["txt", 76, 24, 1.0, { t: "ha ha", size: 15 }], ["txt", 164, 24, 1.0, { t: "ha ha", size: 15, c: "#E5483A" }]],
     show: [["kid", 70, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["hat", 114, G - 40, 0.85, { c: C.red }], ["kid", 180, G, 1.5, kg("look", { look: -1 })], ["sparkle", 116, 56, 0.9]],
     draw: [["easel", 164, G, 1.75, { drawn: true }], ["kid", 84, G, 1.5, kb("hold", { look: 1 })], ["pencil", 112, G - 42, 0.9, { rot: -30 }]],
-    cut: [["table", 150, G, 1.6], ["cake", 144, G - 40, 1.1], ["knife", 126, 46, 0.75, { rot: 90 }], ["slice", 196, G - 42, 1.1], ["kid", 60, G, 1.5, kg("reach", { look: 1 })]],
+    cut: [["table", 160, G, 1.6], ["cake", 156, G - 41, 1.6, { flat: true }], ["slice", 206, G - 42, 1.1], ["knife", 128.4, 54.5, 0.9], ["kid", 80, G, 1.4, kg("wave", { look: 1, mouth: "open" })]],
     hold: [["kid", 100, G, 1.8, kb("cradle", { mouth: "open", arms: "none" })], ["cat", 103, G - 24, 0.92], ["kid", 100, G, 1.8, kb("cradle", { arms: "only" })], ["heart", 178, 52, 1.1]],
     myself: [["blocks", 168, G, 1.6], ["kid", 78, G, 1.55, kg("self", { mouth: "open" })], ["check", 204, 44, 0.9]],
     together: [["kid", 90, G, 1.5, kb("hands", { mouth: "open" })], ["kid", 140, G, 1.5, kg("hands", { mouth: "open", look: -1, flip: true })], ["heart", 115, 36, 1.3], ["blocks", 192, G, 1.0]],
@@ -640,8 +640,38 @@
     party: "in", birthday: "in", cake: "in", christmas: "in", game: "in", song: "in", doll: "in", toy: "in", top: "in", money: "in", watch: "in", coat: "in", shoe: "in", done: "in", own: "in", thing: "in", only: "in",
     fire: "night", night: "night", light: "night", rain: "rain", snow: "snow", morning: "dawn", sun: "dusk", time: "in", today: "in", warm: "in", hot: "outns", day: "outns", back: "out", cat: "in", better: "in", draw: "in", cut: "in", much: "in",
     shall: "out", ring: "in", about: "in", together: "out", myself: "in", never: "in", pick: "out", got: "in", apple: "out", keep: "in", ball: "out", water: "in", clean: "in", street: "out" };
+  // a long articulated bus (two bodies joined by a bendy middle), facing right: about 200 units long, wheels on the ground (y = 0)
+  function longbus(o) {
+    var c = o.c || "#FFC83D", s = "", i, x;
+    s += '<rect x="-104" y="-52" width="100" height="42" rx="11" ' + f(c, 2.8) + '/><rect x="4" y="-52" width="100" height="42" rx="11" ' + f(c, 2.8) + '/>';
+    s += '<rect x="-6" y="-48" width="12" height="36" rx="3" ' + f("#4A4F5E", 2) + '/><path d="M-3 -46 V-14 M0 -46 V-14 M3 -46 V-14" stroke="#2F333F" stroke-width="1.2"/>';
+    s += '<rect x="-104" y="-22" width="208" height="6" fill="' + dk(c, 0.22) + '" opacity=".5"/>';
+    for (i = 0; i < 4; i++) {
+      x = -96 + i * 22;
+      s += '<rect x="' + x + '" y="-46" width="15" height="17" rx="4" ' + f("#BFE6FA", 1.8) + "/>";
+      x = 12 + i * 22;
+      s += '<rect x="' + x + '" y="-46" width="15" height="17" rx="4" ' + f("#BFE6FA", 1.8) + "/>";
+    }
+    s += '<rect x="90" y="-46" width="12" height="30" rx="3.5" ' + f("#BFE6FA", 1.8) + '/><line x1="96" y1="-46" x2="96" y2="-16" stroke="' + dk("#BFE6FA") + '" stroke-width="1.4"/>';
+    for (i = 0; i < 3; i++) {
+      x = [-62, 18, 72][i];
+      s += '<circle cx="' + x + '" cy="-8" r="10" ' + f("#3A3F4D", 2) + '/><circle cx="' + x + '" cy="-8" r="4" fill="#C8CEDB"/>';
+    }
+    s += '<circle cx="101" cy="-24" r="2.6" fill="#FFF3B0"/>';
+    return s;
+  }
+  // a round "again" arrow (a circle of arrow almost closed), about 30 units across
+  function retry(o) {
+    var c = o.c || "#8B6BE8";
+    return '<path d="M5.1 -30.1 A15 15 0 1 1 -9.6 -27.5" fill="none" stroke="' + dk(c, 0.25) + '" stroke-width="7" stroke-linecap="round"/><path d="M5.1 -30.1 A15 15 0 1 1 -9.6 -27.5" fill="none" stroke="' + c + '" stroke-width="4.2" stroke-linecap="round"/><path d="M-4.4 -32.4 L-6.6 -23.4 L-13.6 -31.4Z" fill="' + c + '" stroke="' + dk(c, 0.25) + '" stroke-width="1.6" stroke-linejoin="round"/>';
+  }
+  // the water around something that stands in a pond: a blue oval with a light edge, drawn over its lower part so it looks sunk in the water
+  function ripple(o) {
+    var w = o.w || 36;
+    return '<ellipse cx="0" cy="0" rx="' + w + '" ry="9" fill="#7CC4F0" stroke="#5E9FCF" stroke-width="2.2"/><ellipse cx="0" cy="0" rx="' + (w + 9) + '" ry="12" fill="none" stroke="#FFFFFE" stroke-width="2" opacity=".6"/><path d="M-' + (w - 14) + ' 2 Q-' + (w - 22) + ' -2 -' + (w - 30) + ' 2 M' + (w - 30) + ' 3 Q' + (w - 22) + ' -1 ' + (w - 14) + ' 3" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>';
+  }
   A.extend({
-    kit: { cow: cow, pig: pig, sheep: sheep, horse: horse, chicken: chicken, rabbit: rabbit, bear: bear, squirrel: squirrel, robin: robin, barn: barn, fence: fence, corn: corn, grass: grass, seeds: seeds, egg: egg, milk: milk, loaf: loaf,
+    kit: { ripple: ripple, retry: retry, longbus: longbus, cow: cow, pig: pig, sheep: sheep, horse: horse, chicken: chicken, rabbit: rabbit, bear: bear, squirrel: squirrel, robin: robin, barn: barn, fence: fence, corn: corn, grass: grass, seeds: seeds, egg: egg, milk: milk, loaf: loaf,
       flower: flower, door: door, window: windowk, boards: boards, bowl: bowl, sprout: sprout, car: car, boat: boat, bell: bell, school: school, letter: letter, paper: paper, frame: frame, tag: tag, road: road, signpost: signpost,
       hl: hl, bighand: bighand, cbox: cbox, calpage: calpage, feet: feet, bandaid: bandaid, bandhand: bandhand, pain: pain, tears: tears, baby: baby, fire: fire, stick: stick, crate: crate, logs: logs, puddle: puddle, raincloud: raincloud, sled: sled, leaf: leaf, nest: nest, splash: splash, lily: lily, sunbig: sunbig,
       sweat: sweat, castle: castle, chair: chair, partyhat: partyhat, balloons: balloons, xtree: xtree, dice: dice, board: board, staff: staff, doll: doll, robot: robot, top: topk, watch: watchk, coat: coatk, shoe: shoek,
