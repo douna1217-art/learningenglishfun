@@ -94,7 +94,7 @@
       return arm(-9, p.A[0]) + arm(9, p.A[1]);
     }
     function leg(a) {
-      return ln(a[0], a[1], a[2], a[3], 6.5, pants) + '<ellipse cx="' + (a[2] + (a[2] > a[0] ? 2 : -1)) + '" cy="' + (a[3] + 1.5) + '" rx="5.5" ry="3" ' + f("#E5483A", 1.8) + "/>";
+      return ln(a[0], a[1], a[2], a[3], 6.5, pants) + '<ellipse cx="' + (a[2] + (a[2] > a[0] ? 2 : -1)) + '" cy="' + (a[3] + 1.5) + '" rx="5.5" ry="3" ' + f(o.barefoot ? skin : "#E5483A", 1.8) + "/>";
     }
     // arms: "none" leaves the arms out, "only" draws just the arms (drawn again over something the child holds against the body)
     if (o.arms === "only") return '<g transform="translate(0,' + (p.dy || 0) + ") rotate(" + (p.lean || 0) + ' 0 -22)">' + arms() + "</g>";

@@ -104,10 +104,28 @@
     return '<g transform="translate(' + x + " " + y + ") rotate(" + (rot || 0) + ") scale(" + k + ')"><path d="M0 -34 Q14 -14 12 14 L-12 14 Q-14 -14 0 -34Z" fill="#FFFFFF"/><path d="M0 -34 Q7 -26 10 -16 L-10 -16 Q-7 -26 0 -34Z" fill="#E5483A"/><circle cx="0" cy="-3" r="6" fill="#3D8BF2"/>' +
       '<polygon points="-12,4 -22,22 -12,14" fill="#E5483A"/><polygon points="12,4 22,22 12,14" fill="#E5483A"/><polygon points="-6,14 0,34 6,14" fill="#FFA94D"/></g>';
   }
+  // the jungle: a tree with a round crown, a hanging vine, a big leaf, a monkey and a parrot
+  function jtree(x, base, h, c1, c2) {
+    return '<rect x="' + (x - h * 0.05) + '" y="' + (base - h * 0.62) + '" width="' + h * 0.1 + '" height="' + h * 0.64 + '" fill="#8A5A2B"/><circle cx="' + (x - h * 0.2) + '" cy="' + (base - h * 0.66) + '" r="' + h * 0.26 + '" fill="' + c1 + '"/><circle cx="' + (x + h * 0.22) + '" cy="' + (base - h * 0.62) + '" r="' + h * 0.24 + '" fill="' + c1 + '"/><circle cx="' + x + '" cy="' + (base - h * 0.82) + '" r="' + h * 0.28 + '" fill="' + (c2 || c1) + '"/>';
+  }
+  function vineAt(x, y, len, c) {
+    var o = '<path d="M' + x + " " + y + " q8 " + len * 0.35 + " -2 " + len * 0.6 + " t4 " + len * 0.4 + '" fill="none" stroke="' + (c || "#2F8A4C") + '" stroke-width="3.4" stroke-linecap="round"/>';
+    return o + '<ellipse cx="' + (x + 5) + '" cy="' + (y + len * 0.5) + '" rx="6" ry="3.4" transform="rotate(30 ' + (x + 5) + " " + (y + len * 0.5) + ')" fill="#6CCB5F"/><ellipse cx="' + (x - 3) + '" cy="' + (y + len * 0.85) + '" rx="6" ry="3.4" transform="rotate(-30 ' + (x - 3) + " " + (y + len * 0.85) + ')" fill="#4FB36B"/>';
+  }
+  function leafAt(x, y, k, rot, c1, c2) {
+    return '<g transform="translate(' + x + " " + y + ") rotate(" + (rot || 0) + ") scale(" + k + ')"><path d="M0 0 Q-16 -20 0 -46 Q16 -20 0 0Z" fill="' + (c1 || "#4FB36B") + '"/><path d="M0 0 L0 -40" stroke="' + (c2 || "#2F8A4C") + '" stroke-width="2.4"/></g>';
+  }
+  function monkeyAt(x, y, k) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M10 6 Q30 4 28 -14 Q26 -24 18 -22" fill="none" stroke="#8A5A2B" stroke-width="5" stroke-linecap="round"/><ellipse cx="0" cy="0" rx="14" ry="16" fill="#9A6A3A"/><ellipse cx="0" cy="4" rx="8" ry="10" fill="#E8C79A"/>' +
+      '<circle cx="-4" cy="-24" r="3" fill="#9A6A3A"/><circle cx="14" cy="-24" r="3" fill="#9A6A3A"/><circle cx="5" cy="-20" r="11" fill="#9A6A3A"/><ellipse cx="6" cy="-17" rx="7.4" ry="6.4" fill="#E8C79A"/><circle cx="3" cy="-22" r="1.6" fill="#1E2A4A"/><circle cx="9" cy="-22" r="1.6" fill="#1E2A4A"/><path d="M3 -15 q3 2 6 0" fill="none" stroke="#1E2A4A" stroke-width="1.4" stroke-linecap="round"/></g>';
+  }
+  function parrotAt(x, y, k) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M-6 8 L-16 30 L-8 26 L-2 32 L2 10Z" fill="#3D8BF2"/><ellipse cx="0" cy="0" rx="11" ry="15" fill="#E5483A"/><path d="M-8 -2 Q-18 6 -12 16 Q-4 10 -2 2Z" fill="#FFC93C"/><circle cx="2" cy="-18" r="9" fill="#E5483A"/><path d="M8 -20 Q18 -18 14 -10 Q10 -12 7 -14Z" fill="#FFD23F"/><circle cx="3" cy="-20" r="2.4" fill="#FFFFFF"/><circle cx="3.6" cy="-20" r="1.2" fill="#1E2A4A"/></g>';
+  }
   var SKY = '<rect width="360" height="100" fill="#BFE6FF"/>';
 
   // each island has five little worlds; a world has a name, a header picture (360 x 100), the colour behind its trail and the colour of the dotted path.
-  // Island 1 is a mountain, 2 a seaside holiday, 3 a castle kingdom and 4 outer space.
+  // Island 1 is a mountain, 2 a seaside holiday, 3 a castle kingdom, 4 outer space and 5 a jungle.
   var WORLDS = {
     1: [
       { name: "Flower foothills", bg: "#EAF7E1", dash: "#A9DB95", art: function () {
@@ -220,6 +238,30 @@
           '<ellipse cx="170" cy="72" rx="9" ry="10" fill="#6CCB5F"/><circle cx="166" cy="70" r="2.4" fill="#1E2A4A"/><circle cx="174" cy="70" r="2.4" fill="#1E2A4A"/><path d="M162 62 l-4 -8 M178 62 l4 -8" stroke="#6CCB5F" stroke-width="2.5" stroke-linecap="round"/><circle cx="294" cy="60" r="8" fill="#FF8FB1"/>';
       } },
     ],
+    5: [
+      { name: "Vine bridge", bg: "#DDF3D3", dash: "#8FCB86", art: function () {
+        var o = '<rect width="360" height="100" fill="#CFEFC4"/>' + jtree(30, 92, 70, "#4FB36B", "#3E9B5A") + jtree(330, 94, 76, "#3E9B5A", "#4FB36B") + jtree(100, 90, 40, "#6CCB5F", "#5DBB5A") + jtree(266, 90, 44, "#6CCB5F", "#5DBB5A") +
+          vineAt(150, 0, 34) + vineAt(212, 0, 26) + '<rect x="58" y="36" width="8" height="56" fill="#8A5A2B"/><rect x="294" y="36" width="8" height="56" fill="#8A5A2B"/><path d="M62 44 Q180 82 298 44" fill="none" stroke="#8A5A2B" stroke-width="4" stroke-linecap="round"/>';
+        for (var t = 0.1; t < 0.95; t += 0.1) o += '<rect x="' + (62 + 236 * t - 8).toFixed(1) + '" y="' + (44 + 76 * t * (1 - t) + 2).toFixed(1) + '" width="16" height="5" rx="1.5" fill="#B98A5A"/>';
+        return o + '<path d="M0 94 Q90 84 180 92 T360 90 L360 100 L0 100Z" fill="#3E9B5A"/>';
+      } },
+      { name: "Waterfall cave", bg: "#D9F0F0", dash: "#8CCFD0", art: function () {
+        return '<rect width="360" height="100" fill="#BDE3E8"/><path d="M0 100 L0 30 Q40 6 80 24 L110 100Z" fill="#8F9BAE"/><path d="M360 100 L360 24 Q320 2 280 24 L252 100Z" fill="#7B879C"/><rect x="150" y="0" width="44" height="88" fill="#8FD0F2"/><path d="M158 0 V80 M170 0 V86 M184 0 V76" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".8"/>' +
+          '<ellipse cx="172" cy="92" rx="54" ry="9" fill="#6EC3F2"/><g fill="#FFFFFF" opacity=".75"><circle cx="150" cy="88" r="8"/><circle cx="170" cy="84" r="9"/><circle cx="192" cy="88" r="8"/></g><path d="M236 100 V74 Q236 54 258 54 Q280 54 280 74 V100Z" fill="#2B2B3A"/><circle cx="76" cy="20" r="4" fill="#6CCB5F"/>' + vineAt(300, 0, 30) + leafAt(40, 98, 0.8, -20, "#4FB36B");
+      } },
+      { name: "Monkey treetops", bg: "#E6F4CE", dash: "#A5D17A", art: function () {
+        return '<rect width="360" height="100" fill="#D3EFAA"/><circle cx="40" cy="12" r="34" fill="#4FB36B"/><circle cx="110" cy="0" r="40" fill="#3E9B5A"/><circle cx="210" cy="8" r="36" fill="#4FB36B"/><circle cx="300" cy="-2" r="42" fill="#3E9B5A"/><circle cx="350" cy="30" r="30" fill="#6CCB5F"/>' +
+          '<path d="M0 62 Q120 52 230 66 T360 58" fill="none" stroke="#8A5A2B" stroke-width="9" stroke-linecap="round"/>' + monkeyAt(206, 82, 1.1) + '<path d="M236 62 q10 -4 16 4 q-8 6 -16 -4z" fill="#FFD23F"/>' + vineAt(70, 40, 36) + vineAt(300, 42, 30) + leafAt(130, 96, 0.9, 20, "#6CCB5F");
+      } },
+      { name: "Hidden temple", bg: "#EEF0D5", dash: "#C4C77E", art: function () {
+        return '<rect width="360" height="100" fill="#E1ECB8"/>' + jtree(40, 96, 60, "#4FB36B", "#3E9B5A") + jtree(322, 96, 64, "#3E9B5A", "#4FB36B") + '<rect x="84" y="80" width="192" height="16" fill="#CFC6A0"/><rect x="106" y="64" width="148" height="16" fill="#C4BA90"/><rect x="130" y="48" width="100" height="16" fill="#CFC6A0"/><rect x="154" y="26" width="52" height="22" fill="#C4BA90"/>' +
+          '<path d="M170 48 V36 Q180 28 190 36 V48Z" fill="#2B2B3A"/><circle cx="180" cy="22" r="5" fill="#FFD23F"/><path d="M174 96 V80 H186 V96Z" fill="#9A8F6A"/>' + vineAt(100, 60, 34) + vineAt(262, 62, 30) + leafAt(66, 98, 0.8, -25, "#4FB36B") + leafAt(300, 98, 0.8, 25, "#4FB36B");
+      } },
+      { name: "Golden river", bg: "#FFF1C9", dash: "#EBCB78", art: function () {
+        return '<rect width="360" height="100" fill="#FFF0C2"/>' + sunAt(300, 24, 13) + jtree(36, 62, 58, "#4FB36B", "#3E9B5A") + jtree(108, 58, 38, "#6CCB5F", "#5DBB5A") + '<path d="M0 66 Q80 58 170 70 T360 62 L360 100 L0 100Z" fill="#8FD07A"/><path d="M-10 84 Q90 66 190 82 T370 76 L370 100 L-10 100Z" fill="#F4C542"/><path d="M20 90 Q100 78 190 90 T350 84" fill="none" stroke="#FFE08A" stroke-width="4" stroke-linecap="round"/>' +
+          '<path d="M176 74 q22 14 54 0 l-6 10 q-20 6 -42 0z" fill="#C4533F"/><line x1="203" y1="56" x2="203" y2="78" stroke="#6B4A2B" stroke-width="2.4"/>' + parrotAt(300, 52, 0.7);
+      } },
+    ],
   };
 
   // the big banner at the top of an island's page (360 x 340, the bottom is always kept)
@@ -248,6 +290,11 @@
         '<circle cx="62" cy="214" r="26" fill="#E8E4F5"/><ellipse cx="54" cy="208" rx="6" ry="4" fill="#CFCBE6"/><ellipse cx="72" cy="224" rx="8" ry="5" fill="#CFCBE6"/>' + rocket(150, 268, 1.3, 28) +
         '<path d="M0 304 Q180 272 360 302 L360 340 L0 340Z" fill="#4B3FA8"/><ellipse cx="90" cy="320" rx="24" ry="6" fill="#3B2F8A"/><ellipse cx="260" cy="324" rx="30" ry="7" fill="#3B2F8A"/>';
     },
+    5: function () {
+      return '<rect width="360" height="340" fill="#C9EEC0"/>' + sunAt(312, 176, 15) + cloudAt(70, 182, 0.9) + jtree(40, 300, 150, "#3E9B5A", "#4FB36B") + jtree(326, 304, 160, "#2F8A4C", "#3E9B5A") + jtree(120, 308, 80, "#4FB36B", "#6CCB5F") + jtree(260, 308, 90, "#4FB36B", "#6CCB5F") +
+        vineAt(100, 150, 60) + vineAt(190, 150, 46) + vineAt(240, 150, 66) + '<path d="M0 300 Q90 278 180 298 T360 290 L360 340 L0 340Z" fill="#6CCB5F"/><path d="M0 322 Q120 304 240 320 T360 314 L360 340 L0 340Z" fill="#4FB36B"/>' +
+        '<rect x="150" y="268" width="62" height="14" fill="#CFC6A0"/><rect x="162" y="254" width="38" height="14" fill="#C4BA90"/><rect x="172" y="238" width="18" height="16" fill="#CFC6A0"/><circle cx="181" cy="232" r="4" fill="#FFD23F"/>' + parrotAt(86, 252, 1.3) + leafAt(280, 336, 1.4, 22, "#4FB36B") + leafAt(40, 338, 1.2, -24, "#6CCB5F");
+    },
   };
 
   function worlds(stage) {
@@ -272,11 +319,13 @@
     2: { body: "#2F86A8", lid: "#4FB0D2", band: "#FFC93C" },
     3: { body: "#7A3FA8", lid: "#9A58C8", band: "#FFD23F" },
     4: { body: "#8E9BB8", lid: "#B3BED6", band: "#5FE0F0" },
+    5: { body: "#2F7A4C", lid: "#46A06B", band: "#FFD23F" },
   };
   function emblem(stage) {
     if (stage === 2) return '<path d="M40 40 L30 52 Q40 58 50 52Z" fill="#FFD9E6"/><path d="M40 40 L36 54 M40 40 L40 56 M40 40 L44 54" stroke="#E88FB1" stroke-width="1.6"/>';
     if (stage === 3) return '<polygon points="31,44 34,34 38,41 40,32 42,41 46,34 49,44" fill="#FFE066"/><circle cx="26" cy="52" r="3" fill="#FF8FB1"/><circle cx="54" cy="52" r="3" fill="#5FE0F0"/>';
     if (stage === 4) return '<circle cx="40" cy="48" r="9" fill="#5FE0F0" opacity=".35"/>' + twinkle(40, 48, 7, "#FFFFFF");
+    if (stage === 5) return '<path d="M40 56 Q28 48 34 36 Q44 38 46 48 Q44 54 40 56Z" fill="#9BE08A"/><path d="M40 56 L38 42" stroke="#2F8A4C" stroke-width="1.6"/>';
     return "";
   }
   function chest(o) {
@@ -321,8 +370,8 @@
     function K(real, grey) {
       return g ? grey : real;
     }
-    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4"][n],
-      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8"][n],
+    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4", "#7A6A3E"][n],
+      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8", "#6CCB5F"][n],
       o = '<path d="M-62 0 Q-52 46 0 58 Q52 46 62 0Z" fill="' + K(earth, "#B9C3D8") + '"/><path d="M-40 30 Q-30 46 0 52 Q30 46 40 30" fill="none" stroke="' + K("rgba(0,0,0,.14)", "#A3AEC6") + '" stroke-width="3" stroke-linecap="round"/><ellipse cx="0" cy="0" rx="64" ry="22" fill="' + K(top, "#D5DDEC") + '"/>';
     if (n === 1) {
       o += mount(-2, -2, 70, 66, K("#8FA3C7", "#AEBAD2"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) + mount(32, 0, 46, 38, K("#A7B8D6", "#9FACC7"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) +
@@ -335,6 +384,11 @@
       o += '<rect x="-26" y="-34" width="52" height="34" fill="' + K("#C9CEE8", "#AEBAD2") + '"/><rect x="-36" y="-50" width="16" height="50" fill="' + K("#B3B9DA", "#9FACC7") + '"/><rect x="20" y="-50" width="16" height="50" fill="' + K("#B3B9DA", "#9FACC7") + '"/><rect x="-10" y="-62" width="20" height="62" fill="' + K("#C9CEE8", "#AEBAD2") + '"/>' +
         '<polygon points="-40,-48 -28,-72 -16,-48" fill="' + K("#E5483A", "#9FACC7") + '"/><polygon points="16,-48 28,-72 40,-48" fill="' + K("#E5483A", "#9FACC7") + '"/><polygon points="-14,-60 0,-88 14,-60" fill="' + K("#8B6BE8", "#8A97AD") + '"/><path d="M-7 0 v-12 a7 7 0 0 1 14 0 v12Z" fill="' + K("#5A3A24", "#8A97AD") + '"/>' +
         '<line x1="0" y1="-88" x2="0" y2="-100" stroke="' + K("#6B4A2B", "#8A97AD") + '" stroke-width="2.5"/><polygon points="0,-100 14,-95 0,-90" fill="' + K("#FFD23F", "#AEBAD2") + '"/>';
+    } else if (n === 5) {
+      o += '<rect x="-14" y="-18" width="44" height="12" fill="' + K("#CFC6A0", "#AEBAD2") + '"/><rect x="-6" y="-30" width="28" height="12" fill="' + K("#C4BA90", "#9FACC7") + '"/><rect x="0" y="-42" width="16" height="12" fill="' + K("#CFC6A0", "#AEBAD2") + '"/><circle cx="8" cy="-46" r="3.4" fill="' + K("#FFD23F", "#C7D0E0") + '"/>' +
+        '<rect x="-46" y="-32" width="6" height="34" fill="' + K("#8A5A2B", "#9FACC7") + '"/><circle cx="-52" cy="-40" r="16" fill="' + K("#3E9B5A", "#9FACC7") + '"/><circle cx="-36" cy="-42" r="14" fill="' + K("#4FB36B", "#AEBAD2") + '"/><circle cx="-44" cy="-54" r="15" fill="' + K("#4FB36B", "#AEBAD2") + '"/>' +
+        '<rect x="42" y="-24" width="5" height="28" fill="' + K("#8A5A2B", "#9FACC7") + '"/><circle cx="46" cy="-32" r="14" fill="' + K("#3E9B5A", "#9FACC7") + '"/>' + (g ? "" : parrotAt(-14, -34, 0.42)) +
+        '<ellipse cx="8" cy="8" rx="16" ry="4" fill="' + K("#5DBB5A", "#B9C3D8") + '"/>';
     } else {
       o += '<ellipse cx="14" cy="-30" rx="46" ry="10" fill="none" stroke="' + K("#E6B5F5", "#9FACC7") + '" stroke-width="6" transform="rotate(-14 14 -30)"/><circle cx="14" cy="-30" r="24" fill="' + K("#FF9F5A", "#AEBAD2") + '"/><path d="M-6 -36 Q14 -28 34 -38" stroke="' + K("#FFC48A", "#C7D0E0") + '" stroke-width="4" fill="none"/>' +
         '<ellipse cx="-34" cy="2" rx="9" ry="3" fill="' + K("#A9A4C4", "#B9C3D8") + '"/><ellipse cx="38" cy="6" rx="8" ry="2.6" fill="' + K("#A9A4C4", "#B9C3D8") + '"/>' + (g ? "" : rocket(-32, -14, 0.7, -12)) + twinkle(-48, -42, 5, K("#FFE98A", "#C7D0E0"));
@@ -346,11 +400,11 @@
   // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total, check}, 2: ...} }. Without stages, island 1 shows known and total.
   // check: true puts an orange "Quick check" tag next to "Open" (the group with class sw-isl-qc, data-s = the island, is its click target).
   // The group with class sw-isl-go (data-s = the island) is the click target.
-  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466] };
+  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466], 5: [84, 700] };
   function islands(o) {
     var ready = o.ready || { 1: true },
       out = "";
-    [1, 2, 3, 4].forEach(function (n) {
+    [1, 2, 3, 4, 5].forEach(function (n) {
       var info = o.stages && o.stages[n] ? o.stages[n] : n === 1 ? { title: o.title || "First words", known: o.known || 0, total: o.total || 1 } : { title: "", known: 0, total: 1 },
         pct = Math.max(0, Math.min(1, info.known / (info.total || 1))),
         x = POS[n][0],
@@ -372,10 +426,10 @@
         out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + tag + "</g></g>";
       else out += '<g transform="translate(' + x + "," + y + ')">' + soft(islandArt(n, true)) + label + "</g>";
     });
-    return '<svg class="sw-isvg" viewBox="0 0 360 590" role="group" aria-label="Word islands">' +
-      '<rect x="0" y="0" width="360" height="590" rx="28" fill="#DFF1FF"/>' +
-      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/></g>' +
-      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
+    return '<svg class="sw-isvg" viewBox="0 0 360 830" role="group" aria-label="Word islands">' +
+      '<rect x="0" y="0" width="360" height="830" rx="28" fill="#DFF1FF"/>' +
+      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/><ellipse cx="300" cy="640" rx="24" ry="8"/><ellipse cx="316" cy="634" rx="12" ry="8"/><ellipse cx="60" cy="800" rx="24" ry="8"/><ellipse cx="74" cy="794" rx="12" ry="8"/></g>' +
+      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466 C300 540 130 610 84 700" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
   }
 
   root.SWScenery = { hero: hero, game: game, book: book, star: star, islands: islands, banner: bannerArt, unitArt: unitArt, unitTheme: unitTheme, chest: chest };

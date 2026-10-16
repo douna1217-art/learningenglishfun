@@ -71,6 +71,7 @@ ALT = {
     "an": ["an", "ann", "uhn"],
     "were": ["were", "wur", "wer"],
     "her": ["her", "hur", "hurr"],
+    "tall": ["tall", "tawl", "tahl", "taul"],
 }
 # what the listening check accepts as a right answer for one-word clips (Whisper spells sounds its own way)
 HEARD = {
@@ -90,7 +91,7 @@ HEARD = {
 def load():
     """the words of every stage (sightwords-data.js is stage 1, sightwords-data2.js stage 2, sightwords-data3.js stage 3)"""
     data = None
-    for fn in ("sightwords-data.js", "sightwords-data2.js", "sightwords-data3.js", "sightwords-data4.js"):
+    for fn in ("sightwords-data.js", "sightwords-data2.js", "sightwords-data3.js", "sightwords-data4.js", "sightwords-data5.js"):
         path = os.path.join(SITE, fn)
         if not os.path.exists(path):
             continue

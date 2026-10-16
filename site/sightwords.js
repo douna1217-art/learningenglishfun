@@ -1,5 +1,5 @@
-/* Sight words: stage 1 (18 short lessons for the Dolch pre-primer and primer words), stage 2 (20 lessons for grade 1 and 2), stage 3 (30 lessons for grade 3 and the nouns) and stage 4 (30 lessons of common Fry words), then spaced review.
-   Needs sightwords-data.js (stage 1), sightwords-data2.js (stage 2) and sightwords-data3.js (stage 3) and sightwords-data4.js (stage 4): the words, one sentence per word, lessons; and the clips in sightwords/audio/.
+/* Sight words: stage 1 (18 short lessons for the Dolch pre-primer and primer words), stage 2 (20 lessons for grade 1 and 2), stage 3 (30 lessons for grade 3 and the nouns), stage 4 (30 lessons of common Fry words) and stage 5 (30 more lessons of Fry words), then spaced review.
+   Needs sightwords-data.js (stage 1), sightwords-data2.js (stage 2) and sightwords-data3.js (stage 3), sightwords-data4.js (stage 4) and sightwords-data5.js (stage 5): the words, one sentence per word, lessons; and the clips in sightwords/audio/.
    A lesson = meet 5 words, then practise them (listen and tap, find it in the sentence, build the sentence).
    What the child knows is kept in lef_words_v1 (synced like the pet, see state-sync.js):
      words    {word: {box 1-5, due "YYYY-MM-DD", n tries, ok right on the first try}}
@@ -500,7 +500,7 @@
     return state;
   }
 
-  // the lessons of the later stages go after the ones of the stage before (ids keep counting: 19-38 are stage 2, units 6-10; 39-68 are stage 3, units 11-15; 69-98 are stage 4, units 16-20)
+  // the lessons of the later stages go after the ones of the stage before (ids keep counting: 19-38 are stage 2, units 6-10; 39-68 are stage 3, units 11-15; 69-98 are stage 4, units 16-20; 99-128 are stage 5, units 21-25)
   // and that stage becomes ready. mergeData(d1, d2, d3...) adds the later data in order; a later data set that is missing is skipped.
   function mergeOne(d1, d2) {
     if (!d1 || !d2) return d1;
@@ -587,7 +587,7 @@
   if (!root || !root.document) return;
 
   /* ------------------------------------------------------------------ browser part */
-  var D = mergeData(root.SW_DATA, root.SW_DATA2, root.SW_DATA3, root.SW_DATA4),
+  var D = mergeData(root.SW_DATA, root.SW_DATA2, root.SW_DATA3, root.SW_DATA4, root.SW_DATA5),
     ls = null;
   try {
     ls = root.localStorage;
@@ -1069,7 +1069,7 @@
       "#swOverlay .sw-isvg:focus,#swOverlay .sw-isl-go:focus{outline:0}" +
       "#swOverlay .sw-isl-go{cursor:pointer}" +
       "#swOverlay .sw-isl-go .sw-ibody{animation:swbobi 2.8s ease-in-out infinite}" +
-      "#swOverlay .sw-ipet{position:absolute;left:15%;top:9.4%;width:14.5%;pointer-events:none;transform-origin:50% 100%;animation:swbobp 3s ease-in-out infinite}" +
+      "#swOverlay .sw-ipet{position:absolute;left:15%;top:6.7%;width:14.5%;pointer-events:none;transform-origin:50% 100%;animation:swbobp 3s ease-in-out infinite}" +
       "#swOverlay .sw-ipet svg{display:block;width:100%;height:auto;overflow:visible}" +
       "#swOverlay .sw-album{display:flex;align-items:center;width:100%;text-align:left;background:#fff;border-radius:26px;padding:12px 14px;box-shadow:0 6px 0 #C9D7E8;margin-bottom:10px;transition:transform .15s}" +
       "#swOverlay .sw-album:hover{transform:translateY(-2px)}" +
