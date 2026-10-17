@@ -122,6 +122,29 @@
   function parrotAt(x, y, k) {
     return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M-6 8 L-16 30 L-8 26 L-2 32 L2 10Z" fill="#3D8BF2"/><ellipse cx="0" cy="0" rx="11" ry="15" fill="#E5483A"/><path d="M-8 -2 Q-18 6 -12 16 Q-4 10 -2 2Z" fill="#FFC93C"/><circle cx="2" cy="-18" r="9" fill="#E5483A"/><path d="M8 -20 Q18 -18 14 -10 Q10 -12 7 -14Z" fill="#FFD23F"/><circle cx="3" cy="-20" r="2.4" fill="#FFFFFF"/><circle cx="3.6" cy="-20" r="1.2" fill="#1E2A4A"/></g>';
   }
+  // the deep sea: coral, kelp, a fish, a shell and a whale
+  function coralAt(x, y, k, c1, c2) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M0 0 V-30 M0 -16 L-12 -30 M0 -24 L10 -38 M0 -10 L12 -22" fill="none" stroke="' + c1 + '" stroke-width="7" stroke-linecap="round"/>' +
+      '<circle cx="0" cy="-32" r="4" fill="' + c2 + '"/><circle cx="-12" cy="-32" r="3.4" fill="' + c2 + '"/><circle cx="10" cy="-40" r="3.4" fill="' + c2 + '"/><circle cx="12" cy="-24" r="3.4" fill="' + c2 + '"/></g>';
+  }
+  function kelpAt(x, y, h, c) {
+    return '<path d="M' + x + " " + y + " q-10 " + -h * 0.25 + " 0 " + -h * 0.5 + " t0 " + -h * 0.5 + '" fill="none" stroke="' + (c || "#3FA66B") + '" stroke-width="5.4" stroke-linecap="round"/>';
+  }
+  function fishAt(x, y, k, c, flip) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + (flip ? -k : k) + " " + k + ')"><path d="M-14 0 L-25 -9 L-25 9Z" fill="' + c + '"/><ellipse cx="0" cy="0" rx="16" ry="10" fill="' + c + '"/><path d="M-4 -9 Q1 -16 8 -9Z" fill="' + c + '"/><circle cx="8" cy="-2" r="2.4" fill="#1E2A4A"/></g>';
+  }
+  function shellAt(x, y, k, c) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M0 0 L-16 -16 Q0 -30 16 -16Z" fill="' + c + '"/><path d="M0 0 L-8 -17 M0 0 V-21 M0 0 L8 -17" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="1.6"/><circle cx="0" cy="-5" r="4" fill="#FFFBF2"/></g>';
+  }
+  function whaleAt(x, y, k) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M-60 6 Q-60 -30 -20 -34 Q30 -38 56 -14 L72 -30 L78 -6 L62 4 Q30 26 -20 24 Q-56 24 -60 6Z" fill="#4F86D8"/><path d="M-44 8 Q-20 22 30 14 Q10 24 -20 24 Q-44 22 -44 8Z" fill="#CFE2FA"/><circle cx="-40" cy="-8" r="3.4" fill="#1E2A4A"/><path d="M-30 -2 Q-24 4 -16 0" fill="none" stroke="#1E2A4A" stroke-width="2" stroke-linecap="round"/><path d="M-6 -36 Q-6 -52 -14 -58 M-6 -36 Q-2 -52 6 -58" fill="none" stroke="#BFE6FF" stroke-width="3.4" stroke-linecap="round"/></g>';
+  }
+  function shipAt(x, y, k, rot) {
+    return '<g transform="translate(' + x + " " + y + ") rotate(" + (rot || 0) + ") scale(" + k + ')"><path d="M-40 0 L-30 -22 H34 L44 0 Q0 12 -40 0Z" fill="#8A5A2B"/><path d="M-34 -10 H38" stroke="#B98A5A" stroke-width="2.4"/><circle cx="-14" cy="-12" r="3.6" fill="#BFE6FF" stroke="#5A3A18" stroke-width="1.6"/><circle cx="4" cy="-12" r="3.6" fill="#BFE6FF" stroke="#5A3A18" stroke-width="1.6"/><circle cx="22" cy="-12" r="3.6" fill="#BFE6FF" stroke="#5A3A18" stroke-width="1.6"/><path d="M0 -22 V-62" stroke="#6B4423" stroke-width="4" stroke-linecap="round"/><path d="M2 -58 L26 -50 L2 -34Z" fill="#E8DDC4" opacity=".9"/><path d="M-4 -60 L-18 -46 L-4 -36Z" fill="#D9CDB0" opacity=".9"/></g>';
+  }
+  function chestAt(x, y, k) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M-30 0 V-26 H30 V0Z" fill="#B9774A"/><path d="M-30 -26 Q-30 -48 0 -50 Q30 -48 30 -26Z" fill="#D9925F" transform="rotate(-14 -30 -26)"/><path d="M-30 -20 H30" stroke="#FFC93C" stroke-width="4"/><circle cx="-12" cy="-30" r="6" fill="#FFD23F"/><circle cx="2" cy="-34" r="6" fill="#FFD23F"/><circle cx="14" cy="-30" r="6" fill="#FFD23F"/><circle cx="-4" cy="-38" r="4" fill="#FF6FA0"/><circle cx="8" cy="-40" r="4" fill="#6BB7FF"/><rect x="-5" y="-22" width="10" height="9" rx="2" fill="#FFD23F"/></g>';
+  }
   var SKY = '<rect width="360" height="100" fill="#BFE6FF"/>';
 
   // each island has five little worlds; a world has a name, a header picture (360 x 100), the colour behind its trail and the colour of the dotted path.
@@ -262,6 +285,28 @@
           '<path d="M176 74 q22 14 54 0 l-6 10 q-20 6 -42 0z" fill="#C4533F"/><line x1="203" y1="56" x2="203" y2="78" stroke="#6B4A2B" stroke-width="2.4"/>' + parrotAt(300, 52, 0.7);
       } },
     ],
+    6: [
+      { name: "Pearl reef", bg: "#D8F2FA", dash: "#8CD2E8", art: function () {
+        return '<rect width="360" height="100" fill="#BDE9F7"/><path d="M60 0 L90 0 L70 100 L36 100Z M230 0 L262 0 L276 100 L246 100Z" fill="#fff" opacity=".18"/><path d="M0 82 Q90 70 180 80 T360 76 L360 100 L0 100Z" fill="#F0DDA8"/>' + coralAt(40, 92, 1.2, "#FF7A8A", "#FFB3C0") + coralAt(110, 94, 1.0, "#FFA94D", "#FFD08A") + coralAt(260, 92, 1.3, "#B58AE8", "#D8BFF5") + coralAt(322, 94, 1.0, "#FF7A8A", "#FFB3C0") +
+          kelpAt(176, 96, 40) + kelpAt(190, 96, 32, "#2F8A4C") + shellAt(214, 90, 0.9, "#FFB3C7") + fishAt(150, 30, 0.9, "#FF9F5A") + fishAt(296, 40, 0.8, "#FFD23F", true) + dots([[96, 40, 3.4], [104, 26, 2.4], [208, 24, 3], [330, 20, 2.6]], 3, "rgba(255,255,255,.7)");
+      } },
+      { name: "Kelp forest", bg: "#D4EFE3", dash: "#7BCDA7", art: function () {
+        return '<rect width="360" height="100" fill="#A9E0E8"/><path d="M110 0 L140 0 L124 100 L92 100Z M250 0 L282 0 L300 100 L268 100Z" fill="#fff" opacity=".2"/><path d="M0 88 Q90 78 180 86 T360 82 L360 100 L0 100Z" fill="#E4CB8A"/>' + kelpAt(24, 96, 70) + kelpAt(70, 96, 84, "#2F8A4C") + kelpAt(118, 96, 62) + kelpAt(176, 96, 90, "#2F8A4C") + kelpAt(238, 96, 70) + kelpAt(292, 96, 88, "#2F8A4C") + kelpAt(336, 96, 64) +
+          fishAt(96, 40, 0.7, "#FF9F5A") + fishAt(120, 56, 0.6, "#FF9F5A") + fishAt(210, 30, 0.7, "#6BB7FF", true) + fishAt(232, 48, 0.6, "#6BB7FF", true) + dots([[150, 22, 2.8], [158, 10, 2], [320, 30, 3]], 3, "rgba(255,255,255,.7)");
+      } },
+      { name: "Sunken ship", bg: "#D5E5F2", dash: "#8AAFD0", art: function () {
+        return '<rect width="360" height="100" fill="#8EC4E3"/><path d="M0 100 L0 70 Q60 60 120 70 T240 66 T360 70 L360 100Z" fill="#E4CB8A"/>' + shipAt(180, 82, 1.1, -14) + kelpAt(40, 96, 50, "#2F8A4C") + kelpAt(320, 96, 56, "#2F8A4C") + coralAt(98, 94, 0.9, "#FF7A8A", "#FFB3C0") + coralAt(262, 94, 0.9, "#FFA94D", "#FFD08A") +
+          fishAt(70, 36, 0.8, "#FFD23F") + fishAt(300, 30, 0.8, "#FF8FB1", true) + dots([[130, 30, 3.6], [140, 16, 2.6], [250, 40, 3.2], [260, 22, 2.4]], 3, "rgba(255,255,255,.7)");
+      } },
+      { name: "Whale song", bg: "#D6E4FA", dash: "#93B2E8", art: function () {
+        return '<rect width="360" height="100" fill="#9CC6F0"/><path d="M80 0 L112 0 L130 100 L96 100Z M240 0 L270 0 L252 100 L220 100Z" fill="#fff" opacity=".16"/>' + whaleAt(170, 56, 0.9) + '<g fill="#6A48E8"><ellipse cx="268" cy="30" rx="5.8" ry="4.2" transform="rotate(-20 268 30)"/><path d="M273 29 V8 Q278 12 283 12" stroke="#6A48E8" stroke-width="2.4" fill="none"/><ellipse cx="298" cy="52" rx="5" ry="3.6" transform="rotate(-20 298 52)"/><path d="M303 51 V32 Q308 36 313 36" stroke="#6A48E8" stroke-width="2.2" fill="none"/></g>' +
+          fishAt(40, 70, 0.7, "#FFD23F") + fishAt(330, 80, 0.7, "#FF9F5A", true) + kelpAt(14, 98, 40, "#2F8A4C") + dots([[60, 24, 3], [320, 20, 2.6]], 3, "rgba(255,255,255,.7)");
+      } },
+      { name: "Treasure deep", bg: "#E4DEF5", dash: "#B6A5E4", art: function () {
+        return '<rect width="360" height="100" fill="#5E8FD0"/><path d="M120 0 L160 0 L190 100 L130 100Z M200 0 L240 0 L260 100 L206 100Z" fill="#FFE98A" opacity=".16"/><path d="M0 86 Q90 76 180 84 T360 80 L360 100 L0 100Z" fill="#C9AE7A"/><circle cx="180" cy="62" r="40" fill="#FFE98A" opacity=".25"/>' + chestAt(180, 90, 1.1) + coralAt(60, 94, 1.1, "#FF7A8A", "#FFB3C0") + coralAt(300, 94, 1.1, "#B58AE8", "#D8BFF5") + kelpAt(20, 96, 50, "#2F8A4C") + kelpAt(344, 96, 50, "#2F8A4C") +
+          fishAt(110, 30, 0.7, "#FFD23F") + fishAt(256, 24, 0.7, "#FF9F5A", true) + '<path d="M150 70 L156 64 L162 70 L156 76Z M210 66 L215 61 L220 66 L215 71Z" fill="#fff" opacity=".8"/>';
+      } },
+    ],
   };
 
   // the big banner at the top of an island's page (360 x 340, the bottom is always kept)
@@ -295,6 +340,12 @@
         vineAt(100, 150, 60) + vineAt(190, 150, 46) + vineAt(240, 150, 66) + '<path d="M0 300 Q90 278 180 298 T360 290 L360 340 L0 340Z" fill="#6CCB5F"/><path d="M0 322 Q120 304 240 320 T360 314 L360 340 L0 340Z" fill="#4FB36B"/>' +
         '<rect x="150" y="268" width="62" height="14" fill="#CFC6A0"/><rect x="162" y="254" width="38" height="14" fill="#C4BA90"/><rect x="172" y="238" width="18" height="16" fill="#CFC6A0"/><circle cx="181" cy="232" r="4" fill="#FFD23F"/>' + parrotAt(86, 252, 1.3) + leafAt(280, 336, 1.4, 22, "#4FB36B") + leafAt(40, 338, 1.2, -24, "#6CCB5F");
     },
+    6: function () {
+      return '<rect width="360" height="340" fill="#BDE9F7"/><rect y="150" width="360" height="190" fill="#8EC4E3"/><rect y="250" width="360" height="90" fill="#6FA8D8"/><path d="M60 140 L100 140 L84 340 L30 340Z M180 140 L224 140 L240 340 L190 340Z M290 140 L322 140 L342 340 L300 340Z" fill="#fff" opacity=".13"/>' +
+        whaleAt(110, 214, 0.95) + fishAt(250, 190, 1.0, "#FFD23F") + fishAt(280, 214, 0.8, "#FFD23F") + fishAt(300, 176, 0.8, "#FF9F5A", true) + dots([[40, 170, 4], [52, 154, 3], [316, 240, 4.4], [326, 224, 3], [214, 168, 3.4]], 3, "rgba(255,255,255,.7)") +
+        '<path d="M0 304 Q90 290 180 302 T360 296 L360 340 L0 340Z" fill="#E4CB8A"/><path d="M0 322 Q120 312 240 322 T360 318 L360 340 L0 340Z" fill="#D2B672"/>' + shipAt(250, 304, 1.25, -12) + kelpAt(24, 330, 80, "#2F8A4C") + kelpAt(50, 332, 64) + kelpAt(332, 332, 84, "#2F8A4C") +
+        coralAt(86, 328, 1.5, "#FF7A8A", "#FFB3C0") + coralAt(150, 332, 1.2, "#FFA94D", "#FFD08A") + coralAt(190, 330, 1.4, "#B58AE8", "#D8BFF5") + shellAt(122, 330, 1.2, "#FFB3C7") + chestAt(292, 336, 0.9);
+    },
   };
 
   function worlds(stage) {
@@ -320,12 +371,14 @@
     3: { body: "#7A3FA8", lid: "#9A58C8", band: "#FFD23F" },
     4: { body: "#8E9BB8", lid: "#B3BED6", band: "#5FE0F0" },
     5: { body: "#2F7A4C", lid: "#46A06B", band: "#FFD23F" },
+    6: { body: "#2F6F95", lid: "#4A93BD", band: "#FFD23F" },
   };
   function emblem(stage) {
     if (stage === 2) return '<path d="M40 40 L30 52 Q40 58 50 52Z" fill="#FFD9E6"/><path d="M40 40 L36 54 M40 40 L40 56 M40 40 L44 54" stroke="#E88FB1" stroke-width="1.6"/>';
     if (stage === 3) return '<polygon points="31,44 34,34 38,41 40,32 42,41 46,34 49,44" fill="#FFE066"/><circle cx="26" cy="52" r="3" fill="#FF8FB1"/><circle cx="54" cy="52" r="3" fill="#5FE0F0"/>';
     if (stage === 4) return '<circle cx="40" cy="48" r="9" fill="#5FE0F0" opacity=".35"/>' + twinkle(40, 48, 7, "#FFFFFF");
     if (stage === 5) return '<path d="M40 56 Q28 48 34 36 Q44 38 46 48 Q44 54 40 56Z" fill="#9BE08A"/><path d="M40 56 L38 42" stroke="#2F8A4C" stroke-width="1.6"/>';
+    if (stage === 6) return '<path d="M40 58 L28 44 Q40 32 52 44Z" fill="#FFB3C7"/><path d="M40 58 L33 44 M40 58 V38 M40 58 L47 44" stroke="#E88FB1" stroke-width="1.4"/><circle cx="40" cy="52" r="2.6" fill="#FFFBF2"/>';
     return "";
   }
   function chest(o) {
@@ -370,8 +423,8 @@
     function K(real, grey) {
       return g ? grey : real;
     }
-    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4", "#7A6A3E"][n],
-      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8", "#6CCB5F"][n],
+    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4", "#7A6A3E", "#3F7396"][n],
+      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8", "#6CCB5F", "#F0DDA8"][n],
       o = '<path d="M-62 0 Q-52 46 0 58 Q52 46 62 0Z" fill="' + K(earth, "#B9C3D8") + '"/><path d="M-40 30 Q-30 46 0 52 Q30 46 40 30" fill="none" stroke="' + K("rgba(0,0,0,.14)", "#A3AEC6") + '" stroke-width="3" stroke-linecap="round"/><ellipse cx="0" cy="0" rx="64" ry="22" fill="' + K(top, "#D5DDEC") + '"/>';
     if (n === 1) {
       o += mount(-2, -2, 70, 66, K("#8FA3C7", "#AEBAD2"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) + mount(32, 0, 46, 38, K("#A7B8D6", "#9FACC7"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) +
@@ -389,6 +442,11 @@
         '<rect x="-46" y="-32" width="6" height="34" fill="' + K("#8A5A2B", "#9FACC7") + '"/><circle cx="-52" cy="-40" r="16" fill="' + K("#3E9B5A", "#9FACC7") + '"/><circle cx="-36" cy="-42" r="14" fill="' + K("#4FB36B", "#AEBAD2") + '"/><circle cx="-44" cy="-54" r="15" fill="' + K("#4FB36B", "#AEBAD2") + '"/>' +
         '<rect x="42" y="-24" width="5" height="28" fill="' + K("#8A5A2B", "#9FACC7") + '"/><circle cx="46" cy="-32" r="14" fill="' + K("#3E9B5A", "#9FACC7") + '"/>' + (g ? "" : parrotAt(-14, -34, 0.42)) +
         '<ellipse cx="8" cy="8" rx="16" ry="4" fill="' + K("#5DBB5A", "#B9C3D8") + '"/>';
+    } else if (n === 6) {
+      o += '<path d="M-44 6 Q-52 -14 -44 -30 Q-38 -44 -46 -58" fill="none" stroke="' + K("#3FA66B", "#9FACC7") + '" stroke-width="5.4" stroke-linecap="round"/><path d="M-34 6 Q-26 -10 -34 -24 Q-40 -34 -32 -46" fill="none" stroke="' + K("#2F8A4C", "#AEBAD2") + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M-6 6 V-24 M-6 -12 L-18 -26 M-6 -20 L4 -34 M6 6 V-16 M6 -8 L18 -20" fill="none" stroke="' + K("#FF7A8A", "#9FACC7") + '" stroke-width="7" stroke-linecap="round"/><circle cx="4" cy="-36" r="3.8" fill="' + K("#FFB3C0", "#C7D0E0") + '"/><circle cx="-18" cy="-28" r="3.4" fill="' + K("#FFB3C0", "#C7D0E0") + '"/><circle cx="18" cy="-22" r="3.4" fill="' + K("#FFB3C0", "#C7D0E0") + '"/>' +
+        '<g transform="translate(34 4) rotate(-12)"><path d="M-14 0 L-10 -14 H12 L16 0Z" fill="' + K("#8A5A2B", "#9FACC7") + '"/><path d="M0 -14 V-34" stroke="' + K("#6B4423", "#8A97AD") + '" stroke-width="3" stroke-linecap="round"/><path d="M1 -32 L14 -26 L1 -18Z" fill="' + K("#E8DDC4", "#C7D0E0") + '"/></g>' +
+        (g ? "" : '<path d="M-40 -20 L-48 -26 L-48 -14Z" fill="#FF9F5A"/><ellipse cx="-34" cy="-20" rx="9" ry="5.6" fill="#FF9F5A"/><circle cx="-31" cy="-21" r="1.4" fill="#1E2A4A"/><circle cx="22" cy="-52" r="3.4" fill="#fff" opacity=".7"/><circle cx="28" cy="-62" r="2.4" fill="#fff" opacity=".7"/>');
     } else {
       o += '<ellipse cx="14" cy="-30" rx="46" ry="10" fill="none" stroke="' + K("#E6B5F5", "#9FACC7") + '" stroke-width="6" transform="rotate(-14 14 -30)"/><circle cx="14" cy="-30" r="24" fill="' + K("#FF9F5A", "#AEBAD2") + '"/><path d="M-6 -36 Q14 -28 34 -38" stroke="' + K("#FFC48A", "#C7D0E0") + '" stroke-width="4" fill="none"/>' +
         '<ellipse cx="-34" cy="2" rx="9" ry="3" fill="' + K("#A9A4C4", "#B9C3D8") + '"/><ellipse cx="38" cy="6" rx="8" ry="2.6" fill="' + K("#A9A4C4", "#B9C3D8") + '"/>' + (g ? "" : rocket(-32, -14, 0.7, -12)) + twinkle(-48, -42, 5, K("#FFE98A", "#C7D0E0"));
@@ -400,11 +458,11 @@
   // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total, check}, 2: ...} }. Without stages, island 1 shows known and total.
   // check: true puts an orange "Quick check" tag next to "Open" (the group with class sw-isl-qc, data-s = the island, is its click target).
   // The group with class sw-isl-go (data-s = the island) is the click target.
-  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466], 5: [84, 700] };
+  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466], 5: [84, 700], 6: [280, 790] };
   function islands(o) {
     var ready = o.ready || { 1: true },
       out = "";
-    [1, 2, 3, 4, 5].forEach(function (n) {
+    [1, 2, 3, 4, 5, 6].forEach(function (n) {
       var info = o.stages && o.stages[n] ? o.stages[n] : n === 1 ? { title: o.title || "First words", known: o.known || 0, total: o.total || 1 } : { title: "", known: 0, total: 1 },
         pct = Math.max(0, Math.min(1, info.known / (info.total || 1))),
         x = POS[n][0],
@@ -426,10 +484,10 @@
         out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + tag + "</g></g>";
       else out += '<g transform="translate(' + x + "," + y + ')">' + soft(islandArt(n, true)) + label + "</g>";
     });
-    return '<svg class="sw-isvg" viewBox="0 0 360 830" role="group" aria-label="Word islands">' +
-      '<rect x="0" y="0" width="360" height="830" rx="28" fill="#DFF1FF"/>' +
-      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/><ellipse cx="300" cy="640" rx="24" ry="8"/><ellipse cx="316" cy="634" rx="12" ry="8"/><ellipse cx="60" cy="800" rx="24" ry="8"/><ellipse cx="74" cy="794" rx="12" ry="8"/></g>' +
-      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466 C300 540 130 610 84 700" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
+    return '<svg class="sw-isvg" viewBox="0 0 360 960" role="group" aria-label="Word islands">' +
+      '<rect x="0" y="0" width="360" height="960" rx="28" fill="#DFF1FF"/>' +
+      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/><ellipse cx="300" cy="640" rx="24" ry="8"/><ellipse cx="316" cy="634" rx="12" ry="8"/><ellipse cx="60" cy="800" rx="24" ry="8"/><ellipse cx="74" cy="794" rx="12" ry="8"/><ellipse cx="44" cy="900" rx="24" ry="8"/><ellipse cx="58" cy="894" rx="12" ry="8"/><ellipse cx="320" cy="690" rx="20" ry="7"/></g>' +
+      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466 C300 540 130 610 84 700 C120 770 240 720 280 790" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
   }
 
   root.SWScenery = { hero: hero, game: game, book: book, star: star, islands: islands, banner: bannerArt, unitArt: unitArt, unitTheme: unitTheme, chest: chest };

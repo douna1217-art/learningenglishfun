@@ -58,6 +58,7 @@
     var shirt = o.shirt || C.blue, pants = o.pants || "#4C5FB8", skin = o.skin || "#FFD7B5", hair = o.hair || "#6B4423",
       girl = !!o.girl, pose = o.pose || "stand", look = o.look || 0;
     var ST = [[-4, -22, -5, -1], [4, -22, 5, -1]];
+    var ST_RAISED = [[-4, -22, -5, -1], [4, -22, 19, -9]];
     // Each arm is [elbow x, elbow y, hand x, hand y]; the left one starts at the shoulder (-9, -40), the right one at (9, -40), so every child
     // shows two arms, one on each side. A hanging arm reaches down to the hip; an arm that crosses the body (hold, hands) is drawn over it.
     var HL = [-13.5, -30, -14.5, -20], HR = [13.5, -30, 14.5, -20];
@@ -73,6 +74,11 @@
       hands: { L: ST, A: [[-13, -32, -3, -29], [13, -32, 3, -29]] },
       look: { L: ST, over: true, A: [HL, [18, -47, 12, -55]] },
       self: { L: ST, A: [HL, [14, -35, 3, -36]] },
+      wide: { L: ST, A: [[-19, -41, -33, -41], [19, -41, 33, -41]] }, // both arms straight out to the sides
+      drink: { L: ST, A: [HL, [19, -35, 11, -44]] }, // the right hand raised in front of the chin, holding something to the mouth
+      foothurt: { L: ST_RAISED, A: [HL, [16, -33, 19, -14]] }, // standing on one leg, the other foot lifted and the right hand reaching down to it
+      crouch: { dy: 14, lean: 6, L: [[-4, -22, -16, -14], [4, -22, 14, -14]], A: [[-13, -30, -11, -22], [20, -31, 26, -23]] }, // squatting down, the right hand reaching forward and down
+      ears: { L: ST, over: true, A: [[-18, -46, -12.5, -55], [18, -46, 12.5, -55]] }, // both hands over the ears
       walk: { L: [[-3, -22, -11, -3], [3, -22, 10, -3]], A: [[-13, -30, -10, -20], [14, -31, 17, -22]] },
       // both arms curve in front and meet low down, like a cradle under something held against the chest (draw it with arms: "only" over the thing)
       cradle: { L: ST, A: [[-16, -28, 10, -23], [17, -30, -6, -23]] },

@@ -19,7 +19,7 @@
     return o + '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.5).toFixed(1) + '" fill="#FFD23F" stroke="#E0A800" stroke-width="0.8"/>';
   }
 
-  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10), island 3 (the castle kingdom, units 11-15) and island 4 (outer space, units 16-20) and island 5 (the jungle, units 21-25); each has the island, the unit, the world it belongs to, the item
+  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10), island 3 (the castle kingdom, units 11-15) and island 4 (outer space, units 16-20) and island 5 (the jungle, units 21-25) and island 6 (the deep sea, units 26-30); each has the island, the unit, the world it belongs to, the item
   var LIST = [
     {
       id: "ch-flower", island: 1, unit: 1, world: "Flower foothills", slot: "hat", name: "Flower crown", cn: "花环", vb: "12 26 96 40", a: { hx: 60, hy: 46, hs: 1 },
@@ -363,6 +363,70 @@
           '<ellipse cx="0" cy="3" rx="36" ry="9" fill="#D9B77A" stroke="#8A6A3A" stroke-width="2.6"/><path d="M-21 3 Q-22 -22 0 -24 Q22 -22 21 3 Q0 10 -21 3Z" fill="#E8C98A" stroke="#8A6A3A" stroke-width="2.6" stroke-linejoin="round"/>' +
           '<path d="M-21 -3 Q0 4 21 -3 L21.4 -8 Q0 -1 -21.4 -8Z" fill="#FFD23F" stroke="#B8860B" stroke-width="1.8" stroke-linejoin="round"/>' +
           '<path d="M14 -6 Q26 -22 32 -26 Q28 -12 18 -4Z" fill="#E5483A" stroke="#8E2A22" stroke-width="1.8" stroke-linejoin="round"/><path d="M16 -6 Q24 -16 30 -24" fill="none" stroke="#FFC93C" stroke-width="1.4"/>'
+        );
+      },
+    },
+
+    // island 6 (the deep sea): units 26-30
+    {
+      id: "ch-coralcrown", island: 6, unit: 26, world: "Pearl reef", slot: "hat", name: "Coral crown", cn: "珊瑚王冠", vb: "14 -14 92 64", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-27 5 Q0 -6 27 5" fill="none" stroke="#C84A6A" stroke-width="6.8" stroke-linecap="round"/><path d="M-27 5 Q0 -6 27 5" fill="none" stroke="#FF7A9A" stroke-width="3.6" stroke-linecap="round"/>' +
+          '<path d="M-19 0 V-15 M-19 -8 L-26 -16 M-19 -11 L-13 -21" fill="none" stroke="#FF8A5A" stroke-width="4.6" stroke-linecap="round"/><path d="M0 -4 V-24 M0 -13 L-8 -23 M0 -18 L8 -28" fill="none" stroke="#FF7A9A" stroke-width="5.2" stroke-linecap="round"/><path d="M19 0 V-15 M19 -8 L26 -16 M19 -11 L13 -21" fill="none" stroke="#B58AE8" stroke-width="4.6" stroke-linecap="round"/>' +
+          '<circle cx="-26" cy="-17" r="2.8" fill="#FFF3E6"/><circle cx="-13" cy="-22" r="2.8" fill="#FFF3E6"/><circle cx="-8" cy="-24" r="3" fill="#FFF3E6"/><circle cx="8" cy="-29" r="3" fill="#FFF3E6"/><circle cx="13" cy="-22" r="2.8" fill="#FFF3E6"/><circle cx="26" cy="-17" r="2.8" fill="#FFF3E6"/><circle cx="0" cy="-26" r="3.2" fill="#FFF3E6"/>'
+        );
+      },
+    },
+    {
+      id: "ch-pearlneck", island: 6, unit: 27, world: "Kelp forest", slot: "neck", name: "Pearl necklace", cn: "珍珠项链", vb: "18 92 84 62", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny - 104,
+          o = "";
+        [[30, 101], [37, 108], [46, 113.5], [60, 116], [74, 113.5], [83, 108], [90, 101]].forEach(function (c) {
+          o += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="3.6" fill="#FFF9F2" stroke="#C9B8A8" stroke-width="1.6"/><circle cx="' + (c[0] - 1) + '" cy="' + (c[1] - 1.2) + '" r="1.2" fill="#fff"/>';
+        });
+        o += '<path d="M60 119 L60 123" stroke="#C9B8A8" stroke-width="2"/><path d="M60 148 L46 132 Q60 120 74 132Z" fill="#FFB3C7" stroke="#C45A7A" stroke-width="2.2" stroke-linejoin="round"/>' +
+          '<path d="M60 148 L53 132 M60 148 V127 M60 148 L67 132" fill="none" stroke="#E88FB1" stroke-width="1.6" stroke-linecap="round"/><circle cx="60" cy="140" r="4" fill="#FFF9F2" stroke="#C9B8A8" stroke-width="1.6"/>';
+        return '<g transform="translate(0,' + y + ')">' + o + "</g>";
+      },
+    },
+    {
+      id: "ch-captainhat", island: 6, unit: 28, world: "Sunken ship", slot: "hat", name: "Captain hat", cn: "船长帽", vb: "12 -10 96 58", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-33 6 Q-31 -4 -18 -7 Q-14 -25 0 -25 Q14 -25 18 -7 Q31 -4 33 6 Q0 14 -33 6Z" fill="#2B3A6B" stroke="#161D40" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M-19 -6 Q0 0 19 -6 L19.6 -11 Q0 -5 -19.6 -11Z" fill="#FFD23F" stroke="#B8860B" stroke-width="1.6" stroke-linejoin="round"/>' +
+          '<circle cx="0" cy="-17" r="6.4" fill="#FFD23F" stroke="#B8860B" stroke-width="1.6"/><path d="M0 -21 V-13 M-3 -15 Q0 -11 3 -15 M-2.4 -19.4 H2.4" fill="none" stroke="#2B3A6B" stroke-width="1.6" stroke-linecap="round"/>' +
+          '<path d="M-26 4 Q0 12 26 4" fill="none" stroke="#fff" stroke-width="1.6" opacity=".35"/>'
+        );
+      },
+    },
+    {
+      id: "ch-divemask", island: 6, unit: 29, world: "Whale song", slot: "face", name: "Diving mask", cn: "潜水面罩", vb: "4 4 116 60", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx,
+          x2 = 60 + a.edx,
+          r = a.er + 5.5,
+          y = a.ey;
+        function lens(x) {
+          return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="rgba(150,225,255,.55)" stroke="#1F5FBF" stroke-width="4"/><circle cx="' + x + '" cy="' + y + '" r="' + (r + 1.6) + '" fill="none" stroke="#8FD0F2" stroke-width="1.8"/>' +
+            '<path d="M' + (x - r * 0.55) + " " + (y - r * 0.2) + " Q" + (x - r * 0.35) + " " + (y - r * 0.6) + " " + (x + r * 0.05) + " " + (y - r * 0.62) + '" fill="none" stroke="#fff" stroke-width="2.2" opacity=".9"/>';
+        }
+        return '<g stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M' + (x1 - r) + " " + y + " L" + (x1 - r - 14) + " " + (y - 2) + " M" + (x2 + r) + " " + y + " L" + (x2 + r + 14) + " " + (y - 2) + '" fill="none" stroke="#1B3E8A" stroke-width="4.6"/>' +
+          '<path d="M' + (x1 + r) + " " + y + " H" + (x2 - r) + '" fill="none" stroke="#1F5FBF" stroke-width="4.4"/>' + lens(x1) + lens(x2) +
+          '<path d="M' + (x2 + r + 12) + " " + (y - 2) + " V" + (y - 34) + " H" + (x2 + r + 20) + '" fill="none" stroke="#E5483A" stroke-width="5"/><circle cx="' + (x2 + r + 20) + '" cy="' + (y - 34) + '" r="2.6" fill="#FFC93C" stroke="none"/></g>';
+      },
+    },
+    {
+      id: "ch-treasurecrown", island: 6, unit: 30, world: "Treasure deep", slot: "hat", name: "Treasure crown", cn: "宝藏王冠", vb: "20 -12 80 58", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-24 8 L-28 -14 L-14 -4 L0 -22 L14 -4 L28 -14 L24 8Q0 14 -24 8Z" fill="#FFD23F" stroke="#B8860B" stroke-width="2.6" stroke-linejoin="round"/><path d="M-23 3 Q0 9 23 3" fill="none" stroke="#B8860B" stroke-width="1.8"/>' +
+          '<circle cx="-28" cy="-16" r="3.4" fill="#FFF9F2" stroke="#C9B8A8" stroke-width="1.4"/><circle cx="0" cy="-24" r="3.6" fill="#FFF9F2" stroke="#C9B8A8" stroke-width="1.4"/><circle cx="28" cy="-16" r="3.4" fill="#FFF9F2" stroke="#C9B8A8" stroke-width="1.4"/>' +
+          '<circle cx="-12" cy="-1" r="3.6" fill="#E5483A" stroke="#8E2A22" stroke-width="1.4"/><circle cx="0" cy="-8" r="4.2" fill="#6BB7FF" stroke="#2A66C9" stroke-width="1.4"/><circle cx="12" cy="-1" r="3.6" fill="#35B779" stroke="#1F7A4C" stroke-width="1.4"/>' +
+          '<path d="M-18 -10 L-14 -14" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>'
         );
       },
     },
