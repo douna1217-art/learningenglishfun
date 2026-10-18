@@ -145,6 +145,28 @@
   function chestAt(x, y, k) {
     return '<g transform="translate(' + x + " " + y + ") scale(" + k + ')"><path d="M-30 0 V-26 H30 V0Z" fill="#B9774A"/><path d="M-30 -26 Q-30 -48 0 -50 Q30 -48 30 -26Z" fill="#D9925F" transform="rotate(-14 -30 -26)"/><path d="M-30 -20 H30" stroke="#FFC93C" stroke-width="4"/><circle cx="-12" cy="-30" r="6" fill="#FFD23F"/><circle cx="2" cy="-34" r="6" fill="#FFD23F"/><circle cx="14" cy="-30" r="6" fill="#FFD23F"/><circle cx="-4" cy="-38" r="4" fill="#FF6FA0"/><circle cx="8" cy="-40" r="4" fill="#6BB7FF"/><rect x="-5" y="-22" width="10" height="9" rx="2" fill="#FFD23F"/></g>';
   }
+  // the desert: dunes, a cactus, a pyramid, a camel and a moon
+  function duneAt(x, base, w, h, c) {
+    return '<path d="M' + (x - w / 2) + " " + base + " Q" + (x - w * 0.18) + " " + (base - h * 1.25) + " " + x + " " + (base - h) + " Q" + (x + w * 0.2) + " " + (base - h * 0.7) + " " + (x + w / 2) + " " + base + 'Z" fill="' + c + '"/>';
+  }
+  function cactusAt(x, base, h, c) {
+    var w = h * 0.2, g = c || "#4FA06A";
+    return '<path d="M' + (x - w) + " " + base + " V" + (base - h * 0.8) + " Q" + (x - w) + " " + (base - h) + " " + x + " " + (base - h) + " Q" + (x + w) + " " + (base - h) + " " + (x + w) + " " + (base - h * 0.8) + " V" + base + 'Z" fill="' + g + '"/>' +
+      '<path d="M' + (x - w) + " " + (base - h * 0.4) + " H" + (x - w * 2.4) + " Q" + (x - w * 3.2) + " " + (base - h * 0.4) + " " + (x - w * 3.2) + " " + (base - h * 0.52) + " V" + (base - h * 0.66) + '" fill="none" stroke="' + g + '" stroke-width="' + w * 1.5 + '" stroke-linecap="round"/>' +
+      '<path d="M' + (x + w) + " " + (base - h * 0.3) + " H" + (x + w * 2.4) + " Q" + (x + w * 3.2) + " " + (base - h * 0.3) + " " + (x + w * 3.2) + " " + (base - h * 0.42) + " V" + (base - h * 0.56) + '" fill="none" stroke="' + g + '" stroke-width="' + w * 1.5 + '" stroke-linecap="round"/>';
+  }
+  function pyramidAt(x, base, w, h, c1, c2) {
+    return '<polygon points="' + (x - w / 2) + "," + base + " " + x + "," + (base - h) + " " + (x + w / 2) + "," + base + '" fill="' + c1 + '"/><polygon points="' + x + "," + (base - h) + " " + (x + w / 2) + "," + base + " " + x + "," + base + '" fill="' + c2 + '"/>';
+  }
+  function camelAt(x, y, k, flip) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + (flip ? -k : k) + " " + k + ')"><path d="M-18 -4 V16 M-8 -2 V18 M10 -2 V18 M20 -4 V16" stroke="#B98A4A" stroke-width="4.4" stroke-linecap="round"/><path d="M-26 -6 Q-28 -24 -14 -26 Q-8 -38 -2 -26 Q6 -38 12 -26 Q26 -24 26 -8 Q10 -2 -10 -2Z" fill="#D8A25E"/><path d="M24 -14 Q32 -26 34 -40 Q42 -40 42 -34 Q44 -28 36 -20 Q30 -12 24 -10Z" fill="#D8A25E"/><circle cx="37" cy="-35" r="1.6" fill="#1E2A4A"/><path d="M-26 -10 Q-34 -4 -32 6" fill="none" stroke="#B98A4A" stroke-width="3" stroke-linecap="round"/></g>';
+  }
+  function moonAt(x, y, r) {
+    return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#FFF3B0"/><circle cx="' + (x + r * 0.4) + '" cy="' + (y - r * 0.1) + '" r="' + r * 0.86 + '" fill="#2E3282"/>';
+  }
+  function domeHouse(x, base, k, c) {
+    return '<g transform="translate(' + x + " " + base + ") scale(" + k + ')"><rect x="-14" y="-18" width="28" height="18" fill="' + (c || "#F5E3B8") + '"/><path d="M-16 -18 Q0 -42 16 -18Z" fill="#E5883A"/><rect x="-4" y="-12" width="8" height="12" rx="4" fill="#8A5A2B"/><circle cx="0" cy="-33" r="2" fill="#FFD23F"/></g>';
+  }
   var SKY = '<rect width="360" height="100" fill="#BFE6FF"/>';
 
   // each island has five little worlds; a world has a name, a header picture (360 x 100), the colour behind its trail and the colour of the dotted path.
@@ -307,6 +329,23 @@
           fishAt(110, 30, 0.7, "#FFD23F") + fishAt(256, 24, 0.7, "#FF9F5A", true) + '<path d="M150 70 L156 64 L162 70 L156 76Z M210 66 L215 61 L220 66 L215 71Z" fill="#fff" opacity=".8"/>';
       } },
     ],
+    7: [
+      { name: "Sand dunes", bg: "#FBEBC8", dash: "#E8B55A", art: function () {
+        return '<rect width="360" height="100" fill="#FFE7BE"/>' + sunAt(300, 26, 14) + duneAt(80, 100, 220, 38, "#F0C878") + duneAt(250, 100, 240, 30, "#E9BB68") + duneAt(160, 100, 200, 18, "#F6D48E") + cactusAt(48, 88, 38) + cactusAt(300, 92, 30, "#3F8F5A") + dots([[130, 40, 2.4, "#E8B55A"], [200, 30, 2, "#E8B55A"]], 2, "#E8B55A");
+      } },
+      { name: "Oasis town", bg: "#DFF2E4", dash: "#7BCDA7", art: function () {
+        return '<rect width="360" height="100" fill="#CFEFFA"/>' + cloudAt(70, 22, 1) + '<path d="M0 84 Q90 74 180 82 T360 78 L360 100 L0 100Z" fill="#F0D89A"/><ellipse cx="180" cy="90" rx="52" ry="8" fill="#6CC4EE"/>' + palmAt(110, 90, 54, "#2F8A4C", "#4FB36B") + palmAt(246, 92, 60, "#2F8A4C", "#4FB36B") + domeHouse(40, 88, 1.3) + domeHouse(320, 90, 1.2, "#FBEFD0") + domeHouse(76, 92, 0.9, "#FBEFD0");
+      } },
+      { name: "Pyramid hall", bg: "#F6E6C8", dash: "#D9A55A", art: function () {
+        return '<rect width="360" height="100" fill="#FFE2B0"/>' + sunAt(60, 28, 12) + pyramidAt(200, 92, 120, 62, "#E8C27A", "#C99A4A") + pyramidAt(290, 92, 70, 38, "#EBCB88", "#CFA458") + pyramidAt(110, 94, 60, 30, "#EBCB88", "#CFA458") + '<path d="M0 90 Q90 82 180 90 T360 86 L360 100 L0 100Z" fill="#F0D089"/>' + camelAt(30, 84, 0.5);
+      } },
+      { name: "Starry night", bg: "#DAD8F2", dash: "#9A94E0", art: function () {
+        return '<rect width="360" height="100" fill="#2E3282"/><rect y="0" width="360" height="40" fill="#3A3F9E" opacity=".55"/>' + moonAt(300, 28, 14) + dots([[40, 20, 1.8], [90, 38, 1.4], [140, 16, 2], [190, 44, 1.4], [230, 22, 1.8], [270, 56, 1.4], [20, 58, 1.4], [330, 70, 1.6]], 1.6, "#FFFFFF") + twinkle(70, 30, 5, "#FFE066") + twinkle(210, 28, 4, "#FFE066") + '<path d="M0 84 Q90 70 180 82 T360 74 L360 100 L0 100Z" fill="#1E2266"/>' + cactusAt(60, 90, 30, "#2F6A4A") + camelAt(250, 86, 0.6);
+      } },
+      { name: "Camel caravan", bg: "#F8E3C4", dash: "#E0A060", art: function () {
+        return '<rect width="360" height="100" fill="#FFCE9A"/><rect width="360" height="36" fill="#FFB27A" opacity=".5"/>' + sunAt(250, 62, 16) + duneAt(300, 100, 220, 34, "#E5A860") + duneAt(60, 100, 240, 28, "#EBB56E") + camelAt(70, 84, 0.7) + camelAt(130, 86, 0.7) + camelAt(192, 84, 0.7) + dots([[300, 24, 2], [40, 20, 2]], 2, "#FFFFFF");
+      } },
+    ],
   };
 
   // the big banner at the top of an island's page (360 x 340, the bottom is always kept)
@@ -346,6 +385,11 @@
         '<path d="M0 304 Q90 290 180 302 T360 296 L360 340 L0 340Z" fill="#E4CB8A"/><path d="M0 322 Q120 312 240 322 T360 318 L360 340 L0 340Z" fill="#D2B672"/>' + shipAt(250, 304, 1.25, -12) + kelpAt(24, 330, 80, "#2F8A4C") + kelpAt(50, 332, 64) + kelpAt(332, 332, 84, "#2F8A4C") +
         coralAt(86, 328, 1.5, "#FF7A8A", "#FFB3C0") + coralAt(150, 332, 1.2, "#FFA94D", "#FFD08A") + coralAt(190, 330, 1.4, "#B58AE8", "#D8BFF5") + shellAt(122, 330, 1.2, "#FFB3C7") + chestAt(292, 336, 0.9);
     },
+    7: function () {
+      return '<rect width="360" height="340" fill="#FFE7BE"/><rect y="0" width="360" height="120" fill="#FFD9A0" opacity=".55"/>' + sunAt(280, 80, 30) + cloudAt(70, 60, 1.1) +
+        pyramidAt(150, 262, 150, 92, "#E8C27A", "#C99A4A") + pyramidAt(250, 266, 92, 56, "#EBCB88", "#CFA458") + duneAt(60, 340, 260, 82, "#F0C878") + duneAt(280, 340, 280, 64, "#E9BB68") + '<path d="M0 306 Q120 290 240 306 T360 300 L360 340 L0 340Z" fill="#F6D48E"/>' +
+        cactusAt(40, 330, 80) + cactusAt(322, 334, 60, "#3F8F5A") + palmAt(110, 322, 90, "#2F8A4C", "#4FB36B") + camelAt(214, 322, 1.3);
+    },
   };
 
   function worlds(stage) {
@@ -372,6 +416,7 @@
     4: { body: "#8E9BB8", lid: "#B3BED6", band: "#5FE0F0" },
     5: { body: "#2F7A4C", lid: "#46A06B", band: "#FFD23F" },
     6: { body: "#2F6F95", lid: "#4A93BD", band: "#FFD23F" },
+    7: { body: "#A8682A", lid: "#D79A4A", band: "#FFD23F" },
   };
   function emblem(stage) {
     if (stage === 2) return '<path d="M40 40 L30 52 Q40 58 50 52Z" fill="#FFD9E6"/><path d="M40 40 L36 54 M40 40 L40 56 M40 40 L44 54" stroke="#E88FB1" stroke-width="1.6"/>';
@@ -379,6 +424,7 @@
     if (stage === 4) return '<circle cx="40" cy="48" r="9" fill="#5FE0F0" opacity=".35"/>' + twinkle(40, 48, 7, "#FFFFFF");
     if (stage === 5) return '<path d="M40 56 Q28 48 34 36 Q44 38 46 48 Q44 54 40 56Z" fill="#9BE08A"/><path d="M40 56 L38 42" stroke="#2F8A4C" stroke-width="1.6"/>';
     if (stage === 6) return '<path d="M40 58 L28 44 Q40 32 52 44Z" fill="#FFB3C7"/><path d="M40 58 L33 44 M40 58 V38 M40 58 L47 44" stroke="#E88FB1" stroke-width="1.4"/><circle cx="40" cy="52" r="2.6" fill="#FFFBF2"/>';
+    if (stage === 7) return '<path d="M40 60 V42 Q40 36 44 36 Q48 36 48 42 V60Z" fill="#7FD07F" transform="translate(-4 0)"/><path d="M36 52 H31 Q28 52 28 48 V44" fill="none" stroke="#7FD07F" stroke-width="4" stroke-linecap="round"/><path d="M48 50 H53 Q56 50 56 46 V42" fill="none" stroke="#7FD07F" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="35" r="3" fill="#FF8FB1"/>';
     return "";
   }
   function chest(o) {
@@ -423,8 +469,8 @@
     function K(real, grey) {
       return g ? grey : real;
     }
-    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4", "#7A6A3E", "#3F7396"][n],
-      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8", "#6CCB5F", "#F0DDA8"][n],
+    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4", "#7A6A3E", "#3F7396", "#B07A3C"][n],
+      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8", "#6CCB5F", "#F0DDA8", "#F6E0A4"][n],
       o = '<path d="M-62 0 Q-52 46 0 58 Q52 46 62 0Z" fill="' + K(earth, "#B9C3D8") + '"/><path d="M-40 30 Q-30 46 0 52 Q30 46 40 30" fill="none" stroke="' + K("rgba(0,0,0,.14)", "#A3AEC6") + '" stroke-width="3" stroke-linecap="round"/><ellipse cx="0" cy="0" rx="64" ry="22" fill="' + K(top, "#D5DDEC") + '"/>';
     if (n === 1) {
       o += mount(-2, -2, 70, 66, K("#8FA3C7", "#AEBAD2"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) + mount(32, 0, 46, 38, K("#A7B8D6", "#9FACC7"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) +
@@ -447,6 +493,11 @@
         '<path d="M-6 6 V-24 M-6 -12 L-18 -26 M-6 -20 L4 -34 M6 6 V-16 M6 -8 L18 -20" fill="none" stroke="' + K("#FF7A8A", "#9FACC7") + '" stroke-width="7" stroke-linecap="round"/><circle cx="4" cy="-36" r="3.8" fill="' + K("#FFB3C0", "#C7D0E0") + '"/><circle cx="-18" cy="-28" r="3.4" fill="' + K("#FFB3C0", "#C7D0E0") + '"/><circle cx="18" cy="-22" r="3.4" fill="' + K("#FFB3C0", "#C7D0E0") + '"/>' +
         '<g transform="translate(34 4) rotate(-12)"><path d="M-14 0 L-10 -14 H12 L16 0Z" fill="' + K("#8A5A2B", "#9FACC7") + '"/><path d="M0 -14 V-34" stroke="' + K("#6B4423", "#8A97AD") + '" stroke-width="3" stroke-linecap="round"/><path d="M1 -32 L14 -26 L1 -18Z" fill="' + K("#E8DDC4", "#C7D0E0") + '"/></g>' +
         (g ? "" : '<path d="M-40 -20 L-48 -26 L-48 -14Z" fill="#FF9F5A"/><ellipse cx="-34" cy="-20" rx="9" ry="5.6" fill="#FF9F5A"/><circle cx="-31" cy="-21" r="1.4" fill="#1E2A4A"/><circle cx="22" cy="-52" r="3.4" fill="#fff" opacity=".7"/><circle cx="28" cy="-62" r="2.4" fill="#fff" opacity=".7"/>');
+    } else if (n === 7) {
+      o += '<polygon points="-6,6 14,-40 34,6" fill="' + K("#E8C27A", "#B9C3D8") + '"/><polygon points="14,-40 34,6 14,6" fill="' + K("#C99A4A", "#9FACC7") + '"/>' +
+        '<path d="M-48 6 V-18 Q-48 -26 -42 -26 Q-36 -26 -36 -18 V6Z" fill="' + K("#4FA06A", "#9FACC7") + '"/><path d="M-48 -6 H-56 Q-60 -6 -60 -11 V-18" fill="none" stroke="' + K("#4FA06A", "#9FACC7") + '" stroke-width="5" stroke-linecap="round"/><path d="M-36 -10 H-30 Q-26 -10 -26 -15 V-22" fill="none" stroke="' + K("#4FA06A", "#9FACC7") + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M-30 14 Q-12 6 4 14Z" fill="' + K("#E9BB68", "#AEBAD2") + '"/><path d="M30 12 Q46 2 62 12Z" fill="' + K("#E9BB68", "#AEBAD2") + '"/>' +
+        (g ? "" : camelAt(46, 2, 0.5) + '<circle cx="-28" cy="-52" r="9" fill="#FFD23F" opacity=".9"/>');
     } else {
       o += '<ellipse cx="14" cy="-30" rx="46" ry="10" fill="none" stroke="' + K("#E6B5F5", "#9FACC7") + '" stroke-width="6" transform="rotate(-14 14 -30)"/><circle cx="14" cy="-30" r="24" fill="' + K("#FF9F5A", "#AEBAD2") + '"/><path d="M-6 -36 Q14 -28 34 -38" stroke="' + K("#FFC48A", "#C7D0E0") + '" stroke-width="4" fill="none"/>' +
         '<ellipse cx="-34" cy="2" rx="9" ry="3" fill="' + K("#A9A4C4", "#B9C3D8") + '"/><ellipse cx="38" cy="6" rx="8" ry="2.6" fill="' + K("#A9A4C4", "#B9C3D8") + '"/>' + (g ? "" : rocket(-32, -14, 0.7, -12)) + twinkle(-48, -42, 5, K("#FFE98A", "#C7D0E0"));
@@ -458,11 +509,11 @@
   // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total, check}, 2: ...} }. Without stages, island 1 shows known and total.
   // check: true puts an orange "Quick check" tag next to "Open" (the group with class sw-isl-qc, data-s = the island, is its click target).
   // The group with class sw-isl-go (data-s = the island) is the click target.
-  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466], 5: [84, 700], 6: [280, 790] };
+  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466], 5: [84, 700], 6: [280, 790], 7: [84, 1030] };
   function islands(o) {
     var ready = o.ready || { 1: true },
       out = "";
-    [1, 2, 3, 4, 5, 6].forEach(function (n) {
+    [1, 2, 3, 4, 5, 6, 7].forEach(function (n) {
       var info = o.stages && o.stages[n] ? o.stages[n] : n === 1 ? { title: o.title || "First words", known: o.known || 0, total: o.total || 1 } : { title: "", known: 0, total: 1 },
         pct = Math.max(0, Math.min(1, info.known / (info.total || 1))),
         x = POS[n][0],
@@ -484,12 +535,13 @@
         out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + tag + "</g></g>";
       else out += '<g transform="translate(' + x + "," + y + ')">' + soft(islandArt(n, true)) + label + "</g>";
     });
-    return '<svg class="sw-isvg" viewBox="0 0 360 960" role="group" aria-label="Word islands">' +
-      '<rect x="0" y="0" width="360" height="960" rx="28" fill="#DFF1FF"/>' +
-      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/><ellipse cx="300" cy="640" rx="24" ry="8"/><ellipse cx="316" cy="634" rx="12" ry="8"/><ellipse cx="60" cy="800" rx="24" ry="8"/><ellipse cx="74" cy="794" rx="12" ry="8"/><ellipse cx="44" cy="900" rx="24" ry="8"/><ellipse cx="58" cy="894" rx="12" ry="8"/><ellipse cx="320" cy="690" rx="20" ry="7"/></g>' +
-      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466 C300 540 130 610 84 700 C120 770 240 720 280 790" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
+    return '<svg class="sw-isvg" viewBox="0 0 360 1200" role="group" aria-label="Word islands">' +
+      '<rect x="0" y="0" width="360" height="1200" rx="28" fill="#DFF1FF"/>' +
+      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/><ellipse cx="300" cy="640" rx="24" ry="8"/><ellipse cx="316" cy="634" rx="12" ry="8"/><ellipse cx="60" cy="800" rx="24" ry="8"/><ellipse cx="74" cy="794" rx="12" ry="8"/><ellipse cx="44" cy="900" rx="24" ry="8"/><ellipse cx="58" cy="894" rx="12" ry="8"/><ellipse cx="320" cy="690" rx="20" ry="7"/><ellipse cx="318" cy="930" rx="24" ry="8"/><ellipse cx="332" cy="924" rx="12" ry="8"/><ellipse cx="40" cy="1170" rx="22" ry="7"/><ellipse cx="54" cy="1164" rx="11" ry="7"/><ellipse cx="300" cy="1120" rx="20" ry="7"/></g>' +
+      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466 C300 540 130 610 84 700 C120 770 240 720 280 790 C300 860 120 940 84 1030" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
   }
 
   root.SWScenery = { hero: hero, game: game, book: book, star: star, islands: islands, banner: bannerArt, unitArt: unitArt, unitTheme: unitTheme, chest: chest };
   if (typeof module !== "undefined" && module.exports) module.exports = root.SWScenery;
 })(typeof window !== "undefined" ? window : this);
+

@@ -19,7 +19,7 @@
     return o + '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.5).toFixed(1) + '" fill="#FFD23F" stroke="#E0A800" stroke-width="0.8"/>';
   }
 
-  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10), island 3 (the castle kingdom, units 11-15) and island 4 (outer space, units 16-20) and island 5 (the jungle, units 21-25) and island 6 (the deep sea, units 26-30); each has the island, the unit, the world it belongs to, the item
+  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10), island 3 (the castle kingdom, units 11-15) and island 4 (outer space, units 16-20) and island 5 (the jungle, units 21-25) and island 6 (the deep sea, units 26-30) and island 7 (the desert, units 31-35); each has the island, the unit, the world it belongs to, the item
   var LIST = [
     {
       id: "ch-flower", island: 1, unit: 1, world: "Flower foothills", slot: "hat", name: "Flower crown", cn: "花环", vb: "12 26 96 40", a: { hx: 60, hy: 46, hs: 1 },
@@ -431,6 +431,73 @@
       },
     },
 
+    // island 7 (the desert): units 31-35
+    {
+      id: "ch-cactushat", island: 7, unit: 31, world: "Sand dunes", slot: "hat", name: "Cactus hat", cn: "仙人掌帽", vb: "20 2 80 60", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<ellipse cx="0" cy="5" rx="29" ry="7" fill="#E8C27A" stroke="#A8782A" stroke-width="2.6"/><path d="M-22 5 Q0 11 22 5" fill="none" stroke="#C99A44" stroke-width="2" opacity=".8"/>' +
+          '<path d="M-8 4 V-18 Q-8 -27 0 -27 Q8 -27 8 -18 V4Z" fill="#4FA06A" stroke="#2E6E48" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M-8 -6 H-15 Q-19 -6 -19 -11 V-19 Q-19 -23 -15 -23 Q-12 -23 -12 -19 V-12 H-8" fill="#4FA06A" stroke="#2E6E48" stroke-width="2.2" stroke-linejoin="round"/>' +
+          '<path d="M8 -10 H15 Q19 -10 19 -15 V-22 Q19 -26 15 -26 Q12 -26 12 -22 V-16 H8" fill="#4FA06A" stroke="#2E6E48" stroke-width="2.2" stroke-linejoin="round"/>' +
+          '<path d="M-3 2 V-20 M3 2 V-20" stroke="#2E6E48" stroke-width="1.2" opacity=".55"/><circle cx="0" cy="-30" r="4.6" fill="#FF8FB1" stroke="#C0577F" stroke-width="1.6"/><circle cx="0" cy="-30" r="1.8" fill="#FFE066"/>'
+        );
+      },
+    },
+    {
+      id: "ch-amberneck", island: 7, unit: 32, world: "Oasis town", slot: "neck", name: "Amber necklace", cn: "琥珀项链", vb: "18 92 84 62", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny - 104,
+          o = "";
+        [[30, 101], [37, 108], [46, 113.5], [60, 116], [74, 113.5], [83, 108], [90, 101]].forEach(function (c, i) {
+          o += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="3.9" fill="' + (i % 2 ? "#E58A1F" : "#F2A93B") + '" stroke="#9A5A12" stroke-width="1.6"/><circle cx="' + (c[0] - 1.1) + '" cy="' + (c[1] - 1.3) + '" r="1.2" fill="#FFE9B8"/>';
+        });
+        o += '<path d="M60 119 L60 123" stroke="#9A5A12" stroke-width="2"/><path d="M60 151 Q47 138 52 129 Q56 123 60 123 Q64 123 68 129 Q73 138 60 151Z" fill="#F2A93B" stroke="#9A5A12" stroke-width="2.2" stroke-linejoin="round"/>' +
+          '<path d="M55 135 Q54 130 58 128" fill="none" stroke="#FFE9B8" stroke-width="2.2" stroke-linecap="round"/><circle cx="62" cy="139" r="1.6" fill="#7A4208" opacity=".5"/>';
+        return '<g transform="translate(0,' + y + ')">' + o + "</g>";
+      },
+    },
+    {
+      id: "ch-desertgoggles", island: 7, unit: 33, world: "Pyramid hall", slot: "face", name: "Desert goggles", cn: "沙漠护目镜", vb: "4 4 116 60", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx,
+          x2 = 60 + a.edx,
+          r = a.er + 5.5,
+          y = a.ey;
+        function lens(x) {
+          return '<circle cx="' + x + '" cy="' + y + '" r="' + (r + 1.6) + '" fill="#C98B3A" stroke="#7A4E12" stroke-width="2"/><circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="rgba(255,205,110,.6)" stroke="#8A5A1A" stroke-width="2.4"/>' +
+            '<path d="M' + (x - r * 0.55) + " " + (y - r * 0.2) + " Q" + (x - r * 0.35) + " " + (y - r * 0.6) + " " + (x + r * 0.05) + " " + (y - r * 0.62) + '" fill="none" stroke="#fff" stroke-width="2.2" opacity=".9"/>' +
+            '<circle cx="' + (x - r - 0.6) + '" cy="' + y + '" r="1.4" fill="#FFE9B8"/><circle cx="' + (x + r + 0.6) + '" cy="' + y + '" r="1.4" fill="#FFE9B8"/>';
+        }
+        return '<g stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M' + (x1 - r - 2) + " " + y + " L" + (x1 - r - 16) + " " + (y - 2) + " M" + (x2 + r + 2) + " " + y + " L" + (x2 + r + 16) + " " + (y - 2) + '" fill="none" stroke="#7A4E2A" stroke-width="5.4"/>' +
+          '<path d="M' + (x1 + r) + " " + y + " H" + (x2 - r) + '" fill="none" stroke="#9A6A22" stroke-width="4.4"/>' + lens(x1) + lens(x2) + "</g>";
+      },
+    },
+    {
+      id: "ch-moonhat", island: 7, unit: 34, world: "Starry night", slot: "hat", name: "Moon-star hat", cn: "月星帽", vb: "20 -6 80 66", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-20 4 Q-14 -14 -8 -30 Q-4 -40 8 -44 Q10 -38 14 -28 Q20 -12 22 4Z" fill="#3A3F9E" stroke="#1E2266" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M8 -44 Q14 -46 17 -41 Q12 -40 8 -44Z" fill="#3A3F9E" stroke="#1E2266" stroke-width="2" stroke-linejoin="round"/>' +
+          '<ellipse cx="0" cy="5" rx="30" ry="7" fill="#2E3282" stroke="#1E2266" stroke-width="2.6"/>' +
+          '<path d="M-6 -12 A9 9 0 1 0 4 -2 A7 7 0 0 1 -6 -12Z" fill="#FFE58A" stroke="#C99A1A" stroke-width="1.6" stroke-linejoin="round"/>' +
+          '<path d="M10 -20 l1.8 3.8 l4.2 0.6 l-3 3 l0.8 4.2 l-3.8 -2 l-3.8 2 l0.8 -4.2 l-3 -3 l4.2 -0.6Z" fill="#FFE066" stroke="#C99A1A" stroke-width="1"/>' +
+          '<circle cx="-12" cy="-3" r="1.8" fill="#FFE066"/><circle cx="14" cy="-4" r="1.5" fill="#FFFFFF"/><circle cx="2" cy="-30" r="1.4" fill="#FFFFFF"/>'
+        );
+      },
+    },
+    {
+      id: "ch-camelears", island: 7, unit: 35, world: "Camel caravan", slot: "hat", name: "Camel ears", cn: "骆驼耳朵", vb: "20 14 80 48", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-24 6 Q0 -6 24 6" fill="none" stroke="#7A4E2A" stroke-width="6.4" stroke-linecap="round"/><path d="M-24 6 Q0 -6 24 6" fill="none" stroke="#A8713A" stroke-width="3.4" stroke-linecap="round"/>' +
+          '<g transform="translate(-20 -6) rotate(-16)"><ellipse cx="0" cy="-9" rx="8.4" ry="14" fill="#D8A25E" stroke="#8A5A22" stroke-width="2.4"/><ellipse cx="0" cy="-8" rx="4.4" ry="9" fill="#F4C9A0"/></g>' +
+          '<g transform="translate(20 -6) rotate(16)"><ellipse cx="0" cy="-9" rx="8.4" ry="14" fill="#D8A25E" stroke="#8A5A22" stroke-width="2.4"/><ellipse cx="0" cy="-8" rx="4.4" ry="9" fill="#F4C9A0"/></g>'
+        );
+      },
+    },
+
     // the monsters of the Monster battle each drop one item the first time they are beaten (rev["mon<id>"] is set)
     {
       id: "mn-jelly", monster: 1, rk: "mon1", world: "Gloop", label: "Beat Gloop", slot: "hat", name: "Jelly crown", cn: "果冻王冠", vb: "22 4 76 50", a: { hx: 60, hy: 46, hs: 1 },
@@ -578,3 +645,4 @@
   };
   if (typeof module !== "undefined" && module.exports) module.exports = root.SWPrizes;
 })(typeof window !== "undefined" ? window : this);
+
