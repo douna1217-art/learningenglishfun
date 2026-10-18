@@ -55,6 +55,10 @@
     s += hd;
     return s;
   };
+  // the word STOP on a white plate, the size of the middle of the stop sign drawn at 1.45 (the middle of the sign is the origin)
+  KITS.stopword = function (o) {
+    return '<rect x="-21" y="-7.5" width="42" height="15" rx="3" fill="#FFFFFE"/><text x="0" y="4.4" text-anchor="middle" font-family="' + FONT + '" font-weight="700" font-size="12.5" fill="#D6402F">STOP</text>';
+  };
   // a map on the wall (the bottom edge is the origin): the north half on top is snowy mountains, the south half below is sun, sand and a palm;
   // o.hl = "north" or "south" circles that half in red
   KITS.weathermap = function (o) {
@@ -654,7 +658,7 @@
     example: [["blackboard", 152, 100, 1.3, {}], ["txt", 152, 40, 1, { t: "EXAMPLE", size: 15, c: "#FFFFFE" }], ["txt", 152, 74, 1, { t: "2+2=4", size: 20, c: "#FFFFFE" }], ["kid", 42, G, 1.4, kb("point", { look: 1, mouth: "open" })]],
     order: [["toyblock", 100, G, 0.8, { t: "1", c: "#E5483A" }], ["toyblock", 134, G, 0.8, { t: "2", c: "#3D8BF2" }], ["toyblock", 168, G, 0.8, { t: "3", c: "#FFC93C" }], ["toyblock", 202, G, 0.8, { t: "4", c: "#5DBB5A" }], ["arrow", 0, 0, 1, { x1: 96, y1: 64, x2: 206, y2: 64, c: P }], ["kid", 44, G, 1.4, kb("point", { look: 1, mouth: "open" })]],
     set: [["table", 150, G, 1.8], ["plate", 114, 89, 1.0], ["plate", 152, 89, 1.0], ["plate", 190, 89, 1.0], ["waterglass", 134, 88, 0.55], ["waterglass", 172, 88, 0.55], ["waterglass", 210, 88, 0.55], ["plate", 76, 92, 1.0], ["kid", 42, G, 1.4, kb("reach", { look: 1, mouth: "open" })]],
-    means: [["trafficlight", 66, G, 1.45, { on: 0 }], ["stopsign", 176, G, 1.45, {}], ["txt", 177, 77, 1, { t: "STOP", size: 10, c: "#E5483A" }], ["txt", 121, 74, 1, { t: "=", size: 40, c: P }]],
+    means: [["trafficlight", 66, G, 1.45, { on: 0 }], ["stopsign", 176, G, 1.45, {}], ["stopword", 176, 70, 1, {}], ["txt", 121, 74, 1, { t: "=", size: 40, c: P }]],
     language: [["kid", 52, G, 1.3, kb("wave", { look: 1, mouth: "open" })], ["bubble", 82, 34, 1.0, { w: 56, h: 28 }], ["txt", 82, 40, 1, { t: "Hello", size: 13, c: INK }], ["kid", 188, G, 1.3, kg("wave", { look: -1, mouth: "open", flip: true })], ["bubble", 158, 34, 1.0, { w: 56, h: 28, flip: true }], ["txt", 158, 40, 1, { t: "Hello", size: 13, c: INK }], ["txt", 120, 82, 1, { t: "=", size: 36, c: P }]],
     // ---- Starry night
     fun: [["kid", 56, G, 1.3, kb("jump", { mouth: "open" })], ["kid", 122, G, 1.3, kg("cheer", { mouth: "open" })], ["kid", 188, G, 1.3, ky("jump", { mouth: "open" })], ["ball", 122, 38, 0.9, { c: "#FFC93C" }], ["sparkle", 98, 22, 0.9], ["sparkle", 148, 20, 0.9]],
