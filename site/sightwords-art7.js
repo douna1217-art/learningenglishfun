@@ -546,10 +546,11 @@
   };
   // a straight road that runs away to the horizon, in picture coordinates (draw it at 0,0)
   KITS.persproad = function (o) {
-    var s = '<path d="M96 160 L112 86 H128 L144 160Z" fill="#7B8394"/><path d="M96 160 L112 86 M144 160 L128 86" stroke="#FFFFFE" stroke-width="2.4"/>', i, y;
-    for (i = 0; i < 5; i++) {
-      y = 154 - i * 14.5;
-      s += '<path d="M120 ' + y + " V" + (y - 7 + i) + '" stroke="#FFE066" stroke-width="' + (3.6 - i * 0.5) + '" stroke-linecap="round"/>';
+    var s = '<rect y="100" width="240" height="60" fill="#B9E49B"/><path d="M0 100 H240" stroke="#8FC77A" stroke-width="2"/><path d="M0 128 Q60 120 120 126 T240 124 V160 H0Z" fill="#A5D984"/>', i, y;
+    s += '<path d="M92 160 L113 100 H127 L148 160Z" fill="#7B8394"/><path d="M92 160 L113 100 M148 160 L127 100" stroke="#FFFFFE" stroke-width="2.4"/>';
+    for (i = 0; i < 4; i++) {
+      y = 154 - i * 13;
+      s += '<path d="M120 ' + y + " V" + (y - 7 + i) + '" stroke="#FFE066" stroke-width="' + (3.6 - i * 0.6) + '" stroke-linecap="round"/>';
     }
     return s;
   };
@@ -691,7 +692,7 @@
     matter: [["kid", 82, G, 1.4, kb("stand", { mouth: "sad", look: 0 })], ["tears", 82, G - 51 * 1.4, 1.4], ["kid", 164, G, 1.4, kg("reach", { look: -1, mouth: "open", flip: true })], ["qm", 164, 28, 1.1]],
     // ---- Camel caravan
     opposite: [["splitbg", 0, 0, 1], ["sunbig", 34, 30, 0.6, { c: "#FF8A3D" }], ["kid", 72, G, 1.1, kb("stand", { look: 0, mouth: "open", hat: C.yellow })], ["sweat", 88, 62, 0.8], ["flake", 168, 34, 2.0], ["flake", 206, 56, 1.6], ["kid", 180, G, 1.2, kg("stand", { look: 0, mouth: "sad" })], ["shiver", 160, 90, 1.0], ["arrow", 0, 0, 1, { x1: 98, y1: 16, x2: 142, y2: 16, c: P }], ["arrow", 0, 0, 1, { x1: 142, y1: 28, x2: 98, y2: 28, c: P }]],
-    straight: [["persproad", 0, 0, 1], ["kid", 46, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 120, y1: 150, x2: 120, y2: 92, c: P }]],
+    straight: [["persproad", 0, 0, 1], ["kid", 46, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 120, y1: 150, x2: 120, y2: 108, c: P }]],
     equal: [["halfdisc", 80, G - 36, 1.5, { c: "#FFA94D" }], ["halfdisc", 160, G - 36, 1.5, { c: "#FFA94D", flip: true }], ["txt", 120, G - 26, 1, { t: "=", size: 46, c: P }]],
     main: [["mapboard", 152, G, 1.3, {}], ["kid", 52, G, 1.4, kb("point", { look: 1, mouth: "open" })]],
     difference: [["drawing", 46, 112, 1.2, { c: "#E5483A" }], ["drawing", 194, 112, 1.2, { c: "#3D8BF2" }], ["hl", 44, 75, 1.0, { r: 13 }], ["hl", 192, 75, 1.0, { r: 13 }], ["kid", 120, G, 1.3, kb("point", { look: 1, mouth: "open" })]],
