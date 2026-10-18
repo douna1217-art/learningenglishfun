@@ -41,6 +41,14 @@
     return '<path d="M-9 0 V-52 Q-9 -62 0 -62 Q9 -62 9 -52 V0Z" ' + f(g, 2.4) + '/><path d="M-9 -26 H-17 Q-23 -26 -23 -32 V-46 Q-23 -52 -17 -52 Q-12 -52 -12 -46 V-34 H-9" ' + f(g, 2.2) + '/><path d="M9 -20 H17 Q23 -20 23 -26 V-40 Q23 -46 17 -46 Q12 -46 12 -40 V-28 H9" ' + f(g, 2.2) + '/>' +
       '<path d="M0 -58 V-4 M-4.6 -56 V-6 M4.6 -56 V-6" stroke="' + dk(g, 0.3) + '" stroke-width="1.2" opacity=".6"/><circle cx="0" cy="-64" r="4.6" ' + f("#FF8FB1", 1.6) + '/><circle cx="0" cy="-64" r="1.8" fill="#FFE066"/>';
   };
+  // a plain coloured backdrop over the whole picture (o.c) with a different ground strip at the bottom (o.g from the height o.gy)
+  KITS.fillbg = function (o) {
+    return '<rect width="240" height="160" fill="' + o.c + '"/><rect y="' + o.gy + '" width="240" height="' + (160 - o.gy) + '" fill="' + o.g + '"/>';
+  };
+  // a baby lying across a child's arms: the usual baby turned on its side with the head to the left
+  KITS.cradlebaby = function (o) {
+    return '<g transform="rotate(-76)">' + K.baby({}) + "</g>";
+  };
   // a map on the wall (the bottom edge is the origin): ice at the top, grass in the middle, sand and a palm at the bottom;
   // o.hl = "north" or "south" circles that part in red
   KITS.weathermap = function (o) {
@@ -50,15 +58,19 @@
     s += '<path d="M-30 -50 Q-20 -58 -10 -50 M10 -42 Q22 -52 34 -42" fill="none" stroke="#6CBB5A" stroke-width="2.4" stroke-linecap="round"/>';
     s += at("palm", 28, -8, 0.46) + '<circle cx="-36" cy="-18" r="5.4" fill="#FFC93C" stroke="#E0A800" stroke-width="1.4"/>';
     s += '<text x="-50" y="-60" font-family="' + FONT + '" font-weight="700" font-size="10" fill="#2F6AA8">N</text><text x="40" y="-9" font-family="' + FONT + '" font-weight="700" font-size="10" fill="#B8860B">S</text>';
-    if (o.hl === "north") s += '<rect x="-58" y="-88" width="116" height="34" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
-    if (o.hl === "south") s += '<rect x="-58" y="-30" width="116" height="26" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
+    if (o.hl === "north") s += '<rect x="-58" y="-88" width="116" height="34" rx="4" fill="#3D8BF2" fill-opacity=".22" stroke="none"/><rect x="-58" y="-88" width="116" height="34" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
+    if (o.hl === "south") s += '<rect x="-58" y="-30" width="116" height="26" rx="4" fill="#FF9F3D" fill-opacity=".3" stroke="none"/><rect x="-58" y="-30" width="116" height="26" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
     return s;
   };
-  // a river that winds across the picture and flows into the sea at the right, in picture coordinates (draw it at 0,0)
+  // a bird's-eye view of the whole picture: green land, a river winding over it and flowing into the sea at the right (draw it at 0,0)
   KITS.rivermouth = function (o) {
-    var d = "M-10 64 Q40 36 78 70 T150 112", s = '<rect x="146" y="98" width="100" height="62" fill="#4FA8F0"/><path d="M146 98 Q158 93 170 98 T194 98 T218 98 T242 98" fill="none" stroke="#FFFFFE" stroke-width="2.6" stroke-linecap="round"/><path d="M160 122 Q172 117 184 122 T208 122 T232 122" fill="none" stroke="#8CC8F5" stroke-width="2.4" stroke-linecap="round"/>';
-    s += '<path d="' + d + '" fill="none" stroke="#B58A5A" stroke-width="24"/><path d="' + d + '" fill="none" stroke="#5BA9E0" stroke-width="18"/><path d="' + d + '" fill="none" stroke="#8FD0F2" stroke-width="8" opacity=".75"/>';
-    s += '<path d="M24 42 l9 5 l-9 5Z M80 72 l9 4 l-8 6Z M118 98 l9 7 l-11 3Z" fill="#FFFFFE"/>';
+    var d = "M-6 36 C26 20 50 58 84 60 C120 62 112 100 144 102 L192 106", sea = "M172 0 Q150 30 174 54 Q194 76 168 104 Q148 130 172 160 L240 160 L240 0Z", s = '<rect width="240" height="160" fill="#BFE5A0"/>';
+    s += '<path d="M0 118 Q60 108 120 122 Q170 134 200 160 L0 160Z" fill="#A5D984"/>';
+    s += '<path d="' + sea + '" fill="#4FA8F0"/><path d="M172 0 Q150 30 174 54 Q194 76 168 104 Q148 130 172 160" fill="none" stroke="#FFFFFE" stroke-width="3" stroke-linecap="round"/><path d="M198 40 Q208 35 218 40 T238 40 M200 118 Q210 113 220 118 T240 118" fill="none" stroke="#8CC8F5" stroke-width="2.4" stroke-linecap="round"/>';
+    s += '<path d="' + d + '" fill="none" stroke="#B58A5A" stroke-width="22" stroke-linecap="round"/><path d="' + d + '" fill="none" stroke="#5BA9E0" stroke-width="16"/><path d="' + d + '" fill="none" stroke="#8FD0F2" stroke-width="6" opacity=".75"/>';
+    s += '<path d="M22 38 l9 5 l-9 5Z M70 58 l9 3 l-9 6Z M110 82 l8 7 l-10 3Z M146 98 l10 4 l-10 5Z" fill="#FFFFFE"/>';
+    s += '<g stroke="#2E7D4A" stroke-width="2"><circle cx="36" cy="100" r="10" fill="#5DBB5A"/><circle cx="60" cy="132" r="12" fill="#6CCB5F"/><circle cx="116" cy="28" r="10" fill="#5DBB5A"/><circle cx="20" cy="140" r="8" fill="#6CCB5F"/><circle cx="140" cy="140" r="9" fill="#5DBB5A"/></g>';
+    s += '<path d="M200 76 h24 l-5 9 h-14Z" fill="#E5483A" stroke="#9E2F25" stroke-width="1.8" stroke-linejoin="round"/><path d="M212 76 v-16 l10 12Z" fill="#FFFFFE" stroke="#9AA9C4" stroke-width="1.4" stroke-linejoin="round"/>';
     return s;
   };
   // a balloon with a string hanging from it (the knot is the origin; o.len = how long the string is)
@@ -86,10 +98,35 @@
     for (i = 0; i < 8; i++) s += '<circle cx="' + (-84 + i * 24) + '" cy="-3.5" r="1.6" fill="#DDE6F4"/>';
     return s + '<path d="M-70 -50 H60" stroke="#fff" stroke-width="1.8" opacity=".6" stroke-linecap="round"/>';
   };
-  // a cotton plant: a green stem and leaves with white fluffy cotton on it
+  // the two river banks of a bridge, with the road going on over them (picture coordinates; the deck of the bridge is at y 90 to 99)
+  KITS.bridgebanks = function (o) {
+    var s = "";
+    s += '<path d="M0 99 H42 Q48 99 50 110 L54 160 H0Z" ' + f("#B98A5A", 2.4) + '/><path d="M240 99 H198 Q192 99 190 110 L186 160 H240Z" ' + f("#B98A5A", 2.4) + '/>';
+    s += '<path d="M0 99 H42 Q48 99 49 106 H0Z" fill="#6CCB5F"/><path d="M240 99 H198 Q192 99 191 106 H240Z" fill="#6CCB5F"/>';
+    s += '<rect x="0" y="90" width="16" height="9" fill="#6E7685"/><rect x="224" y="90" width="16" height="9" fill="#6E7685"/><path d="M0 94.5 H12 M228 94.5 H240" stroke="#FFFFFE" stroke-width="1.6" stroke-dasharray="5 4"/>';
+    return s;
+  };
+  // a cotton plant as it really looks: a woody stem, hand-shaped green leaves and bolls that have burst open, a white puff coming out of a brown dry husk
+  function cottonLeaf(x, y, rot, sc) {
+    var lobe = function (r, k) {
+      return '<g transform="rotate(' + r + ") scale(" + k + ')"><path d="M0 0 Q-6 -8 0 -17 Q6 -8 0 0Z" ' + f("#5DBB5A", 1.4) + '/><path d="M0 -2 V-13" stroke="#3E9B5A" stroke-width="1.1"/></g>';
+    };
+    return '<g transform="translate(' + x + "," + y + ") rotate(" + rot + ") scale(" + sc + ')">' + lobe(-52, 0.82) + lobe(52, 0.82) + lobe(0, 1) + "</g>";
+  }
+  function cottonBoll(x, y, sc) {
+    var hk = f("#8A5A2B", 1.4), s = '<g transform="translate(' + x + "," + y + ") scale(" + sc + ')">';
+    s += '<path d="M-5 3 Q0 9 5 3 L3 -1 H-3Z" ' + f("#5DBB5A", 1.4) + "/>";
+    s += '<path d="M0 0 Q-9 -3 -14 -14 Q-6 -9 0 -4Z" ' + hk + '/><path d="M0 0 Q9 -3 14 -14 Q6 -9 0 -4Z" ' + hk + '/><path d="M0 0 Q-6 -8 -6 -19 Q-1 -12 0 -4Z" ' + hk + '/><path d="M0 0 Q6 -8 6 -19 Q1 -12 0 -4Z" ' + hk + "/>";
+    s += '<g fill="#FFFFFE" stroke="#C9D4E6" stroke-width="1.4"><circle cx="-7" cy="-14" r="6"/><circle cx="7" cy="-14" r="6"/><circle cx="0" cy="-21" r="7.4"/><circle cx="-4" cy="-9" r="5.6"/><circle cx="4" cy="-9" r="5.6"/><circle cx="0" cy="-14" r="6"/></g>';
+    s += '<path d="M-12 -18 Q-15 -20 -13 -23 M12 -18 Q15 -20 13 -23 M-4 -28 Q-3 -31 0 -30 M4 -28 Q4 -31 2 -31" fill="none" stroke="#C9D4E6" stroke-width="1.2" stroke-linecap="round"/>';
+    s += '<path d="M-9 -3 Q-5 -2 -3 2 Q-8 1 -9 -3Z M9 -3 Q5 -2 3 2 Q8 1 9 -3Z" ' + hk + "/>";
+    return s + "</g>";
+  }
   KITS.cottonplant = function (o) {
-    var s = '<path d="M0 0 Q-2 -30 0 -62" fill="none" stroke="#3E9B5A" stroke-width="4" stroke-linecap="round"/><path d="M0 -14 Q-14 -18 -16 -30 Q-4 -28 0 -16Z" ' + f("#5DBB5A", 1.6) + '/><path d="M0 -26 Q14 -30 16 -42 Q4 -40 0 -28Z" ' + f("#5DBB5A", 1.6) + "/>";
-    s += '<g fill="#FFFFFE" stroke="#C9D4E6" stroke-width="1.6"><circle cx="-8" cy="-56" r="6.4"/><circle cx="-2" cy="-62" r="7"/><circle cx="6" cy="-57" r="6.4"/><circle cx="0" cy="-52" r="5.6"/></g><path d="M-10 -50 Q0 -46 10 -50 L8 -46 Q0 -43 -8 -46Z" fill="#8A5A2B"/>';
+    var s = '<path d="M0 0 Q-2 -22 1 -42" fill="none" stroke="#7A5A33" stroke-width="4.4" stroke-linecap="round"/><path d="M1 -26 Q12 -34 18 -44" fill="none" stroke="#7A5A33" stroke-width="3" stroke-linecap="round"/><path d="M1 -42 Q0 -52 -1 -60" fill="none" stroke="#5DBB5A" stroke-width="3" stroke-linecap="round"/>';
+    s += cottonLeaf(-1, -12, -64, 0.9) + cottonLeaf(1, -20, 64, 0.85) + cottonLeaf(-1, -34, -58, 0.8);
+    s += '<path d="M-9 -34 Q-12 -40 -9 -44 Q-5 -41 -8 -34Z" ' + f("#8FD07F", 1.4) + "/>";
+    s += cottonBoll(-1, -58, 0.95) + cottonBoll(18, -44, 0.7);
     return s;
   };
   // a farm field in picture coordinates: brown soil in the lower part with rows of green plants (draw it at 0,0)
@@ -116,9 +153,9 @@
     }
     return s;
   };
-  // a handful of cotton: three fluffy white puffs
+  // a handful of cotton: one soft white tuft with a little seed in it
   KITS.cottonbunch = function (o) {
-    return '<g fill="#FFFFFE" stroke="#C9D4E6" stroke-width="1.6"><circle cx="-7" cy="-6" r="7"/><circle cx="6" cy="-7" r="7.6"/><circle cx="0" cy="-14" r="7"/></g>';
+    return '<path d="M-15 0 Q-20 -8 -11 -11 Q-11 -20 -2 -18 Q4 -25 11 -17 Q20 -15 16 -7 Q21 0 12 3 Q4 7 -4 3 Q-10 7 -15 0Z" ' + f("#FFFFFE", 1.8) + '/><ellipse cx="-3" cy="-6" rx="2.4" ry="1.6" fill="#8A5A2B"/><path d="M-8 -14 Q-4 -16 -1 -13 M5 -12 Q9 -13 11 -9" fill="none" stroke="#C9D4E6" stroke-width="1.2" stroke-linecap="round"/>';
   };
   // a hoe: the blade is at the origin and the long wooden handle goes straight up (rotate it to lean it)
   KITS.hoe = function (o) {
@@ -159,10 +196,10 @@
   };
   // a garden bed seen from the front: one straight row of six seeds lying in a furrow, with a stake and a string at each end (picture coordinates)
   KITS.gardenrow = function (o) {
-    var s = '<path d="M20 112 L220 112 L232 148 L8 148Z" ' + f("#B98A5A", 2.4) + '/><path d="M26 128 H214" stroke="#9A6F42" stroke-width="3" stroke-linecap="round"/>', i, x;
-    s += '<rect x="22" y="94" width="4" height="36" fill="#C98B4A"/><rect x="214" y="94" width="4" height="36" fill="#C98B4A"/><path d="M24 100 H216" stroke="#E5483A" stroke-width="1.8"/>';
+    var s = '<path d="M72 112 L226 112 L238 148 L60 148Z" ' + f("#B98A5A", 2.4) + '/><path d="M78 128 H220" stroke="#9A6F42" stroke-width="3" stroke-linecap="round"/>', i, x;
+    s += '<rect x="74" y="94" width="4" height="36" fill="#C98B4A"/><rect x="220" y="94" width="4" height="36" fill="#C98B4A"/><path d="M76 100 H222" stroke="#E5483A" stroke-width="1.8"/>';
     for (i = 0; i < 6; i++) {
-      x = 44 + i * 30;
+      x = 98 + i * 24;
       s += '<ellipse cx="' + x + '" cy="128" rx="8" ry="5.2" ' + f("#7A4E2A", 2) + '/><path d="M' + (x - 4) + " 126 Q" + x + ' 124 ' + (x + 3) + ' 125.4" stroke="#C9A06B" stroke-width="1.8" fill="none" stroke-linecap="round"/>';
     }
     return s;
@@ -520,7 +557,7 @@
   }
   function bgValley() {
     return '<rect width="240" height="160" fill="#CBEAFF"/><circle cx="196" cy="34" r="14" fill="#FFE98A"/><path d="M0 24 Q60 30 112 100 L0 150Z" fill="#6CCB5F"/><path d="M0 24 Q40 34 70 70 Q30 60 0 70Z" fill="#8FD07F" opacity=".6"/><path d="M240 14 Q176 26 130 100 L240 150Z" fill="#5DBB5A"/><path d="M0 142 Q120 100 240 142 L240 160 L0 160Z" fill="#A5D984"/>' +
-      '<path d="M116 100 Q124 124 90 160 L156 160 Q134 124 126 100Z" fill="#5BA9E0"/><path d="M121 104 Q126 126 112 160 L130 160 Q132 126 124 104Z" fill="#8FD0F2" opacity=".8"/>';
+      '<path d="M122 121 C127 126 112 129 110 134" fill="none" stroke="#9A7A52" stroke-width="9" stroke-linecap="round"/><path d="M122 121 C127 126 112 129 110 134" fill="none" stroke="#5BA9E0" stroke-width="5.4" stroke-linecap="round"/><path d="M110 134 C106 146 134 148 130 160" fill="none" stroke="#9A7A52" stroke-width="18"/><path d="M110 134 C106 146 134 148 130 160" fill="none" stroke="#5BA9E0" stroke-width="12.5"/><path d="M110 134 C106 146 134 148 130 160" fill="none" stroke="#8FD0F2" stroke-width="4.5" opacity=".8"/><path d="M104 146 Q110 143 116 146" fill="none" stroke="#FFFFFE" stroke-width="1.8" stroke-linecap="round" opacity=".8"/><ellipse cx="92" cy="146" rx="6" ry="3.6" fill="#9AA6BC" stroke="#6A7A94" stroke-width="1.6"/><ellipse cx="152" cy="152" rx="7" ry="4" fill="#9AA6BC" stroke="#6A7A94" stroke-width="1.6"/><path d="M96 138 V129 M100 138 V127 M104 138 V130 M144 140 V129 M148 140 V127" stroke="#3E9B5A" stroke-width="2" stroke-linecap="round"/>';
   }
 
   /* ------------------------------------------------------------------ the scenes */
@@ -530,22 +567,22 @@
     plains: [["horse", 50, G - 2, 0.85, {}], ["horse", 124, G - 12, 0.62, {}], ["horse", 196, G - 6, 0.75, {}] ],
     valley: [["kid", 44, G, 1.1, kb("point", { look: 1, mouth: "open" })], ["tree", 214, 112, 0.5]],
     east: [["compass", 56, G - 8, 1.4, { hl: "E" }], ["sunbig", 206, 60, 0.9, { c: "#FFC93C" }], ["kid", 118, G, 1.3, kb("walk", { look: 1, mouth: "open" })], ["kid", 156, G, 1.2, kg("walk", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 106, y1: 30, x2: 176, y2: 30, c: P }]],
-    northern: [["weathermap", 150, G - 12, 1.1, { hl: "north" }], ["kid", 56, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["shiver", 98, 72, 0.9]],
-    southern: [["weathermap", 150, G - 12, 1.1, { hl: "south" }], ["kid", 56, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["sparkle", 98, 54, 0.8]],
+    northern: [["fillbg", 0, 0, 1, { c: "#D4E7FA", gy: 130, g: "#F4F9FF" }], ["flake", 30, 30, 1.2], ["flake", 100, 22, 0.9], ["flake", 22, 100, 0.8], ["flake", 224, 20, 1.0], ["weathermap", 178, G - 10, 1.0, { hl: "north" }], ["kid", 66, G, 1.4, kb("point", { look: 1, mouth: "o", hat: "#E5483A" })], ["shiver", 36, 92, 1.3], ["shiver", 96, 92, 1.3]],
+    southern: [["fillbg", 0, 0, 1, { c: "#FFEBBE", gy: 130, g: "#F3D9A0" }], ["sunbig", 26, 30, 0.7, { c: "#FF9F3D", ray: "#FFB347" }], ["weathermap", 178, G - 10, 1.0, { hl: "south" }], ["kid", 66, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["sweat", 90, 74, 0.9], ["sweat", 38, 84, 0.8]],
     western: [["compass", 40, G - 8, 1.05, { hl: "W" }], ["sunbig", 164, 100, 1.4, { c: "#FF8A5A", ray: "#FFB347" }], ["mound", 164, G + 8, 1.0, { c: "#5A7A4A" }], ["kid", 104, G, 1.3, kb("look", { look: 1, mouth: "o" })]],
     view: [["mountain", 54, 116, 1.2, { w: 60, hh: 70 }], ["mountain", 164, 116, 1.2, { w: 74, hh: 92, c: "#7F94BC" }], ["pond", 156, G + 8, 1.0, { w: 50 }], ["tree", 214, G, 1.1], ["kid", 52, G, 1.3, kb("wide", { mouth: "open" })], ["flower", 124, G + 2, 1.2, { c: C.red }]],
     evening: [["house", 168, G - 8, 1.5, { lit: true }], ["kid", 50, G, 1.2, kb("walk", { look: 1, mouth: "open" })], ["kid", 86, G, 1.1, kg("walk", { look: 1 })], ["arrow", 0, 0, 1, { x1: 40, y1: 40, x2: 110, y2: 40, c: "#FFFFFE" }]],
     spring: [["flower", 38, G, 1.2, { c: C.red }], ["flower", 92, G + 2, 1.45, { c: "#FF6FA0" }], ["flower", 150, G, 1.3, { c: C.yellow }], ["flower", 204, G + 2, 1.15, { c: "#8B6BE8" }], ["bug", 118, 30, 1.2, { t: "butterfly" }], ["bird", 196, 56, 0.6, { fly: true }], ["sprout", 124, G + 6, 1.0, { k: 1 }]],
-    flow: [["rivermouth", 0, 0, 1], ["bird", 196, 52, 0.6, { fly: true }]],
+    flow: [["rivermouth", 0, 0, 1]],
     rise: [["kid", 100, G, 1.3, kb("reach", { look: 0, mouth: "open" })], ["balloon", 138, 58, 1.0, { len: 33 }], ["arrow", 0, 0, 1, { x1: 182, y1: 80, x2: 182, y2: 24, c: P }]],
     rose: [["sunbig", 120, 100, 1.5, { c: "#FFC93C" }], ["mound", 120, G + 10, 1.0, { c: "#6CCB5F" }], ["rewind", 206, 34, 0.8]],
     gas: [["car", 82, G, 1.3, { flip: true }], ["gaspump", 214, G, 1.0, { hx: -16, hy: -30 }], ["curve", 0, 0, 1, { x1: 200, y1: G - 30, cx: 186, cy: G + 14, x2: 146, y2: G - 42, c: "#3A3F4D", w: 3.6 }], ["kid", 172, G, 1.1, kb("reach", { look: -1, flip: true, mouth: "open" })], ["line", 0, 0, 1, { x1: 140, y1: G - 46, x2: 152, y2: G - 40, c: "#8A97AD", w: 6 }]],
-    steel: [["steelbridge", 120, 98, 1.0], ["sparkle", 60, 44, 0.8], ["sparkle", 190, 40, 0.7]],
+    steel: [["bridgebanks", 0, 0, 1], ["steelbridge", 120, 98, 1.0], ["sparkle", 60, 44, 0.8], ["sparkle", 190, 40, 0.7]],
     cotton: [["cottonplant", 54, G, 1.5], ["cottonplant", 188, G + 2, 1.7], ["kid", 118, G, 1.5, kb("hold", { look: 1, mouth: "open", arms: "none" })], ["cottonbunch", 130, G - 44, 1.5], ["kid", 118, G, 1.5, kb("hold", { arms: "only" })], ["heart", 150, 44, 0.8], ["sparkle", 90, 52, 0.7]],
     crops: [["cropfield", 0, 0, 1], ["kid", 120, 132, 1.2, man({ hat: "#F2C14E", pose: "point", look: 1, mouth: "open" })]],
     fig: [["table", 186, G, 1.1], ["plate", 186, G - 28, 0.95], ["figfruit", 186, G - 31, 1.0, {}], ["kid", 78, G, 1.6, kb("drink", { look: 0, mouth: "open", arms: "none" })], ["figfruit", 78 + 9 * 1.6, G - 40 * 1.6, 0.8, { half: true, rot: -10 }], ["kid", 78, G, 1.6, kb("drink", { arms: "only" })], ["heart", 150, 50, 0.8]],
     hoe: [["soilpatch", 0, 0, 1], ["kid", 78, G, 1.4, man({ hat: "#F2C14E", pose: "hold", look: 1, mouth: "open", arms: "none" })], ["hoe", 134, G + 6, 0.8, { rot: -42 }], ["kid", 78, G, 1.4, man({ pose: "hold", arms: "only" })]],
-    row: [["gardenrow", 0, 0, 1], ["kid", 120, 96, 1.0, kb("point", { look: 0, mouth: "open" })] ],
+    row: [["gardenrow", 0, 0, 1], ["kid", 34, 142, 1.15, kb("point", { look: 1, mouth: "open" })]],
     spot: [["dog", 120, G, 1.9, { c: "#FFFFFF", l: "#F2F2F6", ear: "#2B2B33", tongue: true }], ["dspots", 120, G, 1.9], ["arrow", 0, 0, 1, { x1: 200, y1: 60, x2: 140, y2: 100, c: P }]],
     area: [["fence", 124, G - 2, 1.0, { w: 200 }], ["woodsign", 50, G, 1.0, { t: "PLAY" }], ["sandcastle", 150, G + 8, 1.0], ["kid", 100, G + 10, 1.1, kb("jump", { mouth: "open" })], ["ball", 196, G + 12, 0.8, { c: C.red }]],
     site: [["crane", 60, G, 1.0], ["wall", 164, G, 1.3, { w: 60, hh: 34 }], ["kid", 120, G, 1.2, kb("point", { look: 1, mouth: "open", hat: "#FFC93C" })]],
@@ -562,7 +599,7 @@
     students: [["blackboard", 120, 82, 1.1, { t: "ABC" }], ["kid", 48, G + 2, 1.1, kb("hands", { look: 0, mouth: "open" })], ["deskk", 48, G + 8, 1.15], ["kid", 120, G + 2, 1.1, kg("wave", { look: 0, mouth: "open" })], ["deskk", 120, G + 8, 1.15], ["kid", 192, G + 2, 1.1, ky("hands", { look: 0, mouth: "open" })], ["deskk", 192, G + 8, 1.15]],
     child: [["kid", 120, G, 1.45, kb("wave", { hat: C.red, mouth: "open", look: 0 })], ["sparkle", 62, 60, 0.9], ["sparkle", 184, 56, 0.8]],
     son: [["kid", 78, G, 1.5, man({ pose: "point", look: 1, mouth: "open" })], ["kid", 164, G, 1.05, kb("wave", { look: -1, mouth: "open" })], ["heart", 164, 48, 1.2]],
-    born: [["balloons", 44, G, 1.0], ["mom", 130, G, 1.5, { pose: "cradle", look: 0, mouth: "open", arms: "none" }], ["baby", 134, 118, 0.85, {}], ["mom", 130, G, 1.5, { pose: "cradle", arms: "only" }], ["heart", 178, 52, 1.1]],
+    born: [["balloons", 44, G, 1.0], ["mom", 130, G, 1.5, { pose: "cradleB", look: 0, mouth: "open", arms: "none" }], ["cradlebaby", 158, 108, 1.0, {}], ["mom", 130, G, 1.5, { pose: "cradleB", arms: "only" }], ["heart", 178, 52, 1.1]],
     job: [["mom", 112, G, 1.4, { pose: "hands", look: 0, mouth: "open" }], ["table", 112, G, 1.7], ["laptop", 150, G - 44, 0.9], ["star", 60, 48, 1.4, { r: 12 }], ["check", 192, 60, 1.0]],
     report: [["paper", 118, 86, 1.0, {}], ["txt", 117, 52, 1, { t: "A+", size: 13, c: "#E5483A" }], ["kid", 62, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["mom", 178, G, 1.3, { pose: "wave", look: -1, mouth: "open" }], ["heart", 178, 18, 0.9]],
     bill: [["coin", 111, 66, 0.9], ["receipt", 146, 68, 0.95, { t: "$12" }], ["kid", 56, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["mom", 190, G, 1.3, { pose: "wave", look: -1, mouth: "open", shirt: "#3FA06A", flip: true }], ["counter", 160, G, 1.3, { w: 100 }]],
@@ -576,7 +613,7 @@
     act: [["stage", 0, 0, 1], ["cape", 82, G + 2, 1.4], ["kid", 82, G + 2, 1.4, kb("cheer", { look: 0, mouth: "open" })], hatOn("crown", 82, G + 2, 1.4, 0.62), ["kid", 160, G + 2, 1.4, kg("wave", { look: 0, mouth: "open" })], hatOn("crown", 160, G + 2, 1.4, 0.62)],
     lead: [["dog", 168, G, 1.3, { pose: "run", collar: true }], ["kid", 56, G, 1.3, kb("leash", { look: 1, mouth: "open" })], ["curve", 0, 0, 1, { x1: 100, y1: 76, cx: 142, cy: 100, x2: 188, y2: 86, c: "#3A3F4D", w: 2.6 }], ["arrow", 0, 0, 1, { x1: 150, y1: 30, x2: 206, y2: 30, c: P }]],
     serve: [["table", 50, G, 1.0], ["cake", 50, G - 26, 0.9, { flat: true }], ["kid", 104, G, 1.4, kg("point", { look: 1, mouth: "open" })], ["plate", 153, 78, 1.0], ["slice", 153, 76, 0.9, {}], ["kid", 202, G, 1.4, kb("reach", { look: -1, mouth: "open", flip: true })]],
-    received: [["mailbox", 192, G, 1.3, {}], ["kid", 98, G, 1.4, kb("hold", { look: 0, mouth: "open", arms: "none" })], ["letter", 104, 104, 0.95, {}], ["kid", 98, G, 1.4, kb("hold", { arms: "only" })], ["heart", 150, 52, 1.0]],
+    received: [["mailbox", 192, G, 1.3, {}], ["kid", 98, G, 1.4, kb("grip", { look: 0, mouth: "open", arms: "none" })], ["letter", 98, 100, 0.75, {}], ["kid", 98, G, 1.4, kb("grip", { arms: "only" })], ["heart", 150, 52, 1.0]],
     entered: [["doorway", 56, G, 1.5], ["kid", 118, G, 1.3, kg("walk", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 96, y1: 148, x2: 176, y2: 148, c: P }]],
     return: [["bookshelf", 44, G, 1.2, { w: 60 }], ["counter", 190, G, 1.2, { w: 80 }], ["mom", 198, G, 1.3, { pose: "wave", look: -1, mouth: "open" }], ["counter", 190, G, 1.2, { w: 80 }], ["kid", 88, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["bookflat", 139, 86, 0.65, {}], ["arrow", 0, 0, 1, { x1: 112, y1: 50, x2: 150, y2: 50, c: P }]],
     sent: [["thought", 44, 34, 1.0, { w: 56, h: 46 }], ["mom", 44, 56, 0.5, { pose: "stand", mouth: "open" }], ["kid", 112, G, 1.4, kb("cheer", { look: 1, mouth: "open" })], ["gift", 176, G, 1.3, {}], ["heart", 176, 62, 1.0]],
