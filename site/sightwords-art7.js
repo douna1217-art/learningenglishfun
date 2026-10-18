@@ -45,9 +45,15 @@
   KITS.fillbg = function (o) {
     return '<rect width="240" height="160" fill="' + o.c + '"/><rect y="' + o.gy + '" width="240" height="' + (160 - o.gy) + '" fill="' + o.g + '"/>';
   };
-  // a baby lying across a child's arms: the usual baby turned on its side with the head to the left
+  // a baby lying on its back along an arm: the head (with its face turned to us) on the left, the body going to the right, the feet at the end (the middle of the underside is the origin)
   KITS.cradlebaby = function (o) {
-    return '<g transform="rotate(-76)">' + K.baby({}) + "</g>";
+    var skin = "#FFD7B5", c = "#FFD6E4", s = "", hd;
+    hd = '<circle cx="-28" cy="-17" r="14" ' + f(skin, 2.4) + '/><path d="M-31 -31 Q-28 -37 -24 -31 Q-28 -32 -31 -31Z" ' + f("#6B4423", 1.4) + '/><ellipse cx="-33" cy="-18" rx="1.8" ry="2.4" fill="' + INK + '"/><ellipse cx="-23" cy="-18" rx="1.8" ry="2.4" fill="' + INK + '"/><circle cx="-36" cy="-12" r="2.6" fill="#FF9DB5" opacity=".6"/><circle cx="-20" cy="-12" r="2.6" fill="#FF9DB5" opacity=".6"/><path d="M-31 -11 Q-28 -8 -25 -11" fill="none" stroke="#B3442F" stroke-width="1.8" stroke-linecap="round"/>';
+    if (o.head) return hd; // only the head, drawn again over the arm it lies on
+    s += '<ellipse cx="2" cy="-12" rx="26" ry="12" ' + f(c, 2.2) + '/><path d="M-12 -22 Q2 -26 16 -22" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".6"/>';
+    s += '<circle cx="26" cy="-9" r="4.4" ' + f(skin, 1.6) + '/><circle cx="29" cy="-17" r="4.4" ' + f(skin, 1.6) + '/>' + ln(-4, -18, 6, -20, 4.4, skin) + '<circle cx="7" cy="-20" r="3.4" ' + f(skin, 1.6) + "/>";
+    s += hd;
+    return s;
   };
   // a map on the wall (the bottom edge is the origin): the north half on top is snowy mountains, the south half below is sun, sand and a palm;
   // o.hl = "north" or "south" circles that half in red
@@ -600,7 +606,7 @@
     students: [["blackboard", 120, 82, 1.1, { t: "ABC" }], ["kid", 48, G + 2, 1.1, kb("hands", { look: 0, mouth: "open" })], ["deskk", 48, G + 8, 1.15], ["kid", 120, G + 2, 1.1, kg("wave", { look: 0, mouth: "open" })], ["deskk", 120, G + 8, 1.15], ["kid", 192, G + 2, 1.1, ky("hands", { look: 0, mouth: "open" })], ["deskk", 192, G + 8, 1.15]],
     child: [["kid", 120, G, 1.45, kb("wave", { hat: C.red, mouth: "open", look: 0 })], ["sparkle", 62, 60, 0.9], ["sparkle", 184, 56, 0.8]],
     son: [["kid", 78, G, 1.5, man({ pose: "point", look: 1, mouth: "open" })], ["kid", 164, G, 1.05, kb("wave", { look: -1, mouth: "open" })], ["heart", 164, 48, 1.2]],
-    born: [["balloons", 44, G, 1.0], ["mom", 130, G, 1.5, { pose: "cradleB", look: 0, mouth: "open", arms: "none" }], ["cradlebaby", 158, 108, 1.0, {}], ["mom", 130, G, 1.5, { pose: "cradleB", arms: "only" }], ["heart", 178, 52, 1.1]],
+    born: [["balloons", 44, G, 1.0], ["mom", 130, G, 1.5, { pose: "cradleB", look: 0, mouth: "open", arms: "none" }], ["cradlebaby", 138, 91, 1.0, {}], ["mom", 130, G, 1.5, { pose: "cradleB", arms: "only" }], ["cradlebaby", 138, 91, 1.0, { head: true }], ["heart", 178, 52, 1.1]],
     job: [["mom", 112, G, 1.4, { pose: "hands", look: 0, mouth: "open" }], ["table", 112, G, 1.7], ["laptop", 150, G - 44, 0.9], ["star", 60, 48, 1.4, { r: 12 }], ["check", 192, 60, 1.0]],
     report: [["paper", 118, 86, 1.0, {}], ["txt", 117, 52, 1, { t: "A+", size: 13, c: "#E5483A" }], ["kid", 62, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["mom", 178, G, 1.3, { pose: "wave", look: -1, mouth: "open" }], ["heart", 178, 18, 0.9]],
     bill: [["coin", 111, 66, 0.9], ["receipt", 146, 68, 0.95, { t: "$12" }], ["kid", 56, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["mom", 190, G, 1.3, { pose: "wave", look: -1, mouth: "open", shirt: "#3FA06A", flip: true }], ["counter", 160, G, 1.3, { w: 100 }]],
