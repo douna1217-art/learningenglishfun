@@ -49,17 +49,18 @@
   KITS.cradlebaby = function (o) {
     return '<g transform="rotate(-76)">' + K.baby({}) + "</g>";
   };
-  // a map on the wall (the bottom edge is the origin): ice at the top, grass in the middle, sand and a palm at the bottom;
-  // o.hl = "north" or "south" circles that part in red
+  // a map on the wall (the bottom edge is the origin): the north half on top is snowy mountains, the south half below is sun, sand and a palm;
+  // o.hl = "north" or "south" circles that half in red
   KITS.weathermap = function (o) {
     var s = '<rect x="-62" y="-92" width="124" height="92" rx="5" ' + f("#E8B66E", 2.6) + '/>';
-    s += '<rect x="-56" y="-86" width="112" height="30" fill="#E4F4FF"/><rect x="-56" y="-56" width="112" height="28" fill="#A8DC8A"/><rect x="-56" y="-28" width="112" height="22" fill="#F3DFA2"/>';
-    s += '<path d="M-44 -70 l4 -4 l4 4 l4 -4 l4 4 M20 -66 l4 -4 l4 4 l4 -4 l4 4" stroke="#7CB6DC" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M-6 -78 V-62 M-12 -70 H0 M-10 -76 L-2 -64 M-10 -64 L-2 -76" stroke="#9AD0F0" stroke-width="1.8" stroke-linecap="round"/>';
-    s += '<path d="M-30 -50 Q-20 -58 -10 -50 M10 -42 Q22 -52 34 -42" fill="none" stroke="#6CBB5A" stroke-width="2.4" stroke-linecap="round"/>';
-    s += at("palm", 28, -8, 0.46) + '<circle cx="-36" cy="-18" r="5.4" fill="#FFC93C" stroke="#E0A800" stroke-width="1.4"/>';
-    s += '<text x="-50" y="-60" font-family="' + FONT + '" font-weight="700" font-size="10" fill="#2F6AA8">N</text><text x="40" y="-9" font-family="' + FONT + '" font-weight="700" font-size="10" fill="#B8860B">S</text>';
-    if (o.hl === "north") s += '<rect x="-58" y="-88" width="116" height="34" rx="4" fill="#3D8BF2" fill-opacity=".22" stroke="none"/><rect x="-58" y="-88" width="116" height="34" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
-    if (o.hl === "south") s += '<rect x="-58" y="-30" width="116" height="26" rx="4" fill="#FF9F3D" fill-opacity=".3" stroke="none"/><rect x="-58" y="-30" width="116" height="26" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
+    s += '<rect x="-56" y="-86" width="112" height="40" fill="#E4F4FF"/><rect x="-56" y="-46" width="112" height="40" fill="#F7E2A6"/><path d="M-56 -46 H56" stroke="#B58A5A" stroke-width="2"/>';
+    s += '<path d="M-54 -46 L-38 -70 L-30 -60 L-18 -76 L-2 -46Z" fill="#FFFFFE" stroke="#8FA9CC" stroke-width="1.8" stroke-linejoin="round"/><path d="M4 -46 L18 -64 L32 -46Z" fill="#FFFFFE" stroke="#8FA9CC" stroke-width="1.8" stroke-linejoin="round"/>';
+    s += '<g stroke="#7CB6DC" stroke-width="1.8" stroke-linecap="round"><path d="M38 -78 v8 M34 -74 h8 M35 -77 l6 6 M35 -71 l6 -6"/><path d="M-40 -82 v6 M-43 -79 h6"/><path d="M48 -60 v6 M45 -57 h6"/></g>';
+    s += '<g stroke="#FFB020" stroke-width="2" stroke-linecap="round"><path d="M-36 -40 v-4 M-36 -12 v4 M-48 -26 h-4 M-24 -26 h4 M-45 -35 l-3 -3 M-27 -35 l3 -3 M-45 -17 l-3 3 M-27 -17 l3 3"/></g><circle cx="-36" cy="-26" r="8" fill="#FFC93C" stroke="#E0A800" stroke-width="1.6"/>';
+    s += '<path d="M-56 -6 Q-20 -16 14 -10 T56 -12 V-6Z" fill="#EBCB78"/>' + at("palm", 34, -8, 0.3);
+    s += '<text x="-52" y="-52" font-family="' + FONT + '" font-weight="700" font-size="11" fill="#2F6AA8">N</text><text x="-52" y="-9" font-family="' + FONT + '" font-weight="700" font-size="11" fill="#B8860B">S</text>';
+    if (o.hl === "north") s += '<rect x="-58" y="-88" width="116" height="44" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
+    if (o.hl === "south") s += '<rect x="-58" y="-48" width="116" height="44" rx="4" fill="none" stroke="#E5483A" stroke-width="3.4" stroke-dasharray="6 4"/>';
     return s;
   };
   // a bird's-eye view of the whole picture: green land, a river winding over it and flowing into the sea at the right (draw it at 0,0)
@@ -567,8 +568,8 @@
     plains: [["horse", 50, G - 2, 0.85, {}], ["horse", 124, G - 12, 0.62, {}], ["horse", 196, G - 6, 0.75, {}] ],
     valley: [["kid", 44, G, 1.1, kb("point", { look: 1, mouth: "open" })], ["tree", 214, 112, 0.5]],
     east: [["compass", 56, G - 8, 1.4, { hl: "E" }], ["sunbig", 206, 60, 0.9, { c: "#FFC93C" }], ["kid", 118, G, 1.3, kb("walk", { look: 1, mouth: "open" })], ["kid", 156, G, 1.2, kg("walk", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 106, y1: 30, x2: 176, y2: 30, c: P }]],
-    northern: [["fillbg", 0, 0, 1, { c: "#D4E7FA", gy: 130, g: "#F4F9FF" }], ["flake", 30, 30, 1.2], ["flake", 100, 22, 0.9], ["flake", 22, 100, 0.8], ["flake", 224, 20, 1.0], ["weathermap", 178, G - 10, 1.0, { hl: "north" }], ["kid", 66, G, 1.4, kb("point", { look: 1, mouth: "o", hat: "#E5483A" })], ["shiver", 36, 92, 1.3], ["shiver", 96, 92, 1.3]],
-    southern: [["fillbg", 0, 0, 1, { c: "#FFEBBE", gy: 130, g: "#F3D9A0" }], ["sunbig", 26, 30, 0.7, { c: "#FF9F3D", ray: "#FFB347" }], ["weathermap", 178, G - 10, 1.0, { hl: "south" }], ["kid", 66, G, 1.4, kb("point", { look: 1, mouth: "open" })], ["sweat", 90, 74, 0.9], ["sweat", 38, 84, 0.8]],
+    northern: [["fillbg", 0, 0, 1, { c: "#D4E7FA", gy: 130, g: "#F4F9FF" }], ["flake", 30, 30, 1.2], ["flake", 100, 22, 0.9], ["flake", 22, 100, 0.8], ["flake", 224, 20, 1.0], ["weathermap", 178, G - 10, 1.0, { hl: "north" }], ["kid", 66, G, 1.4, kb("pointUp", { look: 1, mouth: "o", hat: "#E5483A" })], ["shiver", 36, 92, 1.3], ["shiver", 96, 92, 1.3]],
+    southern: [["fillbg", 0, 0, 1, { c: "#FFEBBE", gy: 130, g: "#F3D9A0" }], ["sunbig", 26, 30, 0.7, { c: "#FF9F3D", ray: "#FFB347" }], ["weathermap", 178, G - 10, 1.0, { hl: "south" }], ["kid", 66, G, 1.4, kb("pointDown", { look: 1, mouth: "open" })], ["sweat", 90, 74, 0.9], ["sweat", 38, 84, 0.8]],
     western: [["compass", 40, G - 8, 1.05, { hl: "W" }], ["sunbig", 164, 100, 1.4, { c: "#FF8A5A", ray: "#FFB347" }], ["mound", 164, G + 8, 1.0, { c: "#5A7A4A" }], ["kid", 104, G, 1.3, kb("look", { look: 1, mouth: "o" })]],
     view: [["mountain", 54, 116, 1.2, { w: 60, hh: 70 }], ["mountain", 164, 116, 1.2, { w: 74, hh: 92, c: "#7F94BC" }], ["pond", 156, G + 8, 1.0, { w: 50 }], ["tree", 214, G, 1.1], ["kid", 52, G, 1.3, kb("wide", { mouth: "open" })], ["flower", 124, G + 2, 1.2, { c: C.red }]],
     evening: [["house", 168, G - 8, 1.5, { lit: true }], ["kid", 50, G, 1.2, kb("walk", { look: 1, mouth: "open" })], ["kid", 86, G, 1.1, kg("walk", { look: 1 })], ["arrow", 0, 0, 1, { x1: 40, y1: 40, x2: 110, y2: 40, c: "#FFFFFE" }]],
