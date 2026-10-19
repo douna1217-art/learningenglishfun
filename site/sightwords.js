@@ -3640,7 +3640,7 @@
       apples.splice(apples.indexOf(ap), 1);
       if (right) {
         if (first[k] === undefined) first[k] = true;
-        if (mist === 0) lvl = Math.min(8, lvl + 0.5);
+        if (mist === 0) lvl = Math.min(8, lvl + 0.6); // a clean apple: faster
         combo++;
         if (combo > bestCombo) bestCombo = combo;
         var pts = 10 + Math.min(combo, 6) * 3;
@@ -3648,7 +3648,7 @@
         apples = [];
         pop(ap.x, ap.y, "+" + pts, "#FFD23F");
         sfx("sparkle");
-        say(combo >= 3 ? "Combo ×" + combo + "! " + target.w : "Yum! " + target.w);
+        say((combo >= 3 ? "Combo ×" + combo + "! " : "Yum! ") + target.w + (mist === 0 && combo >= 2 ? " · Faster!" : ""));
         try {
           if (hooks.burst && combo >= 3) {
             var br = cv.getBoundingClientRect();
@@ -3668,13 +3668,13 @@
         first[k] = false;
         mist++;
         wrongTries++;
-        lvl = Math.max(0, lvl - 1);
+        lvl = Math.max(0, lvl - 1.5); // a wrong apple: slower
         combo = 0;
         snake.pop();
         if (snake.length > 3) snake.pop(); // a wrong apple: the snake gets one shorter
         pop(ap.x, ap.y, "oops", "#FF6B4A");
         sfx("poke");
-        say("Not that one! Listen again.");
+        say("Not that one! Listen again. Slowing down a little.");
       }
       hud();
     }
@@ -3694,6 +3694,9 @@
         if (blocked) {
           if (note !== "bump") {
             note = "bump";
+            mist++;
+            lvl = Math.max(0, lvl - 0.4); // running into its own tail counts as a slip too
+            hud();
             say("Careful, your tail! Turn another way.");
           }
         } else {
@@ -3706,7 +3709,7 @@
           else snake.pop();
         }
       }
-      if (alive()) tick = setTimeout(step, Math.round(720 - lvl * 45)); // about 0.7 s a step at first, 0.36 s at the fastest
+      if (alive()) tick = setTimeout(step, Math.round(720 * Math.pow(0.9, lvl))); // each level is 10% faster: 0.72 s a step at level 0, 0.31 s at level 8
     }
     function pill(text, x, y) {
       var fs = Math.max(12, Math.round(cell * 0.56));
