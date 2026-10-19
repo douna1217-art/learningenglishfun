@@ -929,6 +929,7 @@
       "#swOverlay .sw-ct .sw-gi{width:62%}" +
       "#swOverlay .sw-c1{background:#D4F3FF;box-shadow:0 6px 0 #8FCBE6}" +
       "#swOverlay .sw-c2{background:#FFE2C9;box-shadow:0 6px 0 #EBA877}" +
+      "#swOverlay .sw-ct.sw-cs{background:#D9D6FF;box-shadow:0 6px 0 #9E97E6}" +
       "#swOverlay .sw-bbs{padding:16px 14px 18px}" +
       "#swOverlay .sw-bhead{display:flex;align-items:center;text-align:left}" +
       "#swOverlay .sw-bpet{flex:none;width:84px;margin-right:10px}" +
@@ -1601,6 +1602,7 @@
     swHoop: ["Word basketball", "单词投篮", "Flick the ball up at the hoop that shows the right word.", "把球往上弹，投进有正确单词的篮筐。"],
     swSpell: ["Bubble spell", "泡泡拼词", "Listen, then tap the letter bubbles in the right order to spell the word.", "听单词，按顺序点字母泡泡，把它拼出来。"],
     swBattle: ["Monster battle", "打怪兽", "Answer the word questions to power up your pet and beat the monster.", "回答单词题，给宠物加油，打败怪兽。"],
+    swSpace: ["Space shooter", "太空射手", "Drag left and right to fly your rocket. It fires by itself. Shoot the saucer that has the word you hear. Do not let it get past you!", "左右拖动飞船，它会自动开火。打中写着你听到的单词的飞碟，别让它飞过去！"],
     swSiege2: ["Castle siege", "弹弓攻城", "Pull the sling back and let go. Hit the sign with the right word to knock the tower down. Pull further to shoot further. A faint dotted line shows the path.", "向后拉弹弓再松手，打中写着正确单词的牌子，塔就会倒。拉得越远飞得越远，虚线是飞行路线。"],
   };
   function howSeen() {
@@ -1704,8 +1706,9 @@
         battle: { id: "swBattle", cls: "sw-c2", label: "Monster battle", sub: "打怪兽 · " + monsDone(s) + " / 5", art: monArt(1, "cheer") },
         spell: { id: "swSpell", cls: "sw-c1", label: "Bubble spell", sub: "泡泡拼词", art: scenery("game", "spell") },
         siege: { id: "swSiege2", cls: "sw-c3", label: "Castle siege", sub: "弹弓攻城 · " + castlesDone(readSling()) + " / " + CASTLES.length, art: scenery("game", "castle") },
+        space: { id: "swSpace", cls: "sw-cs", label: "Space shooter", sub: "太空射手 · best " + readSpace().best, art: scenery("game", "space") },
       },
-      chOrder = ["battle", "spell", "siege"],
+      chOrder = ["battle", "spell", "siege", "space"],
       mainCh = chOrder[Math.min(chOrder.length, (/[?&]stage=(\d)/.exec((root.location && root.location.search) || "") ? +/[?&]stage=(\d)/.exec(root.location.search)[1] : reachedStage(s))) - 1],
       moreCh = chOrder.filter(function (k) {
         return k !== mainCh;
@@ -1791,6 +1794,9 @@
       },
       swSiege2: function () {
         showCastles();
+      },
+      swSpace: function () {
+        startSpace(gameWords(readState(), 8));
       },
     };
     Object.keys(chStart).forEach(function (id) {
@@ -2693,7 +2699,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -6220,6 +6226,618 @@
       down = null;
     });
     my = run = { mode: "basket", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    last = Date.now();
+    hud();
+    draw();
+  }
+
+  /* ---- Space shooter (the challenge of stage 4): fly your pet's rocket (drag to steer, it fires by itself) and shoot the saucer that carries the word you hear.
+     Saucers drift down; one that gets through the target costs a shield heart. Faster and trickier as the child gets it right, gentler and with a gold hint as they miss ---- */
+  var SPACEKEY = "lef_space_v1";
+  function readSpace() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(SPACEKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, boom: +o.boom || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeSpace(o) {
+    try {
+      ls.setItem(SPACEKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startSpace(words) {
+    gameTag = "game";
+    trk("sw_game_start", "space", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 4421) + 17),
+      store = readSpace(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      boomN = 0,
+      tries = 0,
+      lastWrong = false,
+      lives = 3,
+      help = 0,
+      spdNote = "",
+      done = false,
+      ufos = [],
+      shots = [],
+      stars = [],
+      fx = [],
+      texts = [],
+      imgs = {},
+      cur = null,
+      mood = "happy",
+      moved = false,
+      keys = { l: false, r: false },
+      keyH = null,
+      keyU = null,
+      sx = 0,
+      tx = 0,
+      fire = 0,
+      shake = 0,
+      wait = 0.5,
+      last = 0,
+      clock = 0,
+      my = null,
+      raf = null,
+      cv = null,
+      ctx = null,
+      W = 340,
+      H = 420,
+      SY = 360,
+      UW = 80,
+      UH = 44,
+      SAUCER = ["#6AA7FF", "#FF8FB1", "#FFC93C", "#35B779", "#B79BFF"];
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swKsc"),
+        b = document.getElementById("swKcb"),
+        c = document.getElementById("swKlv");
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.innerHTML = '<span style="color:#E5483A">' + new Array(lives + 1).join("♥") + '</span><span style="color:#B9C4D8">' + new Array(4 - lives).join("♥") + "</span>" + spdNote;
+    }
+    function pace(up) {
+      spdNote = up ? " 🐇" : " 🐢";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
+    }
+    function petImg(m) {
+      if (imgs[m]) return imgs[m];
+      var svg = petArt(m);
+      if (!svg) return null;
+      svg = svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="428" ');
+      var im = new Image();
+      im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      imgs[m] = im;
+      return im;
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+      if (keyH) document.removeEventListener("keydown", keyH);
+      if (keyU) document.removeEventListener("keyup", keyU);
+      keyH = keyU = null;
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best;
+      store.best = Math.max(store.best, score);
+      store.boom += boomN;
+      store.lvl = lvl;
+      writeSpace(store);
+      var won = lives > 0;
+      var extra = '<div class="sw-fcount">' + (won ? "Mission complete! " : "The shield is gone, but good try! ") + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Saucers zapped in all: " + store.boom + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (won && newBest ? "sw-dance" : "sw-hop") + '">' + petArt(won ? "excited" : "happy") + "</div></div>";
+      endGame("p", first, "Space shooter", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startSpace(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    function burst(x, y, cols, n, sp) {
+      var now = Date.now(),
+        q;
+      for (q = 0; q < n; q++) {
+        var a = rnd() * 6.283,
+          s = sp * (0.4 + rnd());
+        fx.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: now, c: cols[q % cols.length], r: 2 + rnd() * 2.6 });
+      }
+    }
+    // a new wave of saucers for the word in hand
+    function spawn() {
+      var r = rounds[i],
+        k = wkey(r.w),
+        others = r.opts
+          .filter(function (w) {
+            return wkey(w) !== k;
+          })
+          .slice(0, help > 0 ? 1 : 2),
+        list = shuffle([{ w: r.w, target: true }].concat(
+          others.map(function (w) {
+            return { w: w, target: false };
+          })
+        ), rnd),
+        n = list.length,
+        order = shuffle([0, 1, 2].slice(0, n), rnd);
+      if (help > 0) help--;
+      ufos = list.map(function (it, j) {
+        var lane = W * (n === 2 ? 0.3 + 0.4 * j : 0.2 + 0.3 * j);
+        return { w: it.w, target: it.target, x0: lane, x: lane, y: -UH - order[j] * H * 0.2 - rnd() * H * 0.05, ph: rnd() * 6.283, c: SAUCER[(j + i) % SAUCER.length], flash: 0, dead: 0, bump: 0 };
+      });
+      cur = { r: r, k: k };
+      setTimeout(function () {
+        if (alive() && cur && cur.r === r) play("w", r.w);
+      }, 350);
+    }
+    function fall() {
+      return H * (0.05 + 0.0085 * lvl);
+    }
+    function wave(ok) {
+      // the wave is over: move on (or try the same word again)
+      wait = 1.2;
+      if (ok) {
+        i++;
+        cur = null;
+        if (i >= rounds.length) {
+          done = true;
+          setTimeout(function () {
+            if (my && run === my) finish();
+          }, 1400);
+        }
+      } else {
+        cur = null;
+      }
+    }
+    function hitTarget(u, now) {
+      var k = cur.k;
+      if (first[k] === undefined) first[k] = true;
+      lastWrong = tries > 0;
+      if (tries === 0) {
+        lvl = Math.min(8, lvl + 0.6);
+        pace(true);
+      }
+      combo++;
+      if (combo > bestCombo) bestCombo = combo;
+      boomN++;
+      var pts = 10 + Math.min(combo, 6) * 3;
+      score += pts;
+      u.dead = now;
+      texts.push({ x: u.x, y: u.y - UH * 0.8, t: now, s: "BOOM! +" + pts, c: "#FFE066" });
+      burst(u.x, u.y, ["#FFD23F", "#FF8A3D", "#fff", "#E5483A", u.c], 26, 190);
+      sfx("big");
+      mood = "excited";
+      shake = now + 260;
+      say((combo >= 3 ? "Combo ×" + combo + "! " : "Zap! ") + cur.r.w + (tries === 0 && combo >= 2 ? " · Faster!" : ""));
+      try {
+        if (hooks.burst && combo >= 3) {
+          var br = cv.getBoundingClientRect();
+          hooks.burst(br.left + u.x, br.top + u.y);
+        }
+      } catch (e) {}
+      tries = 0;
+      ufos.forEach(function (o) {
+        if (!o.dead) o.dead = -now; // the others zoom off
+      });
+      wave(true);
+      hud();
+    }
+    function hitWrong(u, now) {
+      first[cur.k] = false;
+      tries++;
+      combo = 0;
+      lvl = Math.max(0, lvl - 0.8);
+      if (tries >= 2 || lastWrong) help = 2;
+      pace(false);
+      u.flash = now;
+      u.bump = H * 0.05;
+      sfx("poke");
+      mood = "happy";
+      say("Not that one! Listen again. Slowing down a little.");
+      var rr = cur.r;
+      setTimeout(function () {
+        if (alive() && cur && cur.r === rr) play("w", rr.w);
+      }, 700);
+      hud();
+    }
+    function lostLife(now) {
+      first[cur.k] = false;
+      lives--;
+      combo = 0;
+      tries++;
+      lvl = Math.max(0, lvl - 0.8);
+      help = 2;
+      pace(false);
+      shake = now + 500;
+      sfx("poke");
+      mood = "happy";
+      ufos.forEach(function (o) {
+        if (!o.dead) o.dead = -now;
+      });
+      burst(sx, SY, ["#FF8A3D", "#E5483A", "#fff"], 16, 140);
+      if (lives <= 0) {
+        say("The shield is gone!");
+        cur = null;
+        done = true;
+        setTimeout(function () {
+          if (my && run === my) finish();
+        }, 1300);
+      } else {
+        say("Oh no, the shield took a hit! Listen again and shoot it.");
+        var rr = cur.r;
+        wave(false);
+        cur = null;
+        wait = 1.3;
+        setTimeout(function () {
+          if (alive()) play("w", rr.w);
+        }, 600);
+      }
+      hud();
+    }
+    function drawUfo(u, ts) {
+      var x = u.x,
+        y = u.y,
+        gone = u.dead < 0 ? (ts - -u.dead) / 700 : 0,
+        hint = tries >= 2 && u.target,
+        blink = Math.sin(ts / 120) > 0,
+        w = UW,
+        h = UH;
+      if (u.dead > 0) return;
+      ctx.save();
+      if (gone) {
+        ctx.globalAlpha = Math.max(0, 1 - gone);
+        ctx.translate(0, -gone * H * 0.2);
+      }
+      if (ts - u.flash < 350) ctx.translate(Math.sin(ts / 25) * 3, 0);
+      if (hint) {
+        var gl = ctx.createRadialGradient(x, y, h * 0.3, x, y, w * 0.95);
+        gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+        gl.addColorStop(1, "rgba(255,214,64,0)");
+        ctx.fillStyle = gl;
+        ctx.beginPath();
+        ctx.arc(x, y, w * 0.95, 0, 6.283);
+        ctx.fill();
+      }
+      // dome with a little alien
+      ctx.fillStyle = "rgba(190,235,255,.85)";
+      ctx.beginPath();
+      ctx.ellipse(x, y - h * 0.18, w * 0.22, h * 0.36, 0, Math.PI, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "#7EDD6B";
+      ctx.beginPath();
+      ctx.arc(x, y - h * 0.2, w * 0.1, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "#1E2A4A";
+      ctx.beginPath();
+      ctx.arc(x - w * 0.035, y - h * 0.22, w * 0.018, 0, 6.283);
+      ctx.arc(x + w * 0.035, y - h * 0.22, w * 0.018, 0, 6.283);
+      ctx.fill();
+      // saucer body with the word
+      ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : ts - u.flash < 350 ? "#FFB3AA" : "#F4F7FC";
+      ctx.strokeStyle = u.c;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(x, y + h * 0.05, w * 0.5, h * 0.36, 0, 0, 6.283);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = u.c;
+      [-0.34, 0, 0.34].forEach(function (d, n) {
+        ctx.beginPath();
+        ctx.arc(x + d * w, y + h * 0.36 + (n === 1 ? 2 : 0) - Math.abs(d) * 6, 3, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.fillStyle = "#1E2A4A";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      var fs = Math.round(h * 0.46);
+      ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      while (ctx.measureText(u.w).width > w * 0.7 && fs > 8) {
+        fs--;
+        ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      }
+      ctx.fillText(u.w, x, y + h * 0.07);
+      ctx.restore();
+    }
+    function drawShip(ts) {
+      var R = W * 0.075,
+        x = sx,
+        y = SY,
+        im = petImg(mood);
+      // flame
+      ctx.fillStyle = Math.sin(ts / 60) > 0 ? "#FFB703" : "#FF7A1F";
+      ctx.beginPath();
+      ctx.moveTo(x - R * 0.42, y + R * 1.05);
+      ctx.lineTo(x, y + R * (1.9 + 0.35 * Math.sin(ts / 45)));
+      ctx.lineTo(x + R * 0.42, y + R * 1.05);
+      ctx.fill();
+      // fins
+      ctx.fillStyle = "#E5483A";
+      ctx.beginPath();
+      ctx.moveTo(x - R * 0.7, y + R * 0.2);
+      ctx.lineTo(x - R * 1.3, y + R * 1.2);
+      ctx.lineTo(x - R * 0.55, y + R * 1.0);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(x + R * 0.7, y + R * 0.2);
+      ctx.lineTo(x + R * 1.3, y + R * 1.2);
+      ctx.lineTo(x + R * 0.55, y + R * 1.0);
+      ctx.fill();
+      // body
+      ctx.fillStyle = "#F4F7FC";
+      ctx.strokeStyle = "#8795B4";
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.moveTo(x, y - R * 1.7);
+      ctx.bezierCurveTo(x + R * 1.0, y - R * 0.9, x + R * 0.85, y + R * 0.5, x + R * 0.6, y + R * 1.1);
+      ctx.lineTo(x - R * 0.6, y + R * 1.1);
+      ctx.bezierCurveTo(x - R * 0.85, y + R * 0.5, x - R * 1.0, y - R * 0.9, x, y - R * 1.7);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#E5483A";
+      ctx.beginPath();
+      ctx.moveTo(x, y - R * 1.7);
+      ctx.bezierCurveTo(x + R * 0.38, y - R * 1.4, x + R * 0.55, y - R * 1.1, x + R * 0.6, y - R * 0.95);
+      ctx.lineTo(x - R * 0.6, y - R * 0.95);
+      ctx.bezierCurveTo(x - R * 0.55, y - R * 1.1, x - R * 0.38, y - R * 1.4, x, y - R * 1.7);
+      ctx.fill();
+      // the pet in the window
+      var pr = R * 0.62;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y - R * 0.1, pr, 0, 6.283);
+      ctx.fillStyle = "#FFD9A8";
+      ctx.fill();
+      ctx.clip();
+      if (im && im.complete && im.naturalWidth) {
+        var dw = pr * 2 * 1.55,
+          dh = dw * (428 / 288);
+        ctx.drawImage(im, x - dw / 2, y - R * 0.1 - dh * 0.325, dw, dh);
+      }
+      ctx.restore();
+      ctx.strokeStyle = "#6AA7FF";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(x, y - R * 0.1, pr, 0, 6.283);
+      ctx.stroke();
+    }
+    function draw() {
+      if (!alive() || !ctx) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, (ts - last) / 1000),
+        k;
+      last = ts;
+      clock += dt;
+      // steering
+      if (keys.l) tx -= W * 0.9 * dt;
+      if (keys.r) tx += W * 0.9 * dt;
+      tx = Math.max(W * 0.06, Math.min(W * 0.94, tx));
+      sx += (tx - sx) * Math.min(1, dt * 12);
+      // waves
+      if (!cur && !done) {
+        wait -= dt;
+        if (wait <= 0 && i < rounds.length) spawn();
+      }
+      var fy = fall();
+      ufos.forEach(function (u) {
+        if (u.dead) return;
+        u.y += fy * dt;
+        if (u.bump > 0) {
+          var d = Math.min(u.bump, H * 0.3 * dt);
+          u.y -= d;
+          u.bump -= d;
+        }
+        var amp = W * Math.min(0.07, 0.01 + 0.008 * lvl);
+        u.x = u.x0 + amp * Math.sin(clock * (0.8 + lvl * 0.12) + u.ph);
+        if (u.y > SY - UH * 0.4) {
+          if (u.target && cur) lostLife(ts);
+          else {
+            u.dead = -ts;
+            burst(u.x, SY, ["#9FB6CC", "#fff"], 8, 70);
+          }
+        }
+      });
+      ufos = ufos.filter(function (u) {
+        return !(u.dead < 0 && ts - -u.dead > 700) && !(u.dead > 0 && ts - u.dead > 80);
+      });
+      // firing: a laser every so often while a wave is on
+      fire -= dt;
+      if (fire <= 0 && cur) {
+        fire = 0.3;
+        shots.push({ x: sx, y: SY - W * 0.12 });
+        sfx("pew");
+      }
+      shots.forEach(function (s) {
+        s.y -= H * 1.25 * dt;
+        if (!cur) return;
+        ufos.forEach(function (u) {
+          if (s.dead || u.dead) return;
+          if (Math.abs(s.x - u.x) < UW * 0.5 && Math.abs(s.y - u.y) < UH * 0.45) {
+            s.dead = true;
+            if (u.target) hitTarget(u, ts);
+            else if (ts - u.flash > 600) hitWrong(u, ts);
+            else u.bump = Math.max(u.bump, H * 0.02);
+          }
+        });
+      });
+      shots = shots.filter(function (s) {
+        return !s.dead && s.y > -20;
+      });
+      fx.forEach(function (p) {
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vx *= 0.985;
+        p.vy *= 0.985;
+      });
+      fx = fx.filter(function (p) {
+        return ts - p.t < 800;
+      });
+      texts = texts.filter(function (t) {
+        return ts - t.t < 1000;
+      });
+      stars.forEach(function (s) {
+        s.y += s.v * dt * (1 + lvl * 0.05);
+        if (s.y > H) {
+          s.y = 0;
+          s.x = rnd() * W;
+        }
+      });
+      // drawing
+      var bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, "#0E1240");
+      bg.addColorStop(0.6, "#2B2A78");
+      bg.addColorStop(1, "#5B3A9E");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      // a ringed planet and a moon
+      ctx.fillStyle = "#FF8FB1";
+      ctx.beginPath();
+      ctx.arc(W * 0.84, H * 0.16, W * 0.075, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,230,160,.9)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(W * 0.84, H * 0.16, W * 0.13, W * 0.035, -0.3, 0, 6.283);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,.85)";
+      ctx.beginPath();
+      ctx.arc(W * 0.12, H * 0.62, W * 0.035, 0, 6.283);
+      ctx.fill();
+      stars.forEach(function (s) {
+        ctx.globalAlpha = s.a;
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(s.x, s.y, s.r, s.r);
+      });
+      ctx.globalAlpha = 1;
+      var sh = ts < shake ? Math.sin(ts / 20) * 3 : 0;
+      ctx.save();
+      ctx.translate(sh, 0);
+      ufos.forEach(function (u) {
+        drawUfo(u, ts);
+      });
+      shots.forEach(function (s) {
+        ctx.fillStyle = "#FFE066";
+        ctx.strokeStyle = "#FFB703";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(s.x - 3, s.y - 10, 6, 20, 3);
+        else ctx.rect(s.x - 3, s.y - 10, 6, 20);
+        ctx.fill();
+        ctx.stroke();
+      });
+      drawShip(ts);
+      fx.forEach(function (p) {
+        ctx.globalAlpha = Math.max(0, 1 - (ts - p.t) / 800);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      texts.forEach(function (t) {
+        var age = (ts - t.t) / 1000;
+        ctx.globalAlpha = Math.max(0, 1 - age);
+        ctx.fillStyle = t.c;
+        ctx.strokeStyle = "rgba(30,42,74,.92)";
+        ctx.lineWidth = 4.5;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(W * 0.07) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText(t.s, t.x, t.y - age * 34);
+        ctx.fillText(t.s, t.x, t.y - age * 34);
+        ctx.globalAlpha = 1;
+      });
+      if (!moved) {
+        ctx.fillStyle = "rgba(255,255,255,.85)";
+        ctx.font = "700 " + Math.round(W * 0.042) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Drag to fly · it shoots by itself!", W / 2, SY - W * 0.28);
+        ctx.fillText("拖动飞船 · 自动开火", W / 2, SY - W * 0.28 + W * 0.06);
+      }
+      ctx.restore();
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Space shooter</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Space shooter</div><div class="sw-sent" style="font-size:22px">Shoot the saucer with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
+      '<canvas class="sw-snk" id="swSpaceCv"></canvas><div class="sw-msg" id="swMsg">Drag left and right. Your rocket fires by itself!</div></div>';
+    bindQuit();
+    cv = document.getElementById("swSpaceCv");
+    W = Math.max(260, Math.min(440, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 1.2);
+    SY = Math.round(H * 0.86);
+    UW = Math.round(W * 0.27);
+    UH = Math.round(UW * 0.56);
+    sx = tx = W / 2;
+    for (var q = 0; q < 46; q++) stars.push({ x: rnd() * W, y: rnd() * H, v: 10 + rnd() * 40, r: rnd() < 0.2 ? 2.4 : 1.4, a: 0.4 + rnd() * 0.6 });
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = W + "px";
+    cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    document.getElementById("swHear").onclick = function () {
+      if (cur) play("w", cur.r.w);
+      else if (rounds[i]) play("w", rounds[i].w);
+    };
+    function pos(e) {
+      var r = cv.getBoundingClientRect();
+      return { x: ((e.clientX - r.left) * W) / r.width, y: ((e.clientY - r.top) * H) / r.height };
+    }
+    var dragging = false;
+    cv.addEventListener("pointerdown", function (e) {
+      dragging = true;
+      moved = true;
+      tx = pos(e).x;
+      try {
+        cv.setPointerCapture(e.pointerId);
+      } catch (e2) {}
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (dragging || e.pointerType === "mouse") {
+        tx = pos(e).x;
+        if (dragging) moved = true;
+      }
+    });
+    cv.addEventListener("pointerup", function () {
+      dragging = false;
+    });
+    cv.addEventListener("pointercancel", function () {
+      dragging = false;
+    });
+    keyH = function (e) {
+      if (e.keyCode === 37 || e.keyCode === 65) keys.l = moved = true;
+      if (e.keyCode === 39 || e.keyCode === 68) keys.r = moved = true;
+    };
+    keyU = function (e) {
+      if (e.keyCode === 37 || e.keyCode === 65) keys.l = false;
+      if (e.keyCode === 39 || e.keyCode === 68) keys.r = false;
+    };
+    document.addEventListener("keydown", keyH);
+    document.addEventListener("keyup", keyU);
+    my = run = { mode: "space", steps: [], i: 0, first: first, rnd: seeded(1) };
     my.stop = function () {
       cleanup();
       my = null;

@@ -55,6 +55,11 @@
         '<rect x="50" y="22" width="26" height="14" rx="3" fill="#fff" stroke="#E5483A" stroke-width="2"/><text x="63" y="32.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="9" fill="#1E2A4A">go</text>' +
         '<path d="M16 64 L16 50 M16 50 L10 42 M16 50 L22 42" stroke="#8A5A2B" stroke-width="3.4" stroke-linecap="round" fill="none"/><circle cx="16" cy="46" r="6" fill="#FFB066" stroke="#8A5A2B" stroke-width="1.6"/>' +
         '<path d="M16 46 Q34 6 54 28" fill="none" stroke="#1E2A4A" stroke-width="2.2" stroke-dasharray="1 5" stroke-linecap="round" opacity=".6"/>';
+    } else if (kind === "space") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#1B1F6B"/><circle cx="12" cy="12" r="1.4" fill="#fff"/><circle cx="40" cy="8" r="1.2" fill="#fff"/><circle cx="88" cy="40" r="1.4" fill="#fff"/><circle cx="76" cy="10" r="5" fill="#FF8FB1"/>' +
+        '<ellipse cx="30" cy="26" rx="20" ry="7" fill="#fff" stroke="#6AA7FF" stroke-width="3"/><path d="M20 22 A10 10 0 0 1 40 22Z" fill="#BEEBFF"/><text x="30" y="29" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="9" fill="#1E2A4A">go</text>' +
+        '<rect x="62" y="30" width="5" height="12" rx="2" fill="#FFE066"/><rect x="62" y="12" width="5" height="12" rx="2" fill="#FFE066" opacity=".5"/>' +
+        '<path d="M64 52 C74 58 73 68 70 72 L58 72 C55 68 54 58 64 52Z" fill="#F4F7FC" stroke="#8795B4" stroke-width="1.6"/><path d="M64 52 C68 54 70 56 71 58 L57 58 C58 56 60 54 64 52Z" fill="#E5483A"/><circle cx="64" cy="64" r="4.5" fill="#FFD9A8" stroke="#6AA7FF" stroke-width="1.6"/><path d="M60 72 L64 80 L68 72Z" fill="#FFB703"/>';
     } else if (kind === "hoop") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#CFEAFB"/><rect x="0" y="54" width="100" height="30" fill="#E0B070"/>' +
         '<rect x="22" y="8" width="56" height="22" rx="5" fill="#fff" stroke="#E5483A" stroke-width="3"/><text x="50" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">go</text>' +
