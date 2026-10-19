@@ -1378,9 +1378,7 @@
       "#swOverlay .sw-g7{background:#FFE3C2;box-shadow:0 6px 0 #E8A86A}" +
       "#swOverlay .sw-rwrap{position:relative;margin:10px auto}" +
       "#swOverlay .sw-rwrap .sw-snk{margin:0}" +
-      "#swOverlay .sw-rpet{position:absolute;transition:left .13s ease-out;pointer-events:none;transform-origin:50% 90%}" +
-      "#swOverlay .sw-rpet svg{display:block;width:100%;height:auto;overflow:visible}" +
-      "#swOverlay .sw-rpet.sw-fwig{animation:swwig 1.4s ease-in-out}" +
+      "#swOverlay .sw-rapet{bottom:auto;left:0;width:60px;transition:top .13s ease-out,width .13s ease-out;pointer-events:none}" +
       "#swOverlay .sw-rlr{display:flex;justify-content:center;gap:22px;margin:12px 0 4px}" +
       "#swOverlay .sw-dpw{width:110px}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
@@ -3983,8 +3981,9 @@
     draw(Date.now());
   }
 
-  /* ---- Word runner: your pet runs down a road with three lanes; hear a word and run through the gate whose sign has it. Coins in the lanes,
-     wrong gate = a stumble. The speed follows the child's accuracy. Arrow keys, swipes, taps on the sides or the two buttons ---- */
+  /* ---- Word runner: your pet runs along a road toward the words (it runs to the right, seen from the side); the road has three lanes, one above the other.
+     Hear a word and run through the gate whose sign has it. Coins in the lanes, a wrong gate = a stumble. The speed follows the child's accuracy.
+     Up and down arrow keys, swipes, taps above or below the pet, or the two buttons ---- */
   var RUNKEY = "lef_runner_v1";
   function readRunner() {
     var o = null;
@@ -4024,36 +4023,30 @@
       coins = [],
       wait = 0, // seconds until the next gate
       scroll = 0,
-      t0 = 0,
+      clock = 0,
       last = 0,
       my = null,
       raf = null,
       keyH = null,
+      rig = null,
       cv = null,
       ctx = null,
       pe = null,
       W = 340,
-      H = 400,
-      HOR = 110,
-      PL = 330,
-      note = "";
+      H = 260,
+      GY = 90, // where the ground starts
+      PX = 70; // where the pet stands
     function alive() {
       return !!my && run === my && !done;
     }
     function speedT() {
-      return 7.5 * Math.pow(0.92, lvl); // seconds for a gate to run from the horizon to the pet
+      return 6.5 * Math.pow(0.92, lvl); // seconds for a gate to cross the picture
     }
-    function Y(p) {
-      return HOR + (PL - HOR) * Math.pow(Math.max(p, 0), 1.6);
+    function laneY(l) {
+      return H * (0.57 + l * 0.17);
     }
-    function frac(p) {
-      return (Y(p) - HOR) / (H - HOR);
-    }
-    function roadW(f) {
-      return W * 0.24 + W * 0.72 * f;
-    }
-    function X(p, ln) {
-      return W / 2 + (ln - 1) * (roadW(frac(p)) / 3);
+    function laneS(l) {
+      return 0.84 + 0.16 * l;
     }
     function say(t) {
       var m = document.getElementById("swMsg");
@@ -4116,7 +4109,7 @@
       gate = { p: 0, signs: signs, r: r, k: k };
       // a short row of coins after the gate, in a lane of its own
       var cl = Math.floor(rnd() * 3);
-      for (var c = 0; c < 4; c++) coins.push({ p: -0.5 - c * 0.07, lane: cl, got: false });
+      for (var c = 0; c < 4; c++) coins.push({ p: -0.45 - c * 0.07, lane: cl, got: false });
       setTimeout(function () {
         if (alive() && gate && gate.r === r) play("w", r.w);
       }, 350);
@@ -4127,12 +4120,22 @@
         started = true;
         wait = 0.4;
         last = Date.now();
+        if (rig) {
+          try {
+            rig.setAct("walk", { dir: -1 });
+          } catch (e) {}
+        }
       }
       lane = Math.max(0, Math.min(2, n));
       place();
     }
     function place() {
-      if (pe) pe.style.left = X(1, lane) - pe.offsetWidth / 2 + "px";
+      if (!pe) return;
+      var w = Math.round(W * 0.17 * laneS(lane) * 1.1),
+        h = w * 1.49;
+      pe.style.width = w + "px";
+      pe.style.left = PX - w / 2 + "px";
+      pe.style.top = laneY(lane) - h * 0.94 + "px";
     }
     function resolve() {
       var g = gate,
@@ -4154,11 +4157,11 @@
         score += pts;
         sfx("sparkle");
         say((combo >= 3 ? "Combo ×" + combo + "! " : "Yes! ") + g.r.w + (tries === 0 && combo >= 2 ? " · Faster!" : ""));
-        wiggle();
+        hop();
         try {
           if (hooks.burst && combo >= 3) {
             var br = cv.getBoundingClientRect();
-            hooks.burst(br.left + X(1, lane), br.top + PL - 30);
+            hooks.burst(br.left + PX, br.top + laneY(lane) - 40);
           }
         } catch (e) {}
         tries = 0;
@@ -4170,7 +4173,7 @@
           }, 1000);
           return;
         }
-        wait = 1.1;
+        wait = 1.0;
       } else {
         first[k] = false;
         tries++;
@@ -4188,54 +4191,76 @@
       }
       hud();
     }
-    function wiggle() {
-      if (!pe) return;
-      pe.innerHTML = petArt("excited");
-      pe.classList.remove("sw-fwig");
-      void pe.offsetWidth;
-      pe.classList.add("sw-fwig");
-      setTimeout(function () {
-        if (alive() && pe) {
-          pe.classList.remove("sw-fwig");
-          pe.innerHTML = petArt("happy");
-        }
-      }, 1300);
+    // a happy jump when the gate was right, a stumble when it was wrong
+    function hop() {
+      if (rig) {
+        try {
+          rig.setFace("excited");
+        } catch (e) {}
+        setTimeout(function () {
+          if (alive() && rig) {
+            try {
+              rig.setFace("happy");
+            } catch (e2) {}
+          }
+        }, 1100);
+      }
+      if (pe && pe.animate) {
+        try {
+          pe.animate([{ transform: "translateY(0)" }, { transform: "translateY(-18px)" }, { transform: "translateY(0)" }, { transform: "translateY(-9px)" }, { transform: "translateY(0)" }], { duration: 650, easing: "ease-out" });
+        } catch (e3) {}
+      }
     }
     function stumble() {
-      if (!pe || !pe.animate) return;
-      try {
-        pe.animate([{ transform: "rotate(0)" }, { transform: "rotate(-18deg) translateY(6px)" }, { transform: "rotate(14deg)" }, { transform: "rotate(-8deg)" }, { transform: "rotate(0)" }], { duration: 600, easing: "ease-out" });
-      } catch (e) {}
+      if (rig) {
+        try {
+          rig.setFace("surprised");
+        } catch (e) {}
+        setTimeout(function () {
+          if (alive() && rig) {
+            try {
+              rig.setFace("happy");
+            } catch (e2) {}
+          }
+        }, 900);
+      }
+      if (pe && pe.animate) {
+        try {
+          pe.animate([{ transform: "rotate(0)" }, { transform: "translateX(-14px) rotate(-14deg)" }, { transform: "translateX(6px) rotate(8deg)" }, { transform: "translateX(-4px) rotate(-4deg)" }, { transform: "rotate(0)" }], { duration: 650, easing: "ease-out" });
+        } catch (e3) {}
+      }
     }
-    function pill(text, x, y, w, h, hint, blink) {
+    function board(text, cx, cy, w, h, hint, blink) {
       ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
       ctx.strokeStyle = hint ? "#E0A800" : "#4A5878";
       ctx.lineWidth = Math.max(1.5, h * 0.08);
       ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(x - w / 2, y - h / 2, w, h, h * 0.3);
-      else ctx.rect(x - w / 2, y - h / 2, w, h);
+      if (ctx.roundRect) ctx.roundRect(cx - w / 2, cy - h / 2, w, h, h * 0.3);
+      else ctx.rect(cx - w / 2, cy - h / 2, w, h);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = "#1E2A4A";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      var fs = Math.max(9, h * 0.58);
+      var fs = Math.max(10, h * 0.62);
       ctx.font = "700 " + fs + "px Fredoka, sans-serif";
       while (ctx.measureText(text).width > w * 0.88 && fs > 8) {
         fs -= 1;
         ctx.font = "700 " + fs + "px Fredoka, sans-serif";
       }
-      ctx.fillText(text, x, y + 1);
+      ctx.fillText(text, cx, cy + 1);
     }
-    function draw(now) {
+    function draw() {
       if (!cv || done) return;
       var ts = Date.now(),
         dt = Math.min(0.05, Math.max(0, (ts - last) / 1000));
       last = ts;
       var T = speedT(),
-        k;
+        k,
+        x;
       if (started) {
-        // movement
+        scroll += dt / T;
+        clock += dt;
         if (gate) {
           gate.p += dt / T;
           if (gate.p >= 1) resolve();
@@ -4245,7 +4270,7 @@
         }
         coins.forEach(function (c) {
           c.p += dt / T;
-          if (!c.got && c.p >= 1 && c.p < 1.15 && c.lane === lane) {
+          if (!c.got && c.p >= 1 && c.p < 1.08 && c.lane === lane) {
             c.got = true;
             coinN++;
             score += 2;
@@ -4254,153 +4279,151 @@
           }
         });
         coins = coins.filter(function (c) {
-          return c.p < 1.2;
+          return c.p < 1.12;
         });
       }
-      if (started) scroll += dt / T;
-      var phase = scroll;
+      if (rig) {
+        try {
+          rig.at(clock * 1.7); // the clock runs faster than a walk: this is a run
+        } catch (e) {}
+      }
       ctx.clearRect(0, 0, W, H);
-      // sky, sun, grass, road
-      var g1 = ctx.createLinearGradient(0, 0, 0, HOR);
+      var g1 = ctx.createLinearGradient(0, 0, 0, GY);
       g1.addColorStop(0, "#BFE6FF");
       g1.addColorStop(1, "#EAF7FF");
       ctx.fillStyle = g1;
-      ctx.fillRect(0, 0, W, HOR + 2);
+      ctx.fillRect(0, 0, W, GY + 2);
       ctx.fillStyle = "#FFE066";
       ctx.beginPath();
-      ctx.arc(W * 0.8, HOR * 0.45, HOR * 0.22, 0, 6.283);
+      ctx.arc(W * 0.82, GY * 0.42, GY * 0.2, 0, 6.283);
       ctx.fill();
-      ctx.fillStyle = "#9ADF8A";
-      ctx.fillRect(0, HOR, W, H - HOR);
-      for (k = 0; k < 8; k++) {
-        var pp = (((phase * 2 + k / 8) % 1) + 1) % 1,
-          y1 = Y(pp),
-          y2 = Y(pp + 0.06);
-        if (k % 2) {
-          ctx.fillStyle = "rgba(255,255,255,.12)";
-          ctx.fillRect(0, y1, W, Math.max(1, y2 - y1));
-        }
-      }
-      ctx.fillStyle = "#6C7A93";
+      // far hills, they move slowly
+      ctx.fillStyle = "#BFE8B0";
       ctx.beginPath();
-      ctx.moveTo(W / 2 - roadW(0) / 2, HOR);
-      ctx.lineTo(W / 2 + roadW(0) / 2, HOR);
-      ctx.lineTo(W / 2 + roadW(1.0) / 2, H);
-      ctx.lineTo(W / 2 - roadW(1.0) / 2, H);
+      ctx.moveTo(0, GY + 2);
+      for (x = 0; x <= W; x += 6) ctx.lineTo(x, GY - 16 - 12 * Math.sin((x / W) * 5 + scroll * 1.2) - 6 * Math.sin((x / W) * 11 + scroll * 1.2));
+      ctx.lineTo(W, GY + 2);
       ctx.fill();
-      ctx.strokeStyle = "#fff";
-      ctx.lineWidth = 3;
-      [-1, 1].forEach(function (sd) {
-        ctx.beginPath();
-        ctx.moveTo(W / 2 + (sd * roadW(0)) / 2, HOR);
-        ctx.lineTo(W / 2 + (sd * roadW(1.0)) / 2, H);
-        ctx.stroke();
-      });
-      // lane dashes
+      // grass and road
+      ctx.fillStyle = "#9ADF8A";
+      ctx.fillRect(0, GY, W, H - GY);
+      var roadTop = H * 0.47;
+      ctx.fillStyle = "#6C7A93";
+      ctx.fillRect(0, roadTop, W, H - roadTop);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, roadTop, W, 3);
+      ctx.fillRect(0, H - 3, W, 3);
       ctx.strokeStyle = "rgba(255,255,255,.85)";
-      for (k = 0; k < 10; k++) {
-        var q = (((phase * 3 + k / 10) % 1) + 1) % 1,
-          a = Math.pow(q, 1) * 1,
-          ya = Y(a),
-          yb = Y(a + 0.045),
-          fa = (ya - HOR) / (H - HOR),
-          fb = (yb - HOR) / (H - HOR);
-        ctx.lineWidth = 1 + 3 * fa;
-        [-1, 1].forEach(function (sd) {
+      ctx.lineWidth = 3;
+      [0.645, 0.815].forEach(function (fy) {
+        for (k = -1; k < 12; k++) {
+          var dx = ((((k * 40 - scroll * 520) % 480) + 480) % 480) - 40;
           ctx.beginPath();
-          ctx.moveTo(W / 2 + (sd * roadW(fa)) / 6, ya);
-          ctx.lineTo(W / 2 + (sd * roadW(fb)) / 6, yb);
+          ctx.moveTo(dx, H * fy);
+          ctx.lineTo(dx + 22, H * fy);
           ctx.stroke();
-        });
-      }
-      // trees at the sides
-      for (k = 0; k < 6; k++) {
-        var tp = (((phase * 1 + k / 6) % 1) + 1) % 1,
-          side = k % 2 ? 1 : -1,
-          ty = Y(tp),
-          tf = (ty - HOR) / (H - HOR),
-          tx = W / 2 + side * (roadW(tf) / 2 + W * 0.09 + W * 0.1 * tf),
-          sc = 0.12 + 1.0 * tf;
+        }
+      });
+      // trees along the far edge
+      for (k = 0; k < 5; k++) {
+        var tx = ((((k * 0.25 - scroll * 0.8) % 1.25) + 1.25) % 1.25) * W - 20,
+          ty = roadTop - 4;
         ctx.fillStyle = "#8A5A2B";
-        ctx.fillRect(tx - 3 * sc * 3, ty - 12 * sc * 3, 6 * sc * 3, 14 * sc * 3);
+        ctx.fillRect(tx - 3, ty - 18, 6, 20);
         ctx.fillStyle = "#35B779";
         ctx.beginPath();
-        ctx.arc(tx, ty - 20 * sc * 3, 14 * sc * 3, 0, 6.283);
+        ctx.arc(tx, ty - 28, 15, 0, 6.283);
         ctx.fill();
       }
       // coins
       coins.forEach(function (c) {
         if (c.p < 0 || c.got) return;
-        var cy = Y(c.p),
-          cf = (cy - HOR) / (H - HOR),
-          cx = X(c.p, c.lane),
-          rr = 3 + 12 * cf;
+        var s = laneS(c.lane),
+          cx = W * 1.05 - c.p * (W * 1.05 - PX),
+          cy = laneY(c.lane) - 16 * s,
+          rr = 8 * s;
         ctx.fillStyle = "#FFC400";
         ctx.beginPath();
-        ctx.arc(cx, cy - rr, rr, 0, 6.283);
+        ctx.arc(cx, cy, rr, 0, 6.283);
         ctx.fill();
         ctx.strokeStyle = "#E0A800";
-        ctx.lineWidth = Math.max(1, rr * 0.18);
+        ctx.lineWidth = 1.8;
         ctx.stroke();
         ctx.fillStyle = "rgba(255,255,255,.6)";
         ctx.beginPath();
-        ctx.arc(cx - rr * 0.3, cy - rr * 1.3, rr * 0.28, 0, 6.283);
+        ctx.arc(cx - rr * 0.3, cy - rr * 0.3, rr * 0.28, 0, 6.283);
         ctx.fill();
       });
-      // the gate
+      // the gate: three signs, one in each lane
       if (gate) {
-        var gy = Y(gate.p),
-          gf = (gy - HOR) / (H - HOR),
-          lw = roadW(gf) / 3,
-          sh = Math.max(16, lw * 0.6),
-          sw = lw * 0.96,
+        var gx = W * 1.12 - gate.p * (W * 1.12 - (PX + 6)),
           blink = Math.sin(ts / 120) > 0;
         gate.signs.forEach(function (sg) {
-          var sx = X(gate.p, sg.lane),
-            hint = tries >= 2 && sg.target,
-            top = gy - lw * 0.95;
+          var s = laneS(sg.lane),
+            bw = W * 0.3 * s,
+            bh = H * 0.115 * s,
+            by = laneY(sg.lane) - 30 * s,
+            hint = tries >= 2 && sg.target;
           ctx.strokeStyle = "#5A4A3A";
-          ctx.lineWidth = Math.max(2, lw * 0.07);
+          ctx.lineWidth = Math.max(2, 3 * s);
           ctx.beginPath();
-          ctx.moveTo(sx - sw * 0.42, top + sh / 2);
-          ctx.lineTo(sx - sw * 0.42, gy);
-          ctx.moveTo(sx + sw * 0.42, top + sh / 2);
-          ctx.lineTo(sx + sw * 0.42, gy);
+          ctx.moveTo(gx - bw * 0.36, by + bh / 2);
+          ctx.lineTo(gx - bw * 0.36, laneY(sg.lane));
+          ctx.moveTo(gx + bw * 0.36, by + bh / 2);
+          ctx.lineTo(gx + bw * 0.36, laneY(sg.lane));
           ctx.stroke();
           if (hint) {
-            var gl = ctx.createRadialGradient(sx, top + sh / 2, sh * 0.3, sx, top + sh / 2, sw * 0.9);
+            var gl = ctx.createRadialGradient(gx, by, bh * 0.3, gx, by, bw * 0.8);
             gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
             gl.addColorStop(1, "rgba(255,214,64,0)");
             ctx.fillStyle = gl;
             ctx.beginPath();
-            ctx.arc(sx, top + sh / 2, sw * 0.9, 0, 6.283);
+            ctx.arc(gx, by, bw * 0.8, 0, 6.283);
             ctx.fill();
           }
-          pill(sg.w, sx, top + sh / 2, sw, sh, hint, blink);
+          board(sg.w, gx, by, bw, bh, hint, blink);
         });
       }
       if (!started) {
         ctx.fillStyle = "rgba(30,42,74,.62)";
-        ctx.fillRect(0, H * 0.4, W, 56);
+        ctx.fillRect(0, H * 0.18, W, 44);
         ctx.fillStyle = "#fff";
-        ctx.font = "700 " + Math.round(W * 0.052) + "px Fredoka, sans-serif";
+        ctx.font = "700 " + Math.round(W * 0.05) + "px Fredoka, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("Press ◀ ▶ or swipe to start!", W / 2, H * 0.4 + 28);
+        ctx.fillText("Press ▲ ▼ or swipe to start!", W / 2, H * 0.18 + 22);
       }
       raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    // the side view: copies of the picture stacked behind it give the turned pet some thickness (as in the Monster battle)
+    function sideOn(t) {
+      var svg = t.querySelector("svg");
+      if (svg) {
+        var xml = svg.outerHTML.indexOf("xmlns=") < 0 ? svg.outerHTML.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ') : svg.outerHTML,
+          uri = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+        for (var k = 1; k <= LAYERS; k++) {
+          var im = document.createElement("img");
+          im.className = "sw-ly";
+          im.alt = "";
+          im.src = uri;
+          im.style.transform = "translateZ(-" + k * 3 + "px) scaleX(-1)";
+          im.style.filter = "brightness(" + (0.9 - k * 0.05).toFixed(2) + ")";
+          t.insertBefore(im, t.firstChild);
+        }
+      }
+      t.classList.add("sw-turned", "sw-in");
     }
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word runner</span></div>' +
       '<div class="sw-card"><div class="sw-kind">Word runner</div><div class="sw-sent" style="font-size:22px">Run through the gate with the word you hear!</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swRsc"></span><span class="sw-msc" id="swRco"></span><span class="sw-mcb" id="swRcb"></span><span class="sw-spd" id="swRsp"></span></div>' +
-      '<div class="sw-rwrap" id="swRw"><canvas class="sw-snk" id="swRun"></canvas><div class="sw-rpet" id="swRpet">' + petArt("happy") + '</div></div><div class="sw-rlr"><button class="sw-dp sw-dpw" id="swRl" aria-label="Left">◀</button><button class="sw-dp sw-dpw" id="swRr" aria-label="Right">▶</button></div><div class="sw-msg" id="swMsg"></div></div>';
+      '<div class="sw-rwrap" id="swRw"><canvas class="sw-snk" id="swRun"></canvas><div class="sw-apet sw-rapet" id="swRpet"><div class="sw-turn" id="swRtn"></div></div></div><div class="sw-rlr"><button class="sw-dp sw-dpw" id="swRu" aria-label="Up">▲</button><button class="sw-dp sw-dpw" id="swRd" aria-label="Down">▼</button></div><div class="sw-msg" id="swMsg"></div></div>';
     bindQuit();
     cv = document.getElementById("swRun");
     pe = document.getElementById("swRpet");
-    W = Math.max(240, Math.min(420, Math.floor((cv.parentNode.parentNode.clientWidth || 340) - 56)));
-    H = Math.round(W * 1.15);
-    HOR = Math.round(H * 0.27);
-    PL = Math.round(H * 0.86);
+    W = Math.max(260, Math.min(440, Math.floor((cv.parentNode.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 0.74);
+    GY = Math.round(H * 0.32);
+    PX = Math.round(W * 0.2);
     var dpr = root.devicePixelRatio || 1;
     cv.style.width = W + "px";
     cv.style.height = H + "px";
@@ -4409,58 +4432,75 @@
     ctx = cv.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     document.getElementById("swRw").style.width = W + "px";
-    pe.style.width = Math.round(W * 0.2) + "px";
-    pe.style.top = PL - Math.round(W * 0.2) * 0.95 + "px";
+    document.getElementById("swRw").style.height = H + "px";
+    pe.style.bottom = "auto";
+    // the pet is a living rig (the same drawing it has everywhere else): it runs to the right, seen from the side
+    var host = document.getElementById("swRtn");
+    if (root.PetRig && root.PetRig.mount && root.petSvg) {
+      try {
+        var pa = petRigArgs();
+        rig = root.PetRig.mount(host, pa.type, pa.eq, { gaze: -1, lean: -8, flip: true, faces: ["happy", "excited", "surprised"], manual: true });
+        if (rig) rig.turn(true);
+      } catch (e) {
+        rig = null;
+      }
+    }
+    if (!rig) host.innerHTML = petArt("happy");
+    sideOn(host);
     place();
     document.getElementById("swHear").onclick = function () {
       if (gate) play("w", gate.r.w);
       else if (rounds[i]) play("w", rounds[i].w);
     };
-    document.getElementById("swRl").onclick = function () {
+    document.getElementById("swRu").onclick = function () {
       setLane(lane - 1);
     };
-    document.getElementById("swRr").onclick = function () {
+    document.getElementById("swRd").onclick = function () {
       setLane(lane + 1);
     };
     keyH = function (e) {
-      var m = { ArrowLeft: -1, ArrowRight: 1, a: -1, d: 1 }[e.key];
+      var m = { ArrowUp: -1, ArrowDown: 1, w: -1, s: 1 }[e.key];
       if (m) {
         e.preventDefault();
         setLane(lane + m);
       }
     };
     document.addEventListener("keydown", keyH);
-    var sx = null;
+    var sy = null;
     cv.addEventListener("pointerdown", function (e) {
-      sx = e.clientX;
+      sy = e.clientY;
     });
     cv.addEventListener("pointermove", function (e) {
-      if (sx === null) return;
-      if (Math.abs(e.clientX - sx) > 24) {
-        setLane(lane + (e.clientX > sx ? 1 : -1));
-        sx = e.clientX;
+      if (sy === null) return;
+      if (Math.abs(e.clientY - sy) > 22) {
+        setLane(lane + (e.clientY > sy ? 1 : -1));
+        sy = e.clientY;
       }
     });
     cv.addEventListener("pointerup", function (e) {
-      if (sx !== null && Math.abs(e.clientX - sx) <= 24) {
+      if (sy !== null && Math.abs(e.clientY - sy) <= 22) {
         var r = cv.getBoundingClientRect(),
-          x = e.clientX - r.left;
-        setLane(x < r.width / 3 ? lane - 1 : x > (r.width * 2) / 3 ? lane + 1 : lane);
+          y = e.clientY - r.top;
+        setLane(y < laneY(lane) - 40 ? lane - 1 : y > laneY(lane) + 8 ? lane + 1 : lane);
       }
-      sx = null;
+      sy = null;
     });
     cv.addEventListener("pointercancel", function () {
-      sx = null;
+      sy = null;
     });
     my = run = { mode: "runner", steps: [], i: 0, first: first, rnd: seeded(1) };
     my.stop = function () {
       cleanup();
+      if (rig) {
+        try {
+          rig.stop();
+        } catch (e) {}
+      }
       my = null;
     };
-    t0 = Date.now();
     last = Date.now();
     hud();
-    draw(Date.now());
+    draw();
   }
 
   /* ---- feed your pet words: the pet asks for a snack, you give it the right plate; every bite makes it feel better and it never goes back ---- */
