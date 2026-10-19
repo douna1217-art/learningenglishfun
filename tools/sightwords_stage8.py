@@ -74,7 +74,7 @@ SENT = {
     "lie": "I lie on the bed.", "organ": "I play the organ.", "protect": "A hat will protect me.", "raise": "We raise the flag.",
 }
 # picture nouns the stage-8 sentences use besides the nouns of the earlier stages
-EXTRA_NOUNS = set()
+EXTRA_NOUNS = {"flag"}
 
 UNIT_NAMES = ["Snow hills", "Igloo village", "Frozen lake", "Northern lights", "Penguin cove"]
 MAX_WORDS = 7

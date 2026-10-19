@@ -719,7 +719,7 @@ ok(Object.keys(D8.words).length === 140 && w8.every((w) => D8.words[w] && D8.wor
 ok(eq(D8.lessons.map((l) => l.id), Array.from({ length: 30 }, (_, i) => 189 + i)) && D8.lessons.every((l) => l.stage === 8), "stage 8: lessons 189 to 218");
 ok(D8.lessons.every((l) => l.words.length === 4 || l.words.length === 5) && D8.lessons.filter((l) => l.words.length === 5).length === 20, "stage 8: lessons of 4 or 5 words (20 of them have 5)");
 ok(eq(D8.units.map((u) => u.id), [36, 37, 38, 39, 40]) && D8.units.every((u) => u.stage === 8 && u.lessons.length === 6) && eq([].concat(...D8.units.map((u) => u.lessons)), D8.lessons.map((l) => l.id)), "stage 8: units 36 to 40, six lessons each, every lesson once, in order");
-const M8 = SW.mergeData(D, D2, D3, D4, D5, D7, D8);
+const M8 = SW.mergeData(D, D2, D3, D4, D5, D6, D7, D8);
 ok(M8.lessons.length === 218 && M8.units.length === 40 && Object.keys(M8.words).length === 1015 && M8.stages.length === 8 && M8.stages.every((x) => x.ready), "merge: 218 lessons, 40 units, 1015 words, all eight stages ready");
 ok(M8.stages[7].words === 140 && M8.stages[7].title === "Word pioneers", "stage 8: the stage list says 140 words", M8.stages[7]);
 ok(M8.lessons.every((l, i) => l.id === i + 1), "merge of seven: lesson ids count on");
@@ -771,6 +771,8 @@ ok(M8.units.filter((u) => u.stage === 8).every((u) => PZ.forUnit(8, u.id) && PZ.
 ok(PZ.wonIn({ "chest8-36": 5 }, "ch-snowcap") && !PZ.wonIn({ "chest7-31": 5 }, "ch-snowcap") && PZ.wonIn({ "chest8-40": 5 }, "ch-penguinhat"), "prizes: island 8 prizes are won by island 8 chests");
 const isl6 = require("../site/sightwords-scenery.js").islands({ known: 0, total: 1, ready: { 1: true, 2: true, 3: true, 4: true, 5: true, 6: true }, stages: { 1: { title: "First words", known: 30, total: 92 }, 2: { title: "Growing readers", known: 5, total: 87 }, 3: { title: "Bigger stories", known: 12, total: 136 }, 4: { title: "Word explorers", known: 20, total: 140 }, 5: { title: "Word adventurers", known: 7, total: 140 }, 6: { title: "Word divers", known: 9, total: 140 } } });
 ok((isl6.match(/sw-isl-go/g) || []).length === 6 && /9 of 140 words known/.test(isl6) && /Word divers/.test(isl6) && (isl6.match(/Coming soon/g) || []).length === 2, "islands: six open islands, the seventh and the eighth still locked");
+const isl8 = require("../site/sightwords-scenery.js").islands({ known: 0, total: 1, ready: { 1: true, 2: true, 3: true, 4: true, 5: true, 6: true, 7: true, 8: true }, stages: { 1: { title: "First words", known: 30, total: 92 }, 2: { title: "Growing readers", known: 5, total: 87 }, 3: { title: "Bigger stories", known: 12, total: 136 }, 4: { title: "Word explorers", known: 20, total: 140 }, 5: { title: "Word adventurers", known: 9, total: 140 }, 6: { title: "Word divers", known: 9, total: 140 }, 7: { title: "Word travelers", known: 9, total: 140 }, 8: { title: "Word pioneers", known: 9, total: 140 } } });
+ok((isl8.match(/sw-isl-go/g) || []).length === 8 && /Word pioneers/.test(isl8) && !/Coming soon/.test(isl8), "islands: eight open islands, none left locked");
 const SCN = require("../site/sightwords-scenery.js");
 const isl = SCN.islands({ known: 0, total: 1, ready: { 1: true, 2: true }, stages: { 1: { title: "First words", known: 30, total: 92 }, 2: { title: "Growing readers", known: 5, total: 87 } } });
 ok((isl.match(/sw-isl-go/g) || []).length === 2 && /30 of 92 words known/.test(isl) && /5 of 87 words known/.test(isl) && /Growing readers/.test(isl), "islands: each ready island shows its own name and count", isl.length);
