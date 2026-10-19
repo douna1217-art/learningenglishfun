@@ -6401,14 +6401,14 @@
           })
         ), rnd),
         n = list.length,
-        hs = shuffle([2, 3, 1], rnd),
+        hs = n === 2 ? [2, 4] : [1, 3, 5], // taller the further away, so no tower hides another's sign
         sw = W * Math.max(0.11, C.sw - 0.006 * lvl + 0.008 * (lvl < 2 ? 2 - lvl : 0)),
         bw = W * 0.075,
         bh = H * 0.075;
       if (help > 0) help--;
       towers = list.map(function (it, j) {
         var cx = W * (n === 2 ? 0.62 + 0.22 * j : 0.55 + (0.34 * j) / (n - 1)),
-          nb = hs[j % 3],
+          nb = hs[j],
           t = { x0: cx, cx: cx, w: it.w, target: it.target, blocks: [], sign: null, ph: rnd() * 6.283, shake: 0, dead: false };
         for (var q = 0; q < nb; q++) t.blocks.push({ dx: 0, y: GY - bh * (q + 1), w: bw, h: bh, dead: false });
         t.sign = { dx: 0, y: GY - bh * nb - H * 0.075, w: sw, h: H * 0.075, dead: false };
@@ -6431,18 +6431,15 @@
       mood = "happy";
     }
     // does a shot with this speed get to (tx, ty) without knocking into another tower first?
-    function pathClear(vx, vy, tx, ty, selfT) {
-      var x = AX,
-        y = AY,
+    function pathClear(x, y, vx, vy, tx, ty, selfT) {
+      var
         a = vx,
         b = vy,
         k;
-      for (k = 0; k < 240; k++) {
-        b += G * 0.02;
-        x += a * 0.02;
-        y += b * 0.02;
-        if (Math.abs(x - tx) < BR * 0.7 && Math.abs(y - ty) < BR) return true;
-        if (y > GY || x > tx + BR * 3) return false;
+      for (k = 0; k < 480; k++) {
+        b += G * 0.01;
+        x += a * 0.01;
+        y += b * 0.01;
         for (var q = 0; q < towers.length; q++) {
           var t = towers[q];
           if (t.dead) continue;
@@ -6458,6 +6455,8 @@
             if ((x - cx) * (x - cx) + (y - cy) * (y - cy) < BR * 0.8 * BR * 0.8) return false;
           }
         }
+        if (x >= tx) return Math.abs(y - ty) < BR * 0.8;
+        if (y > GY) return false;
       }
       return false;
     }
@@ -6473,13 +6472,27 @@
       if (dx <= 10) return null;
       for (deg = 38; deg <= 72; deg += 6) {
         var th = (deg * Math.PI) / 180,
-          den = 2 * Math.cos(th) * Math.cos(th) * (dx * Math.tan(th) - dy);
-        if (den <= 0) continue;
-        var v = Math.sqrt((G * dx * dx) / den);
-        if (v > vmax * 0.98) continue;
-        var res = { x: AX - (v / KV) * Math.cos(th), y: AY + (v / KV) * Math.sin(th), v: v, th: th };
+          sx = AX,
+          sy = AY,
+          v = 0,
+          it;
+        // the ball leaves from the pulled-back point, which depends on how hard the pull is
+        for (it = 0; it < 8; it++) {
+          var ddx = tx - sx,
+            ddy = sy - ty,
+            den = 2 * Math.cos(th) * Math.cos(th) * (ddx * Math.tan(th) - ddy);
+          if (den <= 0 || ddx <= 5) {
+            v = 0;
+            break;
+          }
+          v = Math.sqrt((G * ddx * ddx) / den);
+          sx = AX - (v / KV) * Math.cos(th);
+          sy = AY + (v / KV) * Math.sin(th);
+        }
+        if (!v || v > vmax * 0.98) continue;
+        var res = { x: sx, y: sy, v: v, th: th };
         if (!firstOk) firstOk = res;
-        if (pathClear(v * Math.cos(th), -v * Math.sin(th), tx, ty, t)) return res;
+        if (pathClear(sx, sy, v * Math.cos(th), -v * Math.sin(th), tx, ty, t)) return res;
       }
       return firstOk;
     }
@@ -6942,7 +6955,7 @@
     BR = Math.max(12, Math.round(W * 0.042));
     G = H * 1.5;
     RMAX = Math.round(W * 0.17);
-    KV = Math.sqrt(W * 0.98 * G) / RMAX;
+    KV = (Math.sqrt(W * 0.98 * G) * 1.3) / RMAX; // a full pull can lob over a tower
     var dpr = root.devicePixelRatio || 1;
     cv.style.width = W + "px";
     cv.style.height = H + "px";
