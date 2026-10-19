@@ -6384,7 +6384,7 @@
       if (help > 0) help--;
       ufos = list.map(function (it, j) {
         var lane = W * (n === 2 ? 0.3 + 0.4 * j : 0.2 + 0.3 * j);
-        return { w: it.w, target: it.target, x0: lane, x: lane, y: -UH - order[j] * H * 0.2 - rnd() * H * 0.05, ph: rnd() * 6.283, c: SAUCER[(j + i) % SAUCER.length], flash: 0, dead: 0, bump: 0 };
+        return { w: it.w, target: it.target, x0: lane, x: lane, y: -UH * 0.7 - order[j] * H * 0.09 - rnd() * H * 0.03, ph: rnd() * 6.283, c: SAUCER[(j + i) % SAUCER.length], flash: 0, dead: 0, bump: 0 };
       });
       cur = { r: r, k: k };
       setTimeout(function () {
@@ -6662,7 +6662,10 @@
       });
       // firing: a laser every so often while a wave is on
       fire -= dt;
-      if (fire <= 0 && cur) {
+      var seen = ufos.some(function (u) {
+        return !u.dead && u.y > UH * 0.55;
+      });
+      if (fire <= 0 && cur && seen) {
         fire = 0.3;
         shots.push({ x: sx, y: SY - W * 0.12 });
         sfx("pew");
@@ -6672,7 +6675,7 @@
         if (!cur) return;
         ufos.forEach(function (u) {
           if (s.dead || u.dead) return;
-          if (Math.abs(s.x - u.x) < UW * 0.5 && Math.abs(s.y - u.y) < UH * 0.45) {
+          if (u.y > UH * 0.55 && Math.abs(s.x - u.x) < UW * 0.5 && Math.abs(s.y - u.y) < UH * 0.45) { // only a saucer you can see (and read) can be hit
             s.dead = true;
             if (u.target) hitTarget(u, ts);
             else if (ts - u.flash > 600) hitWrong(u, ts);
