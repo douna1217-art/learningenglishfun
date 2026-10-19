@@ -355,7 +355,7 @@
     grand: [["castle", 120, G + 2, 1.45, {}], ["flag", 56, G, 1.0, {}], ["flag", 184, G, 1.0, {}], ["sparkle", 190, 36, 0.9], ["sparkle", 50, 54, 0.8]],
     gentle: [["kid", 66, G, 1.5, kg("reach", { look: 1, mouth: "open" })], ["cat", 150, G, 1.7, {}], ["heart", 112, 40, 1.0], ["sparkle", 190, 56, 0.8]],
     natural: [["mountain", 178, G, 1.4, {}], ["tree", 48, G, 1.1, {}], ["river", 112, 152, 0.8, {}], ["leaf", 100, 56, 1.3, {}], ["sparkle", 206, 36, 0.8]],
-    broad: [["pond", 120, G + 10, 2.4, { w: 90 }], ["kid", 20, G + 2, 0.9, kb("wave", { mouth: "open" })], ["kid", 220, G + 2, 0.9, kg("wave", { look: -1, flip: true, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 46, y1: 112, x2: 194, y2: 112, c: P }], ["arrow", 0, 0, 1, { x1: 194, y1: 112, x2: 46, y2: 112, c: P }]],
+    broad: [["widewater", 120, 106, 1.0, { sy: 1 }], ["kid", 196, 80, 0.75, kg("wave", { look: -1, flip: true, mouth: "open" })], ["kid", 52, 152, 1.2, kb("wave", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 120, y1: 118, x2: 120, y2: 86, c: P }], ["arrow", 0, 0, 1, { x1: 120, y1: 86, x2: 120, y2: 118, c: P }]],
     gray: [["cat", 120, G, 1.9, { c: "#9AA3B2", l: "#D5DAE3" }], ["sparkle", 200, 46, 0.8]],
     lone: [["bird", 120, 80, 1.4, { fly: true }], ["cloud", 60, 40, 0.8, {}], ["cloud", 190, 100, 0.8, {}]],
     joy: [["kid", 120, G, 1.5, kg("jump", { mouth: "open" })], ["heart", 66, 56, 1.0], ["heart", 176, 60, 1.0], ["star", 150, 24, 0.9], ["star", 84, 24, 0.8]],
@@ -416,6 +416,9 @@
     return '<rect x="-24" y="-8" width="48" height="8" rx="2" ' + f("#6A48E8", 2) + '/><rect x="-22" y="-6" width="43" height="4" fill="#fff"/><path d="M-22 -4 H21" stroke="#9FB3D1" stroke-width="1"/>';
   };
 
+  KITS.widewater = function (o) {
+    return '<path d="M-130 -24 Q-90 -30 -50 -24 T30 -24 T130 -24 V24 Q90 30 50 24 T-30 24 T-130 24Z" ' + f("#7CC4F0", 2.4) + '/><path d="M-80 -4 Q-70 -8 -60 -4 M20 6 Q30 2 40 6 M70 -8 Q80 -12 90 -8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>';
+  };
   var BG8 = {
     wave: "icesea", planet: "space", oil: "plain", salt: "in", bone: "polar", wing: "polar", bat: "polar", rail: "polar", clock: "in", tie: "in",
     hat: "polar", suit: "in", finger: "in", ear: "in", arm: "polar", instrument: "in", dollar: "in", cent: "in", print: "in", camp: "polar",
