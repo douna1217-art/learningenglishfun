@@ -1378,7 +1378,6 @@
       "#swOverlay .sw-g7{background:#FFE3C2;box-shadow:0 6px 0 #E8A86A}" +
       "#swOverlay .sw-rwrap{position:relative;margin:10px auto}" +
       "#swOverlay .sw-rwrap .sw-snk{margin:0}" +
-      "#swOverlay .sw-rapet{bottom:auto;left:0;width:60px;transition:top .13s ease-out,width .13s ease-out;pointer-events:none}" +
       "#swOverlay .sw-rlr{display:flex;justify-content:center;gap:22px;margin:12px 0 4px}" +
       "#swOverlay .sw-dpw{width:110px}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
@@ -3981,9 +3980,8 @@
     draw(Date.now());
   }
 
-  /* ---- Word racer: your pet drives a race car along a road toward the words (seen from the side, the car heads to the right); the road has three lanes,
-     one above the other. Hear a word and drive through the gate whose sign has it. Coins in the lanes, a wrong gate = a bump. The speed follows the child's
-     accuracy. Up and down arrow keys, swipes, taps above or below the car, or the two buttons ---- */
+  /* ---- Word racer: a race car drives straight ahead down a road with three lanes (seen from behind); hear a word and drive through the gate whose sign
+     has it. Coins in the lanes, a wrong gate = a bump. The speed follows the child's accuracy. Arrow keys, swipes, taps on the sides or the two buttons ---- */
   var RUNKEY = "lef_runner_v1";
   function readRunner() {
     var o = null;
@@ -4023,35 +4021,40 @@
       coins = [],
       wait = 0, // seconds until the next gate
       scroll = 0,
-      clock = 0,
+      t0 = 0,
       last = 0,
       my = null,
       raf = null,
       keyH = null,
       cv = null,
       ctx = null,
-      carY = 0,
+      carX = 0,
       boostUntil = 0,
       shakeUntil = 0,
-      mood = "happy",
-      imgs = {},
       puffs = [],
       puffAt = 0,
       W = 340,
-      H = 260,
-      GY = 90, // where the ground starts
-      PX = 70; // where the pet stands
+      H = 400,
+      HOR = 110,
+      PL = 330,
+      note = "";
     function alive() {
       return !!my && run === my && !done;
     }
     function speedT() {
-      return 6.5 * Math.pow(0.92, lvl); // seconds for a gate to cross the picture
+      return 7.5 * Math.pow(0.92, lvl); // seconds for a gate to run from the horizon to the pet
     }
-    function laneY(l) {
-      return H * (0.57 + l * 0.17);
+    function Y(p) {
+      return HOR + (PL - HOR) * Math.pow(Math.max(p, 0), 1.6);
     }
-    function laneS(l) {
-      return 0.84 + 0.16 * l;
+    function frac(p) {
+      return (Y(p) - HOR) / (H - HOR);
+    }
+    function roadW(f) {
+      return W * 0.24 + W * 0.72 * f;
+    }
+    function X(p, ln) {
+      return W / 2 + (ln - 1) * (roadW(frac(p)) / 3);
     }
     function say(t) {
       var m = document.getElementById("swMsg");
@@ -4114,7 +4117,7 @@
       gate = { p: 0, signs: signs, r: r, k: k };
       // a short row of coins after the gate, in a lane of its own
       var cl = Math.floor(rnd() * 3);
-      for (var c = 0; c < 4; c++) coins.push({ p: -0.45 - c * 0.07, lane: cl, got: false });
+      for (var c = 0; c < 4; c++) coins.push({ p: -0.5 - c * 0.07, lane: cl, got: false });
       setTimeout(function () {
         if (alive() && gate && gate.r === r) play("w", r.w);
       }, 350);
@@ -4148,11 +4151,11 @@
         score += pts;
         sfx("sparkle");
         say((combo >= 3 ? "Combo ×" + combo + "! " : "Yes! ") + g.r.w + (tries === 0 && combo >= 2 ? " · Faster!" : ""));
-        hop();
+        boostUntil = Date.now() + 1300;
         try {
           if (hooks.burst && combo >= 3) {
             var br = cv.getBoundingClientRect();
-            hooks.burst(br.left + PX, br.top + laneY(lane) - 40);
+            hooks.burst(br.left + X(1, lane), br.top + PL - 30);
           }
         } catch (e) {}
         tries = 0;
@@ -4164,7 +4167,7 @@
           }, 1000);
           return;
         }
-        wait = 1.0;
+        wait = 1.1;
       } else {
         first[k] = false;
         tries++;
@@ -4182,175 +4185,137 @@
       }
       hud();
     }
-    // the gate was right: a boost (flames behind the car, the pet cheers); wrong: the car bumps and shakes, the pet is surprised
-    function setMood(m, ms) {
-      mood = m;
-      setTimeout(function () {
-        if (alive()) mood = "happy";
-      }, ms);
-    }
-    function hop() {
-      boostUntil = Date.now() + 1300;
-      setMood("excited", 1300);
-    }
+    // a bump: the car shakes and a cloud of smoke comes up
     function stumble() {
       shakeUntil = Date.now() + 700;
-      setMood("surprised", 1000);
-      for (var q = 0; q < 6; q++) puffs.push({ x: PX - 10 + q * 4, y: laneY(lane) - 30, vx: -30 - q * 6, vy: -20 - q * 5, t: Date.now(), r: 8, c: "230,235,245" });
+      for (var q = 0; q < 7; q++) puffs.push({ x: carX - 24 + q * 8, y: PL - 20, vx: (q - 3) * 14, vy: 18 + q * 3, t: Date.now(), r: 7, c: "235,240,250" });
     }
-    // the pet's picture (its own, with clothes), to show in the car's window
-    function petImg(m) {
-      if (imgs[m]) return imgs[m];
-      var svg = petArt(m);
-      if (!svg) return null;
-      svg = svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="428" ');
-      var im = new Image();
-      im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-      imgs[m] = im;
-      return im;
-    }
+    // the car, seen from behind (u = its size; the road narrows with distance, but the car stays at the front)
     function drawCar(now) {
-      var s = laneS(lane),
-        u = W * 0.07 * s,
-        sh = now < shakeUntil ? Math.sin(now / 25) * 2.5 : 0,
-        bob = started ? Math.sin(clock * 22) * 1.2 : 0,
-        cx = PX + sh,
-        gy = carY + bob,
-        k,
-        a = clock * 16;
-      // shadow
-      ctx.fillStyle = "rgba(20,25,50,.28)";
+      var u = W * 0.085,
+        sh = now < shakeUntil ? Math.sin(now / 25) * 3 : 0,
+        bob = started ? Math.sin(scroll * 160) * 1.4 : 0,
+        cx = carX + sh,
+        gy = PL + bob,
+        k;
+      ctx.fillStyle = "rgba(20,25,50,.3)";
       ctx.beginPath();
-      ctx.ellipse(cx, carY + 2, u * 2.6, u * 0.32, 0, 0, 6.283);
+      ctx.ellipse(cx, PL + 3, u * 1.55, u * 0.3, 0, 0, 6.283);
       ctx.fill();
       // flames when boosted
       if (now < boostUntil) {
         var fl = 0.7 + 0.3 * Math.sin(now / 40);
-        ctx.fillStyle = "#FF8A1F";
-        ctx.beginPath();
-        ctx.moveTo(cx - u * 2.3, gy - u * 1.2);
-        ctx.lineTo(cx - u * (3.6 * fl + 1.6), gy - u * 1.0);
-        ctx.lineTo(cx - u * 2.3, gy - u * 0.7);
-        ctx.fill();
-        ctx.fillStyle = "#FFE066";
-        ctx.beginPath();
-        ctx.moveTo(cx - u * 2.3, gy - u * 1.1);
-        ctx.lineTo(cx - u * (2.4 * fl + 1.6), gy - u * 1.0);
-        ctx.lineTo(cx - u * 2.3, gy - u * 0.85);
-        ctx.fill();
-      }
-      // body
-      ctx.fillStyle = "#E5483A";
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(cx - u * 2.3, gy - u * 2.0, u * 4.6, u * 1.45, u * 0.5);
-      else ctx.rect(cx - u * 2.3, gy - u * 2.0, u * 4.6, u * 1.45);
-      ctx.fill();
-      ctx.fillStyle = "#C93A2E";
-      ctx.beginPath();
-      ctx.moveTo(cx - u * 1.1, gy - u * 2.0);
-      ctx.lineTo(cx - u * 0.75, gy - u * 3.25);
-      ctx.lineTo(cx + u * 1.0, gy - u * 3.25);
-      ctx.lineTo(cx + u * 1.55, gy - u * 2.0);
-      ctx.closePath();
-      ctx.fill();
-      // the pet in the window, behind the glass
-      var wx = cx - u * 0.55,
-        wy = gy - u * 3.05,
-        ww = u * 1.45,
-        wh = u * 1.0,
-        im = petImg(mood);
-      ctx.save();
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(wx, wy, ww, wh, u * 0.22);
-      else ctx.rect(wx, wy, ww, wh);
-      ctx.fillStyle = "#CFEFFF";
-      ctx.fill();
-      ctx.clip();
-      if (im && im.complete && im.naturalWidth) {
-        var dw = ww * 1.5,
-          dh = dw * (428 / 288);
-        ctx.drawImage(im, wx + ww * 0.5 - dw * 0.5, wy - dh * 0.17 - wh * 0.02, dw, dh);
-      }
-      ctx.restore();
-      // the window frame (the pet shows through it)
-      ctx.strokeStyle = "#8A97AD";
-      ctx.lineWidth = Math.max(2, u * 0.12);
-      ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(wx, wy, ww, wh, u * 0.22);
-      else ctx.rect(wx, wy, ww, wh);
-      ctx.stroke();
-      ctx.fillStyle = "rgba(255,255,255,.35)";
-      ctx.beginPath();
-      ctx.moveTo(wx + ww * 0.55, wy);
-      ctx.lineTo(wx + ww * 0.8, wy);
-      ctx.lineTo(wx + ww * 0.55 - ww * 0.15, wy + wh);
-      ctx.lineTo(wx + ww * 0.3 - ww * 0.15, wy + wh);
-      ctx.fill();
-      // stripe, spoiler, lights
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(cx - u * 2.2, gy - u * 1.45, u * 4.4, u * 0.2);
-      ctx.fillStyle = "#2B3347";
-      ctx.fillRect(cx - u * 2.12, gy - u * 2.7, u * 0.15, u * 0.75);
-      ctx.fillRect(cx - u * 2.55, gy - u * 2.85, u * 0.95, u * 0.2);
-      ctx.fillStyle = "#FFE066";
-      ctx.beginPath();
-      ctx.arc(cx + u * 2.12, gy - u * 1.5, u * 0.22, 0, 6.283);
-      ctx.fill();
-      ctx.fillStyle = "#FF6B4A";
-      ctx.fillRect(cx - u * 2.34, gy - u * 1.6, u * 0.12, u * 0.3);
-      // wheels
-      [-1.5, 1.45].forEach(function (wxo) {
-        var wcx = cx + wxo * u,
-          wcy = gy - u * 0.62;
-        ctx.fillStyle = "#2B3347";
-        ctx.beginPath();
-        ctx.arc(wcx, wcy, u * 0.66, 0, 6.283);
-        ctx.fill();
-        ctx.fillStyle = "#C9D7E8";
-        ctx.beginPath();
-        ctx.arc(wcx, wcy, u * 0.36, 0, 6.283);
-        ctx.fill();
-        ctx.strokeStyle = "#6C7A93";
-        ctx.lineWidth = Math.max(1.5, u * 0.09);
-        for (k = 0; k < 4; k++) {
+        [-0.55, 0.55].forEach(function (ex) {
+          ctx.fillStyle = "#FF8A1F";
           ctx.beginPath();
-          ctx.moveTo(wcx, wcy);
-          ctx.lineTo(wcx + Math.cos(a + (k * Math.PI) / 2) * u * 0.34, wcy + Math.sin(a + (k * Math.PI) / 2) * u * 0.34);
+          ctx.moveTo(cx + ex * u - u * 0.2, gy - u * 0.2);
+          ctx.lineTo(cx + ex * u, gy + u * 1.3 * fl);
+          ctx.lineTo(cx + ex * u + u * 0.2, gy - u * 0.2);
+          ctx.fill();
+          ctx.fillStyle = "#FFE066";
+          ctx.beginPath();
+          ctx.moveTo(cx + ex * u - u * 0.1, gy - u * 0.2);
+          ctx.lineTo(cx + ex * u, gy + u * 0.7 * fl);
+          ctx.lineTo(cx + ex * u + u * 0.1, gy - u * 0.2);
+          ctx.fill();
+        });
+      }
+      // wheels with tread that runs
+      [-1, 1].forEach(function (sd) {
+        var wx = cx + sd * u * 1.2,
+          wy = gy - u * 0.8;
+        ctx.fillStyle = "#2B3347";
+        if (ctx.roundRect) {
+          ctx.beginPath();
+          ctx.roundRect(wx - u * 0.26, wy, u * 0.52, u * 0.8, u * 0.12);
+          ctx.fill();
+        } else ctx.fillRect(wx - u * 0.26, wy, u * 0.52, u * 0.8);
+        ctx.strokeStyle = "#5A6B84";
+        ctx.lineWidth = Math.max(1.5, u * 0.07);
+        for (k = 0; k < 3; k++) {
+          var ty = wy + (((k / 3 + scroll * 14) % 1) + 1) % 1 * u * 0.8;
+          ctx.beginPath();
+          ctx.moveTo(wx - u * 0.24, ty);
+          ctx.lineTo(wx + u * 0.24, ty);
           ctx.stroke();
         }
       });
+      // body
+      ctx.fillStyle = "#E5483A";
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(cx - u * 1.2, gy - u * 1.15, u * 2.4, u * 0.95, u * 0.3);
+      else ctx.rect(cx - u * 1.2, gy - u * 1.15, u * 2.4, u * 0.95);
+      ctx.fill();
+      ctx.fillStyle = "#C93A2E";
+      ctx.beginPath();
+      ctx.moveTo(cx - u * 0.95, gy - u * 1.1);
+      ctx.lineTo(cx - u * 0.65, gy - u * 1.95);
+      ctx.lineTo(cx + u * 0.65, gy - u * 1.95);
+      ctx.lineTo(cx + u * 0.95, gy - u * 1.1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#CFEFFF";
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(cx - u * 0.52, gy - u * 1.85, u * 1.04, u * 0.6, u * 0.16);
+      else ctx.rect(cx - u * 0.52, gy - u * 1.85, u * 1.04, u * 0.6);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.55)";
+      ctx.beginPath();
+      ctx.moveTo(cx - u * 0.35, gy - u * 1.85);
+      ctx.lineTo(cx - u * 0.1, gy - u * 1.85);
+      ctx.lineTo(cx - u * 0.3, gy - u * 1.25);
+      ctx.lineTo(cx - u * 0.52, gy - u * 1.25);
+      ctx.fill();
+      // racing stripe, tail lights, bumper, spoiler, exhausts
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(cx - u * 0.14, gy - u * 1.15, u * 0.28, u * 0.5);
+      ctx.fillStyle = "#FF6B4A";
+      ctx.fillRect(cx - u * 1.1, gy - u * 0.95, u * 0.42, u * 0.22);
+      ctx.fillRect(cx + u * 0.68, gy - u * 0.95, u * 0.42, u * 0.22);
+      ctx.fillStyle = "#FFE066";
+      ctx.fillRect(cx - u * 1.0, gy - u * 0.9, u * 0.22, u * 0.1);
+      ctx.fillRect(cx + u * 0.78, gy - u * 0.9, u * 0.22, u * 0.1);
+      ctx.fillStyle = "#2B3347";
+      ctx.fillRect(cx - u * 1.1, gy - u * 0.38, u * 2.2, u * 0.18);
+      ctx.fillRect(cx - u * 0.9, gy - u * 2.15, u * 0.12, u * 0.45);
+      ctx.fillRect(cx + u * 0.78, gy - u * 2.15, u * 0.12, u * 0.45);
+      ctx.fillRect(cx - u * 1.15, gy - u * 2.3, u * 2.3, u * 0.2);
+      ctx.fillStyle = "#6C7A93";
+      [-0.55, 0.55].forEach(function (ex) {
+        ctx.beginPath();
+        ctx.arc(cx + ex * u, gy - u * 0.2, u * 0.13, 0, 6.283);
+        ctx.fill();
+      });
     }
-    function board(text, cx, cy, w, h, hint, blink) {
+    function pill(text, x, y, w, h, hint, blink) {
       ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
       ctx.strokeStyle = hint ? "#E0A800" : "#4A5878";
       ctx.lineWidth = Math.max(1.5, h * 0.08);
       ctx.beginPath();
-      if (ctx.roundRect) ctx.roundRect(cx - w / 2, cy - h / 2, w, h, h * 0.3);
-      else ctx.rect(cx - w / 2, cy - h / 2, w, h);
+      if (ctx.roundRect) ctx.roundRect(x - w / 2, y - h / 2, w, h, h * 0.3);
+      else ctx.rect(x - w / 2, y - h / 2, w, h);
       ctx.fill();
       ctx.stroke();
       ctx.fillStyle = "#1E2A4A";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      var fs = Math.max(10, h * 0.62);
+      var fs = Math.max(9, h * 0.58);
       ctx.font = "700 " + fs + "px Fredoka, sans-serif";
       while (ctx.measureText(text).width > w * 0.88 && fs > 8) {
         fs -= 1;
         ctx.font = "700 " + fs + "px Fredoka, sans-serif";
       }
-      ctx.fillText(text, cx, cy + 1);
+      ctx.fillText(text, x, y + 1);
     }
-    function draw() {
+    function draw(now) {
       if (!cv || done) return;
       var ts = Date.now(),
         dt = Math.min(0.05, Math.max(0, (ts - last) / 1000));
       last = ts;
       var T = speedT(),
-        k,
-        x;
+        k;
       if (started) {
-        scroll += dt / T;
-        clock += dt;
+        // movement
         if (gate) {
           gate.p += dt / T;
           if (gate.p >= 1) resolve();
@@ -4360,7 +4325,7 @@
         }
         coins.forEach(function (c) {
           c.p += dt / T;
-          if (!c.got && c.p >= 1 && c.p < 1.08 && c.lane === lane) {
+          if (!c.got && c.p >= 1 && c.p < 1.15 && c.lane === lane) {
             c.got = true;
             coinN++;
             score += 2;
@@ -4369,156 +4334,168 @@
           }
         });
         coins = coins.filter(function (c) {
-          return c.p < 1.12;
+          return c.p < 1.2;
         });
       }
-      carY += (laneY(lane) - carY) * Math.min(1, dt * 14);
+      if (started) scroll += dt / T;
+      var phase = scroll;
+      carX += (X(1, lane) - carX) * Math.min(1, dt * 14);
       if (started && ts - puffAt > 70) {
         puffAt = ts;
-        puffs.push({ x: PX - W * 0.075 * laneS(lane) * 2.4, y: carY - W * 0.07 * 0.9, vx: -60, vy: -8, t: ts, r: 3 + W * 0.012, c: "235,240,250" });
+        puffs.push({ x: carX - 5 + rnd() * 10, y: PL - 12, vx: (rnd() - 0.5) * 20, vy: 40, t: ts, r: 3 + W * 0.01, c: "235,240,250" });
       }
       puffs = puffs.filter(function (p) {
-        return ts - p.t < 700;
+        return ts - p.t < 600;
       });
       ctx.clearRect(0, 0, W, H);
-      var g1 = ctx.createLinearGradient(0, 0, 0, GY);
+      // sky, sun, grass, road
+      var g1 = ctx.createLinearGradient(0, 0, 0, HOR);
       g1.addColorStop(0, "#BFE6FF");
       g1.addColorStop(1, "#EAF7FF");
       ctx.fillStyle = g1;
-      ctx.fillRect(0, 0, W, GY + 2);
+      ctx.fillRect(0, 0, W, HOR + 2);
       ctx.fillStyle = "#FFE066";
       ctx.beginPath();
-      ctx.arc(W * 0.82, GY * 0.42, GY * 0.2, 0, 6.283);
+      ctx.arc(W * 0.8, HOR * 0.45, HOR * 0.22, 0, 6.283);
       ctx.fill();
-      // far hills, they move slowly
-      ctx.fillStyle = "#BFE8B0";
-      ctx.beginPath();
-      ctx.moveTo(0, GY + 2);
-      for (x = 0; x <= W; x += 6) ctx.lineTo(x, GY - 16 - 12 * Math.sin((x / W) * 5 + scroll * 1.2) - 6 * Math.sin((x / W) * 11 + scroll * 1.2));
-      ctx.lineTo(W, GY + 2);
-      ctx.fill();
-      // grass and road
       ctx.fillStyle = "#9ADF8A";
-      ctx.fillRect(0, GY, W, H - GY);
-      var roadTop = H * 0.47;
-      ctx.fillStyle = "#6C7A93";
-      ctx.fillRect(0, roadTop, W, H - roadTop);
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, roadTop, W, 3);
-      ctx.fillRect(0, H - 3, W, 3);
-      ctx.strokeStyle = "rgba(255,255,255,.85)";
-      ctx.lineWidth = 3;
-      [0.645, 0.815].forEach(function (fy) {
-        for (k = -1; k < 12; k++) {
-          var dx = ((((k * 40 - scroll * 520) % 480) + 480) % 480) - 40;
-          ctx.beginPath();
-          ctx.moveTo(dx, H * fy);
-          ctx.lineTo(dx + 22, H * fy);
-          ctx.stroke();
+      ctx.fillRect(0, HOR, W, H - HOR);
+      for (k = 0; k < 8; k++) {
+        var pp = (((phase * 2 + k / 8) % 1) + 1) % 1,
+          y1 = Y(pp),
+          y2 = Y(pp + 0.06);
+        if (k % 2) {
+          ctx.fillStyle = "rgba(255,255,255,.12)";
+          ctx.fillRect(0, y1, W, Math.max(1, y2 - y1));
         }
+      }
+      ctx.fillStyle = "#6C7A93";
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - roadW(0) / 2, HOR);
+      ctx.lineTo(W / 2 + roadW(0) / 2, HOR);
+      ctx.lineTo(W / 2 + roadW(1.0) / 2, H);
+      ctx.lineTo(W / 2 - roadW(1.0) / 2, H);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 3;
+      [-1, 1].forEach(function (sd) {
+        ctx.beginPath();
+        ctx.moveTo(W / 2 + (sd * roadW(0)) / 2, HOR);
+        ctx.lineTo(W / 2 + (sd * roadW(1.0)) / 2, H);
+        ctx.stroke();
       });
-      // trees along the far edge
-      for (k = 0; k < 5; k++) {
-        var tx = ((((k * 0.25 - scroll * 0.8) % 1.25) + 1.25) % 1.25) * W - 20,
-          ty = roadTop - 4;
+      // lane dashes
+      ctx.strokeStyle = "rgba(255,255,255,.85)";
+      for (k = 0; k < 10; k++) {
+        var q = (((phase * 3 + k / 10) % 1) + 1) % 1,
+          a = Math.pow(q, 1) * 1,
+          ya = Y(a),
+          yb = Y(a + 0.045),
+          fa = (ya - HOR) / (H - HOR),
+          fb = (yb - HOR) / (H - HOR);
+        ctx.lineWidth = 1 + 3 * fa;
+        [-1, 1].forEach(function (sd) {
+          ctx.beginPath();
+          ctx.moveTo(W / 2 + (sd * roadW(fa)) / 6, ya);
+          ctx.lineTo(W / 2 + (sd * roadW(fb)) / 6, yb);
+          ctx.stroke();
+        });
+      }
+      // trees at the sides
+      for (k = 0; k < 6; k++) {
+        var tp = (((phase * 1 + k / 6) % 1) + 1) % 1,
+          side = k % 2 ? 1 : -1,
+          ty = Y(tp),
+          tf = (ty - HOR) / (H - HOR),
+          tx = W / 2 + side * (roadW(tf) / 2 + W * 0.09 + W * 0.1 * tf),
+          sc = 0.12 + 1.0 * tf;
         ctx.fillStyle = "#8A5A2B";
-        ctx.fillRect(tx - 3, ty - 18, 6, 20);
+        ctx.fillRect(tx - 3 * sc * 3, ty - 12 * sc * 3, 6 * sc * 3, 14 * sc * 3);
         ctx.fillStyle = "#35B779";
         ctx.beginPath();
-        ctx.arc(tx, ty - 28, 15, 0, 6.283);
+        ctx.arc(tx, ty - 20 * sc * 3, 14 * sc * 3, 0, 6.283);
         ctx.fill();
       }
       // coins
       coins.forEach(function (c) {
         if (c.p < 0 || c.got) return;
-        var s = laneS(c.lane),
-          cx = W * 1.05 - c.p * (W * 1.05 - PX),
-          cy = laneY(c.lane) - 16 * s,
-          rr = 8 * s;
+        var cy = Y(c.p),
+          cf = (cy - HOR) / (H - HOR),
+          cx = X(c.p, c.lane),
+          rr = 3 + 12 * cf;
         ctx.fillStyle = "#FFC400";
         ctx.beginPath();
-        ctx.arc(cx, cy, rr, 0, 6.283);
+        ctx.arc(cx, cy - rr, rr, 0, 6.283);
         ctx.fill();
         ctx.strokeStyle = "#E0A800";
-        ctx.lineWidth = 1.8;
+        ctx.lineWidth = Math.max(1, rr * 0.18);
         ctx.stroke();
         ctx.fillStyle = "rgba(255,255,255,.6)";
         ctx.beginPath();
-        ctx.arc(cx - rr * 0.3, cy - rr * 0.3, rr * 0.28, 0, 6.283);
+        ctx.arc(cx - rr * 0.3, cy - rr * 1.3, rr * 0.28, 0, 6.283);
         ctx.fill();
       });
-      // the gate: three signs, one in each lane
+      // the gate
       if (gate) {
-        var gx = W * 1.12 - gate.p * (W * 1.12 - (PX + 6)),
+        var gy = Y(gate.p),
+          gf = (gy - HOR) / (H - HOR),
+          lw = roadW(gf) / 3,
+          sh = Math.max(16, lw * 0.6),
+          sw = lw * 0.96,
           blink = Math.sin(ts / 120) > 0;
         gate.signs.forEach(function (sg) {
-          var s = laneS(sg.lane),
-            bw = W * 0.3 * s,
-            bh = H * 0.115 * s,
-            by = laneY(sg.lane) - 30 * s,
-            hint = tries >= 2 && sg.target;
+          var sx = X(gate.p, sg.lane),
+            hint = tries >= 2 && sg.target,
+            top = gy - lw * 0.95;
           ctx.strokeStyle = "#5A4A3A";
-          ctx.lineWidth = Math.max(2, 3 * s);
+          ctx.lineWidth = Math.max(2, lw * 0.07);
           ctx.beginPath();
-          ctx.moveTo(gx - bw * 0.36, by + bh / 2);
-          ctx.lineTo(gx - bw * 0.36, laneY(sg.lane));
-          ctx.moveTo(gx + bw * 0.36, by + bh / 2);
-          ctx.lineTo(gx + bw * 0.36, laneY(sg.lane));
+          ctx.moveTo(sx - sw * 0.42, top + sh / 2);
+          ctx.lineTo(sx - sw * 0.42, gy);
+          ctx.moveTo(sx + sw * 0.42, top + sh / 2);
+          ctx.lineTo(sx + sw * 0.42, gy);
           ctx.stroke();
           if (hint) {
-            var gl = ctx.createRadialGradient(gx, by, bh * 0.3, gx, by, bw * 0.8);
+            var gl = ctx.createRadialGradient(sx, top + sh / 2, sh * 0.3, sx, top + sh / 2, sw * 0.9);
             gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
             gl.addColorStop(1, "rgba(255,214,64,0)");
             ctx.fillStyle = gl;
             ctx.beginPath();
-            ctx.arc(gx, by, bw * 0.8, 0, 6.283);
+            ctx.arc(sx, top + sh / 2, sw * 0.9, 0, 6.283);
             ctx.fill();
           }
-          board(sg.w, gx, by, bw, bh, hint, blink);
+          pill(sg.w, sx, top + sh / 2, sw, sh, hint, blink);
         });
       }
-      // speed lines and exhaust puffs
-      if (started) {
-        ctx.strokeStyle = "rgba(255,255,255,.45)";
-        ctx.lineWidth = 2;
-        for (k = 0; k < 7; k++) {
-          var lx = ((((k * 97 - scroll * 900) % (W + 80)) + (W + 80)) % (W + 80)) - 40,
-            ly = roadTop + 10 + ((k * 53) % Math.max(10, H - roadTop - 20));
-          ctx.beginPath();
-          ctx.moveTo(lx, ly);
-          ctx.lineTo(lx + 26, ly);
-          ctx.stroke();
-        }
-      }
       puffs.forEach(function (p) {
-        var age = (ts - p.t) / 700;
+        var age = (ts - p.t) / 600;
         ctx.fillStyle = "rgba(" + p.c + "," + (0.7 * (1 - age)).toFixed(2) + ")";
         ctx.beginPath();
-        ctx.arc(p.x + (p.vx * (ts - p.t)) / 1000, p.y + (p.vy * (ts - p.t)) / 1000, p.r * (1 + age * 1.2), 0, 6.283);
+        ctx.arc(p.x + (p.vx * (ts - p.t)) / 1000, p.y + (p.vy * (ts - p.t)) / 1000, p.r * (1 + age * 1.4), 0, 6.283);
         ctx.fill();
       });
       drawCar(ts);
       if (!started) {
         ctx.fillStyle = "rgba(30,42,74,.62)";
-        ctx.fillRect(0, H * 0.18, W, 44);
+        ctx.fillRect(0, H * 0.4, W, 56);
         ctx.fillStyle = "#fff";
-        ctx.font = "700 " + Math.round(W * 0.05) + "px Fredoka, sans-serif";
+        ctx.font = "700 " + Math.round(W * 0.052) + "px Fredoka, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("Press ▲ ▼ or swipe to start the engine!", W / 2, H * 0.18 + 22);
+        ctx.fillText("Press ◀ ▶ or swipe to start the engine!", W / 2, H * 0.4 + 28);
       }
       raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
     }
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word racer</span></div>' +
       '<div class="sw-card"><div class="sw-kind">Word racer</div><div class="sw-sent" style="font-size:22px">Drive through the gate with the word you hear!</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swRsc"></span><span class="sw-msc" id="swRco"></span><span class="sw-mcb" id="swRcb"></span><span class="sw-spd" id="swRsp"></span></div>' +
-      '<div class="sw-rwrap" id="swRw"><canvas class="sw-snk" id="swRun"></canvas></div><div class="sw-rlr"><button class="sw-dp sw-dpw" id="swRu" aria-label="Up">▲</button><button class="sw-dp sw-dpw" id="swRd" aria-label="Down">▼</button></div><div class="sw-msg" id="swMsg"></div></div>';
+      '<div class="sw-rwrap" id="swRw"><canvas class="sw-snk" id="swRun"></canvas></div><div class="sw-rlr"><button class="sw-dp sw-dpw" id="swRl" aria-label="Left">◀</button><button class="sw-dp sw-dpw" id="swRr" aria-label="Right">▶</button></div><div class="sw-msg" id="swMsg"></div></div>';
     bindQuit();
     cv = document.getElementById("swRun");
-    W = Math.max(260, Math.min(440, Math.floor((cv.parentNode.parentNode.clientWidth || 340) - 56)));
-    H = Math.round(W * 0.74);
-    GY = Math.round(H * 0.32);
-    PX = Math.round(W * 0.2);
+    W = Math.max(240, Math.min(420, Math.floor((cv.parentNode.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 1.15);
+    HOR = Math.round(H * 0.27);
+    PL = Math.round(H * 0.86);
     var dpr = root.devicePixelRatio || 1;
     cv.style.width = W + "px";
     cv.style.height = H + "px";
@@ -4527,59 +4504,56 @@
     ctx = cv.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     document.getElementById("swRw").style.width = W + "px";
-    document.getElementById("swRw").style.height = H + "px";
-    carY = laneY(1);
-    petImg("happy");
-    petImg("excited");
-    petImg("surprised");
+    carX = X(1, 1);
     document.getElementById("swHear").onclick = function () {
       if (gate) play("w", gate.r.w);
       else if (rounds[i]) play("w", rounds[i].w);
     };
-    document.getElementById("swRu").onclick = function () {
+    document.getElementById("swRl").onclick = function () {
       setLane(lane - 1);
     };
-    document.getElementById("swRd").onclick = function () {
+    document.getElementById("swRr").onclick = function () {
       setLane(lane + 1);
     };
     keyH = function (e) {
-      var m = { ArrowUp: -1, ArrowDown: 1, w: -1, s: 1 }[e.key];
+      var m = { ArrowLeft: -1, ArrowRight: 1, a: -1, d: 1 }[e.key];
       if (m) {
         e.preventDefault();
         setLane(lane + m);
       }
     };
     document.addEventListener("keydown", keyH);
-    var sy = null;
+    var sx = null;
     cv.addEventListener("pointerdown", function (e) {
-      sy = e.clientY;
+      sx = e.clientX;
     });
     cv.addEventListener("pointermove", function (e) {
-      if (sy === null) return;
-      if (Math.abs(e.clientY - sy) > 22) {
-        setLane(lane + (e.clientY > sy ? 1 : -1));
-        sy = e.clientY;
+      if (sx === null) return;
+      if (Math.abs(e.clientX - sx) > 24) {
+        setLane(lane + (e.clientX > sx ? 1 : -1));
+        sx = e.clientX;
       }
     });
     cv.addEventListener("pointerup", function (e) {
-      if (sy !== null && Math.abs(e.clientY - sy) <= 22) {
+      if (sx !== null && Math.abs(e.clientX - sx) <= 24) {
         var r = cv.getBoundingClientRect(),
-          y = e.clientY - r.top;
-        setLane(y < laneY(lane) - 40 ? lane - 1 : y > laneY(lane) + 8 ? lane + 1 : lane);
+          x = e.clientX - r.left;
+        setLane(x < r.width / 3 ? lane - 1 : x > (r.width * 2) / 3 ? lane + 1 : lane);
       }
-      sy = null;
+      sx = null;
     });
     cv.addEventListener("pointercancel", function () {
-      sy = null;
+      sx = null;
     });
     my = run = { mode: "runner", steps: [], i: 0, first: first, rnd: seeded(1) };
     my.stop = function () {
       cleanup();
       my = null;
     };
+    t0 = Date.now();
     last = Date.now();
     hud();
-    draw();
+    draw(Date.now());
   }
 
   /* ---- feed your pet words: the pet asks for a snack, you give it the right plate; every bite makes it feel better and it never goes back ---- */
