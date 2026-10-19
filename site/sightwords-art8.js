@@ -354,7 +354,7 @@
     // ---- Northern lights
     grand: [["castle", 120, G + 2, 1.45, {}], ["flag", 56, G, 1.0, {}], ["flag", 184, G, 1.0, {}], ["sparkle", 190, 36, 0.9], ["sparkle", 50, 54, 0.8]],
     gentle: [["kid", 66, G, 1.5, kg("reach", { look: 1, mouth: "open" })], ["cat", 150, G, 1.7, {}], ["heart", 112, 40, 1.0], ["sparkle", 190, 56, 0.8]],
-    natural: [["mountain", 178, G, 1.4, {}], ["tree", 48, G, 1.1, {}], ["river", 112, 152, 0.8, {}], ["leaf", 100, 56, 1.3, {}], ["sparkle", 206, 36, 0.8]],
+    natural: [["tree", 112, G, 1.4, {}], ["bush", 46, G, 0.9, {}], ["flower", 180, G, 1.1, { c: "#FF6FA0" }], ["flower", 204, G, 0.9, { c: "#FFD23F" }], ["bird", 190, 46, 0.8, {}], ["sparkle", 36, 40, 0.8]],
     broad: [["widewater", 120, 106, 1.0, { sy: 1 }], ["kid", 196, 80, 0.75, kg("wave", { look: -1, flip: true, mouth: "open" })], ["kid", 52, 152, 1.2, kb("wave", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 120, y1: 118, x2: 120, y2: 86, c: P }], ["arrow", 0, 0, 1, { x1: 120, y1: 86, x2: 120, y2: 118, c: P }]],
     gray: [["cat", 120, G, 1.9, { c: "#9AA3B2", l: "#D5DAE3" }], ["sparkle", 200, 46, 0.8]],
     lone: [["bird", 120, 80, 1.4, { fly: true }], ["cloud", 60, 40, 0.8, {}], ["cloud", 190, 100, 0.8, {}]],
@@ -429,7 +429,7 @@
     climb: "polar", catch: "polar", push: "polar", lift: "polar", throw: "polar", gather: "aurora", stretch: "polar", roll: "polar", burn: "polar", mix: "in",
     shout: "polar", join: "polar", enter: "polar", search: "polar", hunt: "polar", collect: "polar", settle: "polar", receive: "polar", mount: "polar", finish: "in",
     arrange: "in", invent: "in", operate: "in", select: "in", prepare: "in", repeat: "polar", allow: "polar",
-    grand: "polar", gentle: "in", natural: "polar", broad: "polar", gray: "polar", lone: "polar", joy: "polar", excite: "polar", smile: "polar", sudden: "rain",
+    grand: "polar", gentle: "in", natural: "plain", broad: "polar", gray: "polar", lone: "polar", joy: "polar", excite: "polar", smile: "polar", sudden: "rain",
     noise: "in", sight: "icesea", sense: "in", tone: "in", shine: "polar", fear: "night", danger: "polar", anger: "in", necessary: "in", particular: "in",
     exact: "in", major: "polar", probable: "polar", vary: "in", prove: "in", represent: "polar", indicate: "polar", locate: "in",
     continue: "polar", suggest: "polar", agree: "polar", provide: "polar", imagine: "polar", include: "in", divide: "polar", depend: "polar", rub: "polar", hurry: "polar",
