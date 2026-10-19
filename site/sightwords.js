@@ -1322,11 +1322,12 @@
       "#swOverlay .sw-tank:after{content:'';position:absolute;left:0;right:0;bottom:0;height:16px;background:linear-gradient(#F3DDA0,#E3C57A);z-index:0}" +
       "#swOverlay .sw-tkl{position:absolute;left:12px;top:6px;font-weight:800;font-size:13px;color:#2B6A8F;z-index:3;background:rgba(255,255,255,.75);border-radius:999px;padding:1px 10px}" +
       "#swOverlay .sw-pl{position:absolute;bottom:3px;font-size:22px;z-index:1}" +
-      "#swOverlay .sw-tf{position:absolute;width:48px;left:0;z-index:2;animation:swtank linear infinite}" +
-      "@keyframes swtank{0%{left:2%}50%{left:calc(100% - 52px)}100%{left:2%}}" +
+      "#swOverlay .sw-tf{position:absolute;width:64px;left:0;z-index:2;animation:swtank linear infinite}" +
+      "@keyframes swtank{0%{left:2%}50%{left:calc(100% - 68px)}100%{left:2%}}" +
       "#swOverlay .sw-tfi{display:block;animation:swturn linear infinite}" +
       "@keyframes swturn{0%,49.9%{transform:scaleX(1)}50%,100%{transform:scaleX(-1)}}" +
       "#swOverlay .sw-tfi svg{display:block;width:100%;height:auto}" +
+      "#swOverlay .sw-tfw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Fredoka',sans-serif;font-weight:700;color:#1E2A4A;background:rgba(255,255,255,.94);border-radius:999px;padding:0 6px 1px;line-height:1.25;white-space:nowrap;pointer-events:none}" +
       "#swOverlay .sw-tin .sw-tfi svg{animation:swtin .9s ease-out}" +
       "@keyframes swtin{from{transform:translateY(-80px) scale(.3);opacity:0}60%{opacity:1}to{transform:none;opacity:1}}" +
       "#swOverlay .sw-tank.sw-tglow{animation:swglow 1.1s}" +
@@ -2759,6 +2760,28 @@
       ls.setItem(FISHKEY, JSON.stringify(o));
     } catch (e) {}
   }
+  // the fish swimming in the tank, with the word each one was caught with (the last 12 catches)
+  var FISHLIST = "lef_fishlist_v1",
+    TANKMAX = 12;
+  function readFishList() {
+    var a = null;
+    try {
+      a = JSON.parse(ls.getItem(FISHLIST));
+    } catch (e) {}
+    return Array.isArray(a) ? a : [];
+  }
+  function writeFishList(items) {
+    try {
+      ls.setItem(
+        FISHLIST,
+        JSON.stringify(
+          items.map(function (it) {
+            return { s: it.sp.id, w: it.w };
+          })
+        )
+      );
+    } catch (e) {}
+  }
   function fishFound(o) {
     return SPECIES.filter(function (sp) {
       return o[sp.id] > 0;
@@ -2833,17 +2856,28 @@
       my = null,
       tank = [],
       t0 = Date.now();
-    SPECIES.forEach(function (sp) {
-      if (readFish()[sp.id] > 0) tank.push(sp); // the fish already found swim in the tank from the start
+    // the fish caught before swim in the tank from the start, each with its word (fish found before words were kept get a word they know)
+    readFishList().forEach(function (it) {
+      SPECIES.forEach(function (sp) {
+        if (it && sp.id === it.s && typeof it.w === "string") tank.push({ sp: sp, w: it.w });
+      });
     });
+    if (!tank.length) {
+      var f0 = readFish();
+      SPECIES.forEach(function (sp, n) {
+        if (f0[sp.id] > 0 && pool.length) tank.push({ sp: sp, w: pool[n % pool.length] });
+      });
+    }
+    tank = tank.slice(-TANKMAX);
     // the child's own aquarium, always on the screen: every fish found so far, swimming; the newest one drops in
     function tankHtml(newIdx) {
       var el = (Date.now() - t0) / 1000;
       return '<div class="sw-tkl">🐠 My aquarium · ' + fishFound(readFish()) + " / " + SPECIES.length + '</div><span class="sw-pl" style="left:5%">🌿</span><span class="sw-pl" style="left:90%">🐚</span>' +
-        tank.map(function (sp, n) {
-          var dur = 9 + (n % 4) * 2.5,
-            delay = (-((el + n * 3.1) % dur)).toFixed(1);
-          return '<span class="sw-tf' + (n === newIdx ? " sw-tin" : "") + '" style="top:' + (26 + (n % 3) * 20) + "px;animation-duration:" + dur + "s;animation-delay:" + delay + 's"><span class="sw-tfi" style="animation-duration:' + dur + "s;animation-delay:" + delay + 's">' + fishSvg(sp) + "</span></span>";
+        tank.map(function (it, n) {
+          var dur = 36 + (n % 4) * 8,
+            delay = (-((el + n * 7.3) % dur)).toFixed(1),
+            w = it.w;
+          return '<span class="sw-tf' + (n === newIdx ? " sw-tin" : "") + '" style="top:' + (24 + (n % 3) * 17) + "px;animation-duration:" + dur + "s;animation-delay:" + delay + 's"><span class="sw-tfi" style="animation-duration:' + dur + "s;animation-delay:" + delay + 's">' + fishSvg(it.sp) + '</span><span class="sw-tfw" style="font-size:' + (w.length > 8 ? 9 : w.length > 6 ? 10 : 12) + 'px">' + esc(w) + "</span></span>";
         }).join("");
     }
     function finish() {
@@ -2981,9 +3015,10 @@
             setTimeout(function () {
               var tk = document.getElementById("swTank");
               if (run !== my || !tk) return;
-              var pushed = isNew || tank.length < 14;
-              if (pushed) tank.push(sp);
-              tk.innerHTML = tankHtml(pushed ? tank.length - 1 : -1);
+              tank.push({ sp: sp, w: r.w });
+              if (tank.length > TANKMAX) tank.shift();
+              writeFishList(tank);
+              tk.innerHTML = tankHtml(tank.length - 1);
               tk.classList.remove("sw-tglow");
               void tk.offsetWidth;
               tk.classList.add("sw-tglow");
