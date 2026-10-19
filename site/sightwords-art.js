@@ -85,6 +85,7 @@
       pointUp: { L: ST, A: [HL, [20, -50, 33, -62]] }, // the right arm pointing up and to the right
       pointDown: { L: ST, A: [HL, [20, -34, 33, -25]] }, // the right arm pointing down and to the right
       holdbook: { L: ST, A: [[-17, -30, -15, -25], [17, -30, 15, -25]] }, // both hands at the two bottom corners of an open book held up in front of the chest
+      push: { lean: 10, L: [[-3, -22, -13, -3], [3, -22, 11, -3]], A: [[2, -36, 24, -31], [22, -39, 38, -31]] }, // leaning forward, both hands pushing something at the right
       grip: { L: ST, A: [[-18, -37, -13, -34], [18, -37, 13, -34]] }, // both hands on the two sides of something held up in front of the chest (a letter, a card)
       cradleB: { L: ST, A: [[-18, -30, 8, -27], [19, -37, 4, -34]] }, // holding a baby lying along one forearm, the head in the crook of the elbow, the other hand resting on the baby
       cradleR: { L: ST, A: [[-14, -28, 27, -24], [25, -31, 3, -23]] }, // the same, with the thing held on the right side
