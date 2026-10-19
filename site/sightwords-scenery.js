@@ -49,6 +49,13 @@
     } else if (kind === "spell") {
       inner = bub(26, 50, 19, "#FF8FB1", "A") + bub(56, 30, 21, "#6AA7FF", "B") + bub(78, 58, 17, "#FFC93C", "C") +
         '<path d="M86 14 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z" fill="#FFE066"/>';
+    } else if (kind === "runner") {
+      inner = '<rect x="0" y="0" width="100" height="30" fill="#BFE6FF"/><rect x="0" y="30" width="100" height="54" fill="#9ADF8A"/><path d="M42 30 L58 30 L92 84 L8 84Z" fill="#6C7A93"/>' +
+        '<path d="M50 32 L50 40 M50 46 L50 56 M50 62 L50 76" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M45 30 L26 84 M55 30 L74 84" stroke="#fff" stroke-width="1.6" opacity=".8"/>' +
+        '<rect x="16" y="46" width="30" height="14" rx="4" fill="#fff" stroke="#4A5878" stroke-width="2"/><text x="31" y="57" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#1E2A4A">go</text>' +
+        '<rect x="54" y="46" width="30" height="14" rx="4" fill="#FFE680" stroke="#E0A800" stroke-width="2"/><text x="69" y="57" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#1E2A4A">up</text>' +
+        '<circle cx="50" cy="72" r="5" fill="#FFC400" stroke="#E0A800" stroke-width="1.6"/><circle cx="48.4" cy="70.4" r="1.6" fill="#fff" opacity=".7"/>' +
+        '<circle cx="14" cy="22" r="8" fill="#FFE066"/>';
     } else if (kind === "snake") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#B6E89A"/><rect x="0" y="0" width="50" height="42" fill="#A6DE87"/><rect x="50" y="42" width="50" height="42" fill="#A6DE87"/>' +
         '<path d="M14 62 Q14 30 40 30 Q66 30 66 52 Q66 70 82 66" fill="none" stroke="#3DBE78" stroke-width="13" stroke-linecap="round"/>' +

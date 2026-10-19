@@ -1375,6 +1375,14 @@
       "#swOverlay .sw-dpad{display:grid;grid-template-columns:repeat(3,58px);gap:6px;justify-content:center;margin:12px 0 4px}" +
       "#swOverlay .sw-dp{height:48px;border-radius:16px;background:#fff;box-shadow:0 4px 0 #C9D7E8;font-size:22px;color:#4A2FB8;-webkit-tap-highlight-color:transparent}" +
       "#swOverlay .sw-dp:active{transform:translateY(2px);box-shadow:0 2px 0 #C9D7E8}" +
+      "#swOverlay .sw-g7{background:#FFE3C2;box-shadow:0 6px 0 #E8A86A}" +
+      "#swOverlay .sw-rwrap{position:relative;margin:10px auto}" +
+      "#swOverlay .sw-rwrap .sw-snk{margin:0}" +
+      "#swOverlay .sw-rpet{position:absolute;transition:left .13s ease-out;pointer-events:none;transform-origin:50% 90%}" +
+      "#swOverlay .sw-rpet svg{display:block;width:100%;height:auto;overflow:visible}" +
+      "#swOverlay .sw-rpet.sw-fwig{animation:swwig 1.4s ease-in-out}" +
+      "#swOverlay .sw-rlr{display:flex;justify-content:center;gap:22px;margin:12px 0 4px}" +
+      "#swOverlay .sw-dpw{width:110px}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -1508,7 +1516,7 @@
     return top;
   }
   // the games on show on the home page: two for each pair of stages (the others are under "More games"); ?stage=N tries another stage
-  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "mole"], ["mole", "feed"]];
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["mole", "feed"]];
   function gameSetNo(s) {
     var m = /[?&]stage=(\d)/.exec((root.location && root.location.search) || ""),
       st = m ? +m[1] : reachedStage(s);
@@ -1608,6 +1616,7 @@
         feed: { id: "swFeed", cls: "sw-g3", icon: "feed", label: feedLabel() },
         mem: { id: "swMem", cls: "sw-g1", icon: "memory", label: "Memory match" },
         snake: { id: "swSnake", cls: "sw-g6", icon: "snake", label: "Word snake" },
+        runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word runner" },
       },
       mainG = GAMESETS[gameSetNo(s) - 1],
       moreG = Object.keys(GM).filter(function (k) {
@@ -1655,6 +1664,9 @@
       },
       swSnake: function () {
         startSnake(gameWords(s, 6));
+      },
+      swRunner: function () {
+        startRunner(gameWords(s, 6));
       },
     };
     Object.keys(starters).forEach(function (id) {
@@ -2556,7 +2568,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -3968,6 +3980,486 @@
     };
     hud();
     tick = setTimeout(step, 600);
+    draw(Date.now());
+  }
+
+  /* ---- Word runner: your pet runs down a road with three lanes; hear a word and run through the gate whose sign has it. Coins in the lanes,
+     wrong gate = a stumble. The speed follows the child's accuracy. Arrow keys, swipes, taps on the sides or the two buttons ---- */
+  var RUNKEY = "lef_runner_v1";
+  function readRunner() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(RUNKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, coins: +o.coins || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeRunner(o) {
+    try {
+      ls.setItem(RUNKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startRunner(words) {
+    gameTag = "game";
+    trk("sw_game_start", "runner", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 5003) + 17),
+      store = readRunner(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      coinN = 0,
+      combo = 0,
+      bestCombo = 0,
+      tries = 0,
+      lastWrong = false,
+      help = 0,
+      spdNote = "",
+      lane = 1,
+      started = false,
+      done = false,
+      gate = null,
+      coins = [],
+      wait = 0, // seconds until the next gate
+      scroll = 0,
+      t0 = 0,
+      last = 0,
+      my = null,
+      raf = null,
+      keyH = null,
+      cv = null,
+      ctx = null,
+      pe = null,
+      W = 340,
+      H = 400,
+      HOR = 110,
+      PL = 330,
+      note = "";
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function speedT() {
+      return 7.5 * Math.pow(0.92, lvl); // seconds for a gate to run from the horizon to the pet
+    }
+    function Y(p) {
+      return HOR + (PL - HOR) * Math.pow(Math.max(p, 0), 1.6);
+    }
+    function frac(p) {
+      return (Y(p) - HOR) / (H - HOR);
+    }
+    function roadW(f) {
+      return W * 0.24 + W * 0.72 * f;
+    }
+    function X(p, ln) {
+      return W / 2 + (ln - 1) * (roadW(frac(p)) / 3);
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swRsc"),
+        b = document.getElementById("swRco"),
+        c = document.getElementById("swRsp"),
+        d = document.getElementById("swRcb"),
+        dots = 1 + Math.round(lvl / 2);
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = "🪙 " + coinN;
+      if (d) d.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○") + spdNote;
+    }
+    function pace(up) {
+      spdNote = up ? " 🐇" : " 🐢";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+      if (keyH) document.removeEventListener("keydown", keyH);
+      keyH = null;
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best;
+      store.best = Math.max(store.best, score);
+      store.coins += coinN;
+      store.lvl = lvl;
+      writeRunner(store);
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Coins today: " + coinN + ". Coins in all: " + store.coins + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      endGame("r", first, "Word runner", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startRunner(gameWords(readState(), 6));
+      }, extra, null);
+    }
+    function newGate() {
+      var r = rounds[i],
+        k = wkey(r.w),
+        others = r.opts
+          .filter(function (w) {
+            return wkey(w) !== k;
+          })
+          .slice(0, help > 0 ? 1 : 2),
+        lanes = shuffle([0, 1, 2], rnd),
+        signs = [{ w: r.w, lane: lanes[0], target: true }];
+      if (help > 0) help--;
+      others.forEach(function (w, j) {
+        signs.push({ w: w, lane: lanes[j + 1], target: false });
+      });
+      gate = { p: 0, signs: signs, r: r, k: k };
+      // a short row of coins after the gate, in a lane of its own
+      var cl = Math.floor(rnd() * 3);
+      for (var c = 0; c < 4; c++) coins.push({ p: -0.5 - c * 0.07, lane: cl, got: false });
+      setTimeout(function () {
+        if (alive() && gate && gate.r === r) play("w", r.w);
+      }, 350);
+    }
+    function setLane(n) {
+      if (!alive()) return;
+      if (!started) {
+        started = true;
+        wait = 0.4;
+        last = Date.now();
+      }
+      lane = Math.max(0, Math.min(2, n));
+      place();
+    }
+    function place() {
+      if (pe) pe.style.left = X(1, lane) - pe.offsetWidth / 2 + "px";
+    }
+    function resolve() {
+      var g = gate,
+        ok = g.signs.some(function (sg) {
+          return sg.target && sg.lane === lane;
+        }),
+        k = g.k;
+      gate = null;
+      if (ok) {
+        if (first[k] === undefined) first[k] = true;
+        lastWrong = tries > 0;
+        if (tries === 0) {
+          lvl = Math.min(8, lvl + 0.6);
+          pace(true);
+        }
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        var pts = 10 + Math.min(combo, 6) * 3;
+        score += pts;
+        sfx("sparkle");
+        say((combo >= 3 ? "Combo ×" + combo + "! " : "Yes! ") + g.r.w + (tries === 0 && combo >= 2 ? " · Faster!" : ""));
+        wiggle();
+        try {
+          if (hooks.burst && combo >= 3) {
+            var br = cv.getBoundingClientRect();
+            hooks.burst(br.left + X(1, lane), br.top + PL - 30);
+          }
+        } catch (e) {}
+        tries = 0;
+        i++;
+        if (i >= rounds.length) {
+          done = true;
+          setTimeout(function () {
+            if (my && run === my) finish();
+          }, 1000);
+          return;
+        }
+        wait = 1.1;
+      } else {
+        first[k] = false;
+        tries++;
+        combo = 0;
+        lvl = Math.max(0, lvl - 0.8);
+        if (tries >= 2 || lastWrong) help = 2;
+        pace(false);
+        sfx("poke");
+        stumble();
+        say("Oops, not that gate! Listen again. Slowing down a little.");
+        wait = 1.3; // the same word comes back
+        setTimeout(function () {
+          if (alive()) play("w", g.r.w);
+        }, 800);
+      }
+      hud();
+    }
+    function wiggle() {
+      if (!pe) return;
+      pe.innerHTML = petArt("excited");
+      pe.classList.remove("sw-fwig");
+      void pe.offsetWidth;
+      pe.classList.add("sw-fwig");
+      setTimeout(function () {
+        if (alive() && pe) {
+          pe.classList.remove("sw-fwig");
+          pe.innerHTML = petArt("happy");
+        }
+      }, 1300);
+    }
+    function stumble() {
+      if (!pe || !pe.animate) return;
+      try {
+        pe.animate([{ transform: "rotate(0)" }, { transform: "rotate(-18deg) translateY(6px)" }, { transform: "rotate(14deg)" }, { transform: "rotate(-8deg)" }, { transform: "rotate(0)" }], { duration: 600, easing: "ease-out" });
+      } catch (e) {}
+    }
+    function pill(text, x, y, w, h, hint, blink) {
+      ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
+      ctx.strokeStyle = hint ? "#E0A800" : "#4A5878";
+      ctx.lineWidth = Math.max(1.5, h * 0.08);
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(x - w / 2, y - h / 2, w, h, h * 0.3);
+      else ctx.rect(x - w / 2, y - h / 2, w, h);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#1E2A4A";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      var fs = Math.max(9, h * 0.58);
+      ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      while (ctx.measureText(text).width > w * 0.88 && fs > 8) {
+        fs -= 1;
+        ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      }
+      ctx.fillText(text, x, y + 1);
+    }
+    function draw(now) {
+      if (!cv || done) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, Math.max(0, (ts - last) / 1000));
+      last = ts;
+      var T = speedT(),
+        k;
+      if (started) {
+        // movement
+        if (gate) {
+          gate.p += dt / T;
+          if (gate.p >= 1) resolve();
+        } else if (!done) {
+          wait -= dt;
+          if (wait <= 0 && i < rounds.length) newGate();
+        }
+        coins.forEach(function (c) {
+          c.p += dt / T;
+          if (!c.got && c.p >= 1 && c.p < 1.15 && c.lane === lane) {
+            c.got = true;
+            coinN++;
+            score += 2;
+            if (coinN % 3 === 0) sfx("pew");
+            hud();
+          }
+        });
+        coins = coins.filter(function (c) {
+          return c.p < 1.2;
+        });
+      }
+      if (started) scroll += dt / T;
+      var phase = scroll;
+      ctx.clearRect(0, 0, W, H);
+      // sky, sun, grass, road
+      var g1 = ctx.createLinearGradient(0, 0, 0, HOR);
+      g1.addColorStop(0, "#BFE6FF");
+      g1.addColorStop(1, "#EAF7FF");
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, W, HOR + 2);
+      ctx.fillStyle = "#FFE066";
+      ctx.beginPath();
+      ctx.arc(W * 0.8, HOR * 0.45, HOR * 0.22, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "#9ADF8A";
+      ctx.fillRect(0, HOR, W, H - HOR);
+      for (k = 0; k < 8; k++) {
+        var pp = (((phase * 2 + k / 8) % 1) + 1) % 1,
+          y1 = Y(pp),
+          y2 = Y(pp + 0.06);
+        if (k % 2) {
+          ctx.fillStyle = "rgba(255,255,255,.12)";
+          ctx.fillRect(0, y1, W, Math.max(1, y2 - y1));
+        }
+      }
+      ctx.fillStyle = "#6C7A93";
+      ctx.beginPath();
+      ctx.moveTo(W / 2 - roadW(0) / 2, HOR);
+      ctx.lineTo(W / 2 + roadW(0) / 2, HOR);
+      ctx.lineTo(W / 2 + roadW(1.0) / 2, H);
+      ctx.lineTo(W / 2 - roadW(1.0) / 2, H);
+      ctx.fill();
+      ctx.strokeStyle = "#fff";
+      ctx.lineWidth = 3;
+      [-1, 1].forEach(function (sd) {
+        ctx.beginPath();
+        ctx.moveTo(W / 2 + (sd * roadW(0)) / 2, HOR);
+        ctx.lineTo(W / 2 + (sd * roadW(1.0)) / 2, H);
+        ctx.stroke();
+      });
+      // lane dashes
+      ctx.strokeStyle = "rgba(255,255,255,.85)";
+      for (k = 0; k < 10; k++) {
+        var q = (((phase * 3 + k / 10) % 1) + 1) % 1,
+          a = Math.pow(q, 1) * 1,
+          ya = Y(a),
+          yb = Y(a + 0.045),
+          fa = (ya - HOR) / (H - HOR),
+          fb = (yb - HOR) / (H - HOR);
+        ctx.lineWidth = 1 + 3 * fa;
+        [-1, 1].forEach(function (sd) {
+          ctx.beginPath();
+          ctx.moveTo(W / 2 + (sd * roadW(fa)) / 6, ya);
+          ctx.lineTo(W / 2 + (sd * roadW(fb)) / 6, yb);
+          ctx.stroke();
+        });
+      }
+      // trees at the sides
+      for (k = 0; k < 6; k++) {
+        var tp = (((phase * 1 + k / 6) % 1) + 1) % 1,
+          side = k % 2 ? 1 : -1,
+          ty = Y(tp),
+          tf = (ty - HOR) / (H - HOR),
+          tx = W / 2 + side * (roadW(tf) / 2 + W * 0.09 + W * 0.1 * tf),
+          sc = 0.12 + 1.0 * tf;
+        ctx.fillStyle = "#8A5A2B";
+        ctx.fillRect(tx - 3 * sc * 3, ty - 12 * sc * 3, 6 * sc * 3, 14 * sc * 3);
+        ctx.fillStyle = "#35B779";
+        ctx.beginPath();
+        ctx.arc(tx, ty - 20 * sc * 3, 14 * sc * 3, 0, 6.283);
+        ctx.fill();
+      }
+      // coins
+      coins.forEach(function (c) {
+        if (c.p < 0 || c.got) return;
+        var cy = Y(c.p),
+          cf = (cy - HOR) / (H - HOR),
+          cx = X(c.p, c.lane),
+          rr = 3 + 12 * cf;
+        ctx.fillStyle = "#FFC400";
+        ctx.beginPath();
+        ctx.arc(cx, cy - rr, rr, 0, 6.283);
+        ctx.fill();
+        ctx.strokeStyle = "#E0A800";
+        ctx.lineWidth = Math.max(1, rr * 0.18);
+        ctx.stroke();
+        ctx.fillStyle = "rgba(255,255,255,.6)";
+        ctx.beginPath();
+        ctx.arc(cx - rr * 0.3, cy - rr * 1.3, rr * 0.28, 0, 6.283);
+        ctx.fill();
+      });
+      // the gate
+      if (gate) {
+        var gy = Y(gate.p),
+          gf = (gy - HOR) / (H - HOR),
+          lw = roadW(gf) / 3,
+          sh = Math.max(16, lw * 0.6),
+          sw = lw * 0.96,
+          blink = Math.sin(ts / 120) > 0;
+        gate.signs.forEach(function (sg) {
+          var sx = X(gate.p, sg.lane),
+            hint = tries >= 2 && sg.target,
+            top = gy - lw * 0.95;
+          ctx.strokeStyle = "#5A4A3A";
+          ctx.lineWidth = Math.max(2, lw * 0.07);
+          ctx.beginPath();
+          ctx.moveTo(sx - sw * 0.42, top + sh / 2);
+          ctx.lineTo(sx - sw * 0.42, gy);
+          ctx.moveTo(sx + sw * 0.42, top + sh / 2);
+          ctx.lineTo(sx + sw * 0.42, gy);
+          ctx.stroke();
+          if (hint) {
+            var gl = ctx.createRadialGradient(sx, top + sh / 2, sh * 0.3, sx, top + sh / 2, sw * 0.9);
+            gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+            gl.addColorStop(1, "rgba(255,214,64,0)");
+            ctx.fillStyle = gl;
+            ctx.beginPath();
+            ctx.arc(sx, top + sh / 2, sw * 0.9, 0, 6.283);
+            ctx.fill();
+          }
+          pill(sg.w, sx, top + sh / 2, sw, sh, hint, blink);
+        });
+      }
+      if (!started) {
+        ctx.fillStyle = "rgba(30,42,74,.62)";
+        ctx.fillRect(0, H * 0.4, W, 56);
+        ctx.fillStyle = "#fff";
+        ctx.font = "700 " + Math.round(W * 0.052) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Press ◀ ▶ or swipe to start!", W / 2, H * 0.4 + 28);
+      }
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word runner</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Word runner</div><div class="sw-sent" style="font-size:22px">Run through the gate with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swRsc"></span><span class="sw-msc" id="swRco"></span><span class="sw-mcb" id="swRcb"></span><span class="sw-spd" id="swRsp"></span></div>' +
+      '<div class="sw-rwrap" id="swRw"><canvas class="sw-snk" id="swRun"></canvas><div class="sw-rpet" id="swRpet">' + petArt("happy") + '</div></div><div class="sw-rlr"><button class="sw-dp sw-dpw" id="swRl" aria-label="Left">◀</button><button class="sw-dp sw-dpw" id="swRr" aria-label="Right">▶</button></div><div class="sw-msg" id="swMsg"></div></div>';
+    bindQuit();
+    cv = document.getElementById("swRun");
+    pe = document.getElementById("swRpet");
+    W = Math.max(240, Math.min(420, Math.floor((cv.parentNode.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 1.15);
+    HOR = Math.round(H * 0.27);
+    PL = Math.round(H * 0.86);
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = W + "px";
+    cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    document.getElementById("swRw").style.width = W + "px";
+    pe.style.width = Math.round(W * 0.2) + "px";
+    pe.style.top = PL - Math.round(W * 0.2) * 0.95 + "px";
+    place();
+    document.getElementById("swHear").onclick = function () {
+      if (gate) play("w", gate.r.w);
+      else if (rounds[i]) play("w", rounds[i].w);
+    };
+    document.getElementById("swRl").onclick = function () {
+      setLane(lane - 1);
+    };
+    document.getElementById("swRr").onclick = function () {
+      setLane(lane + 1);
+    };
+    keyH = function (e) {
+      var m = { ArrowLeft: -1, ArrowRight: 1, a: -1, d: 1 }[e.key];
+      if (m) {
+        e.preventDefault();
+        setLane(lane + m);
+      }
+    };
+    document.addEventListener("keydown", keyH);
+    var sx = null;
+    cv.addEventListener("pointerdown", function (e) {
+      sx = e.clientX;
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (sx === null) return;
+      if (Math.abs(e.clientX - sx) > 24) {
+        setLane(lane + (e.clientX > sx ? 1 : -1));
+        sx = e.clientX;
+      }
+    });
+    cv.addEventListener("pointerup", function (e) {
+      if (sx !== null && Math.abs(e.clientX - sx) <= 24) {
+        var r = cv.getBoundingClientRect(),
+          x = e.clientX - r.left;
+        setLane(x < r.width / 3 ? lane - 1 : x > (r.width * 2) / 3 ? lane + 1 : lane);
+      }
+      sx = null;
+    });
+    cv.addEventListener("pointercancel", function () {
+      sx = null;
+    });
+    my = run = { mode: "runner", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    t0 = Date.now();
+    last = Date.now();
+    hud();
     draw(Date.now());
   }
 
