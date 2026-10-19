@@ -296,7 +296,7 @@
     nation: [["flagpole", 120, G, 1.25, {}], ["kid", 60, G, 1.3, kb("cheer", { look: 1, mouth: "open" })], ["kid", 180, G, 1.3, kg("cheer", { look: -1, mouth: "open" })], ["heart", 146, 24, 0.7]],
     subject: [["blackboard", 150, G - 22, 1.5, {}], ["txt", 150, G - 56, 1, { t: "ART", size: 28, c: "#FFFFFE" }], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })], ["heart", 100, 46, 0.8]],
     history: [["castle", 156, G, 1.0, {}], ["scroll", 60, G - 8, 1.2, {}], ["hourglass", 100, G - 4, 1.0, {}], ["sparkle", 196, 36, 0.8]],
-    period: [["txt", 80, 100, 1, { t: "I see", size: 46, c: "#1E2A4A" }], ["reddot", 158, 96, 1.5, {}], ["circ", 158, 94, 1.0, { r: 20 }], ["arrow", 0, 0, 1, { x1: 198, y1: 56, x2: 172, y2: 82, c: P }]],
+    period: [["txt", 80, 100, 1, { t: "I see", size: 46, c: "#1E2A4A" }], ["reddot", 150, 96, 1.5, {}], ["circ", 150, 94, 1.0, { r: 20 }], ["arrow", 0, 0, 1, { x1: 190, y1: 56, x2: 164, y2: 82, c: P }]],
     age: [["candlecake", 160, G, 1.6, {}], ["kid", 70, G, 1.5, kb("cheer", { mouth: "open" })], ["qm", 120, 38, 1.1]],
     position: [["dog", 120, 124, 1.6, {}], ["cross", 120, 146, 0.8, {}], ["hl", 120, 142, 1.0, { r: 22 }], ["sparkle", 176, 60, 0.8]],
     general: [["kid", 80, G, 1.6, kb("look", { look: 1, mouth: "open" })], ["thought", 168, 62, 1.0, { w: 88, h: 58, inner: [["bulb", 0, 16, 0.7, {}], ["qm", 22, -4, 0.5]] }]],
