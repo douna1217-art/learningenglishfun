@@ -355,7 +355,7 @@
     grand: [["castle", 120, G + 2, 1.45, {}], ["flag", 56, G, 1.0, {}], ["flag", 184, G, 1.0, {}], ["sparkle", 190, 36, 0.9], ["sparkle", 50, 54, 0.8]],
     gentle: [["kid", 66, G, 1.5, kg("reach", { look: 1, mouth: "open" })], ["cat", 150, G, 1.7, {}], ["heart", 112, 40, 1.0], ["sparkle", 190, 56, 0.8]],
     natural: [["tree", 112, G, 1.4, {}], ["bush", 46, G, 0.9, {}], ["flower", 180, G, 1.1, { c: "#FF6FA0" }], ["flower", 204, G, 0.9, { c: "#FFD23F" }], ["bird", 190, 46, 0.8, {}], ["sparkle", 36, 40, 0.8]],
-    broad: [["widewater", 120, 106, 1.0, { sy: 1 }], ["kid", 196, 80, 0.75, kg("wave", { look: -1, flip: true, mouth: "open" })], ["kid", 52, 152, 1.2, kb("wave", { mouth: "open" })], ["arrow", 0, 0, 1, { x1: 120, y1: 118, x2: 120, y2: 86, c: P }], ["arrow", 0, 0, 1, { x1: 120, y1: 86, x2: 120, y2: 118, c: P }]],
+    broad: [["widewater", 120, 98, 1.0, {}], ["pinetree", 36, 62, 0.5, {}], ["pinetree", 204, 62, 0.45, {}], ["pinetree", 176, 60, 0.35, {}], ["arrow", 0, 0, 1, { x1: 120, y1: 98, x2: 120, y2: 62, c: P }], ["arrow", 0, 0, 1, { x1: 120, y1: 98, x2: 120, y2: 134, c: P }]],
     gray: [["cat", 120, G, 1.9, { c: "#9AA3B2", l: "#D5DAE3" }], ["sparkle", 200, 46, 0.8]],
     lone: [["bird", 120, 80, 1.4, { fly: true }], ["cloud", 60, 40, 0.8, {}], ["cloud", 190, 100, 0.8, {}]],
     joy: [["kid", 120, G, 1.5, kg("jump", { mouth: "open" })], ["heart", 66, 56, 1.0], ["heart", 176, 60, 1.0], ["star", 150, 24, 0.9], ["star", 84, 24, 0.8]],
@@ -417,7 +417,7 @@
   };
 
   KITS.widewater = function (o) {
-    return '<path d="M-130 -24 Q-90 -30 -50 -24 T30 -24 T130 -24 V24 Q90 30 50 24 T-30 24 T-130 24Z" ' + f("#7CC4F0", 2.4) + '/><path d="M-80 -4 Q-70 -8 -60 -4 M20 6 Q30 2 40 6 M70 -8 Q80 -12 90 -8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>';
+    return '<path d="M-130 -40 Q-90 -46 -50 -40 T30 -40 T130 -40 V40 Q90 46 50 40 T-30 40 T-130 40Z" ' + f("#7CC4F0", 2.4) + '/><path d="M-86 -12 Q-74 -17 -62 -12 M-30 22 Q-18 17 -6 22 M44 -16 Q56 -21 68 -16 M56 20 Q68 15 80 20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/>';
   };
   var BG8 = {
     wave: "icesea", planet: "space", oil: "plain", salt: "in", bone: "polar", wing: "polar", bat: "polar", rail: "polar", clock: "in", tie: "in",
