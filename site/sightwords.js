@@ -3788,17 +3788,35 @@
       apples.forEach(function (a) {
         var cx = (a.x + 0.5) * cell,
           cy = (a.y + 0.5) * cell;
-        if (wrongTries >= 2 && target && wkey(a.w) === wkey(target.w)) {
-          ctx.strokeStyle = "rgba(255,214,64,.95)";
-          ctx.lineWidth = 3;
+        var hint = wrongTries >= 2 && target && wkey(a.w) === wkey(target.w),
+          blink = hint && Math.sin(ts / 120) > 0, // the hint: the apple turns gold and blinks between gold and bright yellow, with a glow and little stars
+          pulse = hint ? 1 + 0.12 * Math.sin(ts / 120) : 1;
+        if (hint) {
+          var gl = ctx.createRadialGradient(cx, cy, cell * 0.2, cx, cy, cell * 1.3);
+          gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+          gl.addColorStop(1, "rgba(255,214,64,0)");
+          ctx.fillStyle = gl;
           ctx.beginPath();
-          ctx.arc(cx, cy, cell * (0.58 + 0.08 * Math.sin(ts / 140)), 0, 6.283);
-          ctx.stroke();
+          ctx.arc(cx, cy, cell * 1.3, 0, 6.283);
+          ctx.fill();
         }
-        ctx.fillStyle = "#E5483A";
+        ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#E5483A";
         ctx.beginPath();
-        ctx.arc(cx, cy + 1, cell * 0.4, 0, 6.283);
+        ctx.arc(cx, cy + 1, cell * (hint ? 0.46 : 0.4) * pulse, 0, 6.283);
         ctx.fill();
+        if (hint) {
+          ctx.strokeStyle = "#E0A800";
+          ctx.lineWidth = 2.5;
+          ctx.stroke();
+          for (var q = 0; q < 4; q++) {
+            var ang = ts / 400 + (q * Math.PI) / 2,
+              rr = cell * (0.75 + 0.1 * Math.sin(ts / 150 + q));
+            ctx.fillStyle = blink ? "#FFFFFF" : "#FFE066";
+            ctx.beginPath();
+            ctx.arc(cx + Math.cos(ang) * rr, cy + Math.sin(ang) * rr, cell * 0.09, 0, 6.283);
+            ctx.fill();
+          }
+        }
         ctx.fillStyle = "rgba(255,255,255,.55)";
         ctx.beginPath();
         ctx.ellipse(cx - cell * 0.14, cy - cell * 0.1, cell * 0.09, cell * 0.14, -0.5, 0, 6.283);
