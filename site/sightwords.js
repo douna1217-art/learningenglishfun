@@ -3199,6 +3199,14 @@
     if (typeof root.softSvg === "function") inner = root.softSvg(inner);
     return '<svg viewBox="0 0 100 96" aria-hidden="true">' + inner + "</svg>";
   }
+  // the bonus: a golden egg (not a mole, so it is never mistaken for the gold hint mole); cracked = after a whack
+  function eggSvg(cracked) {
+    var inner = '<path d="M50 14 C74 14 82 44 82 62 C82 82 68 92 50 92 C32 92 18 82 18 62 C18 44 26 14 50 14Z" fill="#FFC400"/><path d="M50 14 C74 14 82 44 82 62 C82 82 68 92 50 92 Z" fill="#E0A800" opacity=".35"/><ellipse cx="38" cy="38" rx="7" ry="13" fill="#fff" opacity=".6" transform="rotate(18 38 38)"/>';
+    if (cracked) inner += '<path d="M24 56 L36 48 L44 60 L54 46 L64 58 L76 50" fill="none" stroke="#7A4E2D" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/><path d="M16 22 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z M84 30 l2 4 4.6 .6 -3.4 3.1 .8 4.5 -4 -2.2 -4 2.2 .8 -4.5 -3.4 -3.1 4.6 -.6z" fill="#FFE066" stroke="#E0A800" stroke-width="1.2"/>';
+    else inner += '<path d="M30 52 l5 -7 5 7 5 -7 5 7 5 -7 5 7" fill="none" stroke="#FFF3B0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><path d="M50 62 l3 6.5 7 .9 -5.2 4.8 1.4 7 -6.2 -3.5 -6.2 3.5 1.4 -7 -5.2 -4.8 7 -.9z" fill="#FFF3B0"/>';
+    if (typeof root.softSvg === "function") inner = root.softSvg(inner);
+    return '<svg viewBox="0 0 100 96" aria-hidden="true">' + inner + "</svg>";
+  }
   var HAMMER = '<svg viewBox="0 0 70 70" aria-hidden="true"><rect x="32" y="26" width="8" height="42" rx="3" fill="#B87333" transform="rotate(20 36 47)"/><rect x="8" y="6" width="46" height="24" rx="7" fill="#8A97AD" stroke="#5A6B84" stroke-width="2.4" transform="rotate(20 31 18)"/></svg>';
   function startWhack(words) {
     gameTag = "game";
@@ -3233,7 +3241,7 @@
       store.golden += golden;
       store.lvl = lvl;
       writeMole(store);
-      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + best + ". ") + (golden ? "Golden moles today: " + golden + ". " : "") + "Golden moles found: " + store.golden + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + best + ". ") + (golden ? "Golden eggs today: " + golden + ". " : "") + "Golden eggs found: " + store.golden + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
       endGame("w", first, "Whack-a-word", function () {
         return score + " points!";
       }, function (r, t) {
@@ -3382,7 +3390,7 @@
           gm.className = "sw-mole";
           gm.setAttribute("data-g", "1");
           gm.removeAttribute("data-w");
-          gm.innerHTML = moleSvg(true, false) + '<span class="sw-mw sw-mg">★ +25</span>';
+          gm.innerHTML = eggSvg(false) + '<span class="sw-mw sw-mg">★ +25</span>';
           later(function () {
             gm.classList.add("sw-up");
           }, 700);
@@ -3420,7 +3428,11 @@
           h = +hl.getAttribute("data-h");
         hammer(h);
         if (el.getAttribute("data-g")) {
-          el.classList.remove("sw-up");
+          el.innerHTML = eggSvg(true) + '<span class="sw-mw sw-mg">★ +25</span>';
+          el.setAttribute("data-g", "");
+          later(function () {
+            el.classList.remove("sw-up");
+          }, 380);
           score += 25;
           golden++;
           hud();
