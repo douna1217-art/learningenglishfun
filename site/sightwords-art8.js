@@ -401,7 +401,7 @@
     perhaps: [["sunbig", 62, 60, 1.0, {}], ["raincloud", 182, 56, 1.2, {}], ["kid", 120, G, 1.5, kb("hands", { mouth: "o" })], ["qm", 120, 38, 1.2]],
     rather: [["book", 44, G + 2, 1.1, {}], ["cross", 44, 84, 1.0], ["kid", 112, G, 1.5, kb("point", { look: 1, mouth: "open" })], ["ball", 196, G, 1.6, {}], ["check", 196, 72, 1.0], ["sparkle", 160, 40, 0.7]],
     whether: [["sunbig", 52, 72, 0.9, {}], ["txt", 120, 82, 1, { t: "or", size: 22, c: P }], ["flake", 190, 72, 1.7], ["qm", 120, 32, 1.2], ["kid", 120, G, 1.4, kb("look", { mouth: "open" })]],
-    thus: [["kid", 50, G, 1.3, kb("run", { look: 1, mouth: "open" })], ["whoosh", 22, 92, 0.9, {}], ["arrow", 0, 0, 1, { x1: 82, y1: 74, x2: 120, y2: 74, c: P }], ["podium", 172, G, 1.1, {}], ["kid", 172, G - 46, 0.85, kb("cheer", { mouth: "open" })]],
+    thus: [["kid", 50, G, 1.3, kb("run", { look: 1, mouth: "open" })], ["whoosh", 22, 92, 0.9, {}], ["arrow", 0, 0, 1, { x1: 82, y1: 74, x2: 120, y2: 74, c: P }], ["podium", 172, G, 1.1, {}], ["kid", 172, G - 68, 0.85, kb("cheer", { mouth: "open" })]],
     claim: [["chair", 110, G, 2.0, {}], ["tag", 110, G - 76, 0.9, { t: "Me" }], ["kid", 190, G, 1.5, kb("reach", { look: -1, mouth: "open" })], ["sparkle", 56, 56, 0.8]],
     spoke: [["mom", 66, G, 1.6, { pose: "stand", look: 1, mouth: "open" }], ["kid", 164, G, 1.4, kb("stand", { look: -1, mouth: "open" })], ["bubble", 100, 36, 0.8, { w: 66, h: 34, inner: [["txt", 0, 6, 1, { t: "Hi!", size: 16, c: "#8B6BE8" }]] }], ["rewind", 208, 40, 0.9]],
     broke: [["brokenglass", 140, G, 1.7, {}], ["kid", 60, G, 1.5, kb("stand", { mouth: "o", look: 1 })], ["exm", 106, 36, 1.0]],
