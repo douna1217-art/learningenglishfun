@@ -355,7 +355,7 @@
     grand: [["castle", 120, G + 2, 1.45, {}], ["flag", 56, G, 1.0, {}], ["flag", 184, G, 1.0, {}], ["sparkle", 190, 36, 0.9], ["sparkle", 50, 54, 0.8]],
     gentle: [["kid", 66, G, 1.5, kg("reach", { look: 1, mouth: "open" })], ["cat", 150, G, 1.7, {}], ["heart", 112, 40, 1.0], ["sparkle", 190, 56, 0.8]],
     natural: [["mountain", 178, G, 1.4, {}], ["tree", 48, G, 1.1, {}], ["river", 112, 152, 0.8, {}], ["leaf", 100, 56, 1.3, {}], ["sparkle", 206, 36, 0.8]],
-    broad: [["river", 120, G + 2, 2.1, {}], ["arrow", 0, 0, 1, { x1: 30, y1: 52, x2: 210, y2: 52, c: P }], ["arrow", 0, 0, 1, { x1: 210, y1: 62, x2: 30, y2: 62, c: P }]],
+    broad: [["pond", 120, G + 10, 2.4, { w: 90 }], ["kid", 20, G + 2, 0.9, kb("wave", { mouth: "open" })], ["kid", 220, G + 2, 0.9, kg("wave", { look: -1, flip: true, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 46, y1: 112, x2: 194, y2: 112, c: P }], ["arrow", 0, 0, 1, { x1: 194, y1: 112, x2: 46, y2: 112, c: P }]],
     gray: [["cat", 120, G, 1.9, { c: "#9AA3B2", l: "#D5DAE3" }], ["sparkle", 200, 46, 0.8]],
     lone: [["bird", 120, 80, 1.4, { fly: true }], ["cloud", 60, 40, 0.8, {}], ["cloud", 190, 100, 0.8, {}]],
     joy: [["kid", 120, G, 1.5, kg("jump", { mouth: "open" })], ["heart", 66, 56, 1.0], ["heart", 176, 60, 1.0], ["star", 150, 24, 0.9], ["star", 84, 24, 0.8]],
