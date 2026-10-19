@@ -219,6 +219,14 @@
     return '<rect x="-9" y="-9" width="18" height="18" rx="3.4" ' + f("#FFFFFE", 2.2) + '/><path d="M-9 -4 L9 -9 M-9 2 L9 -3 M-9 8 L9 3" stroke="#C9D4E6" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M-3 -2.4 h6 M0 -5.4 v6" stroke="#E5483A" stroke-width="2.2" stroke-linecap="round"/>';
   };
 
+  // a printer with a page of writing coming out of it (the middle of the bottom is the origin)
+  KITS.textprinter = function (o) {
+    var s = '<rect x="-18" y="-58" width="36" height="28" rx="2" ' + f("#FFFFFE", 2) + '/><path d="M-12 -50 H12 M-12 -44 H12 M-12 -38 H4" stroke="#9FB3D1" stroke-width="2" stroke-linecap="round"/>';
+    s += '<rect x="-36" y="-34" width="72" height="34" rx="6" ' + f("#C9D2E3", 2.4) + '/><rect x="-36" y="-34" width="72" height="11" rx="5" fill="#DDE4F0" stroke="' + dk("#C9D2E3") + '" stroke-width="2.4"/><rect x="-22" y="-16" width="34" height="6" rx="3" fill="#3A4256"/><circle cx="25" cy="-14" r="4" fill="#4FBF7F" stroke="#2F8F55" stroke-width="1.6"/>';
+    s += '<g transform="rotate(-5 -6 -4)"><rect x="-26" y="-12" width="38" height="30" rx="2" ' + f("#FFFFFE", 2.2) + '/><path d="M-20 -4 H6 M-20 3 H6 M-20 10 H-2" stroke="#6A7A94" stroke-width="2.4" stroke-linecap="round"/></g>';
+    return s;
+  };
+
   // @@KITS_END
 
   /* ------------------------------------------------------------------ backgrounds */
@@ -261,7 +269,7 @@
     instrument: [["kid", 80, G, 1.5, kb("hold", { look: 1, mouth: "open", arms: "none" })], ["guitar", 92, G, 0.9, { rot: 14 }], ["kid", 80, G, 1.5, kb("hold", { arms: "only" })], ["note", 150, 60, 1.3], ["note", 176, 40, 1.0]],
     dollar: [["table", 150, G, 1.4, {}], ["bear", 150, G - 34, 0.8, {}], ["price", 188, G - 39, 1.1, { t: "$1" }], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })]],
     cent: [["table", 150, G, 1.4, {}], ["apple", 150, G - 34, 1.6, {}], ["price", 188, G - 39, 1.1, { t: "1&#162;" }], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })]],
-    print: [["printer", 140, G - 8, 2.0, {}], ["kid", 52, G, 1.4, kb("reach", { look: 1, mouth: "open" })], ["tag", 170, 50, 0.9, { t: "Sam" }], ["arrow", 0, 0, 1, { x1: 192, y1: 60, x2: 192, y2: 80, c: P }]],
+    print: [["textprinter", 150, G - 14, 1.9, {}], ["kid", 56, G, 1.45, kb("reach", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 164, y1: 112, x2: 164, y2: 134, c: P }], ["sparkle", 196, 40, 0.8]],
     camp: [["tent", 110, G, 1.6, {}], ["fire", 176, G, 1.1, {}], ["kid", 34, G, 1.2, kb("wave", { look: 1, mouth: "open" })], ["pinetree", 218, G - 4, 0.8]],
     supply: [["crate", 100, G, 1.5, {}], ["crate", 160, G, 1.5, {}], ["crate", 130, G - 52, 1.5, {}], ["apple", 100, G - 36, 0.7], ["loaf", 160, G - 36, 0.8], ["check", 196, 60, 1.0]],
     material: [["cloth", 130, G, 1.9, {}], ["kid", 58, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["sparkle", 186, 48, 0.8]],

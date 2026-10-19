@@ -45,7 +45,7 @@ SENT = {
     "wave": "I wave to the ship.", "planet": "The planet is big.", "oil": "I need oil for the car.", "salt": "I put salt on the egg.", "bone": "The dog has a bone.",
     "wing": "The bird has one big wing.", "bat": "I hit the ball with a bat.", "rail": "The train is on the rail.", "clock": "The clock is on the wall.", "tie": "Dad has a red tie.",
     "hat": "I wear a red hat.", "suit": "He has a blue suit.", "finger": "I hurt my finger.", "ear": "I hear with my ear.", "arm": "I hurt my arm.",
-    "instrument": "I play an instrument.", "dollar": "The toy is one dollar.", "cent": "The apple is one cent.", "print": "I will print my name.", "camp": "We camp near the lake.",
+    "instrument": "I play an instrument.", "dollar": "The toy is one dollar.", "cent": "The apple is one cent.", "print": "Please print this page.", "camp": "We camp near the lake.",
     "supply": "We need a supply of food.", "material": "This is a soft material.", "property": "The house is on my property.", "noon": "We eat at noon.",
     "month": "May is a month.", "nine": "I have nine cats.", "twenty": "We have twenty cats.", "century": "A century is a hundred years.",
     "neighbor": "My neighbor has a dog.", "chief": "The chief has a big hat.", "colony": "The colony is by the sea.", "human": "I am a human.", "character": "She is a character in the story.",
