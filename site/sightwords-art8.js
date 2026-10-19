@@ -305,7 +305,7 @@
     capital: [["skyscraper", 80, G, 1.2, {}], ["skyscraper", 154, G, 1.4, {}], ["skyscraper", 196, G, 0.9, {}], ["flagpole", 118, G, 0.9, {}], ["star", 154, 18, 0.8]],
     nation: [["flagpole", 120, G, 1.25, {}], ["kid", 60, G, 1.3, kb("cheer", { look: 1, mouth: "open" })], ["kid", 180, G, 1.3, kg("cheer", { look: -1, mouth: "open" })], ["heart", 146, 24, 0.7]],
     subject: [["blackboard", 150, G - 22, 1.5, {}], ["txt", 150, G - 56, 1, { t: "ART", size: 28, c: "#FFFFFE" }], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })], ["heart", 100, 46, 0.8]],
-    history: [["castle", 156, G, 1.0, {}], ["scroll", 60, G - 8, 1.2, {}], ["hourglass", 100, G - 4, 1.0, {}], ["sparkle", 196, 36, 0.8]],
+    history: [["kid", 66, G, 1.4, kb("holdbook", { look: 0, mouth: "open", arms: "none" })], ["book", 66, G - 34, 0.9, {}], ["kid", 66, G, 1.4, kb("holdbook", { arms: "only" })], ["thought", 164, 52, 1.2, { w: 112, h: 76, inner: [["castle", -24, 30, 0.3, {}], ["hourglass", 30, 28, 0.75, {}]] }]],
     period: [["txt", 80, 100, 1, { t: "I see", size: 46, c: "#1E2A4A" }], ["reddot", 150, 96, 1.5, {}], ["circ", 150, 94, 1.0, { r: 20 }], ["arrow", 0, 0, 1, { x1: 190, y1: 56, x2: 164, y2: 82, c: P }]],
     age: [["candlecake", 160, G, 1.6, {}], ["kid", 70, G, 1.5, kb("cheer", { mouth: "open" })], ["qm", 120, 38, 1.1]],
     position: [["dog", 120, 124, 1.6, {}], ["cross", 120, 146, 0.8, {}], ["hl", 120, 142, 1.0, { r: 22 }], ["sparkle", 176, 60, 0.8]],
@@ -325,7 +325,7 @@
     result: [["scoreboard", 120, G, 1.4, { a: 5, b: 2 }], ["check", 186, 44, 1.2], ["heart", 56, 40, 0.9]],
     // ---- Frozen lake
     climb: [["snowslope", 0, 0, 1, {}], ["kid", 70, 112, 0.9, kb("walk", { look: 1, mouth: "open" })], ["kid", 116, 94, 0.8, kg("walk", { look: 1, mouth: "open" })], ["flag", 204, 62, 1.0, {}]],
-    catch: [["curve", 0, 0, 1, { x1: 200, y1: 24, cx: 160, cy: 20, x2: 112, y2: 62, c: "#6A48E8", w: 2.4, dash: true }], ["kid", 100, G, 1.5, kb("cup", { look: 0, mouth: "open", arms: "none" })], ["ball", 100, 108, 1.2, {}], ["kid", 100, G, 1.5, kb("cup", { arms: "only" })], ["sparkle", 150, 60, 0.9], ["heart", 56, 46, 0.8]],
+    catch: [["kid", 100, G, 1.5, kb("cup", { look: 0, mouth: "open", arms: "none" })], ["ball", 100, 108, 1.2, {}], ["kid", 100, G, 1.5, kb("cup", { arms: "only" })], ["curve", 0, 0, 1, { x1: 210, y1: 26, cx: 168, cy: 22, x2: 110, y2: 84, c: "#6A48E8", w: 2.4, dash: true }], ["sparkle", 160, 66, 0.9], ["heart", 56, 46, 0.8]],
     push: [["kid", 50, G, 1.5, kb("push", { look: 1, mouth: "open" })], ["crate", 142, G, 1.4, {}], ["sweat", 48, 52, 0.8], ["arrow", 0, 0, 1, { x1: 176, y1: 60, x2: 214, y2: 60, c: P }]],
     lift: [["kid", 120, G, 1.4, kb("lift", { look: 0, mouth: "open" })], ["box", 120, 46, 1.0, {}], ["sweat", 158, 70, 0.8]],
     throw: [["kid", 56, G, 1.4, kb("throw", { look: 1, mouth: "open", arms: "none" })], ["ball", 91, 38, 1.1, {}], ["kid", 56, G, 1.4, kb("throw", { arms: "only" })], ["curve", 0, 0, 1, { x1: 104, y1: 36, cx: 166, cy: -26, x2: 224, y2: 112, c: "#6A48E8", w: 2.6, dash: true }], ["whoosh", 78, 34, 0.8, {}]],
