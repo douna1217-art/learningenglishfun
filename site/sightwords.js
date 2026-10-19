@@ -1381,6 +1381,34 @@
       "#swOverlay .sw-rlr{display:flex;justify-content:center;gap:22px;margin:12px 0 4px}" +
       "#swOverlay .sw-dpw{width:110px}" +
       "#swOverlay .sw-g8{background:#E4D9FF;box-shadow:0 6px 0 #AE97F0}" +
+      "#swOverlay .sw-g9{background:#FBE9C6;box-shadow:0 6px 0 #E3B96A}" +
+      "#swOverlay .sw-dcase{display:flex;align-items:center;justify-content:center;gap:16px;margin:10px 0 0}" +
+      "#swOverlay .sw-dcase .sw-mpet{width:54px;margin:0}" +
+      "#swOverlay .sw-dsil{font-size:46px;line-height:1;filter:brightness(0) opacity(.55)}" +
+      "#swOverlay .sw-dslots{display:flex;gap:6px}" +
+      "#swOverlay .sw-dslot{font-style:normal;font-size:22px;background:#EEF2F8;border-radius:12px;padding:4px 8px;filter:grayscale(1) opacity(.45)}" +
+      "#swOverlay .sw-dslot.sw-on{filter:none;background:#FFF1C2;box-shadow:0 0 0 2px #FFC93C}" +
+      "#swOverlay .sw-desk{display:flex;flex-wrap:wrap;gap:14px 12px;justify-content:center;margin:14px 0 4px;padding:14px 10px;border-radius:22px;background:linear-gradient(#C99A66,#A87846);box-shadow:inset 0 0 0 4px #E0BC8A}" +
+      "#swOverlay .sw-fold{position:relative;width:104px;height:78px;background:#F4D58A;border-radius:6px 12px 10px 10px;box-shadow:0 5px 0 #C9A04A;transition:transform .2s}" +
+      "#swOverlay .sw-fold:hover{transform:translateY(-3px)}" +
+      "#swOverlay .sw-ftab{position:absolute;left:0;top:-9px;width:42px;height:12px;background:#F4D58A;border-radius:6px 6px 0 0}" +
+      "#swOverlay .sw-flb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border:2.5px solid #C9A04A;border-radius:10px;padding:2px 10px 3px;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#1E2A4A;white-space:nowrap}" +
+      "#swOverlay .sw-fold.sw-empty{background:#D8D2C4;box-shadow:0 2px 0 #A8A090;transform:rotate(-4deg);animation:swshake .4s}" +
+      "#swOverlay .sw-fold.sw-empty .sw-flb{opacity:.45}" +
+      "#swOverlay .sw-fold.sw-open{background:#9EE0A8;box-shadow:0 2px 0 #4FA864;transform:translateY(-6px) scale(1.06)}" +
+      "#swOverlay .sw-fold.sw-hint{animation:swgoldb .45s ease-in-out infinite alternate;background:#FFD84A}" +
+      "#swOverlay .sw-dpol{position:relative;display:inline-block;background:#fff;border-radius:10px;padding:8px 8px 10px;box-shadow:0 5px 0 #C9D7E8;transform:rotate(-2deg);animation:swpopin2 .45s cubic-bezier(.2,1.4,.4,1)}" +
+      "@keyframes swpopin2{from{transform:rotate(-2deg) scale(.3);opacity:0}to{transform:rotate(-2deg) scale(1);opacity:1}}" +
+      "#swOverlay .sw-dpol .sw-pic{width:200px;max-width:100%}" +
+      "#swOverlay .sw-dcap{font-weight:800;font-size:16px;margin-top:6px;max-width:230px}" +
+      "#swOverlay .sw-dstamp{position:absolute;right:-10px;top:-12px;background:#E5483A;color:#fff;font-weight:800;font-size:14px;padding:2px 10px;border-radius:8px;transform:rotate(8deg);z-index:2}" +
+      "#swOverlay .sw-dfound{min-height:6px;margin-top:10px}" +
+      "#swOverlay .sw-dbig{font-size:90px;line-height:1.1;margin:6px 0}" +
+      "#swOverlay .sw-dpop{animation:swpopin2 .6s cubic-bezier(.2,1.4,.4,1)}" +
+      "#swOverlay .sw-fnew2{display:inline-block;background:#FF6B4A;color:#fff;font-size:13px;border-radius:999px;padding:2px 9px;vertical-align:middle}" +
+      "#swOverlay .sw-dth{position:relative;font-size:38px}" +
+      "#swOverlay .sw-dgal{font-size:54px;line-height:1.2}" +
+      "#swOverlay .sw-dsilh{filter:brightness(0) opacity(.4)}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -1514,7 +1542,7 @@
     return top;
   }
   // the games on show on the home page: two for each pair of stages (the others are under "More games"); ?stage=N tries another stage
-  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "feed"]];
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "detective"]];
   function gameSetNo(s) {
     var m = /[?&]stage=(\d)/.exec((root.location && root.location.search) || ""),
       st = m ? +m[1] : reachedStage(s);
@@ -1616,6 +1644,7 @@
         snake: { id: "swSnake", cls: "sw-g6", icon: "snake", label: "Word snake" },
         runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word racer" },
         slash: { id: "swSlash2", cls: "sw-g8", icon: "slash", label: "Word slash" },
+        detective: { id: "swDet", cls: "sw-g9", icon: "detective", label: "Word detective" },
       },
       mainG = GAMESETS[gameSetNo(s) - 1],
       moreG = Object.keys(GM).filter(function (k) {
@@ -1669,6 +1698,9 @@
       },
       swSlash2: function () {
         startSlash(gameWords(s, 8));
+      },
+      swDet: function () {
+        startDetective(gameWords(s, 8));
       },
     };
     Object.keys(starters).forEach(function (id) {
@@ -2570,7 +2602,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -5294,6 +5326,286 @@
     last = Date.now();
     hud();
     draw();
+  }
+
+  /* ---- Word detective: a case has four clues. Each clue is a row of folders with words on them: hear a word and open the folder that has it. A right folder shows a photo
+     (the picture of the word) and the clue is read out; four clues solve the case and unmask the culprit, who joins the gallery. Wrong folders are empty.
+     The more the child gets right, the more folders (and look-alike words) there are ---- */
+  var DETKEY = "lef_detective_v1",
+    DETCASES = [
+      { id: "raccoon", e: "🦝", name: "Rascal Raccoon", q: "Who took the cookies?", did: "He took the cookies from the jar." },
+      { id: "fox", e: "🦊", name: "Sly Fox", q: "Who hid the red hat?", did: "She hid the hat under the bed." },
+      { id: "owl", e: "🦉", name: "Night Owl", q: "Who borrowed the book?", did: "He read the book all night long." },
+      { id: "pig", e: "🐷", name: "Muddy Pig", q: "Who splashed the paint?", did: "He jumped in the paint, splash!" },
+      { id: "parrot", e: "🦜", name: "Chatty Parrot", q: "Who told the secret?", did: "She could not keep a secret." },
+      { id: "monkey", e: "🐵", name: "Cheeky Monkey", q: "Who ran off with the banana?", did: "He swung away with the banana." },
+      { id: "croc", e: "🐊", name: "Snappy Croc", q: "Who snapped the ribbon?", did: "He snapped the ribbon with his teeth." },
+      { id: "rex", e: "🦖", name: "Tiny Rex", q: "Who stomped the garden?", did: "He stomped on the flowers." },
+    ];
+  function readDet() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(DETKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { got: o.got && typeof o.got === "object" ? o.got : {}, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeDet(o) {
+    try {
+      ls.setItem(DETKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function detFound(o) {
+    return DETCASES.filter(function (c) {
+      return o.got[c.id] > 0;
+    }).length;
+  }
+  function startDetective(words) {
+    gameTag = "game";
+    trk("sw_game_start", "detective", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 6),
+      rnd = seeded((Date.now() % 4421) + 31),
+      store = readDet(),
+      lvl = store.lvl,
+      first = {},
+      solved = [],
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      clues = 0,
+      help = 0,
+      lastWrong = false,
+      spdNote = "",
+      cs = null,
+      my = null,
+      timers = [];
+    var CASELEN = 4;
+    function alive() {
+      return !!my && run === my;
+    }
+    function later(fn, ms) {
+      var t = setTimeout(function () {
+        if (alive()) fn();
+      }, ms);
+      timers.push(t);
+      return t;
+    }
+    function pickCase() {
+      var fresh = DETCASES.filter(function (c) {
+          return !(store.got[c.id] > 0) && solved.indexOf(c) < 0;
+        }),
+        any = DETCASES.filter(function (c) {
+          return solved.indexOf(c) < 0;
+        }),
+        list = fresh.length && rnd() < 0.8 ? fresh : any;
+      return list[Math.floor(rnd() * list.length)];
+    }
+    function folders() {
+      return Math.max(2, 3 + (lvl >= 3 ? 1 : 0) + (lvl >= 6 ? 1 : 0) - (help > 0 ? 1 : 0));
+    }
+    function dots() {
+      var d = 1 + Math.round(lvl / 2);
+      return "Level " + new Array(d + 1).join("●") + new Array(6 - d).join("○") + spdNote;
+    }
+    function hud() {
+      var a = document.getElementById("swDsc"),
+        b = document.getElementById("swDcb"),
+        c = document.getElementById("swDlv");
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = dots();
+    }
+    function pace(up) {
+      spdNote = up ? " 🔼" : " 🔽";
+      later(function () {
+        spdNote = "";
+        hud();
+      }, 1800);
+    }
+    function finish() {
+      var found = readDet();
+      solved.forEach(function (c) {
+        found.got[c.id] = (found.got[c.id] || 0) + 1;
+      });
+      found.lvl = lvl;
+      writeDet(found);
+      var thumbs = solved
+          .map(function (c) {
+            return '<span class="sw-dth">' + c.e + (store.got[c.id] > 0 ? "" : '<b class="sw-fnew">NEW</b>') + "</span>";
+          })
+          .join(""),
+        extra = '<div class="sw-fcatch">' + thumbs + '</div><div class="sw-fcount">Culprit gallery: ' + detFound(found) + " / " + DETCASES.length + ' culprits</div><button class="sw-say sw-alt" id="swGal">Look at the gallery</button>' +
+          '<div class="sw-stage"><div class="sw-pet sw-pets sw-hop">' + petArt("happy") + "</div></div>";
+      endGame("d", first, "Word detective", function (r, t) {
+        return r >= t ? "Super detective!" : "Cases solved!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startDetective(gameWords(readState(), 8));
+      }, extra, function () {
+        var b = document.getElementById("swGal");
+        if (b) b.onclick = showGallery;
+      });
+    }
+    function show() {
+      if (!alive()) return;
+      if (i >= words.length) {
+        finish();
+        return;
+      }
+      if (clues === 0 || !cs) cs = pickCase();
+      var w = words[i],
+        k = wkey(w),
+        n = folders(),
+        opts = shuffle([w].concat(distractors(w, pool, rnd, words, n - 1)).slice(0, n), rnd),
+        tries = 0,
+        busy = false,
+        caseNo = Math.floor(i / CASELEN) + 1,
+        slots = "";
+      if (help > 0) help--;
+      for (var q = 0; q < CASELEN; q++) slots += '<i class="sw-dslot' + (q < clues ? " sw-on" : "") + '">🔍</i>';
+      box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Case ' + caseNo + " · clue " + (clues + 1) + " / " + CASELEN + "</span></div>" +
+        '<div class="sw-card"><div class="sw-kind">Word detective</div><div class="sw-sent" style="font-size:21px">Who did it? Find all four clues!<br><small>Open the folder with the word you hear.</small></div>' +
+        '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button>' +
+        '<div class="sw-dcase"><div class="sw-fpet sw-mpet" id="swDpet">' + petArt("happy") + '</div><div class="sw-dsil" id="swDsil">' + cs.e + '</div><div class="sw-dslots">' + slots + '</div></div>' +
+        '<div class="sw-mhud"><span class="sw-msc" id="swDsc"></span><span class="sw-mcb" id="swDcb"></span><span class="sw-spd" id="swDlv"></span></div>' +
+        '<div class="sw-desk" id="swDesk">' + opts.map(function (o) {
+          return '<button class="sw-fold" data-w="' + esc(o) + '"><span class="sw-ftab"></span><span class="sw-flb">' + esc(o) + "</span></button>";
+        }).join("") + '</div><div class="sw-dfound" id="swDfound"></div><div class="sw-msg" id="swMsg"></div></div>';
+      bindQuit();
+      hud();
+      function say(t) {
+        var m = document.getElementById("swMsg");
+        if (m) m.textContent = t;
+      }
+      function wiggle() {
+        var pe = document.getElementById("swDpet");
+        if (!pe) return;
+        pe.innerHTML = petArt("excited");
+        pe.classList.remove("sw-fwig");
+        void pe.offsetWidth;
+        pe.classList.add("sw-fwig");
+        later(function () {
+          var p2 = document.getElementById("swDpet");
+          if (p2) {
+            p2.classList.remove("sw-fwig");
+            p2.innerHTML = petArt("happy");
+          }
+        }, 1300);
+      }
+      document.getElementById("swHear").onclick = function () {
+        play("w", w);
+      };
+      Array.prototype.forEach.call(box.querySelectorAll(".sw-fold"), function (b) {
+        b.onclick = function () {
+          if (busy || b.classList.contains("sw-open") || b.classList.contains("sw-empty")) return;
+          var right = wkey(b.getAttribute("data-w")) === k;
+          if (first[k] === undefined) first[k] = right;
+          else if (!right) first[k] = false;
+          if (!right) {
+            tries++;
+            combo = 0;
+            lvl = Math.max(0, lvl - 0.8);
+            if (tries >= 2 || lastWrong) help = 2;
+            pace(false);
+            b.classList.add("sw-empty");
+            sfx("poke");
+            say("This folder is empty! Listen again.");
+            hud();
+            later(function () {
+              play("w", w);
+            }, 700);
+            if (tries >= 2)
+              Array.prototype.forEach.call(box.querySelectorAll(".sw-fold"), function (o) {
+                if (wkey(o.getAttribute("data-w")) === k) o.classList.add("sw-hint");
+              });
+            return;
+          }
+          busy = true;
+          b.classList.add("sw-open");
+          lastWrong = tries > 0;
+          if (tries === 0) {
+            lvl = Math.min(8, lvl + 0.6);
+            pace(true);
+          }
+          combo++;
+          if (combo > bestCombo) bestCombo = combo;
+          var pts = 10 + Math.min(combo, 6) * 3;
+          score += pts;
+          clues++;
+          sfx("sparkle");
+          wiggle();
+          hud();
+          try {
+            if (hooks.burst && combo >= 3) {
+              var br = b.getBoundingClientRect();
+              hooks.burst(br.left + br.width / 2, br.top);
+            }
+          } catch (e) {}
+          var f = document.getElementById("swDfound");
+          f.innerHTML = '<div class="sw-dpol"><div class="sw-dstamp">CLUE!</div>' + art(w, true) + '<div class="sw-dcap">' + esc((wordInfo(w) || {}).s || w) + "</div></div>";
+          var sl = box.querySelectorAll(".sw-dslot")[clues - 1];
+          if (sl) sl.classList.add("sw-on");
+          say((combo >= 3 ? "Combo ×" + combo + "! " : "Clue found! ") + "+" + pts);
+          var moved = false;
+          function next() {
+            if (moved || !alive()) return;
+            moved = true;
+            i++;
+            if (clues >= CASELEN) solve();
+            else show();
+          }
+          play("s", w, function () {
+            later(next, 700);
+          });
+          later(next, 7500);
+        };
+      });
+      later(function () {
+        play("w", w);
+      }, 500);
+    }
+    // four clues: the culprit is unmasked
+    function solve() {
+      var c = cs;
+      solved.push(c);
+      clues = 0;
+      cs = null;
+      score += 30;
+      sfx("big");
+      try {
+        if (hooks.burst) hooks.burst(root.innerWidth / 2, 240);
+      } catch (e) {}
+      var isNew = !(store.got[c.id] > 0) && !solved.slice(0, -1).some(function (x) {
+          return x.id === c.id;
+        });
+      box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Case solved!</span></div>' +
+        '<div class="sw-card"><div class="sw-kind">Case solved!</div><div class="sw-dbig sw-dpop">' + c.e + '</div><div class="sw-big" style="font-size:38px">' + esc(c.name) + (isNew ? ' <small class="sw-fnew2">NEW</small>' : "") + '</div><div class="sw-sent" style="font-size:20px">' + esc(c.did) + '</div><div class="sw-fcount">+30 for solving the case</div><button class="sw-go" id="swDnext">' + (i >= words.length ? "Finish" : "Next case →") + "</button></div>";
+      bindQuit();
+      document.getElementById("swDnext").onclick = function () {
+        if (i >= words.length) finish();
+        else show();
+      };
+    }
+    my = run = { mode: "detective", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      timers.forEach(clearTimeout);
+      my = null;
+    };
+    show();
+  }
+  // the culprits caught so far, and the ones still on the run
+  function showGallery() {
+    trk("sw_view", "gallery", "", "screen");
+    var found = readDet(),
+      h = '<div class="sw-top"><button class="sw-back" id="swClose">← Back</button></div><div class="sw-ttl"><span class="sw-aa">🕵️</span><div><h1>Culprit gallery</h1><div class="sw-sub">' + detFound(found) + " of " + DETCASES.length + ' culprits caught · solve cases in Word detective</div></div></div><div class="sw-aq">';
+    DETCASES.forEach(function (c) {
+      var have = found.got[c.id] > 0;
+      h += '<div class="sw-aqc' + (have ? "" : " sw-aqno") + '"><div class="sw-dgal' + (have ? "" : " sw-dsilh") + '">' + c.e + '</div><div class="sw-aqn">' + (have ? esc(c.name) : "???") + '</div><div class="sw-aqr" style="color:#6A48E8">' + (have ? "Caught ×" + found.got[c.id] : "Still on the run") + "</div></div>";
+    });
+    box.innerHTML = h + "</div>";
+    document.getElementById("swClose").onclick = showHome;
   }
 
   /* ---- feed your pet words: the pet asks for a snack, you give it the right plate; every bite makes it feel better and it never goes back ---- */
