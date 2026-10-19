@@ -49,6 +49,12 @@
     } else if (kind === "spell") {
       inner = bub(26, 50, 19, "#FF8FB1", "A") + bub(56, 30, 21, "#6AA7FF", "B") + bub(78, 58, 17, "#FFC93C", "C") +
         '<path d="M86 14 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z" fill="#FFE066"/>';
+    } else if (kind === "fish") {
+      inner = '<path d="M62 2 L62 52" stroke="#8795B4" stroke-width="2.4" stroke-linecap="round"/><path d="M62 52 Q62 60 56 58" fill="none" stroke="#8795B4" stroke-width="2.4" stroke-linecap="round"/>' +
+        '<path d="M0 44 Q12 38 25 44 T50 44 T75 44 T100 44 L100 84 L0 84Z" fill="#4FB8EE"/><path d="M0 60 Q12 54 25 60 T50 60 T75 60 T100 60 L100 84 L0 84Z" fill="#2A86D6"/>' +
+        '<path d="M26 66 L12 56 Q17 66 12 76Z" fill="#FFB070"/><ellipse cx="40" cy="66" rx="19" ry="12.5" fill="#FF8A3D"/><path d="M38 54 Q41 66 38 78" fill="none" stroke="#fff" stroke-width="4" opacity=".9"/><circle cx="50" cy="63" r="3" fill="#fff"/><circle cx="51" cy="63.3" r="1.5" fill="#1E2A4A"/>' +
+        '<path d="M88 74 L96 69 Q94 74 96 79Z" fill="#FFE680"/><ellipse cx="80" cy="74" rx="9" ry="6" fill="#FFC400"/><circle cx="84" cy="72.5" r="1.4" fill="#1E2A4A"/>' +
+        '<circle cx="22" cy="40" r="3" fill="#EAF7FF" opacity=".8"/><circle cx="14" cy="32" r="2" fill="#EAF7FF" opacity=".7"/>';
     } else {
       inner = '<path d="M50 24 C41 12 28 22 36 32 L50 46 L64 32 C72 22 59 12 50 24Z" fill="#FF6B8A"/>' +
         '<ellipse cx="46" cy="58" rx="16" ry="8" fill="#35B2B7"/><polygon points="60,58 74,49 74,67" fill="#35B2B7"/><circle cx="37" cy="56" r="2.4" fill="#1E2A4A"/>' +
