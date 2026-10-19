@@ -12,7 +12,7 @@
   "use strict";
 
   // the clips are cached by phones and the CDN: bump this when site/sightwords/audio changes (the voice script says when)
-  var AUDIO_V = "2",
+  var AUDIO_V = "3",
     KEY = "lef_words_v1",
     INT = { 1: 1, 2: 2, 3: 4, 4: 7, 5: 15 };
 
