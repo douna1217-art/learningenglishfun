@@ -121,7 +121,7 @@
   // a bowl of paint being mixed with a spoon (the middle of the bottom is the origin)
   KITS.mixbowl = function (o) {
     var s = '<path d="M-26 -20 H26 Q24 0 0 0 Q-24 0 -26 -20Z" ' + f("#FFFFFE", 2.4) + '/><ellipse cx="0" cy="-20" rx="26" ry="7" fill="#FFB3C7" stroke="' + dk("#FFB3C7") + '" stroke-width="2"/><path d="M-14 -20 Q-6 -26 0 -20 Q6 -14 14 -20" fill="none" stroke="#4FA8F0" stroke-width="5" stroke-linecap="round"/><path d="M-8 -22 Q0 -17 8 -22" fill="none" stroke="#FFD23F" stroke-width="3.4" stroke-linecap="round"/>';
-    s += '<path d="M2 -22 L22 -52" stroke="#8A5A2B" stroke-width="4.6" stroke-linecap="round"/><path d="M2 -22 L22 -52" stroke="#C98B4A" stroke-width="2.2" stroke-linecap="round"/>';
+    if (!o.nostick) s += '<path d="M2 -22 L22 -52" stroke="#8A5A2B" stroke-width="4.6" stroke-linecap="round"/><path d="M2 -22 L22 -52" stroke="#C98B4A" stroke-width="2.2" stroke-linecap="round"/>';
     return s;
   };
   // a pot with a flower vase (the middle of the bottom is the origin)
@@ -323,7 +323,7 @@
     stretch: [["kid", 120, G, 1.4, kb("lift", { mouth: "o", look: 0 })], ["sunbig", 206, 40, 0.7, {}], ["sparkle", 56, 60, 0.8]],
     roll: [["hill", 110, G, 1.0, {}], ["ball", 80, 88, 2.2, { c: "#FFFFFE" }], ["whoosh", 56, 76, 1.0, {}], ["arrow", 0, 0, 1, { x1: 110, y1: 70, x2: 160, y2: 104, c: P }]],
     burn: [["logs", 120, G, 1.6, {}], ["fire", 120, G - 12, 1.5, {}], ["sparkle", 178, 50, 0.8], ["sparkle", 64, 56, 0.7]],
-    mix: [["mixbowl", 120, G, 2.0, {}], ["kid", 52, G, 1.4, kb("reach", { look: 1, mouth: "open" })], ["sparkle", 186, 52, 0.8]],
+    mix: [["mixbowl", 152, G, 2.0, { nostick: true }], ["kid", 78, G, 1.5, kb("point", { look: 1, mouth: "open", arms: "none" })], ["line", 0, 0, 1, { x1: 124, y1: 52, x2: 148, y2: 100, c: "#C98B4A", w: 4.6 }], ["kid", 78, G, 1.5, kb("point", { arms: "only" })], ["sparkle", 206, 44, 0.8]],
     shout: [["kid", 78, G, 1.6, kb("cheer", { look: 1, mouth: "open" })], ["dog", 190, G, 1.1, {}], ["bubble", 150, 36, 1.0, { w: 86, h: 40, inner: [["txt", 0, 7, 1, { t: "HEY!", size: 20, c: "#E5483A" }]] }]],
     join: [["kid", 40, G, 1.3, kb("run", { look: 1, mouth: "open" })], ["kid", 140, G, 1.3, kg("hands", { look: 0, mouth: "open" })], ["kid", 182, G, 1.3, ky("hands", { look: 0, mouth: "open" })], ["ball", 160, G, 1.3, {}], ["arrow", 0, 0, 1, { x1: 66, y1: 60, x2: 110, y2: 60, c: P }]],
     enter: [["doorway", 170, G, 1.7, {}], ["kid", 90, G, 1.5, kb("walk", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 112, y1: 54, x2: 150, y2: 54, c: P }], ["txt", 170, 24, 1, { t: "ENTER", size: 16, c: "#6A48E8" }]],
