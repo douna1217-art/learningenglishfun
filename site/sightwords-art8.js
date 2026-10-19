@@ -376,7 +376,7 @@
     major: [["line", 0, 0, 1, { x1: 0, y1: 108, x2: 240, y2: 108, c: "#7B8394", w: 30 }], ["line", 0, 0, 1, { x1: 10, y1: 108, x2: 230, y2: 108, dash: true, c: "#FFE066", w: 3 }], ["car", 56, 112, 0.7, {}], ["truck", 138, 114, 0.6, {}], ["signpost", 208, G, 0.7, {}]],
     probable: [["raincloud", 110, 56, 1.8, {}], ["txt", 110, 98, 1, { t: "80%", size: 34, c: "#3D5AFE" }], ["umbrella", 196, G, 1.0, {}], ["qm", 190, 40, 0.9]],
     vary: [["hat", 40, G, 1.2, { c: "#3D8BF2" }], ["hat", 80, G, 1.2, { c: "#FFD23F" }], ["hat", 120, G, 1.2, { c: "#E5483A" }], ["hat", 160, G, 1.2, { c: "#7ED957" }], ["hat", 200, G, 1.2, { c: "#B58AE8" }], ["sparkle", 120, 60, 1.0]],
-    prove: [["kid", 70, G, 1.5, kb("grip", { look: 1, mouth: "open", arms: "none" })], ["paper", 70, G - 33, 0.72, {}], ["kid", 70, G, 1.5, kb("grip", { arms: "only" })], ["check", 160, 70, 1.7], ["sparkle", 56, 44, 0.8]],
+    prove: [["kid", 66, G, 1.5, kb("point", { look: 1, mouth: "open", arms: "none" })], ["paper", 121, 90, 0.8, { rot: -8 }], ["kid", 66, G, 1.5, kb("point", { arms: "only" })], ["check", 196, 56, 1.4], ["sparkle", 50, 44, 0.8]],
     represent: [["flagpole", 46, G, 1.3, {}], ["txt", 96, 92, 1, { t: "=", size: 38, c: P }], ["kid", 142, G, 1.2, kr("stand", { mouth: "open" })], ["kid", 178, G, 1.2, kr("cheer", { mouth: "open" })], ["kid", 212, G, 1.2, kr("stand", { mouth: "open" })]],
     indicate: [["signpost", 140, G, 1.8, {}], ["kid", 62, G, 1.5, kb("look", { look: 1, mouth: "open" })], ["sparkle", 196, 40, 0.8]],
     locate: [["mapboard", 160, G, 1.5, {}], ["mappin", 176, 64, 1.0, {}], ["kid", 60, G, 1.5, kb("point", { look: 1, mouth: "open" })], ["qm", 100, 40, 1.0]],
