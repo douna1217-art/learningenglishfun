@@ -49,6 +49,12 @@
     } else if (kind === "spell") {
       inner = bub(26, 50, 19, "#FF8FB1", "A") + bub(56, 30, 21, "#6AA7FF", "B") + bub(78, 58, 17, "#FFC93C", "C") +
         '<path d="M86 14 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z" fill="#FFE066"/>';
+    } else if (kind === "slash") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#6A48E8"/><circle cx="82" cy="14" r="7" fill="#FFF3B0"/><circle cx="14" cy="10" r="1.6" fill="#fff"/><circle cx="40" cy="20" r="1.2" fill="#fff"/><circle cx="66" cy="8" r="1.4" fill="#fff"/>' +
+        '<path d="M22 40 A20 20 0 0 1 56 24 L40 54 Z" fill="#E5483A"/><path d="M26 44 A20 20 0 0 0 44 62 L58 30 Z" fill="#E5483A" transform="translate(6 8)"/>' +
+        '<path d="M26 40 A15 15 0 0 1 52 28" fill="none" stroke="#FFD3C9" stroke-width="3"/>' +
+        '<path d="M8 74 L92 14" stroke="#fff" stroke-width="3.4" stroke-linecap="round" opacity=".95"/><path d="M12 78 L96 18" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".5"/>' +
+        '<circle cx="74" cy="56" r="14" fill="#3D8BF2"/><rect x="62" y="52" width="24" height="9" rx="4.5" fill="#fff"/><text x="74" y="59.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="8" fill="#1E2A4A">go</text>';
     } else if (kind === "runner") {
       inner = '<rect x="0" y="0" width="100" height="30" fill="#BFE6FF"/><rect x="0" y="30" width="100" height="54" fill="#9ADF8A"/><path d="M42 30 L58 30 L92 84 L8 84Z" fill="#6C7A93"/>' +
         '<path d="M50 32 L50 40 M50 46 L50 56 M50 62 L50 76" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M45 30 L26 84 M55 30 L74 84" stroke="#fff" stroke-width="1.6" opacity=".8"/>' +

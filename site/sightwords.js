@@ -1380,6 +1380,7 @@
       "#swOverlay .sw-rwrap .sw-snk{margin:0}" +
       "#swOverlay .sw-rlr{display:flex;justify-content:center;gap:22px;margin:12px 0 4px}" +
       "#swOverlay .sw-dpw{width:110px}" +
+      "#swOverlay .sw-g8{background:#E4D9FF;box-shadow:0 6px 0 #AE97F0}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -1513,7 +1514,7 @@
     return top;
   }
   // the games on show on the home page: two for each pair of stages (the others are under "More games"); ?stage=N tries another stage
-  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["mole", "feed"]];
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "feed"]];
   function gameSetNo(s) {
     var m = /[?&]stage=(\d)/.exec((root.location && root.location.search) || ""),
       st = m ? +m[1] : reachedStage(s);
@@ -1614,6 +1615,7 @@
         mem: { id: "swMem", cls: "sw-g1", icon: "memory", label: "Memory match" },
         snake: { id: "swSnake", cls: "sw-g6", icon: "snake", label: "Word snake" },
         runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word racer" },
+        slash: { id: "swSlash2", cls: "sw-g8", icon: "slash", label: "Word slash" },
       },
       mainG = GAMESETS[gameSetNo(s) - 1],
       moreG = Object.keys(GM).filter(function (k) {
@@ -1664,6 +1666,9 @@
       },
       swRunner: function () {
         startRunner(gameWords(s, 6));
+      },
+      swSlash2: function () {
+        startSlash(gameWords(s, 8));
       },
     };
     Object.keys(starters).forEach(function (id) {
@@ -2565,7 +2570,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -4554,6 +4559,520 @@
     last = Date.now();
     hud();
     draw(Date.now());
+  }
+
+  /* ---- Word slash: word orbs fly up from the bottom of the picture; hear a word and slash the orb that carries it (drag a finger or the mouse through it, or tap it).
+     A wrong orb breaks sadly, a bomb costs a few points; a right slash sprays juice. The speed follows the child's accuracy ---- */
+  var SLASHKEY = "lef_slash_v1";
+  function readSlash() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(SLASHKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, cuts: +o.cuts || 0, lvl: o.lvl === undefined ? 1.5 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeSlash(o) {
+    try {
+      ls.setItem(SLASHKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  var ORBC = ["#E5483A", "#FF8A3D", "#35B779", "#3D8BF2", "#8B6BE8", "#FF6FA0"];
+  function startSlash(words) {
+    gameTag = "game";
+    trk("sw_game_start", "slash", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 4909) + 23),
+      store = readSlash(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      cutsN = 0,
+      tries = 0,
+      lastWrong = false,
+      help = 0,
+      spdNote = "",
+      done = false,
+      busy = false,
+      wait = 0.5,
+      orbs = [],
+      halves = [],
+      parts = [],
+      texts = [],
+      trail = [],
+      cur = null,
+      shakeUntil = 0,
+      last = 0,
+      my = null,
+      raf = null,
+      cv = null,
+      ctx = null,
+      W = 340,
+      H = 360,
+      R = 36,
+      ptr = null,
+      mist = 0;
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function grav() {
+      return 360 * Math.pow(1.1, lvl);
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swLsc"),
+        d = document.getElementById("swLcb"),
+        c = document.getElementById("swLsp"),
+        dots = 1 + Math.round(lvl / 2);
+      if (a) a.textContent = "Score " + score;
+      if (d) d.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○") + spdNote;
+    }
+    function pace(up) {
+      spdNote = up ? " 🐇" : " 🐢";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best;
+      store.best = Math.max(store.best, score);
+      store.cuts += cutsN;
+      store.lvl = lvl;
+      writeSlash(store);
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Words sliced in all: " + store.cuts + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      endGame("l", first, "Word slash", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startSlash(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    // launch the orbs for this word: the right one and one or two wrong ones, now and then a bomb
+    function launch() {
+      var r = rounds[i],
+        k = wkey(r.w),
+        others = r.opts
+          .filter(function (w) {
+            return wkey(w) !== k;
+          })
+          .slice(0, help > 0 ? 1 : 2),
+        list = shuffle([{ w: r.w, target: true }].concat(
+          others.map(function (w) {
+            return { w: w, target: false };
+          })
+        ), rnd),
+        g = grav();
+      if (help > 0) help--;
+      if (i >= 2 && rnd() < 0.4) list.splice(Math.floor(rnd() * (list.length + 1)), 0, { bomb: true });
+      cur = { r: r, k: k, launched: 0, total: list.length };
+      mist = mist; // the slips of this word are kept between launches
+      list.forEach(function (it, j) {
+        setTimeout(function () {
+          if (!alive() || !cur || cur.r !== r) return;
+          var h = H * (0.5 + rnd() * 0.22),
+            vy = -Math.sqrt(2 * g * h),
+            x0 = W * (0.2 + 0.6 * ((j + 0.5) / list.length)) + (rnd() - 0.5) * W * 0.08,
+            T = (2 * -vy) / g,
+            x1 = W * (0.22 + rnd() * 0.56);
+          orbs.push({ x: x0, y: H + R, vx: (x1 - x0) / T, vy: vy, w: it.w, bomb: !!it.bomb, target: !!it.target, c: ORBC[Math.floor(rnd() * ORBC.length)], rot: rnd() * 6, vr: (rnd() - 0.5) * 2, seen: false, gone: false });
+          cur.launched++;
+        }, 180 + j * 260);
+      });
+      setTimeout(function () {
+        if (alive() && cur && cur.r === r) play("w", r.w);
+      }, 300);
+    }
+    function splashAt(o, col, n) {
+      for (var q = 0; q < n; q++) {
+        var a = rnd() * 6.283,
+          sp = 80 + rnd() * 160;
+        parts.push({ x: o.x, y: o.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 60, t: Date.now(), c: col, r: 2 + rnd() * 3 });
+      }
+    }
+    function cutOrb(o, ang) {
+      if (o.gone || !alive()) return;
+      o.gone = true;
+      var now = Date.now();
+      halves.push({ x: o.x, y: o.y, vx: -80 * Math.cos(ang + 1.57) + o.vx * 0.3, vy: -80 * Math.sin(ang + 1.57) + o.vy * 0.2, ang: ang, rot: 0, vr: -2, c: o.bomb ? "#4A5878" : o.c, side: 0, t: now, w: o.w });
+      halves.push({ x: o.x, y: o.y, vx: 80 * Math.cos(ang + 1.57) + o.vx * 0.3, vy: 80 * Math.sin(ang + 1.57) + o.vy * 0.2, ang: ang, rot: 0, vr: 2, c: o.bomb ? "#4A5878" : o.c, side: 1, t: now, w: o.w });
+      if (o.bomb) {
+        splashAt(o, "#FFB84A", 14);
+        score = Math.max(0, score - 5);
+        combo = 0;
+        lvl = Math.max(0, lvl - 0.3);
+        shakeUntil = now + 450;
+        texts.push({ x: o.x, y: o.y, t: now, s: "−5 💥", c: "#FF6B4A" });
+        sfx("poke");
+        say("Oops, a bomb! Slice only the word you hear.");
+        hud();
+        return;
+      }
+      var k = cur.k;
+      if (o.target) {
+        splashAt(o, o.c, 18);
+        if (first[k] === undefined) first[k] = true;
+        lastWrong = mist > 0;
+        if (mist === 0) {
+          lvl = Math.min(8, lvl + 0.6);
+          pace(true);
+        }
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        cutsN++;
+        var pts = 10 + Math.min(combo, 6) * 3;
+        score += pts;
+        texts.push({ x: o.x, y: o.y, t: now, s: "+" + pts, c: "#FFE066" });
+        sfx("bang");
+        say((combo >= 3 ? "Combo ×" + combo + "! " : "Slash! ") + cur.r.w + (mist === 0 && combo >= 2 ? " · Faster!" : ""));
+        try {
+          if (hooks.burst && combo >= 3) {
+            var br = cv.getBoundingClientRect();
+            hooks.burst(br.left + o.x, br.top + o.y);
+          }
+        } catch (e) {}
+        busy = true;
+        orbs.forEach(function (x) {
+          if (x !== o) x.gone = true; // the others drop away
+        });
+        mist = 0;
+        tries = 0;
+        i++;
+        if (i >= rounds.length) {
+          done = true;
+          setTimeout(function () {
+            if (my && run === my) finish();
+          }, 1100);
+        } else {
+          wait = 1.0;
+          cur = null;
+          busy = false;
+        }
+        hud();
+      } else {
+        splashAt(o, "#9FB0C8", 8);
+        first[k] = false;
+        mist++;
+        tries++;
+        combo = 0;
+        lvl = Math.max(0, lvl - 0.6);
+        if (tries >= 2 || lastWrong) help = 2;
+        pace(false);
+        sfx("poke");
+        say("Not that one! Listen again. Slowing down a little.");
+        texts.push({ x: o.x, y: o.y, t: now, s: "oops", c: "#FF6B4A" });
+        var rr = cur.r;
+        setTimeout(function () {
+          if (alive() && cur && cur.r === rr) play("w", rr.w);
+        }, 700);
+        hud();
+      }
+    }
+    // the right orb fell off the picture without being sliced: the word comes back
+    function missed() {
+      var rr = cur.r;
+      mist++;
+      tries++;
+      combo = 0;
+      lvl = Math.max(0, lvl - 0.8);
+      pace(false);
+      say("Too slow! Listen again. Slowing down a little.");
+      orbs.forEach(function (x) {
+        x.gone = true;
+      });
+      cur = null;
+      wait = 0.9;
+      var again = rr;
+      setTimeout(function () {
+        if (alive()) play("w", again.w);
+      }, 500);
+      hud();
+    }
+    function hitTest(x1, y1, x2, y2) {
+      var dx = x2 - x1,
+        dy = y2 - y1,
+        len2 = dx * dx + dy * dy,
+        ang = Math.atan2(dy, dx);
+      orbs.slice().forEach(function (o) {
+        if (o.gone || o.y > H + R) return;
+        var t = len2 ? Math.max(0, Math.min(1, ((o.x - x1) * dx + (o.y - y1) * dy) / len2)) : 0,
+          px = x1 + t * dx,
+          py = y1 + t * dy;
+        if ((o.x - px) * (o.x - px) + (o.y - py) * (o.y - py) <= (R * 1.05) * (R * 1.05)) cutOrb(o, len2 ? ang : 0.5);
+      });
+    }
+    function drawOrb(o, ts) {
+      var hint = tries >= 2 && o.target && !o.bomb,
+        blink = Math.sin(ts / 120) > 0;
+      ctx.save();
+      ctx.translate(o.x, o.y);
+      if (hint) {
+        var gl = ctx.createRadialGradient(0, 0, R * 0.5, 0, 0, R * 1.8);
+        gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+        gl.addColorStop(1, "rgba(255,214,64,0)");
+        ctx.fillStyle = gl;
+        ctx.beginPath();
+        ctx.arc(0, 0, R * 1.8, 0, 6.283);
+        ctx.fill();
+      }
+      var base = o.bomb ? "#3B4663" : hint ? (blink ? "#FFF08A" : "#FFC400") : o.c;
+      var g2 = ctx.createRadialGradient(-R * 0.3, -R * 0.35, R * 0.1, 0, 0, R);
+      g2.addColorStop(0, "rgba(255,255,255,.85)");
+      g2.addColorStop(0.35, base);
+      g2.addColorStop(1, base);
+      ctx.fillStyle = base;
+      ctx.beginPath();
+      ctx.arc(0, 0, R, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = g2;
+      ctx.globalAlpha = 0.55;
+      ctx.beginPath();
+      ctx.arc(0, 0, R, 0, 6.283);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = "rgba(30,42,74,.35)";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, R, 0, 6.283);
+      ctx.stroke();
+      if (o.bomb) {
+        ctx.fillStyle = "#fff";
+        ctx.font = "700 " + Math.round(R * 0.9) + "px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("💣", 0, 2);
+        ctx.strokeStyle = "#FFB84A";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, -R);
+        ctx.quadraticCurveTo(R * 0.3, -R * 1.3, R * 0.5, -R * 1.25);
+        ctx.stroke();
+      } else {
+        var fs = Math.round(R * 0.5),
+          tw;
+        ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+        while ((tw = ctx.measureText(o.w).width) > R * 1.5 && fs > 9) {
+          fs--;
+          ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+        }
+        ctx.fillStyle = "rgba(255,255,255,.95)";
+        ctx.strokeStyle = "rgba(30,42,74,.45)";
+        ctx.lineWidth = 1.5;
+        var pw = tw + 12,
+          ph = fs + 8;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(-pw / 2, -ph / 2, pw, ph, ph / 2);
+        else ctx.rect(-pw / 2, -ph / 2, pw, ph);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#1E2A4A";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(o.w, 0, 1);
+      }
+      ctx.restore();
+    }
+    function draw() {
+      if (!cv || done) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, Math.max(0, (ts - last) / 1000)),
+        g = grav(),
+        k;
+      last = ts;
+      // movement
+      if (!cur && !busy && wait > 0) {
+        wait -= dt;
+        if (wait <= 0 && i < rounds.length) launch();
+      }
+      orbs.forEach(function (o) {
+        o.vy += g * dt;
+        o.x += o.vx * dt;
+        o.y += o.vy * dt;
+        o.rot += o.vr * dt;
+        if (o.y < H) o.seen = true;
+      });
+      halves.forEach(function (h) {
+        h.vy += g * 1.3 * dt;
+        h.x += h.vx * dt;
+        h.y += h.vy * dt;
+        h.rot += h.vr * dt;
+      });
+      parts.forEach(function (p) {
+        p.vy += 500 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+      });
+      if (cur && !busy) {
+        var tgt = orbs.filter(function (o) {
+          return o.target && !o.gone;
+        })[0];
+        var left = orbs.filter(function (o) {
+          return !o.gone;
+        });
+        // the right orb has fallen off the bottom (after it was seen), or never showed up: the word comes back
+        if (cur.launched >= cur.total && (!tgt || (tgt.seen && tgt.y > H + R * 1.5 && tgt.vy > 0))) missed();
+        else if (cur.launched >= cur.total && !left.length) missed();
+      }
+      orbs = orbs.filter(function (o) {
+        return !o.gone && !(o.seen && o.y > H + R * 2);
+      });
+      halves = halves.filter(function (h) {
+        return ts - h.t < 1400;
+      });
+      parts = parts.filter(function (p) {
+        return ts - p.t < 800;
+      });
+      texts = texts.filter(function (t) {
+        return ts - t.t < 900;
+      });
+      trail = trail.filter(function (p) {
+        return ts - p.t < 220;
+      });
+      // drawing
+      var sh = ts < shakeUntil ? Math.sin(ts / 20) * 4 : 0;
+      ctx.save();
+      ctx.translate(sh, 0);
+      var bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, "#3A2F7A");
+      bg.addColorStop(0.6, "#6A48E8");
+      bg.addColorStop(1, "#A67BFF");
+      ctx.fillStyle = bg;
+      ctx.fillRect(-10, 0, W + 20, H);
+      ctx.fillStyle = "rgba(255,255,255,.85)";
+      for (k = 0; k < 14; k++) {
+        ctx.beginPath();
+        ctx.arc(((k * 97) % W) + 8, ((k * 53) % (H * 0.5)) + 10, 1 + (k % 3) * 0.6, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#FFF3B0";
+      ctx.beginPath();
+      ctx.arc(W * 0.8, H * 0.14, W * 0.07, 0, 6.283);
+      ctx.fill();
+      halves.forEach(function (h) {
+        var age = (ts - h.t) / 1400;
+        ctx.save();
+        ctx.translate(h.x, h.y);
+        ctx.rotate(h.rot);
+        ctx.globalAlpha = Math.max(0, 1 - age * 0.9);
+        ctx.fillStyle = h.c;
+        ctx.beginPath();
+        ctx.arc(0, 0, R, h.ang + h.side * Math.PI, h.ang + h.side * Math.PI + Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.55)";
+        ctx.beginPath();
+        ctx.arc(0, 0, R * 0.78, h.ang + h.side * Math.PI, h.ang + h.side * Math.PI + Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      });
+      parts.forEach(function (p) {
+        ctx.globalAlpha = Math.max(0, 1 - (ts - p.t) / 800);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      orbs.forEach(function (o) {
+        drawOrb(o, ts);
+      });
+      // the slash trail
+      if (trail.length > 1) {
+        for (k = 1; k < trail.length; k++) {
+          var a = 1 - (ts - trail[k].t) / 220;
+          ctx.strokeStyle = "rgba(255,255,255," + Math.max(0, a).toFixed(2) + ")";
+          ctx.lineWidth = 2 + 7 * Math.max(0, a);
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(trail[k - 1].x, trail[k - 1].y);
+          ctx.lineTo(trail[k].x, trail[k].y);
+          ctx.stroke();
+        }
+      }
+      texts.forEach(function (t) {
+        var age = (ts - t.t) / 900;
+        ctx.globalAlpha = Math.max(0, 1 - age);
+        ctx.fillStyle = t.c;
+        ctx.strokeStyle = "rgba(30,42,74,.7)";
+        ctx.lineWidth = 3;
+        ctx.font = "700 " + Math.round(W * 0.07) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText(t.s, t.x, t.y - age * 40);
+        ctx.fillText(t.s, t.x, t.y - age * 40);
+        ctx.globalAlpha = 1;
+      });
+      ctx.restore();
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word slash</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Word slash</div><div class="sw-sent" style="font-size:22px">Slice the orb with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swLsc"></span><span class="sw-mcb" id="swLcb"></span><span class="sw-spd" id="swLsp"></span></div>' +
+      '<canvas class="sw-snk" id="swSlash"></canvas><div class="sw-msg" id="swMsg">Swipe through the word, or tap it!</div></div>';
+    bindQuit();
+    cv = document.getElementById("swSlash");
+    W = Math.max(260, Math.min(440, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 1.0);
+    R = Math.round(W * 0.105);
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = W + "px";
+    cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    document.getElementById("swHear").onclick = function () {
+      if (cur) play("w", cur.r.w);
+      else if (rounds[i]) play("w", rounds[i].w);
+    };
+    function pos(e) {
+      var r = cv.getBoundingClientRect();
+      return { x: ((e.clientX - r.left) * W) / r.width, y: ((e.clientY - r.top) * H) / r.height };
+    }
+    cv.addEventListener("pointerdown", function (e) {
+      ptr = pos(e);
+      trail.push({ x: ptr.x, y: ptr.y, t: Date.now() });
+      hitTest(ptr.x, ptr.y, ptr.x, ptr.y);
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!ptr) return;
+      var p = pos(e);
+      trail.push({ x: p.x, y: p.y, t: Date.now() });
+      hitTest(ptr.x, ptr.y, p.x, p.y);
+      ptr = p;
+    });
+    cv.addEventListener("pointerup", function () {
+      ptr = null;
+    });
+    cv.addEventListener("pointercancel", function () {
+      ptr = null;
+    });
+    cv.addEventListener("pointerleave", function () {
+      ptr = null;
+    });
+    my = run = { mode: "slash", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    last = Date.now();
+    hud();
+    draw();
   }
 
   /* ---- feed your pet words: the pet asks for a snack, you give it the right plate; every bite makes it feel better and it never goes back ---- */
