@@ -232,6 +232,16 @@
     return '<circle r="6.4" fill="' + (o.c || "#E5483A") + '"/><circle cx="-1.8" cy="-2" r="1.8" fill="#FFFFFE" opacity=".55"/>';
   };
 
+  // a doorway seen from outside with a warm room inside, and the door standing open on the left (the middle of the bottom is the origin)
+  KITS.roomdoor = function (o) {
+    var s = '<rect x="-30" y="-100" width="60" height="100" rx="3" ' + f("#8A5A2B", 2.6) + '/><rect x="-24" y="-94" width="48" height="94" fill="#FDEBD0"/><rect x="-24" y="-24" width="48" height="24" fill="#E9C48F"/><path d="M-24 -24 H24" stroke="#C99A5E" stroke-width="2"/>';
+    s += '<circle cx="12" cy="-70" r="16" fill="#FFF3B0" opacity=".7"/><path d="M12 -78 V-52" stroke="#8A97AD" stroke-width="2.4"/><path d="M4 -78 H20 L24 -66 H0Z" ' + f("#FFD23F", 1.6) + '/>';
+    s += '<rect x="-20" y="-52" width="14" height="14" rx="1.6" fill="#9AD4F5" stroke="#8A5A2B" stroke-width="2"/>';
+    s += '<rect x="-16" y="-24" width="22" height="3" fill="#8A5A2B"/><rect x="-16" y="-38" width="5" height="14" rx="2" ' + f("#E5883A", 1.6) + '/><rect x="-16" y="-30" width="22" height="9" rx="3" ' + f("#E5883A", 1.8) + '/><path d="M-12 -21 V-14 M2 -21 V-14" stroke="#8A5A2B" stroke-width="2.4" stroke-linecap="round"/>';
+    s += '<path d="M-30 -100 L-48 -92 L-48 8 L-30 0Z" ' + f("#A8713A", 2.4) + '/><circle cx="-42" cy="-46" r="2.2" fill="#FFD23F"/>';
+    return s;
+  };
+
   // @@KITS_END
 
   /* ------------------------------------------------------------------ backgrounds */
@@ -326,8 +336,8 @@
     mix: [["mixbowl", 152, G, 2.0, { nostick: true }], ["kid", 78, G, 1.5, kb("point", { look: 1, mouth: "open", arms: "none" })], ["line", 0, 0, 1, { x1: 124, y1: 52, x2: 148, y2: 100, c: "#C98B4A", w: 4.6 }], ["kid", 78, G, 1.5, kb("point", { arms: "only" })], ["sparkle", 206, 44, 0.8]],
     shout: [["kid", 78, G, 1.6, kb("cheer", { look: 1, mouth: "open" })], ["dog", 190, G, 1.1, {}], ["bubble", 150, 36, 1.0, { w: 86, h: 40, inner: [["txt", 0, 7, 1, { t: "HEY!", size: 20, c: "#E5483A" }]] }]],
     join: [["kid", 40, G, 1.3, kb("run", { look: 1, mouth: "open" })], ["kid", 140, G, 1.3, kg("hands", { look: 0, mouth: "open" })], ["kid", 182, G, 1.3, ky("hands", { look: 0, mouth: "open" })], ["ball", 160, G, 1.3, {}], ["arrow", 0, 0, 1, { x1: 66, y1: 60, x2: 110, y2: 60, c: P }]],
-    enter: [["doorway", 170, G, 1.7, {}], ["kid", 90, G, 1.5, kb("walk", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 112, y1: 54, x2: 150, y2: 54, c: P }], ["txt", 170, 24, 1, { t: "ENTER", size: 16, c: "#6A48E8" }]],
-    search: [["kid", 78, G, 1.5, kb("look", { look: 1, mouth: "o" })], ["mag", 110, 78, 1.5, {}], ["hat", 186, G, 0.8, {}], ["qm", 150, 36, 1.0]],
+    enter: [["roomdoor", 184, G, 1.25, {}], ["kid", 78, G, 1.5, kb("walk", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 116, y1: 72, x2: 138, y2: 72, c: P }]],
+    search: [["kid", 70, G, 1.5, kb("look", { look: 1, mouth: "o", arms: "none" })], ["mag", 110, 34, 1.5, { flip: true }], ["kid", 70, G, 1.5, kb("look", { arms: "only" })], ["hat", 190, G, 0.8, {}], ["qm", 150, 40, 1.0]],
     hunt: [["cat", 90, G, 1.7, {}], ["bird", 188, G, 1.0, {}], ["arrow", 0, 0, 1, { x1: 120, y1: 100, x2: 166, y2: 100, c: P }]],
     collect: [["bucket", 160, G, 1.8, {}], ["rock", 100, G, 1.5, {}], ["rock", 70, G, 1.2, {}], ["kid", 36, G, 1.2, kb("reach", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 110, y1: 90, x2: 148, y2: 90, c: P }]],
     settle: [["tree", 130, G, 1.5, {}], ["bird", 150, 62, 0.9, {}], ["bird", 176, 78, 0.8, { flip: true }], ["bird", 96, 44, 0.8, { fly: true }], ["arrow", 0, 0, 1, { x1: 92, y1: 60, x2: 108, y2: 72, c: P }]],
@@ -410,7 +420,7 @@
     history: "in", period: "in", age: "in", position: "polar", general: "polar", law: "polar", term: "in", symbol: "in", atom: "in", temperature: "polar",
     industry: "polar", electric: "polar", modern: "polar", value: "polar", experiment: "in", method: "in", process: "polar", result: "in",
     climb: "polar", catch: "polar", push: "polar", lift: "polar", throw: "polar", gather: "aurora", stretch: "polar", roll: "polar", burn: "polar", mix: "in",
-    shout: "polar", join: "polar", enter: "in", search: "polar", hunt: "polar", collect: "polar", settle: "polar", receive: "polar", mount: "polar", finish: "polar",
+    shout: "polar", join: "polar", enter: "polar", search: "polar", hunt: "polar", collect: "polar", settle: "polar", receive: "polar", mount: "polar", finish: "polar",
     arrange: "in", invent: "in", operate: "in", select: "in", prepare: "in", repeat: "polar", allow: "polar",
     grand: "polar", gentle: "in", natural: "polar", broad: "polar", gray: "polar", lone: "polar", joy: "polar", excite: "polar", smile: "polar", sudden: "rain",
     noise: "in", sight: "icesea", sense: "polar", tone: "in", shine: "polar", fear: "night", danger: "polar", anger: "in", necessary: "in", particular: "in",
