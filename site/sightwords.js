@@ -3214,6 +3214,8 @@
       combo = 0,
       bestCombo = 0,
       golden = 0,
+      help = 0, // rounds with only one wrong mole after a wrong tap
+      spdNote = "",
       my = null;
     function later(fn, ms) {
       var t = setTimeout(function () {
@@ -3252,8 +3254,10 @@
         mist = 0,
         popAt = 0,
         upMs = 5000,
+        easy = help > 0,
         holes = "",
         n;
+      if (help > 0) help--;
       for (n = 0; n < 6; n++) holes += '<div class="sw-hl" data-h="' + n + '"><div class="sw-hole"></div><div class="sw-mclip"><button class="sw-mole" tabindex="-1"></button></div><div class="sw-dirt"></div></div>';
       box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Whack-a-word · ' + (i + 1) + " / " + rounds.length + "</span></div>" +
         '<div class="sw-card"><div class="sw-kind">Whack-a-word</div><div class="sw-sent" style="font-size:22px">Whack the mole with the word you hear!</div>' +
@@ -3267,7 +3271,7 @@
         if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
         var sp = document.getElementById("swSpd"),
           dots = 1 + Math.round(lvl / 2);
-        if (sp) sp.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○");
+        if (sp) sp.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○") + spdNote;
         field.style.setProperty("--mt", Math.max(0.12, 0.22 - lvl * 0.012) + "s");
       }
       function hole(h) {
@@ -3285,6 +3289,14 @@
           m.textContent = text;
           m.className = "sw-msg";
         }
+      }
+      // the speed changed: a little turtle or rabbit beside the speed dots for a moment
+      function pace(up) {
+        spdNote = up ? " 🐇" : " 🐢";
+        later(function () {
+          spdNote = "";
+          hud();
+        }, 1800);
       }
       function hammer(h) {
         var hm = document.createElement("div");
@@ -3336,7 +3348,7 @@
         var order = shuffle([0, 1, 2, 3, 4, 5], rnd),
           others = r.opts.filter(function (w) {
             return wkey(w) !== k;
-          }).slice(0, 2),
+          }).slice(0, easy ? 1 : 2),
           ws = shuffle([r.w].concat(others), rnd),
           gold = rnd() < 0.3,
           up = 7200 - lvl * 550,
@@ -3378,8 +3390,9 @@
           combo = 0;
           mist++;
           lvl = Math.max(0, lvl - 0.8);
+          pace(false);
           hud();
-          say("Too slow! Listen again.");
+          say("Too slow! Slowing down a little. Listen again.");
           Array.prototype.forEach.call(field.querySelectorAll(".sw-mole"), function (mm) {
             mm.classList.remove("sw-up");
           });
@@ -3418,7 +3431,9 @@
           sfx("poke");
           combo = 0;
           mist++;
-          lvl = Math.max(0, lvl - 0.8);
+          lvl = Math.max(0, lvl - 0.6);
+          help = 2; // a wrong mole means the word is not known yet: the next rounds have fewer wrong moles
+          pace(false);
           hud();
           tries++;
           say("Not that one! Listen again.");
@@ -3433,7 +3448,10 @@
         }
         busy = true;
         clearTimeout(upTimer);
-        if (mist === 0) lvl = Math.min(8, lvl + 0.7 + (Date.now() - popAt < upMs * 0.35 ? 0.4 : 0)); // a clean, quick whack: a little faster next time
+        if (mist === 0) {
+          lvl = Math.min(8, lvl + 0.7 + (Date.now() - popAt < upMs * 0.35 ? 0.4 : 0)); // a clean, quick whack: a little faster next time
+          pace(true);
+        }
         combo++;
         if (combo > bestCombo) bestCombo = combo;
         var pts = 10 + Math.min(combo, 6) * 3;
@@ -3512,6 +3530,8 @@
       target = null,
       fx = [],
       my = null,
+      help = 0, // rounds with only one wrong apple: a wrong apple means the word is not known yet, so the next rounds are easier
+      spdNote = "",
       tick = null,
       raf = null,
       keyH = null,
@@ -3565,7 +3585,8 @@
         .filter(function (w) {
           return wkey(w) !== wkey(r.w);
         })
-        .slice(0, 2);
+        .slice(0, help > 0 ? 1 : 2);
+      if (help > 0) help--;
       layApples(shuffle([r.w].concat(others), rnd));
       note = "";
       var ms = document.getElementById("swMsg");
@@ -3582,12 +3603,20 @@
         dots = 1 + Math.round(lvl / 2);
       if (a) a.textContent = "Score " + score;
       if (b) b.textContent = "Length " + (snake.length || 3);
-      if (c) c.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○");
+      if (c) c.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○") + spdNote;
       if (d) d.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
     }
     function say(t) {
       var m = document.getElementById("swMsg");
       if (m) m.textContent = t;
+    }
+    // the speed changed: a little turtle or rabbit beside the speed dots for a moment
+    function pace(up) {
+      spdNote = up ? " 🐇" : " 🐢";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
     }
     function pop(x, y, text, color) {
       fx.push({ x: x, y: y, t: Date.now(), text: text, c: color });
@@ -3640,7 +3669,10 @@
       apples.splice(apples.indexOf(ap), 1);
       if (right) {
         if (first[k] === undefined) first[k] = true;
-        if (mist === 0) lvl = Math.min(8, lvl + 0.6); // a clean apple: faster
+        if (mist === 0) {
+          lvl = Math.min(8, lvl + 0.6); // a clean apple: faster
+          pace(true);
+        }
         combo++;
         if (combo > bestCombo) bestCombo = combo;
         var pts = 10 + Math.min(combo, 6) * 3;
@@ -3668,7 +3700,9 @@
         first[k] = false;
         mist++;
         wrongTries++;
-        lvl = Math.max(0, lvl - 1.5); // a wrong apple: slower
+        lvl = Math.max(0, lvl - 0.8); // a wrong apple: a little slower, and the next rounds have fewer wrong apples
+        help = 2;
+        pace(false);
         combo = 0;
         snake.pop();
         if (snake.length > 3) snake.pop(); // a wrong apple: the snake gets one shorter
@@ -3695,7 +3729,8 @@
           if (note !== "bump") {
             note = "bump";
             mist++;
-            lvl = Math.max(0, lvl - 0.4); // running into its own tail counts as a slip too
+            lvl = Math.max(0, lvl - 0.5); // running into its own tail: a control slip, so slower
+            pace(false);
             hud();
             say("Careful, your tail! Turn another way.");
           }
