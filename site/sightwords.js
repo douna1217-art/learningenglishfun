@@ -6854,9 +6854,9 @@
         ctx.strokeStyle = "rgba(30,42,74,.85)";
         ctx.lineWidth = 4;
         ctx.lineCap = "round";
-        var ay = AY + 34 + 12,
-          ax1 = AX - 6 + wob * -1,
-          ax0 = AX - 6 - Math.min(44, AX - 22) + wob * -1;
+        var ay = AY,
+          ax1 = AX - BR * 1.5 - wob * 0.5,
+          ax0 = ax1 - Math.min(40, AX - BR * 1.5 - 24);
         ctx.beginPath();
         ctx.moveTo(ax1, ay);
         ctx.lineTo(ax0, ay);
@@ -6870,7 +6870,13 @@
         ctx.font = "700 13px Fredoka, sans-serif";
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
-        ctx.fillText("Pull back · 往后拉", Math.max(4, ax0 - 8), ay + 20);
+        ctx.lineJoin = "round";
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = "rgba(255,255,255,.9)";
+        ctx.strokeText("Pull back", Math.max(4, ax0 - 8), ay + 20);
+        ctx.strokeText("往后拉", Math.max(4, ax0 - 8), ay + 36);
+        ctx.fillText("Pull back", Math.max(4, ax0 - 8), ay + 20);
+        ctx.fillText("往后拉", Math.max(4, ax0 - 8), ay + 36);
         ctx.restore();
       }
       debris.forEach(function (d) {
