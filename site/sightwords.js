@@ -6384,9 +6384,9 @@
       if (help > 0) help--;
       ufos = list.map(function (it, j) {
         var lane = W * (n === 2 ? 0.3 + 0.4 * j : 0.2 + 0.3 * j);
-        return { w: it.w, target: it.target, x0: lane, x: lane, y: -UH * 0.7 - order[j] * H * 0.09 - rnd() * H * 0.03, ph: rnd() * 6.283, c: SAUCER[(j + i) % SAUCER.length], flash: 0, dead: 0, bump: 0 };
+        return { w: it.w, target: it.target, x0: lane, x: lane, y: -UH * 0.7 - order[j] * H * 0.09 - rnd() * H * 0.03, hy: H * (0.17 + 0.13 * (j % 2)) + UH * 0.2, ph: rnd() * 6.283, c: SAUCER[(j + i) % SAUCER.length], flash: 0, dead: 0, bump: 0 };
       });
-      cur = { r: r, k: k };
+      cur = { r: r, k: k, ready: false, cd: null };
       setTimeout(function () {
         if (alive() && cur && cur.r === r) play("w", r.w);
       }, 350);
@@ -6641,7 +6641,10 @@
       var fy = fall();
       ufos.forEach(function (u) {
         if (u.dead) return;
-        u.y += fy * dt;
+        if (cur && !cur.ready) {
+          // the saucers glide in and stop where you can read them
+          u.y = Math.min(u.hy, u.y + H * 0.4 * dt);
+        } else u.y += fy * dt;
         if (u.bump > 0) {
           var d = Math.min(u.bump, H * 0.3 * dt);
           u.y -= d;
@@ -6649,7 +6652,7 @@
         }
         var amp = W * Math.min(0.07, 0.01 + 0.008 * lvl);
         u.x = u.x0 + amp * Math.sin(clock * (0.8 + lvl * 0.12) + u.ph);
-        if (u.y > SY - UH * 0.4) {
+        if (cur && cur.ready && u.y > SY - UH * 0.4) {
           if (u.target && cur) lostLife(ts);
           else {
             u.dead = -ts;
@@ -6657,6 +6660,23 @@
           }
         }
       });
+      if (cur && !cur.ready) {
+        var inPlace = ufos.length && ufos.every(function (u) {
+          return u.dead || u.y >= u.hy - 1;
+        });
+        if (inPlace) {
+          if (cur.cd === null) cur.cd = 3.2;
+          var c0 = Math.ceil(cur.cd);
+          cur.cd -= dt;
+          if (cur.cd <= 0) {
+            cur.ready = true;
+            fire = 0.2;
+            sfx("big");
+            var rr0 = cur.r;
+            play("w", rr0.w);
+          } else if (Math.ceil(cur.cd) !== c0) sfx("poke");
+        }
+      }
       ufos = ufos.filter(function (u) {
         return !(u.dead < 0 && ts - -u.dead > 700) && !(u.dead > 0 && ts - u.dead > 80);
       });
@@ -6665,14 +6685,14 @@
       var seen = ufos.some(function (u) {
         return !u.dead && u.y > UH * 0.55;
       });
-      if (fire <= 0 && cur && seen) {
-        fire = 0.3;
+      if (fire <= 0 && cur && cur.ready && seen) {
+        fire = 0.45;
         shots.push({ x: sx, y: SY - W * 0.12 });
         sfx("pew");
       }
       shots.forEach(function (s) {
-        s.y -= H * 1.25 * dt;
-        if (!cur) return;
+        s.y -= H * 0.85 * dt;
+        if (!cur || !cur.ready) return;
         ufos.forEach(function (u) {
           if (s.dead || u.dead) return;
           if (u.y > UH * 0.55 && Math.abs(s.x - u.x) < UW * 0.5 && Math.abs(s.y - u.y) < UH * 0.45) { // only a saucer you can see (and read) can be hit
@@ -6771,6 +6791,18 @@
         ctx.fillText(t.s, t.x, t.y - age * 34);
         ctx.globalAlpha = 1;
       });
+      if (cur && !cur.ready && cur.cd !== null) {
+        ctx.fillStyle = "#FFE066";
+        ctx.strokeStyle = "rgba(30,42,74,.92)";
+        ctx.lineWidth = 6;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(W * 0.2) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        var cdn = Math.max(1, Math.ceil(cur.cd));
+        ctx.strokeText(cdn > 3 ? "Ready?" : String(cdn), W / 2, H * 0.55);
+        ctx.fillText(cdn > 3 ? "Ready?" : String(cdn), W / 2, H * 0.55);
+      }
       if (!moved) {
         ctx.fillStyle = "rgba(255,255,255,.85)";
         ctx.font = "700 " + Math.round(W * 0.042) + "px Fredoka, sans-serif";
