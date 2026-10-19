@@ -343,7 +343,7 @@
     settle: [["tree", 130, G, 1.5, {}], ["bird", 150, 62, 0.9, {}], ["bird", 176, 78, 0.8, { flip: true }], ["bird", 96, 44, 0.8, { fly: true }], ["arrow", 0, 0, 1, { x1: 92, y1: 60, x2: 108, y2: 72, c: P }]],
     receive: [["kid", 70, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["kid", 170, G, 1.5, man({ pose: "reach", look: -1, mouth: "open" })], ["letter", 120, 98, 1.0, {}], ["arrow", 0, 0, 1, { x1: 150, y1: 66, x2: 104, y2: 66, c: P }]],
     mount: [["horse", 144, G, 1.35, {}], ["kid", 98, G, 1.4, kb("mount", { look: 1, mouth: "open" })], ["sparkle", 206, 40, 0.8]],
-    finish: [["book", 150, G + 2, 1.9, {}], ["txt", 172, 84, 1, { t: "THE END", size: 11, c: "#6A48E8" }], ["kid", 56, G, 1.5, kb("cheer", { mouth: "open" })], ["check", 190, 40, 1.2], ["heart", 98, 40, 0.8]],
+    finish: [["table", 160, G, 1.6], ["cbook", 160, G - 41, 1.3], ["kid", 82, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["check", 200, 44, 1.1], ["heart", 120, 40, 0.8]],
     arrange: [["table", 120, G, 1.5, {}], ["vase", 120, G - 34, 1.2, {}], ["flower", 106, G - 58, 0.9, {}], ["flower", 120, G - 64, 1.0, { c: "#FFD23F" }], ["flower", 134, G - 58, 0.9, { c: "#FF8FB1" }], ["kid", 56, G, 1.5, kb("reach", { look: 1, mouth: "open" })]],
     invent: [["kid", 70, G, 1.5, kb("look", { look: 1, mouth: "open" })], ["bulb", 70, 38, 1.2, {}], ["blueprint", 160, 96, 0.9, {}], ["robot", 196, G, 0.9, {}], ["sparkle", 120, 52, 0.8]],
     operate: [["bed", 150, G, 1.5, {}], ["bear", 150, G - 24, 0.7, {}], ["oplight", 196, G, 1.0, {}], ["kid", 90, G, 1.5, man({ pose: "hands", shirt: "#7AD7C9", look: 1, mouth: "open" })], ["redcross", 56, G, 0.7, {}]],
@@ -354,7 +354,7 @@
     // ---- Northern lights
     grand: [["castle", 120, G + 2, 1.45, {}], ["flag", 56, G, 1.0, {}], ["flag", 184, G, 1.0, {}], ["sparkle", 190, 36, 0.9], ["sparkle", 50, 54, 0.8]],
     gentle: [["kid", 66, G, 1.5, kg("reach", { look: 1, mouth: "open" })], ["cat", 150, G, 1.7, {}], ["heart", 112, 40, 1.0], ["sparkle", 190, 56, 0.8]],
-    natural: [["mountain", 170, G, 1.6, {}], ["tree", 50, G, 1.1, {}], ["river", 110, G + 2, 1.1, {}], ["leaf", 100, 56, 1.3, {}], ["sparkle", 206, 36, 0.8]],
+    natural: [["mountain", 178, G, 1.4, {}], ["tree", 48, G, 1.1, {}], ["river", 112, 152, 0.8, {}], ["leaf", 100, 56, 1.3, {}], ["sparkle", 206, 36, 0.8]],
     broad: [["river", 120, G + 2, 2.1, {}], ["arrow", 0, 0, 1, { x1: 30, y1: 52, x2: 210, y2: 52, c: P }], ["arrow", 0, 0, 1, { x1: 210, y1: 62, x2: 30, y2: 62, c: P }]],
     gray: [["cat", 120, G, 1.9, { c: "#9AA3B2", l: "#D5DAE3" }], ["sparkle", 200, 46, 0.8]],
     lone: [["bird", 120, 80, 1.4, { fly: true }], ["cloud", 60, 40, 0.8, {}], ["cloud", 190, 100, 0.8, {}]],
@@ -412,6 +412,10 @@
     raise: [["flagpole", 160, G, 1.25, {}], ["kid", 100, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["arrow", 0, 0, 1, { x1: 196, y1: 100, x2: 196, y2: 56, c: P }], ["kid", 56, G, 1.3, kg("reach", { look: 1, mouth: "open" })]],
     // @@SCENES_END
   };
+  KITS.cbook = function (o) {
+    return '<rect x="-24" y="-8" width="48" height="8" rx="2" ' + f("#6A48E8", 2) + '/><rect x="-22" y="-6" width="43" height="4" fill="#fff"/><path d="M-22 -4 H21" stroke="#9FB3D1" stroke-width="1"/>';
+  };
+
   var BG8 = {
     wave: "icesea", planet: "space", oil: "plain", salt: "in", bone: "polar", wing: "polar", bat: "polar", rail: "polar", clock: "in", tie: "in",
     hat: "polar", suit: "in", finger: "in", ear: "in", arm: "polar", instrument: "in", dollar: "in", cent: "in", print: "in", camp: "polar",
@@ -420,7 +424,7 @@
     history: "in", period: "in", age: "in", position: "polar", general: "polar", law: "polar", term: "in", symbol: "in", atom: "in", temperature: "polar",
     industry: "polar", electric: "polar", modern: "polar", value: "polar", experiment: "in", method: "in", process: "polar", result: "in",
     climb: "polar", catch: "polar", push: "polar", lift: "polar", throw: "polar", gather: "aurora", stretch: "polar", roll: "polar", burn: "polar", mix: "in",
-    shout: "polar", join: "polar", enter: "polar", search: "polar", hunt: "polar", collect: "polar", settle: "polar", receive: "polar", mount: "polar", finish: "polar",
+    shout: "polar", join: "polar", enter: "polar", search: "polar", hunt: "polar", collect: "polar", settle: "polar", receive: "polar", mount: "polar", finish: "in",
     arrange: "in", invent: "in", operate: "in", select: "in", prepare: "in", repeat: "polar", allow: "polar",
     grand: "polar", gentle: "in", natural: "polar", broad: "polar", gray: "polar", lone: "polar", joy: "polar", excite: "polar", smile: "polar", sudden: "rain",
     noise: "in", sight: "icesea", sense: "polar", tone: "in", shine: "polar", fear: "night", danger: "polar", anger: "in", necessary: "in", particular: "in",
