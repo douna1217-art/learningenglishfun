@@ -190,6 +190,16 @@
     return '<path d="M0 138 L200 62 H240 V160 H0Z" fill="#FFFFFE" stroke="#B9D2EC" stroke-width="3" stroke-linejoin="round"/><path d="M0 150 L206 74" fill="none" stroke="#E4F0FF" stroke-width="6"/><path d="M30 142 q8 -4 16 0 M80 124 q8 -4 16 0 M130 106 q8 -4 16 0" fill="none" stroke="#C9E1F5" stroke-width="2.4" stroke-linecap="round"/>';
   };
 
+  // a kid seen from behind (draw it with the same pose and options as kid): the head is covered by hair, no face
+  KITS.kidback = function (o) {
+    var hair = o.hair || "#6B4423", pose = o.pose || "stand", dy = 0, lean = 0;
+    var s = K.kid(o);
+    if (pose === "jump") dy = -16;
+    if (pose === "crouch") dy = 14;
+    if (pose === "run") lean = 9;
+    return '<g transform="translate(0,' + dy + ") rotate(" + lean + ' 0 -22)">' + s.replace(/^<g transform="[^"]*">/, "").replace(/<\/g>$/, "") + '</g><g transform="translate(0,' + dy + ") rotate(" + lean + ' 0 -22)"><circle cx="0" cy="-53" r="12.4" ' + f(hair, 2.4) + '/><path d="M-6 -62 Q0 -66 6 -62 M-8 -55 Q0 -50 8 -55" fill="none" stroke="' + dk(hair, 0.3) + '" stroke-width="1.6" stroke-linecap="round" opacity=".7"/></g>';
+  };
+
   // @@KITS_END
 
   /* ------------------------------------------------------------------ backgrounds */
@@ -214,7 +224,7 @@
   /* ------------------------------------------------------------------ the scenes */
   var S8 = {
     // ---- Snow hills
-    wave: [["boat", 180, 106, 0.9, {}], ["kid", 56, G, 1.5, kb("wave", { look: 1, mouth: "open" })], ["sparkle", 104, 52, 0.8]],
+    wave: [["boat", 180, 106, 0.9, {}], ["kidback", 64, G, 1.5, kb("wave", {})], ["sparkle", 112, 44, 0.8]],
     planet: [["planet", 120, 108, 2.1, {}], ["star", 40, 36, 0.9], ["star", 204, 46, 0.7], ["star", 30, 112, 0.6], ["sparkle", 182, 30, 0.7]],
     oil: [["car", 160, G, 1.25, {}], ["kid", 52, G, 1.4, man({ pose: "reach", look: 1, mouth: "open" })], ["oilcan", 100, 98, 0.95, { pour: true, rot: 28 }]],
     salt: [["table", 150, G, 1.5, {}], ["plate", 150, G - 37, 1.2, {}], ["egg", 150, G - 39, 1.3, {}], ["saltshaker", 196, G - 38, 1.0, {}], ["dots", 150, G - 56, 1.0, {}], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })], ["sparkle", 150, 40, 0.8]],
