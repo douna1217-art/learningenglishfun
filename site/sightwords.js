@@ -1345,6 +1345,29 @@
       "#swOverlay .sw-aqr{font-weight:800;font-size:12px}" +
       "@media(max-width:560px){#swOverlay .sw-sea{height:330px}#swOverlay .sw-fsh{width:96px}#swOverlay .sw-boat{width:112px}#swOverlay .sw-fpet{width:62px}#swOverlay .sw-frs{width:120px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-fbob,#swOverlay .sw-fpet.sw-fwig{animation:none}}" +
+      "#swOverlay .sw-g5{background:#DDEFC5;box-shadow:0 6px 0 #9CC57A}" +
+      "#swOverlay .sw-games.sw-g2c{grid-template-columns:repeat(2,minmax(0,1fr))}" +
+      "#swOverlay .sw-more{display:block;margin:-12px auto 22px;background:#fff;border-radius:999px;padding:8px 20px;font-weight:800;font-size:14px;color:#4A2FB8;box-shadow:0 4px 0 #C9C0F5}" +
+      "#swOverlay .sw-moreg{margin-top:-8px}" +
+      "#swOverlay .sw-mhud{display:flex;align-items:center;justify-content:center;gap:14px;margin:10px 0 0;font-weight:800;font-size:18px}" +
+      "#swOverlay .sw-mpet{width:54px;margin:0}" +
+      "#swOverlay .sw-mcb{color:#E5683A;min-width:110px;text-align:left}" +
+      "#swOverlay .sw-field{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 8px;background:linear-gradient(#BDE7A0,#8FCF74);border-radius:26px;padding:10px 10px 6px;box-shadow:inset 0 0 0 4px #fff;margin:10px 0}" +
+      "#swOverlay .sw-hl{position:relative;height:122px}" +
+      "#swOverlay .sw-hole{position:absolute;left:8%;right:8%;bottom:10px;height:36px;border-radius:50%;background:#3E2A18}" +
+      "#swOverlay .sw-mclip{position:absolute;left:0;right:0;top:0;bottom:30px;overflow:hidden;z-index:1}" +
+      "#swOverlay .sw-mole{position:absolute;left:50%;bottom:0;width:100px;max-width:100%;margin-left:-50px;padding:0;background:none;transform:translateY(110%);transition:transform .22s ease-out;cursor:pointer;-webkit-tap-highlight-color:transparent}" +
+      "#swOverlay .sw-mole.sw-up{transform:translateY(0)}" +
+      "#swOverlay .sw-mole svg{display:block;width:100%;height:auto;pointer-events:none}" +
+      "#swOverlay .sw-mw{position:absolute;left:50%;top:58%;transform:translateX(-50%);background:#FFF6D8;border:3px solid #B87333;border-radius:10px;padding:0 8px 1px;font-family:'Fredoka',sans-serif;font-weight:700;color:#1E2A4A;white-space:nowrap;pointer-events:none;line-height:1.3}" +
+      "#swOverlay .sw-mw.sw-mg{background:#FFE680;border-color:#E0A800;font-size:15px}" +
+      "#swOverlay .sw-dirt{position:absolute;left:3%;right:3%;bottom:0;height:34px;border-radius:50%;background:radial-gradient(ellipse at 50% 20%,#A57A52,#7B5535);z-index:2;pointer-events:none}" +
+      "#swOverlay .sw-mole.sw-oops{animation:swshake .4s}" +
+      "#swOverlay .sw-mole.sw-hint{filter:drop-shadow(0 0 8px #FFE066);animation:swhint .6s ease-in-out infinite alternate}" +
+      "#swOverlay .sw-hmr{position:absolute;left:50%;top:-6px;width:64px;height:64px;transform-origin:50% 90%;z-index:5;pointer-events:none}" +
+      "#swOverlay .sw-hmr svg{display:block;width:100%;height:100%}" +
+      "#swOverlay .sw-bonk{position:absolute;left:50%;top:6px;z-index:6;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#FFE066;-webkit-text-stroke:2px #C0392B;paint-order:stroke fill;white-space:nowrap;pointer-events:none}" +
+      "@media(max-width:560px){#swOverlay .sw-hl{height:104px}#swOverlay .sw-mole{width:84px;margin-left:-42px}#swOverlay .sw-field{gap:0 4px;padding:8px 6px 4px}#swOverlay .sw-mw{font-size:14px!important}}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -1477,6 +1500,13 @@
     });
     return top;
   }
+  // the games on show on the home page: two for each pair of stages (the others are under "More games"); ?stage=N tries another stage
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["mole", "feed"], ["mole", "feed"]];
+  function gameSetNo(s) {
+    var m = /[?&]stage=(\d)/.exec((root.location && root.location.search) || ""),
+      st = m ? +m[1] : reachedStage(s);
+    return Math.max(1, Math.min(GAMESETS.length, Math.ceil(st / 2)));
+  }
   function readyIslands() {
     var r = {};
     D.stages.forEach(function (st) {
@@ -1564,16 +1594,26 @@
       var c = PAL[(i * 2 + 1) % PAL.length];
       stickers += '<i style="transform:rotate(' + angles[i] + "deg);background:" + (picks[i] ? c.bg : "#F1F5FA") + ";border-color:" + (picks[i] ? c.edge : "#C9D7E8") + ";color:" + (picks[i] ? c.ink : "#8A97AD") + (picks[i] && picks[i].length > 3 ? ";font-size:12px" : "") + '">' + esc(picks[i] || "?") + "</i>";
     }
-    var fishOn = reachedStage(s) >= 4 || /[?&]fish=1/.test((root.location && root.location.search) || "");
+    var GM = {
+        bal: { id: "swBal", cls: "sw-g2", icon: "balloon", label: "Balloon pop" },
+        fish: { id: "swFish", cls: "sw-g4", icon: "fish", label: "Word fishing" },
+        mole: { id: "swMole", cls: "sw-g5", icon: "mole", label: "Whack-a-word" },
+        feed: { id: "swFeed", cls: "sw-g3", icon: "feed", label: feedLabel() },
+        mem: { id: "swMem", cls: "sw-g1", icon: "memory", label: "Memory match" },
+      },
+      mainG = GAMESETS[gameSetNo(s) - 1],
+      moreG = Object.keys(GM).filter(function (k) {
+        return mainG.indexOf(k) < 0;
+      });
+    function gameTile(k) {
+      return '<button class="sw-gt ' + GM[k].cls + '" id="' + GM[k].id + '"><span class="sw-gi">' + scenery("game", GM[k].icon) + "</span>" + esc(GM[k].label) + "</button>";
+    }
     var h = '<div class="sw-home"><div class="sw-top"><button class="sw-back" id="swClose">← Back</button>' + (p ? '<span class="sw-starpill">' + scenery("star") + (+p.stars || 0) + "</span>" : "") + "</div>" +
       '<div class="sw-ttl"><span class="sw-aa">Aa</span><div><h1>Sight words</h1><div class="sw-sub">The words you will see in almost every story · 高频词</div></div></div>' +
       '<div class="sw-hero"><div class="sw-herobg">' + scenery("hero") + '</div><span class="sw-tpill">' + esc(pill) + "</span>" +
       '<div class="sw-hrow"><div class="sw-hpet">' + pet("happy") + '</div><div class="sw-hsay"><div class="sw-bub">' + esc(say1) + "<b>" + esc(say2) + '</b></div><div class="sw-wchs">' + chipsHtml(list) + "</div></div></div>" +
       '<button class="sw-start" id="swToday">' + PLAY + esc(btn) + "</button></div>" +
-      '<div class="sw-sect">Play with your words</div><div class="sw-games' + (fishOn ? " sw-g4s" : "") + '">' +
-      '<button class="sw-gt sw-g1" id="swMem"><span class="sw-gi">' + scenery("game", "memory") + "</span>Memory match</button>" +
-      '<button class="sw-gt sw-g2" id="swBal"><span class="sw-gi">' + scenery("game", "balloon") + "</span>Balloon pop</button>" +
-      '<button class="sw-gt sw-g3" id="swFeed"><span class="sw-gi">' + scenery("game", "feed") + "</span>" + esc(feedLabel()) + "</button>" + (fishOn ? '<button class="sw-gt sw-g4" id="swFish"><span class="sw-gi">' + scenery("game", "fish") + "</span>Word fishing</button>" : "") + "</div>" +
+      '<div class="sw-sect">Play with your words</div><div class="sw-games sw-g2c">' + mainG.map(gameTile).join("") + '</div><button class="sw-more" id="swMore">More games · 更多游戏 ▾</button><div class="sw-games sw-moreg" id="swMoreG" style="display:none">' + moreG.map(gameTile).join("") + "</div>" +
       '<div class="sw-sect">Challenges · 挑战</div><div class="sw-chal">' +
       '<button class="sw-ct sw-c1" id="swSpell"><span class="sw-gi">' + scenery("game", "spell") + "</span>Bubble spell<small>泡泡拼词</small></button>" +
       '<button class="sw-ct sw-c2" id="swBattle"><span class="sw-gi">' + monArt(1, "cheer") + "</span>Monster battle<small>打怪兽 · " + monsDone(s) + " / 5</small></button></div>" +
@@ -1589,24 +1629,37 @@
         startFeed(gameWords(s, 6, true));
       }
     };
-    document.getElementById("swMem").onclick = function () {
-      back = showHome;
-      startMemory(memoryWords(s));
-    };
-    document.getElementById("swBal").onclick = function () {
-      back = showHome;
-      startBalloons(gameWords(s, 8));
-    };
-    document.getElementById("swFeed").onclick = function () {
-      back = showHome;
-      startFeed(gameWords(s, 6, true));
-    };
-    var fishBtn = document.getElementById("swFish");
-    if (fishBtn)
-      fishBtn.onclick = function () {
-        back = showHome;
+    var starters = {
+      swMem: function () {
+        startMemory(memoryWords(s));
+      },
+      swBal: function () {
+        startBalloons(gameWords(s, 8));
+      },
+      swFeed: function () {
+        startFeed(gameWords(s, 6, true));
+      },
+      swFish: function () {
         startFishing(gameWords(s, 8));
-      };
+      },
+      swMole: function () {
+        startWhack(gameWords(s, 8));
+      },
+    };
+    Object.keys(starters).forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b)
+        b.onclick = function () {
+          back = showHome;
+          starters[id]();
+        };
+    });
+    document.getElementById("swMore").onclick = function () {
+      var g = document.getElementById("swMoreG"),
+        open = g.style.display === "none";
+      g.style.display = open ? "" : "none";
+      this.textContent = open ? "Fewer games ▴" : "More games · 更多游戏 ▾";
+    };
     document.getElementById("swSpell").onclick = function () {
       back = showHome;
       startSpell(spellList(readState()));
@@ -2492,7 +2545,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -3090,6 +3143,9 @@
       }, 600);
     }
     my = run = { mode: "fishing", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      my = null; // leaving the game: the pending next round does nothing
+    };
     show();
   }
   // every fish found so far, and the ones still to find
@@ -3104,6 +3160,287 @@
     });
     box.innerHTML = h + "</div>";
     document.getElementById("swClose").onclick = showHome;
+  }
+
+  /* ---- Whack-a-word: moles pop up holding words; hear a word and whack the right mole. Quick hands, combos, a golden bonus mole, a best score ---- */
+  var MOLEKEY = "lef_mole_v1";
+  function readMole() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(MOLEKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, golden: +o.golden || 0 };
+  }
+  function writeMole(o) {
+    try {
+      ls.setItem(MOLEKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  // a mole popping out of its hole: gold = the bonus mole; hit = dizzy after a whack
+  function moleSvg(gold, hit) {
+    var fur = gold ? "#FFC400" : "#8B5E3C",
+      head = gold ? "#FFD84A" : "#9C6B45",
+      inner = '<ellipse cx="50" cy="66" rx="36" ry="30" fill="' + fur + '"/><circle cx="21" cy="30" r="10" fill="' + head + '"/><circle cx="79" cy="30" r="10" fill="' + head + '"/><circle cx="21" cy="30" r="5" fill="#F4A9A9"/><circle cx="79" cy="30" r="5" fill="#F4A9A9"/><ellipse cx="50" cy="44" rx="33" ry="29" fill="' + head + '"/>';
+    if (hit) inner += '<path d="M31 35 l12 12 M43 35 l-12 12 M57 35 l12 12 M69 35 l-12 12" stroke="#1E2A4A" stroke-width="4" stroke-linecap="round"/><path d="M42 62 Q50 56 58 62" fill="none" stroke="#1E2A4A" stroke-width="3" stroke-linecap="round"/>';
+    else inner += '<circle cx="38" cy="38" r="7" fill="#fff"/><circle cx="62" cy="38" r="7" fill="#fff"/><circle cx="39.5" cy="39" r="3.6" fill="#1E2A4A"/><circle cx="63.5" cy="39" r="3.6" fill="#1E2A4A"/><circle cx="41" cy="37" r="1.4" fill="#fff"/><circle cx="65" cy="37" r="1.4" fill="#fff"/><rect x="45" y="58" width="10" height="9" rx="2.5" fill="#fff" stroke="#C9B8A8" stroke-width="1.2"/>';
+    inner += '<ellipse cx="50" cy="51" rx="9" ry="6" fill="#FF8FB1"/><ellipse cx="47" cy="49" rx="3" ry="1.8" fill="#fff" opacity=".6"/><circle cx="27" cy="54" r="5" fill="#FF8FB1" opacity=".45"/><circle cx="73" cy="54" r="5" fill="#FF8FB1" opacity=".45"/><ellipse cx="22" cy="86" rx="10" ry="6.5" fill="' + (gold ? "#E0A800" : "#7A4E2D") + '"/><ellipse cx="78" cy="86" rx="10" ry="6.5" fill="' + (gold ? "#E0A800" : "#7A4E2D") + '"/>';
+    if (typeof root.softSvg === "function") inner = root.softSvg(inner);
+    return '<svg viewBox="0 0 100 96" aria-hidden="true">' + inner + "</svg>";
+  }
+  var HAMMER = '<svg viewBox="0 0 70 70" aria-hidden="true"><rect x="32" y="26" width="8" height="42" rx="3" fill="#B87333" transform="rotate(20 36 47)"/><rect x="8" y="6" width="46" height="24" rx="7" fill="#8A97AD" stroke="#5A6B84" stroke-width="2.4" transform="rotate(20 31 18)"/></svg>';
+  function startWhack(words) {
+    gameTag = "game";
+    trk("sw_game_start", "whack", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 7919) + 5),
+      store = readMole(),
+      first = {},
+      timers = [],
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      golden = 0,
+      my = null;
+    function later(fn, ms) {
+      var t = setTimeout(function () {
+        if (my && run === my) fn();
+      }, ms);
+      timers.push(t);
+      return t;
+    }
+    function finish() {
+      var best = Math.max(store.best, score),
+        newBest = score > store.best;
+      store.best = best;
+      store.golden += golden;
+      writeMole(store);
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + best + ". ") + (golden ? "Golden moles today: " + golden + ". " : "") + "Golden moles found: " + store.golden + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      endGame("w", first, "Whack-a-word", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startWhack(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    function show() {
+      if (i >= rounds.length) {
+        finish();
+        return;
+      }
+      var r = rounds[i],
+        k = wkey(r.w),
+        tries = 0,
+        laps = 0,
+        busy = false,
+        upTimer = null,
+        holes = "",
+        n;
+      for (n = 0; n < 6; n++) holes += '<div class="sw-hl" data-h="' + n + '"><div class="sw-hole"></div><div class="sw-mclip"><button class="sw-mole" tabindex="-1"></button></div><div class="sw-dirt"></div></div>';
+      box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Whack-a-word · ' + (i + 1) + " / " + rounds.length + "</span></div>" +
+        '<div class="sw-card"><div class="sw-kind">Whack-a-word</div><div class="sw-sent" style="font-size:22px">Whack the mole with the word you hear!</div>' +
+        '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><div class="sw-fpet sw-mpet" id="swMpet">' + petArt("happy") + '</div><span class="sw-msc" id="swMsc">Score ' + score + '</span><span class="sw-mcb" id="swMcb"></span></div><div class="sw-field" id="swField">' + holes + '</div><div class="sw-msg" id="swMsg"></div></div>';
+      bindQuit();
+      var field = document.getElementById("swField");
+      function hud() {
+        var a = document.getElementById("swMsc"),
+          b = document.getElementById("swMcb");
+        if (a) a.textContent = "Score " + score;
+        if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      }
+      function hole(h) {
+        return field.children[h];
+      }
+      function down(list, then) {
+        list.forEach(function (h) {
+          hole(h).querySelector(".sw-mole").classList.remove("sw-up");
+        });
+        if (then) later(then, 320);
+      }
+      function say(text) {
+        var m = document.getElementById("swMsg");
+        if (m) {
+          m.textContent = text;
+          m.className = "sw-msg";
+        }
+      }
+      function hammer(h) {
+        var hm = document.createElement("div");
+        hm.className = "sw-hmr";
+        hm.innerHTML = HAMMER;
+        hole(h).appendChild(hm);
+        if (hm.animate) {
+          try {
+            hm.animate([{ transform: "translateX(-50%) rotate(-70deg)", opacity: 1 }, { transform: "translateX(-50%) rotate(14deg) translateY(20px)", opacity: 1, offset: 0.45 }, { transform: "translateX(-50%) rotate(14deg) translateY(20px)", opacity: 0 }], { duration: 480, easing: "ease-out", fill: "forwards" });
+          } catch (e) {}
+        }
+        setTimeout(function () {
+          if (hm.parentNode) hm.parentNode.removeChild(hm);
+        }, 520);
+      }
+      function sparks(h, txt) {
+        var c = hole(h),
+          t = document.createElement("div");
+        t.className = "sw-bonk";
+        t.textContent = txt;
+        c.appendChild(t);
+        if (t.animate) {
+          try {
+            t.animate([{ transform: "translate(-50%,0) scale(.4)", opacity: 0 }, { transform: "translate(-50%,-14px) scale(1.15)", opacity: 1, offset: 0.3 }, { transform: "translate(-50%,-34px) scale(1)", opacity: 0 }], { duration: 900, easing: "ease-out", fill: "forwards" });
+          } catch (e) {}
+        }
+        setTimeout(function () {
+          if (t.parentNode) t.parentNode.removeChild(t);
+        }, 960);
+      }
+      function wiggle() {
+        var pe = document.getElementById("swMpet");
+        if (!pe) return;
+        pe.innerHTML = petArt("excited");
+        pe.classList.remove("sw-fwig");
+        void pe.offsetWidth;
+        pe.classList.add("sw-fwig");
+        later(function () {
+          var p2 = document.getElementById("swMpet");
+          if (p2) {
+            p2.classList.remove("sw-fwig");
+            p2.innerHTML = petArt("happy");
+          }
+        }, 1200);
+      }
+      var shown = [];
+      function pop() {
+        if (busy) return;
+        var order = shuffle([0, 1, 2, 3, 4, 5], rnd),
+          others = r.opts.filter(function (w) {
+            return wkey(w) !== k;
+          }).slice(0, 2),
+          ws = shuffle([r.w].concat(others), rnd),
+          gold = rnd() < 0.3,
+          up = 6600 - Math.min(i, 5) * 600;
+        shown = [];
+        ws.forEach(function (w, j) {
+          var h = order[j],
+            m = hole(h).querySelector(".sw-mole");
+          m.className = "sw-mole";
+          m.setAttribute("data-w", w);
+          m.removeAttribute("data-g");
+          m.innerHTML = moleSvg(false, false) + '<span class="sw-mw" style="font-size:' + (w.length > 8 ? 12 : w.length > 6 ? 14 : 17) + 'px">' + esc(w) + "</span>";
+          shown.push(h);
+          later(function () {
+            m.classList.add("sw-up");
+          }, 120 + j * 150);
+        });
+        if (gold) {
+          var gm = hole(order[3]).querySelector(".sw-mole");
+          gm.className = "sw-mole";
+          gm.setAttribute("data-g", "1");
+          gm.removeAttribute("data-w");
+          gm.innerHTML = moleSvg(true, false) + '<span class="sw-mw sw-mg">★ +25</span>';
+          later(function () {
+            gm.classList.add("sw-up");
+          }, 700);
+          later(function () {
+            gm.classList.remove("sw-up");
+          }, 3000);
+        }
+        later(function () {
+          play("w", r.w);
+        }, 380);
+        upTimer = later(function () {
+          if (busy) return;
+          laps++;
+          combo = 0;
+          hud();
+          say("Too slow! Listen again.");
+          Array.prototype.forEach.call(field.querySelectorAll(".sw-mole"), function (mm) {
+            mm.classList.remove("sw-up");
+          });
+          if (laps >= 2) tries = Math.max(tries, 2);
+          later(pop, 700);
+        }, 120 + up);
+      }
+      document.getElementById("swHear").onclick = function () {
+        play("w", r.w);
+      };
+      field.onclick = function (e) {
+        var el = e.target;
+        while (el && el !== field && !(el.classList && el.classList.contains("sw-mole"))) el = el.parentNode;
+        if (!el || el === field || busy || !el.classList.contains("sw-up")) return;
+        var hl = el.parentNode.parentNode,
+          h = +hl.getAttribute("data-h");
+        hammer(h);
+        if (el.getAttribute("data-g")) {
+          el.classList.remove("sw-up");
+          score += 25;
+          golden++;
+          hud();
+          sfx("sparkle");
+          sparks(h, "+25 ★");
+          try {
+            var gr = hl.getBoundingClientRect();
+            if (hooks.burst) hooks.burst(gr.left + gr.width / 2, gr.top + gr.height / 3);
+          } catch (e2) {}
+          return;
+        }
+        var right = wkey(el.getAttribute("data-w")) === k;
+        if (first[k] === undefined) first[k] = right;
+        else if (!right) first[k] = false;
+        if (!right) {
+          el.classList.add("sw-oops");
+          sfx("poke");
+          combo = 0;
+          hud();
+          tries++;
+          say("Not that one! Listen again.");
+          later(function () {
+            el.classList.remove("sw-oops");
+          }, 450);
+          if (tries >= 2)
+            Array.prototype.forEach.call(field.querySelectorAll(".sw-mole"), function (mm) {
+              if (wkey(mm.getAttribute("data-w") || "") === k) mm.classList.add("sw-hint");
+            });
+          return;
+        }
+        busy = true;
+        clearTimeout(upTimer);
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        var pts = 10 + Math.min(combo, 6) * 3;
+        score += pts;
+        el.innerHTML = moleSvg(false, true) + '<span class="sw-mw">' + esc(r.w) + "</span>";
+        el.classList.add("sw-hit");
+        sfx("bang");
+        sparks(h, "BONK! +" + pts);
+        hud();
+        wiggle();
+        say(combo >= 3 ? "Combo ×" + combo + "! " + r.w : "Bonk! " + r.w);
+        try {
+          var br = hl.getBoundingClientRect();
+          if (hooks.burst && combo >= 3) hooks.burst(br.left + br.width / 2, br.top + br.height / 3);
+        } catch (e3) {}
+        later(function () {
+          Array.prototype.forEach.call(field.querySelectorAll(".sw-mole"), function (mm) {
+            mm.classList.remove("sw-up");
+          });
+        }, 800);
+        later(function () {
+          i++;
+          show();
+        }, 1300);
+      };
+      hud();
+      pop();
+    }
+    my = run = { mode: "whack", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      timers.forEach(clearTimeout);
+      my = null;
+    };
+    show();
   }
 
   /* ---- feed your pet words: the pet asks for a snack, you give it the right plate; every bite makes it feel better and it never goes back ---- */

@@ -49,6 +49,13 @@
     } else if (kind === "spell") {
       inner = bub(26, 50, 19, "#FF8FB1", "A") + bub(56, 30, 21, "#6AA7FF", "B") + bub(78, 58, 17, "#FFC93C", "C") +
         '<path d="M86 14 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z" fill="#FFE066"/>';
+    } else if (kind === "mole") {
+      inner = '<rect x="0" y="52" width="100" height="32" fill="#8FCF74"/><ellipse cx="50" cy="64" rx="34" ry="11" fill="#3E2A18"/>' +
+        '<circle cx="28" cy="40" r="7" fill="#9C6B45"/><circle cx="72" cy="40" r="7" fill="#9C6B45"/><ellipse cx="50" cy="52" rx="24" ry="20" fill="#9C6B45"/>' +
+        '<circle cx="42" cy="48" r="5" fill="#fff"/><circle cx="58" cy="48" r="5" fill="#fff"/><circle cx="43" cy="49" r="2.6" fill="#1E2A4A"/><circle cx="59" cy="49" r="2.6" fill="#1E2A4A"/><ellipse cx="50" cy="57" rx="6.5" ry="4.4" fill="#FF8FB1"/>' +
+        '<path d="M2 66 Q50 82 98 66 L98 84 L2 84Z" fill="#7B5535"/>' +
+        '<g transform="rotate(25 82 22)"><rect x="79" y="10" width="6" height="30" rx="2.5" fill="#B87333"/><rect x="64" y="4" width="34" height="16" rx="5" fill="#8A97AD"/></g>' +
+        '<path d="M16 22 l2 4.2 4.6 .6 -3.4 3.2 .9 4.5 -4.1 -2.2 -4.1 2.2 .9 -4.5 -3.4 -3.2 4.6 -.6z" fill="#FFE066"/>';
     } else if (kind === "fish") {
       inner = '<path d="M62 2 L62 52" stroke="#8795B4" stroke-width="2.4" stroke-linecap="round"/><path d="M62 52 Q62 60 56 58" fill="none" stroke="#8795B4" stroke-width="2.4" stroke-linecap="round"/>' +
         '<path d="M0 44 Q12 38 25 44 T50 44 T75 44 T100 44 L100 84 L0 84Z" fill="#4FB8EE"/><path d="M0 60 Q12 54 25 60 T50 60 T75 60 T100 60 L100 84 L0 84Z" fill="#2A86D6"/>' +
