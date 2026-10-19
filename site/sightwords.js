@@ -1409,6 +1409,7 @@
       "#swOverlay .sw-dth{position:relative;font-size:38px}" +
       "#swOverlay .sw-dgal{font-size:54px;line-height:1.2}" +
       "#swOverlay .sw-dsilh{filter:brightness(0) opacity(.4)}" +
+      "#swOverlay .sw-g10{background:#FFE3C2;box-shadow:0 6px 0 #E8A86A}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -1542,7 +1543,7 @@
     return top;
   }
   // the games on show on the home page: two for each pair of stages (the others are under "More games"); ?stage=N tries another stage
-  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "detective"]];
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "basket"]];
   function gameSetNo(s) {
     var m = /[?&]stage=(\d)/.exec((root.location && root.location.search) || ""),
       st = m ? +m[1] : reachedStage(s);
@@ -1645,6 +1646,7 @@
         runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word racer" },
         slash: { id: "swSlash2", cls: "sw-g8", icon: "slash", label: "Word slash" },
         detective: { id: "swDet", cls: "sw-g9", icon: "detective", label: "Word detective" },
+        basket: { id: "swHoop", cls: "sw-g10", icon: "hoop", label: "Word basketball" },
       },
       mainG = GAMESETS[gameSetNo(s) - 1],
       moreG = Object.keys(GM).filter(function (k) {
@@ -1701,6 +1703,9 @@
       },
       swDet: function () {
         startDetective(gameWords(s, 8));
+      },
+      swHoop: function () {
+        startBasket(gameWords(s, 8));
       },
     };
     Object.keys(starters).forEach(function (id) {
@@ -2602,7 +2607,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -5606,6 +5611,536 @@
     });
     box.innerHTML = h + "</div>";
     document.getElementById("swClose").onclick = showHome;
+  }
+
+  /* ---- Word basketball: hoops with words on their boards slide to and fro near the top; hear a word and flick the ball up toward the hoop that has it
+     (or tap the hoop). A swish in the right hoop scores; the wrong hoop spits the ball out; an air ball is just tried again. The hoops move faster and
+     further when the child gets it right ---- */
+  var HOOPKEY = "lef_hoops_v1";
+  function readHoops() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(HOOPKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, swish: +o.swish || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeHoops(o) {
+    try {
+      ls.setItem(HOOPKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startBasket(words) {
+    gameTag = "game";
+    trk("sw_game_start", "basketball", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 3989) + 41),
+      store = readHoops(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      swishN = 0,
+      tries = 0,
+      lastWrong = false,
+      help = 0,
+      spdNote = "",
+      done = false,
+      hoops = [],
+      ball = null,
+      cur = null,
+      fx = [],
+      texts = [],
+      shakeUntil = 0,
+      wait = 0.5,
+      last = 0,
+      clock = 0,
+      my = null,
+      raf = null,
+      cv = null,
+      ctx = null,
+      W = 340,
+      H = 400,
+      RR = 28,
+      BR = 20,
+      BX = 170,
+      BY = 340,
+      G = 800,
+      down = null;
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swKsc"),
+        b = document.getElementById("swKcb"),
+        c = document.getElementById("swKlv"),
+        d = 1 + Math.round(lvl / 2);
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = "Speed " + new Array(d + 1).join("●") + new Array(6 - d).join("○") + spdNote;
+    }
+    function pace(up) {
+      spdNote = up ? " 🐇" : " 🐢";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best;
+      store.best = Math.max(store.best, score);
+      store.swish += swishN;
+      store.lvl = lvl;
+      writeHoops(store);
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Swishes in all: " + store.swish + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      endGame("k", first, "Word basketball", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startBasket(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    // where a hoop is now: it slides to and fro; the more the child gets right, the faster and further
+    function hx(h, t) {
+      var amp = W * Math.min(0.075, 0.015 + 0.007 * lvl),
+        om = 0.7 + lvl * 0.16;
+      return h.cx + amp * Math.sin(om * t + h.ph);
+    }
+    function newRound() {
+      var r = rounds[i],
+        k = wkey(r.w),
+        others = r.opts
+          .filter(function (w) {
+            return wkey(w) !== k;
+          })
+          .slice(0, help > 0 ? 1 : 2),
+        list = shuffle([{ w: r.w, target: true }].concat(
+          others.map(function (w) {
+            return { w: w, target: false };
+          })
+        ), rnd),
+        n = list.length;
+      if (help > 0) help--;
+      hoops = list.map(function (it, j) {
+        return { w: it.w, target: it.target, cx: W * (n === 2 ? 0.3 + 0.4 * j : 0.17 + (0.66 * j) / (n - 1)), y: H * (j % 2 ? 0.34 : 0.22), ph: rnd() * 6.283, net: 0, shake: 0 };
+      });
+      cur = { r: r, k: k };
+      ball = null;
+      setTimeout(function () {
+        if (alive() && cur && cur.r === r) play("w", r.w);
+      }, 350);
+    }
+    function nextBall() {
+      ball = { x: BX, y: BY, vx: 0, vy: 0, fly: false, scored: false, t: 0, rot: 0, hit: false };
+    }
+    // shoot toward x (where the ball should be when it comes down to the hoops' height)
+    function shoot(tx) {
+      if (!alive() || !ball || ball.fly || !cur) return;
+      var hyRef = H * 0.28,
+        d = BY - hyRef,
+        vy0 = Math.sqrt(2 * G * d * 1.22),
+        tc = (vy0 + Math.sqrt(Math.max(0, vy0 * vy0 - 2 * G * d))) / G;
+      tx = Math.max(W * 0.04, Math.min(W * 0.96, tx));
+      ball.vx = (tx - BX) / tc;
+      ball.vy = -vy0;
+      ball.fly = true;
+      ball.t = 0;
+      sfx("pew");
+    }
+    function result(h, ok) {
+      var k = cur.k,
+        now = Date.now();
+      h.net = 1;
+      if (ok) {
+        if (first[k] === undefined) first[k] = true;
+        lastWrong = tries > 0;
+        if (tries === 0) {
+          lvl = Math.min(8, lvl + 0.6);
+          pace(true);
+        }
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        swishN++;
+        var pts = 10 + Math.min(combo, 6) * 3;
+        score += pts;
+        texts.push({ x: hx(h, clock), y: h.y - RR * 2.3, t: now, s: "SWISH! +" + pts, c: "#FFE066" });
+        for (var q = 0; q < 14; q++) {
+          var a = rnd() * 6.283,
+            sp = 90 + rnd() * 140;
+          fx.push({ x: hx(h, clock), y: h.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 120, t: now, c: ["#FFD23F", "#FF8A3D", "#fff", "#E5483A"][q % 4] });
+        }
+        sfx("big");
+        say((combo >= 3 ? "Combo ×" + combo + "! " : "Swish! ") + cur.r.w + (tries === 0 && combo >= 2 ? " · Faster!" : ""));
+        try {
+          if (hooks.burst && combo >= 3) {
+            var br = cv.getBoundingClientRect();
+            hooks.burst(br.left + hx(h, clock), br.top + h.y);
+          }
+        } catch (e) {}
+        tries = 0;
+        i++;
+        cur = null;
+        if (i >= rounds.length) {
+          done = true;
+          setTimeout(function () {
+            if (my && run === my) finish();
+          }, 1300);
+        } else {
+          wait = 1.3;
+          hoops.forEach(function (x) {
+            x.out = true;
+          });
+        }
+      } else {
+        first[k] = false;
+        tries++;
+        combo = 0;
+        lvl = Math.max(0, lvl - 0.8);
+        if (tries >= 2 || lastWrong) help = 2;
+        pace(false);
+        h.shake = now;
+        sfx("poke");
+        ball.vy = -Math.abs(ball.vy) * 0.45;
+        ball.vx = (rnd() < 0.5 ? -1 : 1) * 110;
+        ball.hit = true;
+        say("Not that hoop! Listen again. Slowing down a little.");
+        var rr = cur.r;
+        setTimeout(function () {
+          if (alive() && cur && cur.r === rr) play("w", rr.w);
+        }, 700);
+      }
+      hud();
+    }
+    function drawHoop(h, ts, front) {
+      var x = hx(h, clock),
+        y = h.y,
+        hint = tries >= 2 && h.target,
+        blink = Math.sin(ts / 120) > 0,
+        bw = RR * 3.1,
+        bh = RR * 1.15,
+        swing = h.net ? Math.sin((ts - (h.netT || ts)) / 60) * 4 * Math.max(0, h.net) : 0,
+        k;
+      if (!front) {
+        ctx.save();
+        if (ts - h.shake < 350) ctx.translate(Math.sin(ts / 25) * 3, 0);
+        // the board with the word
+        if (hint) {
+          var gl = ctx.createRadialGradient(x, y - RR * 1.4, RR * 0.3, x, y - RR * 1.4, RR * 2.4);
+          gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+          gl.addColorStop(1, "rgba(255,214,64,0)");
+          ctx.fillStyle = gl;
+          ctx.beginPath();
+          ctx.arc(x, y - RR * 1.4, RR * 2.4, 0, 6.283);
+          ctx.fill();
+        }
+        ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
+        ctx.strokeStyle = "#E5483A";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x - bw / 2, y - RR * 1.25 - bh, bw, bh, 8);
+        else ctx.rect(x - bw / 2, y - RR * 1.25 - bh, bw, bh);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#1E2A4A";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        var fs = Math.round(bh * 0.62);
+        ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+        while (ctx.measureText(h.w).width > bw * 0.86 && fs > 9) {
+          fs--;
+          ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+        }
+        ctx.fillText(h.w, x, y - RR * 1.25 - bh / 2 + 1);
+        // the back of the rim
+        ctx.strokeStyle = "#E5483A";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.ellipse(x, y, RR, RR * 0.28, 0, Math.PI, 6.283);
+        ctx.stroke();
+        ctx.restore();
+      } else {
+        ctx.save();
+        if (ts - h.shake < 350) ctx.translate(Math.sin(ts / 25) * 3, 0);
+        // the net, in front of the ball
+        ctx.strokeStyle = "rgba(255,255,255,.9)";
+        ctx.lineWidth = 1.6;
+        for (k = -3; k <= 3; k++) {
+          ctx.beginPath();
+          ctx.moveTo(x + (k / 3) * RR, y);
+          ctx.lineTo(x + (k / 3) * RR * 0.55 + swing, y + RR * 1.15);
+          ctx.stroke();
+        }
+        for (k = 1; k <= 3; k++) {
+          var yy = y + (RR * 1.15 * k) / 4,
+            ww = RR * (1 - 0.45 * (k / 4));
+          ctx.beginPath();
+          ctx.moveTo(x - ww + swing * (k / 4), yy);
+          ctx.lineTo(x + ww + swing * (k / 4), yy);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = "#FF6B4A";
+        ctx.lineWidth = 4.5;
+        ctx.beginPath();
+        ctx.ellipse(x, y, RR, RR * 0.28, 0, 0, Math.PI);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+    function drawBall(b, ts) {
+      var f = Math.max(0, Math.min(1, (BY - b.y) / (BY - H * 0.2))),
+        s = 1 - 0.42 * f,
+        r = BR * s;
+      ctx.fillStyle = "rgba(20,25,50,.25)";
+      ctx.beginPath();
+      ctx.ellipse(b.fly ? b.x : BX, BY + BR * 0.95, BR * 0.9, BR * 0.22, 0, 0, 6.283);
+      ctx.fill();
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      var g2 = ctx.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.1, 0, 0, r * 1.1);
+      g2.addColorStop(0, "#FFB066");
+      g2.addColorStop(0.5, "#F2761F");
+      g2.addColorStop(1, "#A8480B");
+      ctx.fillStyle = g2;
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = "#5A2A06";
+      ctx.lineWidth = Math.max(1.4, r * 0.09);
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, 6.283);
+      ctx.moveTo(-r, 0);
+      ctx.lineTo(r, 0);
+      ctx.moveTo(0, -r);
+      ctx.lineTo(0, r);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(-r * 1.15, 0, r * 0.85, -0.9, 0.9);
+      ctx.moveTo(r * 1.15 + r * 0.85 * Math.cos(Math.PI - 0.9), 0);
+      ctx.arc(r * 1.15, 0, r * 0.85, Math.PI - 0.9, Math.PI + 0.9);
+      ctx.stroke();
+      ctx.restore();
+    }
+    function draw() {
+      if (!cv || done) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, Math.max(0, (ts - last) / 1000)),
+        k;
+      last = ts;
+      clock += dt;
+      if (!cur && wait > 0 && i < rounds.length) {
+        wait -= dt;
+        if (wait <= 0) {
+          newRound();
+          nextBall();
+        }
+      }
+      // the ball
+      if (ball && ball.fly) {
+        var py = ball.y;
+        ball.t += dt;
+        ball.vy += G * dt;
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+        ball.rot += ball.vx * dt * 0.02 + 0.1;
+        if (cur && ball.vy > 0 && !ball.scored && !ball.hit) {
+          hoops.forEach(function (h) {
+            var x = hx(h, clock);
+            if (!ball.scored && !ball.hit && py < h.y && ball.y >= h.y && Math.abs(ball.x - x) < RR * 1.3) {
+              ball.scored = h.target;
+              ball.x = x;
+              ball.vx = 0;
+              h.netT = ts;
+              result(h, h.target);
+            }
+          });
+        }
+        if (ball.y > BY + BR * 2.5 || ball.x < -BR * 3 || ball.x > W + BR * 3) {
+          var wasHit = ball.hit || ball.scored;
+          if (cur) {
+            if (!wasHit) say("Air ball! Try again.");
+            nextBall();
+          } else ball = null;
+        }
+      }
+      hoops.forEach(function (h) {
+        if (h.net > 0) h.net = Math.max(0, h.net - dt * 0.9);
+        if (h.out) h.cx += 0;
+      });
+      fx.forEach(function (p) {
+        p.vy += 500 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+      });
+      fx = fx.filter(function (p) {
+        return ts - p.t < 800;
+      });
+      texts = texts.filter(function (t) {
+        return ts - t.t < 1000;
+      });
+      // drawing: gym, hoops, ball, nets
+      var bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, "#9FD3F2");
+      bg.addColorStop(0.62, "#DFF1FF");
+      bg.addColorStop(0.62, "#E0B070");
+      bg.addColorStop(1, "#B8864A");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "rgba(255,255,255,.55)";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0, H * 0.62);
+      ctx.lineTo(W, H * 0.62);
+      ctx.stroke();
+      for (k = 0; k < 6; k++) {
+        ctx.strokeStyle = "rgba(120,70,20,.18)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(((k + 0.5) * W) / 6 - (k - 2.5) * 6, H * 0.62);
+        ctx.lineTo(((k + 0.5) * W) / 6 + (k - 2.5) * 40, H);
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.strokeStyle = "rgba(255,255,255,.7)";
+      ctx.lineWidth = 3;
+      ctx.arc(W / 2, H * 0.97, W * 0.3, Math.PI, 6.283);
+      ctx.stroke();
+      // the crowd's flags
+      ["#E5483A", "#3D8BF2", "#FFC93C", "#35B779", "#8B6BE8", "#FF6FA0", "#FF8A3D"].forEach(function (c, n) {
+        ctx.fillStyle = c;
+        var fx0 = (n + 0.5) * (W / 7);
+        ctx.beginPath();
+        ctx.moveTo(fx0 - 9, 0);
+        ctx.lineTo(fx0 + 9, 0);
+        ctx.lineTo(fx0, 14);
+        ctx.fill();
+      });
+      var sh = ts < shakeUntil ? Math.sin(ts / 20) * 3 : 0;
+      ctx.save();
+      ctx.translate(sh, 0);
+      hoops.forEach(function (h) {
+        drawHoop(h, ts, false);
+      });
+      if (ball) drawBall(ball, ts);
+      hoops.forEach(function (h) {
+        drawHoop(h, ts, true);
+      });
+      fx.forEach(function (p) {
+        ctx.globalAlpha = Math.max(0, 1 - (ts - p.t) / 800);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 3.4, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      texts.forEach(function (t) {
+        var age = (ts - t.t) / 1000;
+        ctx.globalAlpha = Math.max(0, 1 - age);
+        ctx.fillStyle = t.c;
+        ctx.strokeStyle = "rgba(30,42,74,.92)";
+        ctx.lineWidth = 4.5;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(W * 0.07) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText(t.s, t.x, t.y - age * 34);
+        ctx.fillText(t.s, t.x, t.y - age * 34);
+        ctx.globalAlpha = 1;
+      });
+      if (ball && !ball.fly && cur) {
+        ctx.fillStyle = "rgba(30,42,74,.55)";
+        ctx.font = "700 " + Math.round(W * 0.042) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Flick the ball up toward the hoop!", W / 2, H * 0.52);
+      }
+      ctx.restore();
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word basketball</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Word basketball</div><div class="sw-sent" style="font-size:22px">Shoot into the hoop with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
+      '<canvas class="sw-snk" id="swHoopCv"></canvas><div class="sw-msg" id="swMsg">Swipe up toward a hoop, or tap a hoop!</div></div>';
+    bindQuit();
+    cv = document.getElementById("swHoopCv");
+    W = Math.max(260, Math.min(440, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 1.15);
+    RR = Math.round(W * 0.085);
+    BR = Math.round(W * 0.062);
+    BX = Math.round(W / 2);
+    BY = Math.round(H * 0.86);
+    G = H * 2.2;
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = W + "px";
+    cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    document.getElementById("swHear").onclick = function () {
+      if (cur) play("w", cur.r.w);
+      else if (rounds[i]) play("w", rounds[i].w);
+    };
+    function pos(e) {
+      var r = cv.getBoundingClientRect();
+      return { x: ((e.clientX - r.left) * W) / r.width, y: ((e.clientY - r.top) * H) / r.height };
+    }
+    cv.addEventListener("pointerdown", function (e) {
+      var p = pos(e);
+      down = { x: p.x, y: p.y, t: Date.now() };
+    });
+    cv.addEventListener("pointerup", function (e) {
+      if (!down) return;
+      var p = pos(e),
+        dx = p.x - down.x,
+        dy = p.y - down.y;
+      down = null;
+      if (!ball || ball.fly) return;
+      if (Math.abs(dx) < 14 && Math.abs(dy) < 14) {
+        // a tap on a hoop: the ball flies there
+        var best = null;
+        hoops.forEach(function (h) {
+          var x = hx(h, clock);
+          if (Math.abs(p.x - x) < RR * 1.9 && p.y < H * 0.55 && (!best || Math.abs(p.x - x) < Math.abs(p.x - hx(best, clock)))) best = h;
+        });
+        if (best) {
+          var hyRef = H * 0.28,
+            d = BY - hyRef,
+            vy0 = Math.sqrt(2 * G * d * 1.22),
+            tc = (vy0 + Math.sqrt(Math.max(0, vy0 * vy0 - 2 * G * d))) / G;
+          var savedClock = clock;
+          clock = savedClock + tc; // where the hoop will be when the ball gets there
+          var tx = hx(best, clock);
+          clock = savedClock;
+          shoot(tx);
+        }
+        return;
+      }
+      if (dy < -22) shoot(BX + (dx / Math.abs(dy)) * W * 0.6);
+    });
+    cv.addEventListener("pointercancel", function () {
+      down = null;
+    });
+    my = run = { mode: "basket", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    last = Date.now();
+    hud();
+    draw();
   }
 
   /* ---- feed your pet words: the pet asks for a snack, you give it the right plate; every bite makes it feel better and it never goes back ---- */

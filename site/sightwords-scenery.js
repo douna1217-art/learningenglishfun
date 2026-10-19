@@ -49,6 +49,11 @@
     } else if (kind === "spell") {
       inner = bub(26, 50, 19, "#FF8FB1", "A") + bub(56, 30, 21, "#6AA7FF", "B") + bub(78, 58, 17, "#FFC93C", "C") +
         '<path d="M86 14 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z" fill="#FFE066"/>';
+    } else if (kind === "hoop") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#CFEAFB"/><rect x="0" y="54" width="100" height="30" fill="#E0B070"/>' +
+        '<rect x="22" y="8" width="56" height="22" rx="5" fill="#fff" stroke="#E5483A" stroke-width="3"/><text x="50" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">go</text>' +
+        '<path d="M30 40 L38 62 M42 40 L45 62 M54 40 L55 62 M66 40 L62 62 M78 40 L70 62" stroke="#fff" stroke-width="1.6" opacity=".9"/><ellipse cx="50" cy="38" rx="26" ry="7" fill="none" stroke="#FF6B4A" stroke-width="4.5"/>' +
+        '<circle cx="50" cy="22" r="0" fill="none"/><circle cx="60" cy="68" r="11" fill="#F2761F" stroke="#5A2A06" stroke-width="2"/><path d="M49 68 H71 M60 57 V79" stroke="#5A2A06" stroke-width="1.8"/><ellipse cx="56" cy="63" rx="3.2" ry="2.2" fill="#fff" opacity=".5"/>';
     } else if (kind === "detective") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#FBE9C6"/><rect x="0" y="58" width="100" height="26" fill="#C99A66"/>' +
         '<rect x="14" y="30" width="46" height="34" rx="4" fill="#F4D58A" stroke="#C9A04A" stroke-width="2"/><rect x="14" y="25" width="18" height="8" rx="3" fill="#F4D58A" stroke="#C9A04A" stroke-width="2"/><rect x="24" y="42" width="26" height="12" rx="4" fill="#fff" stroke="#C9A04A" stroke-width="1.6"/><text x="37" y="51.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="9" fill="#1E2A4A">go</text>' +
