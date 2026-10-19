@@ -6665,8 +6665,7 @@
           return u.dead || u.y >= u.hy - 1;
         });
         if (inPlace) {
-          if (cur.cd === null) cur.cd = 3.2;
-          var c0 = Math.ceil(cur.cd);
+          if (cur.cd === null) cur.cd = 0.5; // a beat to take them in, then go
           cur.cd -= dt;
           if (cur.cd <= 0) {
             cur.ready = true;
@@ -6674,7 +6673,7 @@
             sfx("big");
             var rr0 = cur.r;
             play("w", rr0.w);
-          } else if (Math.ceil(cur.cd) !== c0) sfx("poke");
+          }
         }
       }
       ufos = ufos.filter(function (u) {
@@ -6791,18 +6790,6 @@
         ctx.fillText(t.s, t.x, t.y - age * 34);
         ctx.globalAlpha = 1;
       });
-      if (cur && !cur.ready && cur.cd !== null) {
-        ctx.fillStyle = "#FFE066";
-        ctx.strokeStyle = "rgba(30,42,74,.92)";
-        ctx.lineWidth = 6;
-        ctx.lineJoin = "round";
-        ctx.font = "700 " + Math.round(W * 0.2) + "px Fredoka, sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        var cdn = Math.max(1, Math.ceil(cur.cd));
-        ctx.strokeText(cdn > 3 ? "Ready?" : String(cdn), W / 2, H * 0.55);
-        ctx.fillText(cdn > 3 ? "Ready?" : String(cdn), W / 2, H * 0.55);
-      }
       if (!moved) {
         ctx.fillStyle = "rgba(255,255,255,.85)";
         ctx.font = "700 " + Math.round(W * 0.042) + "px Fredoka, sans-serif";
