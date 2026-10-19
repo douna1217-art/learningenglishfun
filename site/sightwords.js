@@ -6384,7 +6384,7 @@
       if (help > 0) help--;
       ufos = list.map(function (it, j) {
         var lane = W * (n === 2 ? 0.3 + 0.4 * j : 0.2 + 0.3 * j);
-        return { w: it.w, target: it.target, x0: lane, x: lane, y: -UH * 0.7 - order[j] * H * 0.09 - rnd() * H * 0.03, hy: H * (0.17 + 0.13 * (j % 2)) + UH * 0.2, ph: rnd() * 6.283, c: SAUCER[(j + i) % SAUCER.length], flash: 0, dead: 0, bump: 0 };
+        return { w: it.w, target: it.target, x0: lane, x: lane, y: UH * 0.7 + order[j] * UH * 0.35, ph: rnd() * 6.283, c: SAUCER[(j + i) % SAUCER.length], flash: 0, dead: 0, bump: 0 };
       });
       cur = { r: r, k: k, ready: false, cd: null };
       setTimeout(function () {
@@ -6641,10 +6641,7 @@
       var fy = fall();
       ufos.forEach(function (u) {
         if (u.dead) return;
-        if (cur && !cur.ready) {
-          // the saucers glide in and stop where you can read them
-          u.y = Math.min(u.hy, u.y + H * 0.4 * dt);
-        } else u.y += fy * dt;
+        u.y += fy * dt;
         if (u.bump > 0) {
           var d = Math.min(u.bump, H * 0.3 * dt);
           u.y -= d;
@@ -6661,19 +6658,12 @@
         }
       });
       if (cur && !cur.ready) {
-        var inPlace = ufos.length && ufos.every(function (u) {
-          return u.dead || u.y >= u.hy - 1;
-        });
-        if (inPlace) {
-          if (cur.cd === null) cur.cd = 0.5; // a beat to take them in, then go
-          cur.cd -= dt;
-          if (cur.cd <= 0) {
-            cur.ready = true;
-            fire = 0.2;
-            sfx("big");
-            var rr0 = cur.r;
-            play("w", rr0.w);
-          }
+        // every saucer is in view from the start; a short beat to see them, then the lasers begin
+        if (cur.cd === null) cur.cd = 0.6;
+        cur.cd -= dt;
+        if (cur.cd <= 0) {
+          cur.ready = true;
+          fire = 0.2;
         }
       }
       ufos = ufos.filter(function (u) {
