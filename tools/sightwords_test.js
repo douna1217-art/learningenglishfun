@@ -723,9 +723,9 @@ const M8 = SW.mergeData(D, D2, D3, D4, D5, D6, D7, D8);
 ok(M8.lessons.length === 218 && M8.units.length === 40 && Object.keys(M8.words).length === 1015 && M8.stages.length === 8 && M8.stages.every((x) => x.ready), "merge: 218 lessons, 40 units, 1015 words, all eight stages ready");
 ok(M8.stages[7].words === 140 && M8.stages[7].title === "Word pioneers", "stage 8: the stage list says 140 words", M8.stages[7]);
 ok(M8.lessons.every((l, i) => l.id === i + 1), "merge of seven: lesson ids count on");
-ok(SW.unitOf(M8.units, 159).id === 36 && SW.unitOf(M8.units, 188).id === 40, "stage 8: the unit of a lesson");
+ok(SW.unitOf(M8.units, 189).id === 36 && SW.unitOf(M8.units, 218).id === 40, "stage 8: the unit of a lesson");
 const s1234567done = SW.cleanState({ lessons: Object.fromEntries(M7.lessons.map((l) => [l.id, { t: 1, acc: 80 }])) });
-ok(SW.nextLesson(M8.lessons, s1234567done) === 189 && SW.currentUnit(M8.units.filter((u) => u.stage === 8), M8.lessons, s1234567done).id === 36, "stage 8: next lesson after stage 7 is lesson 189, its map opens unit 31");
+ok(SW.nextLesson(M8.lessons, s1234567done) === 189 && SW.currentUnit(M8.units.filter((u) => u.stage === 8), M8.lessons, s1234567done).id === 36, "stage 8: next lesson after stage 7 is lesson 189, its map opens unit 36");
 const allowed8 = new Set(w8.concat(earlier7).map((w) => w.toLowerCase().replace(/’/g, "'")).concat(D.nouns, D2.nouns, D3.nouns, D4.nouns, D5.nouns, D7.nouns, D8.nouns));
 let bad8 = [];
 w8.forEach((w) => {

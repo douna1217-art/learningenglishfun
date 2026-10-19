@@ -209,6 +209,16 @@
     return s;
   };
 
+  // a small plaster wrapped round one finger (the middle of the plaster is the origin; it is as wide as a finger of the big hand)
+  KITS.fingerwrap = function (o) {
+    return '<rect x="-12" y="-5.4" width="24" height="10.8" rx="3.4" ' + f("#F2C9A0", 2) + '/><rect x="-5" y="-5.4" width="10" height="10.8" fill="#FBE4C8"/><circle cx="-8.4" cy="-1.6" r="0.9" fill="#B98A5A"/><circle cx="-8.4" cy="1.8" r="0.9" fill="#B98A5A"/><circle cx="8.4" cy="-1.6" r="0.9" fill="#B98A5A"/><circle cx="8.4" cy="1.8" r="0.9" fill="#B98A5A"/>';
+  };
+
+  // a bandage wrapped round an arm (the middle of the bandage is the origin; it is about as wide as a child's arm, draw it over the arm)
+  KITS.armwrap = function (o) {
+    return '<rect x="-9" y="-9" width="18" height="18" rx="3.4" ' + f("#FFFFFE", 2.2) + '/><path d="M-9 -4 L9 -9 M-9 2 L9 -3 M-9 8 L9 3" stroke="#C9D4E6" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M-3 -2.4 h6 M0 -5.4 v6" stroke="#E5483A" stroke-width="2.2" stroke-linecap="round"/>';
+  };
+
   // @@KITS_END
 
   /* ------------------------------------------------------------------ backgrounds */
@@ -245,9 +255,9 @@
     tie: [["kid", 100, G, 1.7, man({ pose: "stand", mouth: "open" })], ["neckt", 100, G, 1.7, {}], ["heart", 150, 54, 0.9], ["sparkle", 60, 50, 0.8]],
     hat: [["kid", 120, G, 1.5, kb("cheer", { hat: "#E5483A", mouth: "open" })], ["heart", 176, 56, 1.0], ["sparkle", 60, 48, 0.9]],
     suit: [["kid", 110, G, 1.7, man({ pose: "stand", shirt: "#33406A", pants: "#33406A", mouth: "open" })], ["suitfront", 110, G, 1.7, {}], ["sparkle", 164, 54, 0.9], ["sparkle", 56, 70, 0.7]],
-    finger: [["bighand", 110, G + 12, 1.6, {}], ["bandaid", 112, 70, 1.0, { rot: -80 }], ["pain", 152, 52, 1.0], ["kid", 190, G, 1.1, kb("self", { mouth: "o" })]],
+    finger: [["bighand", 120, 152, 1.85, {}], ["fingerwrap", 131, 60, 1.1, {}], ["pain", 131, 36, 1.0]],
     ear: [["ear", 120, G + 10, 2.6, {}], ["soundwave", 56, 94, 1.3, {}], ["sounds", 36, 88, 1.0, {}], ["note", 70, 50, 1.1]],
-    arm: [["kid", 120, G, 1.6, kb("stand", { mouth: "sad", look: 0 })], ["bandaid", 94, 92, 0.9, { rot: 70 }], ["pain", 70, 92, 1.0], ["sparkle", 188, 50, 0.8]],
+    arm: [["kid", 120, G, 1.6, kb("stand", { mouth: "sad", look: 0 })], ["armwrap", 97, 94, 1.15, {}], ["pain", 70, 92, 1.0], ["sparkle", 188, 50, 0.8]],
     instrument: [["kid", 80, G, 1.5, kb("hold", { look: 1, mouth: "open", arms: "none" })], ["guitar", 92, G, 0.9, { rot: 14 }], ["kid", 80, G, 1.5, kb("hold", { arms: "only" })], ["note", 150, 60, 1.3], ["note", 176, 40, 1.0]],
     dollar: [["table", 150, G, 1.4, {}], ["bear", 150, G - 34, 0.8, {}], ["price", 188, G - 39, 1.1, { t: "$1" }], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })]],
     cent: [["table", 150, G, 1.4, {}], ["apple", 150, G - 34, 1.6, {}], ["price", 188, G - 39, 1.1, { t: "1&#162;" }], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })]],
