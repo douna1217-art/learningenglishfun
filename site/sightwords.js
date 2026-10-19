@@ -1369,6 +1369,11 @@
       "#swOverlay .sw-hmr svg{display:block;width:100%;height:100%}" +
       "#swOverlay .sw-bonk{position:absolute;left:50%;top:6px;z-index:6;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#FFE066;-webkit-text-stroke:2px #C0392B;paint-order:stroke fill;white-space:nowrap;pointer-events:none}" +
       "@media(max-width:560px){#swOverlay .sw-hl{height:104px}#swOverlay .sw-mole{width:84px;margin-left:-42px}#swOverlay .sw-field{gap:0 4px;padding:8px 6px 4px}#swOverlay .sw-mw{font-size:14px!important}}" +
+      "#swOverlay .sw-g6{background:#D8F1D2;box-shadow:0 6px 0 #8CCB86}" +
+      "#swOverlay .sw-snk{display:block;margin:10px auto;border-radius:20px;box-shadow:0 0 0 4px #fff,0 6px 0 4px #9FB6CC;touch-action:none;cursor:pointer}" +
+      "#swOverlay .sw-dpad{display:grid;grid-template-columns:repeat(3,58px);gap:6px;justify-content:center;margin:12px 0 4px}" +
+      "#swOverlay .sw-dp{height:48px;border-radius:16px;background:#fff;box-shadow:0 4px 0 #C9D7E8;font-size:22px;color:#4A2FB8;-webkit-tap-highlight-color:transparent}" +
+      "#swOverlay .sw-dp:active{transform:translateY(2px);box-shadow:0 2px 0 #C9D7E8}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -1502,7 +1507,7 @@
     return top;
   }
   // the games on show on the home page: two for each pair of stages (the others are under "More games"); ?stage=N tries another stage
-  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["mole", "feed"], ["mole", "feed"]];
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "mole"], ["mole", "feed"]];
   function gameSetNo(s) {
     var m = /[?&]stage=(\d)/.exec((root.location && root.location.search) || ""),
       st = m ? +m[1] : reachedStage(s);
@@ -1601,6 +1606,7 @@
         mole: { id: "swMole", cls: "sw-g5", icon: "mole", label: "Whack-a-word" },
         feed: { id: "swFeed", cls: "sw-g3", icon: "feed", label: feedLabel() },
         mem: { id: "swMem", cls: "sw-g1", icon: "memory", label: "Memory match" },
+        snake: { id: "swSnake", cls: "sw-g6", icon: "snake", label: "Word snake" },
       },
       mainG = GAMESETS[gameSetNo(s) - 1],
       moreG = Object.keys(GM).filter(function (k) {
@@ -1645,6 +1651,9 @@
       },
       swMole: function () {
         startWhack(gameWords(s, 8));
+      },
+      swSnake: function () {
+        startSnake(gameWords(s, 6));
       },
     };
     Object.keys(starters).forEach(function (id) {
@@ -2546,7 +2555,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -3459,6 +3468,421 @@
       my = null;
     };
     show();
+  }
+
+  /* ---- Word snake: a snake on a grid; hear a word and eat the apple that carries it. A wrong apple makes the snake shorter, it never ends in a crash;
+     the speed follows the child's accuracy. Arrow keys, swipes or the on-screen arrows ---- */
+  var SNAKEKEY = "lef_snake_v1";
+  function readSnake() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(SNAKEKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, len: +o.len || 0, lvl: o.lvl === undefined ? 2.5 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeSnake(o) {
+    try {
+      ls.setItem(SNAKEKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startSnake(words) {
+    gameTag = "game";
+    trk("sw_game_start", "snake", "", "game");
+    var COLS = 12,
+      ROWS = 12,
+      pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 6151) + 11),
+      store = readSnake(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      mist = 0,
+      wrongTries = 0,
+      snake = [],
+      dir = { x: 1, y: 0 },
+      nextDir = null,
+      started = false,
+      done = false,
+      apples = [],
+      target = null,
+      fx = [],
+      my = null,
+      tick = null,
+      raf = null,
+      keyH = null,
+      cv = null,
+      ctx = null,
+      size = 300,
+      cell = 25,
+      note = "";
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function wrap(v, n) {
+      return (v + n) % n;
+    }
+    function cdist(a, b) {
+      var dx = Math.abs(a.x - b.x),
+        dy = Math.abs(a.y - b.y);
+      return Math.min(dx, COLS - dx) + Math.min(dy, ROWS - dy);
+    }
+    function onSnake(x, y) {
+      return snake.some(function (c) {
+        return c.x === x && c.y === y;
+      });
+    }
+    function layApples(ws) {
+      apples = [];
+      ws.forEach(function (w) {
+        var t = 0,
+          c;
+        do {
+          c = { x: Math.floor(rnd() * COLS), y: Math.floor(rnd() * ROWS) };
+          t++;
+        } while (
+          t < 300 &&
+          (onSnake(c.x, c.y) ||
+            cdist(c, snake[0]) < 4 ||
+            apples.some(function (a) {
+              return cdist(a, c) < 4;
+            }))
+        );
+        apples.push({ x: c.x, y: c.y, w: w });
+      });
+    }
+    function newRound() {
+      if (!alive()) return;
+      var r = rounds[i];
+      target = r;
+      mist = 0;
+      wrongTries = 0;
+      var others = r.opts
+        .filter(function (w) {
+          return wkey(w) !== wkey(r.w);
+        })
+        .slice(0, 2);
+      layApples(shuffle([r.w].concat(others), rnd));
+      note = "";
+      var ms = document.getElementById("swMsg");
+      if (ms) ms.textContent = "";
+      setTimeout(function () {
+        if (alive()) play("w", r.w);
+      }, 300);
+    }
+    function hud() {
+      var a = document.getElementById("swSc"),
+        b = document.getElementById("swLen"),
+        c = document.getElementById("swSpd"),
+        d = document.getElementById("swCmb"),
+        dots = 1 + Math.round(lvl / 2);
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = "Length " + (snake.length || 3);
+      if (c) c.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○");
+      if (d) d.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function pop(x, y, text, color) {
+      fx.push({ x: x, y: y, t: Date.now(), text: text, c: color });
+    }
+    function cleanup() {
+      done = true;
+      clearTimeout(tick);
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+      if (keyH) document.removeEventListener("keydown", keyH);
+      keyH = null;
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best,
+        len = snake.length;
+      store.best = Math.max(store.best, score);
+      store.len = Math.max(store.len, len);
+      store.lvl = lvl;
+      writeSnake(store);
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Longest snake: " + store.len + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      endGame("n", first, "Word snake", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · snake length " + len;
+      }, function () {
+        startSnake(gameWords(readState(), 6));
+      }, extra, null);
+    }
+    function setDir(dx, dy) {
+      if (!alive()) return;
+      if (!started) {
+        // the first arrow starts the snake: its body is laid out straight behind the head
+        var cx = Math.floor(COLS / 2),
+          cy = Math.floor(ROWS / 2);
+        dir = { x: dx, y: dy };
+        snake = [0, 1, 2].map(function (k) {
+          return { x: wrap(cx - dx * k, COLS), y: wrap(cy - dy * k, ROWS) };
+        });
+        started = true;
+        newRound();
+        hud();
+        return;
+      }
+      if (dx === -dir.x && dy === -dir.y) return; // no turning back on itself
+      nextDir = { x: dx, y: dy };
+    }
+    function eat(ap) {
+      var right = wkey(ap.w) === wkey(target.w),
+        k = wkey(target.w);
+      apples.splice(apples.indexOf(ap), 1);
+      if (right) {
+        if (first[k] === undefined) first[k] = true;
+        if (mist === 0) lvl = Math.min(8, lvl + 0.7);
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        var pts = 10 + Math.min(combo, 6) * 3;
+        score += pts;
+        apples = [];
+        pop(ap.x, ap.y, "+" + pts, "#FFD23F");
+        sfx("sparkle");
+        say(combo >= 3 ? "Combo ×" + combo + "! " + target.w : "Yum! " + target.w);
+        try {
+          if (hooks.burst && combo >= 3) {
+            var br = cv.getBoundingClientRect();
+            hooks.burst(br.left + (ap.x + 0.5) * cell, br.top + (ap.y + 0.5) * cell);
+          }
+        } catch (e) {}
+        i++;
+        if (i >= rounds.length) {
+          done = true;
+          clearTimeout(tick);
+          setTimeout(function () {
+            if (my && run === my) finish();
+          }, 900);
+        } else
+          setTimeout(newRound, 800);
+      } else {
+        first[k] = false;
+        mist++;
+        wrongTries++;
+        lvl = Math.max(0, lvl - 0.8);
+        combo = 0;
+        snake.pop();
+        if (snake.length > 3) snake.pop(); // a wrong apple: the snake gets one shorter
+        pop(ap.x, ap.y, "oops", "#FF6B4A");
+        sfx("poke");
+        say("Not that one! Listen again.");
+      }
+      hud();
+    }
+    function step() {
+      tick = null;
+      if (!alive()) return;
+      if (started) {
+        if (nextDir) {
+          dir = nextDir;
+          nextDir = null;
+        }
+        var hx = wrap(snake[0].x + dir.x, COLS),
+          hy = wrap(snake[0].y + dir.y, ROWS),
+          blocked = snake.slice(0, -1).some(function (c) {
+            return c.x === hx && c.y === hy;
+          });
+        if (blocked) {
+          if (note !== "bump") {
+            note = "bump";
+            say("Careful, your tail! Turn another way.");
+          }
+        } else {
+          note = "";
+          snake.unshift({ x: hx, y: hy });
+          var ap = apples.filter(function (a) {
+            return a.x === hx && a.y === hy;
+          })[0];
+          if (ap) eat(ap); // a right apple: the tail stays, the snake is one longer
+          else snake.pop();
+        }
+      }
+      if (alive()) tick = setTimeout(step, Math.round(420 - lvl * 32));
+    }
+    function pill(text, x, y) {
+      var fs = Math.max(12, Math.round(cell * 0.56));
+      ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      var w = ctx.measureText(text).width + 12,
+        h = fs + 6,
+        px = Math.max(2, Math.min(size - w - 2, x - w / 2)),
+        py = y - h / 2;
+      ctx.fillStyle = "rgba(255,255,255,.95)";
+      ctx.strokeStyle = "rgba(30,42,74,.35)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(px, py, w, h, h / 2);
+      else ctx.rect(px, py, w, h);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#1E2A4A";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, px + w / 2, py + h / 2 + 1);
+    }
+    function draw(ts) {
+      if (!cv || done) return;
+      var x,
+        y;
+      ctx.clearRect(0, 0, size, size);
+      for (y = 0; y < ROWS; y++) for (x = 0; x < COLS; x++) {
+        ctx.fillStyle = (x + y) % 2 ? "#B6E89A" : "#A6DE87";
+        ctx.fillRect(x * cell, y * cell, cell, cell);
+      }
+      apples.forEach(function (a) {
+        var cx = (a.x + 0.5) * cell,
+          cy = (a.y + 0.5) * cell;
+        if (wrongTries >= 2 && target && wkey(a.w) === wkey(target.w)) {
+          ctx.strokeStyle = "rgba(255,214,64,.95)";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.arc(cx, cy, cell * (0.58 + 0.08 * Math.sin(ts / 140)), 0, 6.283);
+          ctx.stroke();
+        }
+        ctx.fillStyle = "#E5483A";
+        ctx.beginPath();
+        ctx.arc(cx, cy + 1, cell * 0.4, 0, 6.283);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,.55)";
+        ctx.beginPath();
+        ctx.ellipse(cx - cell * 0.14, cy - cell * 0.1, cell * 0.09, cell * 0.14, -0.5, 0, 6.283);
+        ctx.fill();
+        ctx.fillStyle = "#35B779";
+        ctx.beginPath();
+        ctx.ellipse(cx + cell * 0.12, cy - cell * 0.42, cell * 0.16, cell * 0.08, -0.6, 0, 6.283);
+        ctx.fill();
+      });
+      var sn = snake.length ? snake : [{ x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) }, { x: Math.floor(COLS / 2) - 1, y: Math.floor(ROWS / 2) }, { x: Math.floor(COLS / 2) - 2, y: Math.floor(ROWS / 2) }];
+      for (var k = sn.length - 1; k >= 0; k--) {
+        var s0 = sn[k],
+          inset = k === 0 ? 0.02 : 0.08;
+        ctx.fillStyle = k === 0 ? "#2E9E5B" : k % 2 ? "#4CD08A" : "#3DBE78";
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(s0.x * cell + cell * inset, s0.y * cell + cell * inset, cell * (1 - inset * 2), cell * (1 - inset * 2), cell * 0.32);
+        else ctx.rect(s0.x * cell + cell * inset, s0.y * cell + cell * inset, cell * (1 - inset * 2), cell * (1 - inset * 2));
+        ctx.fill();
+      }
+      var hd = sn[0],
+        hx0 = (hd.x + 0.5) * cell,
+        hy0 = (hd.y + 0.5) * cell,
+        px = -dir.y,
+        py = dir.x;
+      [-1, 1].forEach(function (sd) {
+        var ex = hx0 + dir.x * cell * 0.14 + px * sd * cell * 0.22,
+          ey = hy0 + dir.y * cell * 0.14 + py * sd * cell * 0.22;
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(ex, ey, cell * 0.15, 0, 6.283);
+        ctx.fill();
+        ctx.fillStyle = "#1E2A4A";
+        ctx.beginPath();
+        ctx.arc(ex + dir.x * cell * 0.04, ey + dir.y * cell * 0.04, cell * 0.075, 0, 6.283);
+        ctx.fill();
+      });
+      apples.forEach(function (a) {
+        var below = a.y === 0;
+        pill(a.w, (a.x + 0.5) * cell, below ? (a.y + 1.35) * cell : (a.y - 0.3) * cell);
+      });
+      var now = Date.now();
+      fx = fx.filter(function (f) {
+        return now - f.t < 900;
+      });
+      fx.forEach(function (f) {
+        var a = (now - f.t) / 900;
+        ctx.globalAlpha = 1 - a;
+        ctx.fillStyle = f.c;
+        ctx.font = "700 " + Math.round(cell * 0.8) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.strokeStyle = "rgba(30,42,74,.6)";
+        ctx.lineWidth = 3;
+        ctx.strokeText(f.text, (f.x + 0.5) * cell, (f.y - 0.2) * cell - a * cell * 1.2);
+        ctx.fillText(f.text, (f.x + 0.5) * cell, (f.y - 0.2) * cell - a * cell * 1.2);
+        ctx.globalAlpha = 1;
+      });
+      if (!started) {
+        ctx.fillStyle = "rgba(30,42,74,.62)";
+        ctx.fillRect(0, size / 2 - cell * 1.6, size, cell * 3.2);
+        ctx.fillStyle = "#fff";
+        ctx.font = "700 " + Math.round(cell * 0.78) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Press an arrow or swipe to start!", size / 2, size / 2);
+      }
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word snake</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Word snake</div><div class="sw-sent" style="font-size:22px">Eat the apple with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swSc"></span><span class="sw-msc" id="swLen"></span><span class="sw-mcb" id="swCmb"></span><span class="sw-spd" id="swSpd"></span></div>' +
+      '<canvas class="sw-snk" id="swSnk"></canvas><div class="sw-dpad"><i></i><button class="sw-dp" data-d="0,-1" aria-label="Up">▲</button><i></i><button class="sw-dp" data-d="-1,0" aria-label="Left">◀</button><button class="sw-dp" data-d="0,1" aria-label="Down">▼</button><button class="sw-dp" data-d="1,0" aria-label="Right">▶</button></div><div class="sw-msg" id="swMsg"></div></div>';
+    bindQuit();
+    cv = document.getElementById("swSnk");
+    size = Math.max(240, Math.min(420, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    cell = Math.floor(size / COLS);
+    size = cell * COLS;
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = size + "px";
+    cv.style.height = size + "px";
+    cv.width = Math.round(size * dpr);
+    cv.height = Math.round(size * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    document.getElementById("swHear").onclick = function () {
+      if (target) play("w", target.w);
+      else say("Press an arrow to start, then listen!");
+    };
+    Array.prototype.forEach.call(box.querySelectorAll(".sw-dp"), function (b) {
+      b.onclick = function () {
+        var d = b.getAttribute("data-d").split(",");
+        setDir(+d[0], +d[1]);
+      };
+    });
+    keyH = function (e) {
+      var m = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] }[e.key];
+      if (m) {
+        e.preventDefault();
+        setDir(m[0], m[1]);
+      }
+    };
+    document.addEventListener("keydown", keyH);
+    var sx = null,
+      sy = null;
+    cv.addEventListener("pointerdown", function (e) {
+      sx = e.clientX;
+      sy = e.clientY;
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (sx === null) return;
+      var dx = e.clientX - sx,
+        dy = e.clientY - sy;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) > 22) {
+        if (Math.abs(dx) > Math.abs(dy)) setDir(dx > 0 ? 1 : -1, 0);
+        else setDir(0, dy > 0 ? 1 : -1);
+        sx = e.clientX;
+        sy = e.clientY;
+      }
+    });
+    cv.addEventListener("pointerup", function () {
+      sx = null;
+    });
+    cv.addEventListener("pointercancel", function () {
+      sx = null;
+    });
+    my = run = { mode: "snake", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    hud();
+    tick = setTimeout(step, 400);
+    draw(Date.now());
   }
 
   /* ---- feed your pet words: the pet asks for a snack, you give it the right plate; every bite makes it feel better and it never goes back ---- */
