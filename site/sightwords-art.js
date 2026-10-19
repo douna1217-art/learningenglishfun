@@ -87,6 +87,7 @@
       holdbook: { L: ST, A: [[-17, -30, -15, -25], [17, -30, 15, -25]] }, // both hands at the two bottom corners of an open book held up in front of the chest
       push: { lean: 10, L: [[-3, -22, -13, -3], [3, -22, 11, -3]], A: [[2, -36, 24, -31], [22, -39, 38, -31]] }, // leaning forward, both hands pushing something at the right
       throw: { lean: -6, L: [[-4, -22, -12, -2], [4, -22, 12, -2]], A: [[-17, -38, -23, -27], [18, -54, 24, -66]] }, // winding up: the right hand cocked up behind the head with the ball, the left arm held out low for balance
+      mount: { L: [[-4, -22, -5, -1], [5, -22, 24, -17]], A: [[-14, -32, -14, -22], [20, -52, 30, -64]] }, // climbing onto a horse at the right: one foot raised to the stirrup, the right hand up on its back
       grip: { L: ST, A: [[-18, -37, -13, -34], [18, -37, 13, -34]] }, // both hands on the two sides of something held up in front of the chest (a letter, a card)
       cradleB: { L: ST, A: [[-18, -30, 8, -27], [19, -37, 4, -34]] }, // holding a baby lying along one forearm, the head in the crook of the elbow, the other hand resting on the baby
       cradleR: { L: ST, A: [[-14, -28, 27, -24], [25, -31, 3, -23]] }, // the same, with the thing held on the right side
