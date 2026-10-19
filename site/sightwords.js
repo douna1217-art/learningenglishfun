@@ -1297,7 +1297,7 @@
       "#swOverlay .sw-fbody{display:block}" +
       "#swOverlay .sw-fbody svg{display:block;width:100%;height:auto}" +
       "#swOverlay .sw-flip{transform:scaleX(-1)}" +
-      "#swOverlay .sw-fw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Fredoka',sans-serif;font-weight:700;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);white-space:nowrap;pointer-events:none}" +
+      "#swOverlay .sw-fw{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'Fredoka',sans-serif;font-weight:700;color:#1E2A4A;background:rgba(255,255,255,.94);border-radius:999px;padding:1px 9px 2px;box-shadow:0 2px 0 rgba(0,0,0,.2);white-space:nowrap;pointer-events:none}" +
       "#swOverlay .sw-fsh.sw-wob .sw-fbody{animation:swshake .4s}" +
       "#swOverlay .sw-fsh.sw-hint .sw-fbob{animation:swhint .6s ease-in-out infinite alternate;filter:drop-shadow(0 0 8px #FFE066)}" +
       "#swOverlay .sw-fgone{opacity:0;transition:opacity .4s;pointer-events:none}" +
@@ -1318,6 +1318,19 @@
       "#swOverlay .sw-fth{position:relative;width:66px;display:block}" +
       "#swOverlay .sw-fth svg{display:block;width:100%;height:auto}" +
       "#swOverlay .sw-fnew{position:absolute;top:-6px;right:-8px;background:#FF6B4A;color:#fff;font-size:10px;border-radius:999px;padding:2px 7px}" +
+      "#swOverlay .sw-tank{position:relative;height:104px;border-radius:22px;overflow:hidden;margin-top:10px;background:linear-gradient(#DDF3FF,#9ADBF5);box-shadow:inset 0 0 0 4px #fff,0 5px 0 #9FB6CC}" +
+      "#swOverlay .sw-tank:after{content:'';position:absolute;left:0;right:0;bottom:0;height:16px;background:linear-gradient(#F3DDA0,#E3C57A);z-index:0}" +
+      "#swOverlay .sw-tkl{position:absolute;left:12px;top:6px;font-weight:800;font-size:13px;color:#2B6A8F;z-index:3;background:rgba(255,255,255,.75);border-radius:999px;padding:1px 10px}" +
+      "#swOverlay .sw-pl{position:absolute;bottom:3px;font-size:22px;z-index:1}" +
+      "#swOverlay .sw-tf{position:absolute;width:48px;left:0;z-index:2;animation:swtank linear infinite}" +
+      "@keyframes swtank{0%{left:2%}50%{left:calc(100% - 52px)}100%{left:2%}}" +
+      "#swOverlay .sw-tfi{display:block;animation:swturn linear infinite}" +
+      "@keyframes swturn{0%,49.9%{transform:scaleX(1)}50%,100%{transform:scaleX(-1)}}" +
+      "#swOverlay .sw-tfi svg{display:block;width:100%;height:auto}" +
+      "#swOverlay .sw-tin .sw-tfi svg{animation:swtin .9s ease-out}" +
+      "@keyframes swtin{from{transform:translateY(-80px) scale(.3);opacity:0}60%{opacity:1}to{transform:none;opacity:1}}" +
+      "#swOverlay .sw-tank.sw-tglow{animation:swglow 1.1s}" +
+      "@keyframes swglow{0%,100%{box-shadow:inset 0 0 0 4px #fff,0 5px 0 #9FB6CC}50%{box-shadow:inset 0 0 0 4px #FFE066,0 0 22px #FFE066}}" +
       "#swOverlay .sw-fcount{font-weight:800;margin:6px 0 10px}" +
       "#swOverlay .sw-aq{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:30px}" +
       "#swOverlay .sw-aqc{background:#fff;border-radius:22px;padding:14px 10px;text-align:center;box-shadow:0 6px 0 #C9D7E8}" +
@@ -1325,7 +1338,7 @@
       "#swOverlay .sw-aqf svg{display:block;width:100%;height:auto}" +
       "#swOverlay .sw-aqn{font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;margin-top:6px}" +
       "#swOverlay .sw-aqr{font-weight:800;font-size:12px}" +
-      "@media(max-width:560px){#swOverlay .sw-sea{height:340px}#swOverlay .sw-fsh{width:96px}#swOverlay .sw-boat{width:112px}#swOverlay .sw-fpet{width:62px}#swOverlay .sw-frs{width:120px}}" +
+      "@media(max-width:560px){#swOverlay .sw-sea{height:330px}#swOverlay .sw-fsh{width:96px}#swOverlay .sw-boat{width:112px}#swOverlay .sw-fpet{width:62px}#swOverlay .sw-frs{width:120px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-fbob{animation:none}}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
@@ -2817,7 +2830,22 @@
       first = {},
       caught = [],
       i = 0,
-      my = null;
+      my = null,
+      tank = [],
+      t0 = Date.now();
+    SPECIES.forEach(function (sp) {
+      if (readFish()[sp.id] > 0) tank.push(sp); // the fish already found swim in the tank from the start
+    });
+    // the child's own aquarium, always on the screen: every fish found so far, swimming; the newest one drops in
+    function tankHtml(newIdx) {
+      var el = (Date.now() - t0) / 1000;
+      return '<div class="sw-tkl">🐠 My aquarium · ' + fishFound(readFish()) + " / " + SPECIES.length + '</div><span class="sw-pl" style="left:5%">🌿</span><span class="sw-pl" style="left:90%">🐚</span>' +
+        tank.map(function (sp, n) {
+          var dur = 9 + (n % 4) * 2.5,
+            delay = (-((el + n * 3.1) % dur)).toFixed(1);
+          return '<span class="sw-tf' + (n === newIdx ? " sw-tin" : "") + '" style="top:' + (26 + (n % 3) * 20) + "px;animation-duration:" + dur + "s;animation-delay:" + delay + 's"><span class="sw-tfi" style="animation-duration:' + dur + "s;animation-delay:" + delay + 's">' + fishSvg(sp) + "</span></span>";
+        }).join("");
+    }
     function finish() {
       var found = readFish(),
         thumbs = caught
@@ -2862,7 +2890,7 @@
       box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word fishing · ' + (i + 1) + " / " + rounds.length + "</span></div>" +
         '<div class="sw-card"><div class="sw-kind">Word fishing</div><div class="sw-sent" style="font-size:22px">Catch the fish with the word you hear!</div>' +
         '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-sea" id="swSea"><div class="sw-boat"><div class="sw-fpet">' + petArt("happy") + "</div>" + BOATSVG + '</div><div class="sw-bk" id="swBk">🐟 ' + caught.length + "</div>" + fish +
-        '</div><div class="sw-msg" id="swMsg"></div></div>';
+        '</div><div class="sw-tank" id="swTank">' + tankHtml(-1) + '</div><div class="sw-msg" id="swMsg"></div></div>';
       bindQuit();
       document.getElementById("swHear").onclick = function () {
         play("w", r.w);
@@ -2950,6 +2978,16 @@
             card.innerHTML = '<div class="sw-frs">' + fishSvg(sp) + '</div><div class="sw-frn">' + esc(sp.name) + '</div><div class="sw-frr" style="background:' + RARCOL[sp.rar] + '">' + RARITY[sp.rar] + (isNew ? " · NEW!" : "") + "</div>";
             sea.appendChild(card);
             sfx(sp.rar >= 2 ? "big" : isNew ? "sparkle" : "cheer");
+            setTimeout(function () {
+              var tk = document.getElementById("swTank");
+              if (run !== my || !tk) return;
+              var pushed = isNew || tank.length < 14;
+              if (pushed) tank.push(sp);
+              tk.innerHTML = tankHtml(pushed ? tank.length - 1 : -1);
+              tk.classList.remove("sw-tglow");
+              void tk.offsetWidth;
+              tk.classList.add("sw-tglow");
+            }, 500);
             try {
               if (hooks.burst && sp.rar >= 1) hooks.burst(root.innerWidth / 2, 220);
             } catch (e) {}
