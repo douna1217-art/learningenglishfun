@@ -2874,7 +2874,7 @@
       var el = (Date.now() - t0) / 1000;
       return '<div class="sw-tkl">🐠 My aquarium · ' + fishFound(readFish()) + " / " + SPECIES.length + '</div><span class="sw-pl" style="left:5%">🌿</span><span class="sw-pl" style="left:90%">🐚</span>' +
         tank.map(function (it, n) {
-          var dur = 36 + (n % 4) * 8,
+          var dur = 80 + (n % 4) * 16,
             delay = (-((el + n * 7.3) % dur)).toFixed(1),
             w = it.w;
           return '<span class="sw-tf' + (n === newIdx ? " sw-tin" : "") + '" style="top:' + (24 + (n % 3) * 17) + "px;animation-duration:" + dur + "s;animation-delay:" + delay + 's"><span class="sw-tfi" style="animation-duration:' + dur + "s;animation-delay:" + delay + 's">' + fishSvg(it.sp) + '</span><span class="sw-tfw" style="font-size:' + (w.length > 8 ? 9 : w.length > 6 ? 10 : 12) + 'px">' + esc(w) + "</span></span>";
