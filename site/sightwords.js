@@ -4577,7 +4577,220 @@
       ls.setItem(SLASHKEY, JSON.stringify(o));
     } catch (e) {}
   }
-  var ORBC = ["#E5483A", "#FF8A3D", "#35B779", "#3D8BF2", "#8B6BE8", "#FF6FA0"];
+  // the fruits that fly: the colours of the skin (light, middle, dark) and of the inside (which shows when it is sliced)
+  var FRUITS = [
+    { n: "apple", hi: "#FF9C8A", skin: "#E5483A", lo: "#9E2320", rind: "", flesh: "#FFF4D2", seed: "#6B3E1E" },
+    { n: "orange", hi: "#FFD08A", skin: "#FF8A1F", lo: "#CC6208", rind: "#FFB35C", flesh: "#FFB84A", seed: "" },
+    { n: "melon", hi: "#7ED08F", skin: "#2E9E5B", lo: "#17673A", rind: "#F2FFE6", flesh: "#FF4D63", seed: "#1E2A4A" },
+    { n: "peach", hi: "#FFE0C8", skin: "#FF9A7A", lo: "#E0604A", rind: "", flesh: "#FFD79A", seed: "#7A4A2A" },
+    { n: "lemon", hi: "#FFF59A", skin: "#FFD60A", lo: "#CFA000", rind: "#FFF07A", flesh: "#FFF8B0", seed: "" },
+    { n: "berry", hi: "#FF8A99", skin: "#E8283E", lo: "#9E1226", rind: "", flesh: "#FF8896", seed: "" },
+    { n: "kiwi", hi: "#C99A66", skin: "#8A5F35", lo: "#5A3C20", rind: "", flesh: "#8FD65A", seed: "#1E2A4A" },
+  ];
+  // the body of a fruit, centre at (0, 0), r = its size; gold = the hint paints it gold
+  function fruitBody(c, f, r, gold) {
+    var k,
+      hi = gold ? "#FFF6B0" : f.hi,
+      mid = gold ? gold : f.skin,
+      lo = gold ? "#D9A100" : f.lo,
+      gr = c.createRadialGradient(-r * 0.35, -r * 0.42, r * 0.12, 0, 0, r * 1.25);
+    gr.addColorStop(0, hi);
+    gr.addColorStop(0.45, mid);
+    gr.addColorStop(1, lo);
+    c.fillStyle = gr;
+    c.strokeStyle = "rgba(30,42,74,.35)";
+    c.lineWidth = 2.2;
+    c.beginPath();
+    if (f.n === "berry") {
+      c.moveTo(0, r * 1.08);
+      c.bezierCurveTo(r * 0.55, r * 0.85, r * 1.1, r * 0.2, r * 1.0, -r * 0.45);
+      c.bezierCurveTo(r * 0.85, -r * 0.95, r * 0.2, -r * 0.85, 0, -r * 0.7);
+      c.bezierCurveTo(-r * 0.2, -r * 0.85, -r * 0.85, -r * 0.95, -r * 1.0, -r * 0.45);
+      c.bezierCurveTo(-r * 1.1, r * 0.2, -r * 0.55, r * 0.85, 0, r * 1.08);
+    } else if (f.n === "lemon") {
+      c.moveTo(-r * 1.28, 0);
+      c.quadraticCurveTo(-r * 1.05, -r * 0.2, -r * 0.8, -r * 0.55);
+      c.bezierCurveTo(-r * 0.3, -r * 0.98, r * 0.3, -r * 0.98, r * 0.8, -r * 0.55);
+      c.quadraticCurveTo(r * 1.05, -r * 0.2, r * 1.28, 0);
+      c.quadraticCurveTo(r * 1.05, r * 0.2, r * 0.8, r * 0.55);
+      c.bezierCurveTo(r * 0.3, r * 0.98, -r * 0.3, r * 0.98, -r * 0.8, r * 0.55);
+      c.quadraticCurveTo(-r * 1.05, r * 0.2, -r * 1.28, 0);
+    } else if (f.n === "melon") {
+      c.ellipse(0, 0, r * 1.08, r * 0.92, 0, 0, 6.283);
+    } else if (f.n === "apple") {
+      c.moveTo(0, -r * 0.66);
+      c.bezierCurveTo(r * 0.25, -r * 1.0, r * 1.02, -r * 0.92, r * 1.0, -r * 0.1);
+      c.bezierCurveTo(r * 0.98, r * 0.7, r * 0.5, r * 1.08, 0, r * 0.92);
+      c.bezierCurveTo(-r * 0.5, r * 1.08, -r * 0.98, r * 0.7, -r * 1.0, -r * 0.1);
+      c.bezierCurveTo(-r * 1.02, -r * 0.92, -r * 0.25, -r * 1.0, 0, -r * 0.66);
+    } else if (f.n === "peach") {
+      c.ellipse(0, r * 0.04, r * 0.98, r * 0.96, 0, 0, 6.283);
+    } else if (f.n === "kiwi") {
+      c.ellipse(0, 0, r * 1.02, r * 0.9, 0, 0, 6.283);
+    } else c.arc(0, 0, r, 0, 6.283);
+    c.fill();
+    c.stroke();
+    c.save();
+    c.clip();
+    if (f.n === "melon") {
+      c.strokeStyle = gold ? "#D9A100" : "#17673A";
+      c.lineWidth = r * 0.2;
+      for (k = -2; k <= 2; k++) {
+        c.beginPath();
+        c.moveTo(k * r * 0.42, -r);
+        c.quadraticCurveTo(k * r * 0.75, 0, k * r * 0.42, r);
+        c.stroke();
+      }
+      c.strokeStyle = "rgba(190,240,170,.55)";
+      c.lineWidth = r * 0.05;
+      for (k = -2; k <= 2; k++) {
+        c.beginPath();
+        c.moveTo(k * r * 0.42 + r * 0.21, -r);
+        c.quadraticCurveTo(k * r * 0.75 + r * 0.3, 0, k * r * 0.42 + r * 0.21, r);
+        c.stroke();
+      }
+    } else if (f.n === "orange" || f.n === "lemon") {
+      c.fillStyle = "rgba(120,50,0,.22)";
+      for (k = 0; k < 26; k++) {
+        c.beginPath();
+        c.arc(Math.cos(k * 2.4) * r * (0.15 + 0.78 * ((k * 0.37) % 1)), Math.sin(k * 2.4) * r * 0.8 * (0.15 + 0.78 * ((k * 0.37) % 1)), r * 0.035, 0, 6.283);
+        c.fill();
+      }
+    } else if (f.n === "peach") {
+      var pb = c.createRadialGradient(r * 0.45, r * 0.1, r * 0.1, r * 0.45, r * 0.1, r * 0.9);
+      pb.addColorStop(0, "rgba(255,90,80,.55)");
+      pb.addColorStop(1, "rgba(255,90,80,0)");
+      c.fillStyle = pb;
+      c.fillRect(-r, -r, r * 2, r * 2);
+      c.strokeStyle = "rgba(190,80,60,.55)";
+      c.lineWidth = r * 0.06;
+      c.beginPath();
+      c.moveTo(0, -r * 0.92);
+      c.quadraticCurveTo(r * 0.28, 0, 0, r * 0.95);
+      c.stroke();
+    } else if (f.n === "berry") {
+      for (k = 0; k < 14; k++) {
+        var bx = (((k * 5) % 5) - 2) * r * 0.34 + ((Math.floor(k / 5) % 2) * r * 0.17),
+          by = -r * 0.35 + Math.floor(k / 5) * r * 0.5 + (k % 2) * r * 0.1;
+        c.fillStyle = "rgba(130,10,25,.45)";
+        c.beginPath();
+        c.ellipse(bx, by + 1, r * 0.075, r * 0.11, 0, 0, 6.283);
+        c.fill();
+        c.fillStyle = "#FFE680";
+        c.beginPath();
+        c.ellipse(bx, by, r * 0.05, r * 0.08, 0, 0, 6.283);
+        c.fill();
+      }
+    } else if (f.n === "kiwi") {
+      c.strokeStyle = "rgba(60,38,20,.45)";
+      c.lineWidth = 1.2;
+      for (k = 0; k < 40; k++) {
+        var ka = k * 2.399,
+          kr = r * 0.9 * (0.2 + ((k * 0.61) % 0.8));
+        c.beginPath();
+        c.moveTo(Math.cos(ka) * kr, Math.sin(ka) * kr * 0.9);
+        c.lineTo(Math.cos(ka) * kr + 2.5, Math.sin(ka) * kr * 0.9 + 1.5);
+        c.stroke();
+      }
+    }
+    c.restore();
+    if (f.n === "berry") {
+      c.fillStyle = "#2E9E5B";
+      for (k = 0; k < 7; k++) {
+        var la = -Math.PI / 2 + (k - 3) * 0.5;
+        c.beginPath();
+        c.ellipse(Math.cos(la) * r * 0.32, -r * 0.7 + Math.sin(la) * r * 0.18 + r * 0.12, r * 0.32, r * 0.1, la, 0, 6.283);
+        c.fill();
+      }
+      c.strokeStyle = "#2E9E5B";
+      c.lineWidth = 3;
+      c.beginPath();
+      c.moveTo(0, -r * 0.72);
+      c.lineTo(0, -r * 1.12);
+      c.stroke();
+    } else if (f.n === "apple" || f.n === "peach" || f.n === "orange") {
+      c.strokeStyle = "#6B3E1E";
+      c.lineWidth = 3.2;
+      c.lineCap = "round";
+      c.beginPath();
+      c.moveTo(0, f.n === "apple" ? -r * 0.62 : -r * 0.9);
+      c.quadraticCurveTo(r * 0.05, -r * 1.05, r * 0.16, -r * 1.2);
+      c.stroke();
+      var lf = c.createLinearGradient(0, -r * 1.2, r * 0.6, -r * 0.9);
+      lf.addColorStop(0, "#6BD27E");
+      lf.addColorStop(1, "#2E9E5B");
+      c.fillStyle = lf;
+      c.beginPath();
+      c.ellipse(r * 0.42, -r * 1.02, r * 0.34, r * 0.14, -0.45, 0, 6.283);
+      c.fill();
+    }
+    // a shine
+    c.fillStyle = "rgba(255,255,255,.5)";
+    c.beginPath();
+    c.ellipse(-r * 0.42, -r * 0.4, r * 0.15, r * 0.28, 0.7, 0, 6.283);
+    c.fill();
+  }
+  // the inside of a half fruit (a half disc from angle a0), centre at (0, 0)
+  function fruitHalf(c, f, r, a0) {
+    var k;
+    c.fillStyle = f.skin;
+    c.beginPath();
+    c.arc(0, 0, r, a0, a0 + Math.PI);
+    c.closePath();
+    c.fill();
+    if (f.rind) {
+      c.fillStyle = f.rind;
+      c.beginPath();
+      c.arc(0, 0, r * 0.9, a0, a0 + Math.PI);
+      c.closePath();
+      c.fill();
+    }
+    c.fillStyle = f.flesh;
+    c.beginPath();
+    c.arc(0, 0, r * (f.rind ? 0.8 : 0.88), a0, a0 + Math.PI);
+    c.closePath();
+    c.fill();
+    c.strokeStyle = "rgba(255,255,255,.55)";
+    c.lineWidth = 1.6;
+    if (f.n === "orange" || f.n === "lemon") {
+      for (k = 1; k < 6; k++) {
+        c.beginPath();
+        c.moveTo(0, 0);
+        c.lineTo(Math.cos(a0 + (k * Math.PI) / 6) * r * 0.78, Math.sin(a0 + (k * Math.PI) / 6) * r * 0.78);
+        c.stroke();
+      }
+    } else if (f.n === "apple") {
+      c.fillStyle = "rgba(190,160,110,.45)";
+      c.beginPath();
+      c.ellipse(0, 0, r * 0.2, r * 0.32, a0 + Math.PI / 2, 0, 6.283);
+      c.fill();
+    } else if (f.n === "peach") {
+      c.fillStyle = "#B4743E";
+      c.beginPath();
+      c.ellipse(0, 0, r * 0.3, r * 0.42, a0 + Math.PI / 2, 0, 6.283);
+      c.fill();
+    } else if (f.n === "berry") {
+      c.fillStyle = "#FFD0D6";
+      c.beginPath();
+      c.arc(0, 0, r * 0.28, a0, a0 + Math.PI);
+      c.fill();
+    } else if (f.n === "kiwi") {
+      c.fillStyle = "#F4FFD8";
+      c.beginPath();
+      c.arc(0, 0, r * 0.26, a0, a0 + Math.PI);
+      c.fill();
+    }
+    if (f.seed) {
+      c.fillStyle = f.seed;
+      for (k = 0; k < 6; k++) {
+        var sa = a0 + 0.3 + k * 0.5,
+          sr = r * (f.n === "kiwi" ? 0.38 : 0.45 + 0.14 * (k % 2));
+        c.beginPath();
+        c.ellipse(Math.cos(sa) * sr, Math.sin(sa) * sr, 2, 3.2, sa, 0, 6.283);
+        c.fill();
+      }
+    }
+  }
   function startSlash(words) {
     gameTag = "game";
     trk("sw_game_start", "slash", "", "game");
@@ -4689,7 +4902,7 @@
             x0 = W * (0.2 + 0.6 * ((j + 0.5) / list.length)) + (rnd() - 0.5) * W * 0.08,
             T = (2 * -vy) / g,
             x1 = W * (0.22 + rnd() * 0.56);
-          orbs.push({ x: x0, y: H + R, vx: (x1 - x0) / T, vy: vy, w: it.w, bomb: !!it.bomb, target: !!it.target, c: ORBC[Math.floor(rnd() * ORBC.length)], rot: rnd() * 6, vr: (rnd() - 0.5) * 2, seen: false, gone: false });
+          orbs.push({ x: x0, y: H + R, vx: (x1 - x0) / T, vy: vy, w: it.w, bomb: !!it.bomb, target: !!it.target, f: FRUITS[Math.floor(rnd() * FRUITS.length)], rot: rnd() * 6, vr: (rnd() - 0.5) * 2, seen: false, gone: false });
           cur.launched++;
         }, 180 + j * 260);
       });
@@ -4708,8 +4921,8 @@
       if (o.gone || !alive()) return;
       o.gone = true;
       var now = Date.now();
-      halves.push({ x: o.x, y: o.y, vx: -80 * Math.cos(ang + 1.57) + o.vx * 0.3, vy: -80 * Math.sin(ang + 1.57) + o.vy * 0.2, ang: ang, rot: 0, vr: -2, c: o.bomb ? "#4A5878" : o.c, side: 0, t: now, w: o.w });
-      halves.push({ x: o.x, y: o.y, vx: 80 * Math.cos(ang + 1.57) + o.vx * 0.3, vy: 80 * Math.sin(ang + 1.57) + o.vy * 0.2, ang: ang, rot: 0, vr: 2, c: o.bomb ? "#4A5878" : o.c, side: 1, t: now, w: o.w });
+      halves.push({ x: o.x, y: o.y, vx: -80 * Math.cos(ang + 1.57) + o.vx * 0.3, vy: -80 * Math.sin(ang + 1.57) + o.vy * 0.2, ang: ang, rot: 0, vr: -2, c: o.bomb ? "#4A5878" : o.f.skin, f: o.bomb ? null : o.f, side: 0, t: now, w: o.w });
+      halves.push({ x: o.x, y: o.y, vx: 80 * Math.cos(ang + 1.57) + o.vx * 0.3, vy: 80 * Math.sin(ang + 1.57) + o.vy * 0.2, ang: ang, rot: 0, vr: 2, c: o.bomb ? "#4A5878" : o.f.skin, f: o.bomb ? null : o.f, side: 1, t: now, w: o.w });
       if (o.bomb) {
         splashAt(o, "#FFB84A", 14);
         score = Math.max(0, score - 5);
@@ -4724,7 +4937,7 @@
       }
       var k = cur.k;
       if (o.target) {
-        splashAt(o, o.c, 18);
+        splashAt(o, o.f.flesh, 18);
         if (first[k] === undefined) first[k] = true;
         lastWrong = mist > 0;
         if (mist === 0) {
@@ -4829,26 +5042,16 @@
         ctx.arc(0, 0, R * 1.8, 0, 6.283);
         ctx.fill();
       }
-      var base = o.bomb ? "#3B4663" : hint ? (blink ? "#FFF08A" : "#FFC400") : o.c;
-      var g2 = ctx.createRadialGradient(-R * 0.3, -R * 0.35, R * 0.1, 0, 0, R);
-      g2.addColorStop(0, "rgba(255,255,255,.85)");
-      g2.addColorStop(0.35, base);
-      g2.addColorStop(1, base);
-      ctx.fillStyle = base;
-      ctx.beginPath();
-      ctx.arc(0, 0, R, 0, 6.283);
-      ctx.fill();
-      ctx.fillStyle = g2;
-      ctx.globalAlpha = 0.55;
-      ctx.beginPath();
-      ctx.arc(0, 0, R, 0, 6.283);
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      ctx.strokeStyle = "rgba(30,42,74,.35)";
-      ctx.lineWidth = 2.5;
-      ctx.beginPath();
-      ctx.arc(0, 0, R, 0, 6.283);
-      ctx.stroke();
+      var base = o.bomb ? "#3B4663" : hint ? (blink ? "#FFF08A" : "#FFC400") : o.f.skin;
+      if (o.bomb) {
+        ctx.fillStyle = base;
+        ctx.beginPath();
+        ctx.arc(0, 0, R, 0, 6.283);
+        ctx.fill();
+        ctx.strokeStyle = "rgba(30,42,74,.35)";
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+      } else fruitBody(ctx, o.f, R, hint ? (blink ? "#FFF08A" : "#FFC400") : null);
       if (o.bomb) {
         ctx.fillStyle = "#fff";
         ctx.font = "700 " + Math.round(R * 0.9) + "px sans-serif";
@@ -4862,10 +5065,10 @@
         ctx.quadraticCurveTo(R * 0.3, -R * 1.3, R * 0.5, -R * 1.25);
         ctx.stroke();
       } else {
-        var fs = Math.round(R * 0.5),
+        var fs = Math.round(R * 0.62),
           tw;
         ctx.font = "700 " + fs + "px Fredoka, sans-serif";
-        while ((tw = ctx.measureText(o.w).width) > R * 1.5 && fs > 9) {
+        while ((tw = ctx.measureText(o.w).width) > R * 1.6 && fs > 9) {
           fs--;
           ctx.font = "700 " + fs + "px Fredoka, sans-serif";
         }
@@ -4947,20 +5150,38 @@
       ctx.save();
       ctx.translate(sh, 0);
       var bg = ctx.createLinearGradient(0, 0, 0, H);
-      bg.addColorStop(0, "#3A2F7A");
-      bg.addColorStop(0.6, "#6A48E8");
-      bg.addColorStop(1, "#A67BFF");
+      bg.addColorStop(0, "#6EC1F2");
+      bg.addColorStop(0.7, "#BFE6FF");
+      bg.addColorStop(1, "#EAF7FF");
       ctx.fillStyle = bg;
       ctx.fillRect(-10, 0, W + 20, H);
-      ctx.fillStyle = "rgba(255,255,255,.85)";
-      for (k = 0; k < 14; k++) {
-        ctx.beginPath();
-        ctx.arc(((k * 97) % W) + 8, ((k * 53) % (H * 0.5)) + 10, 1 + (k % 3) * 0.6, 0, 6.283);
-        ctx.fill();
-      }
-      ctx.fillStyle = "#FFF3B0";
+      ctx.fillStyle = "#FFE066";
       ctx.beginPath();
       ctx.arc(W * 0.8, H * 0.14, W * 0.07, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      [[0.2, 0.2, 1], [0.62, 0.34, 0.8], [0.9, 0.5, 0.6]].forEach(function (cl, n) {
+        var cx2 = ((cl[0] * W + ts * 0.006 * (n + 1)) % (W + 120)) - 60,
+          cy2 = cl[1] * H * 0.7 + 6,
+          ks = cl[2];
+        ctx.beginPath();
+        ctx.ellipse(cx2, cy2, 34 * ks, 11 * ks, 0, 0, 6.283);
+        ctx.ellipse(cx2 + 20 * ks, cy2 - 8 * ks, 20 * ks, 12 * ks, 0, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.fillStyle = "#A6DE87";
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      ctx.lineTo(0, H * 0.84);
+      for (k = 0; k <= W; k += 8) ctx.lineTo(k, H * 0.86 - 10 * Math.sin((k / W) * 6) - 6 * Math.sin((k / W) * 13));
+      ctx.lineTo(W, H);
+      ctx.fill();
+      ctx.fillStyle = "#79C96A";
+      ctx.beginPath();
+      ctx.moveTo(0, H);
+      ctx.lineTo(0, H * 0.92);
+      for (k = 0; k <= W; k += 8) ctx.lineTo(k, H * 0.93 - 6 * Math.sin((k / W) * 8 + 1));
+      ctx.lineTo(W, H);
       ctx.fill();
       halves.forEach(function (h) {
         var age = (ts - h.t) / 1400;
@@ -4968,16 +5189,15 @@
         ctx.translate(h.x, h.y);
         ctx.rotate(h.rot);
         ctx.globalAlpha = Math.max(0, 1 - age * 0.9);
-        ctx.fillStyle = h.c;
-        ctx.beginPath();
-        ctx.arc(0, 0, R, h.ang + h.side * Math.PI, h.ang + h.side * Math.PI + Math.PI);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = "rgba(255,255,255,.55)";
-        ctx.beginPath();
-        ctx.arc(0, 0, R * 0.78, h.ang + h.side * Math.PI, h.ang + h.side * Math.PI + Math.PI);
-        ctx.closePath();
-        ctx.fill();
+        var a0 = h.ang + h.side * Math.PI;
+        if (h.f) fruitHalf(ctx, h.f, R, a0);
+        else {
+          ctx.fillStyle = h.c;
+          ctx.beginPath();
+          ctx.arc(0, 0, R, a0, a0 + Math.PI);
+          ctx.closePath();
+          ctx.fill();
+        }
         ctx.restore();
       });
       parts.forEach(function (p) {
@@ -5008,9 +5228,10 @@
         var age = (ts - t.t) / 900;
         ctx.globalAlpha = Math.max(0, 1 - age);
         ctx.fillStyle = t.c;
-        ctx.strokeStyle = "rgba(30,42,74,.7)";
-        ctx.lineWidth = 3;
-        ctx.font = "700 " + Math.round(W * 0.07) + "px Fredoka, sans-serif";
+        ctx.strokeStyle = "rgba(30,42,74,.92)";
+        ctx.lineWidth = 4.5;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(W * 0.075) + "px Fredoka, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.strokeText(t.s, t.x, t.y - age * 40);
