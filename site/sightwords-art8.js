@@ -309,7 +309,7 @@
     electric: [["car", 100, G, 1.4, {}], ["plug", 190, G, 1.0, { flip: true }], ["bolt", 150, 70, 1.4, {}], ["sparkle", 60, 56, 0.8]],
     modern: [["modernhouse", 120, G, 1.8, {}], ["sparkle", 196, 44, 0.9], ["sparkle", 40, 60, 0.7]],
     value: [["goldbars", 100, G, 2.0, {}], ["coinstack", 170, G, 2.0, {}], ["star", 136, 36, 1.0], ["sparkle", 62, 60, 0.8]],
-    experiment: [["kid", 60, G, 1.4, kb("hold", { look: 1, mouth: "open", arms: "none" })], ["flask", 76, G - 42, 1.3, {}], ["kid", 60, G, 1.4, kb("hold", { arms: "only" })], ["table", 170, G, 1.4, {}], ["microscope", 170, G - 34, 0.9, {}], ["bubbles", 96, 58, 1.0, {}]],
+    experiment: [["table", 154, G, 1.6, {}], ["flask", 122, G - 39, 1.3, {}], ["microscope", 182, G - 39, 0.9, {}], ["bubbles", 124, 52, 1.0, {}], ["kid", 52, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["sparkle", 206, 44, 0.8]],
     method: [["num", 50, 82, 1.4, { n: 1 }], ["num", 120, 82, 1.4, { n: 2 }], ["num", 190, 82, 1.4, { n: 3 }], ["arrow", 0, 0, 1, { x1: 66, y1: 80, x2: 100, y2: 80 }], ["arrow", 0, 0, 1, { x1: 136, y1: 80, x2: 170, y2: 80 }], ["check", 190, 128, 1.1]],
     process: [["seeds", 48, G, 1.8, {}], ["sprout", 120, G, 2.0, {}], ["flower", 196, G, 1.6, {}], ["arrow", 0, 0, 1, { x1: 66, y1: 110, x2: 98, y2: 110 }], ["arrow", 0, 0, 1, { x1: 140, y1: 110, x2: 172, y2: 110 }]],
     result: [["scoreboard", 120, G, 1.4, { a: 5, b: 2 }], ["check", 186, 44, 1.2], ["heart", 56, 40, 0.9]],
