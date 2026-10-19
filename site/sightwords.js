@@ -1410,6 +1410,10 @@
       "#swOverlay .sw-dgal{font-size:54px;line-height:1.2}" +
       "#swOverlay .sw-dsilh{filter:brightness(0) opacity(.4)}" +
       "#swOverlay .sw-g10{background:#FFE3C2;box-shadow:0 6px 0 #E8A86A}" +
+      "#swOverlay .sw-c3{background:#E7DAFF;box-shadow:0 6px 0 #B49CEB}" +
+      "#swOverlay .sw-chal.sw-chal1{grid-template-columns:minmax(0,1fr);max-width:300px;margin:0 auto 14px}" +
+      "#swOverlay .sw-chal.sw-morec{margin-top:-4px}" +
+      "#swOverlay .sw-cas{display:block;width:100%}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -1652,6 +1656,20 @@
       moreG = Object.keys(GM).filter(function (k) {
         return mainG.indexOf(k) < 0;
       });
+    // one challenge for each stage (the island's own); a stage without one of its own yet shows the latest, and all of them are under "All challenges"
+    var CHS = {
+        battle: { id: "swBattle", cls: "sw-c2", label: "Monster battle", sub: "打怪兽 · " + monsDone(s) + " / 5", art: monArt(1, "cheer") },
+        spell: { id: "swSpell", cls: "sw-c1", label: "Bubble spell", sub: "泡泡拼词", art: scenery("game", "spell") },
+        siege: { id: "swSiege2", cls: "sw-c3", label: "Castle siege", sub: "弹弓攻城 · " + castlesDone(readSling()) + " / " + CASTLES.length, art: scenery("game", "castle") },
+      },
+      chOrder = ["battle", "spell", "siege"],
+      mainCh = chOrder[Math.min(chOrder.length, (/[?&]stage=(\d)/.exec((root.location && root.location.search) || "") ? +/[?&]stage=(\d)/.exec(root.location.search)[1] : reachedStage(s))) - 1],
+      moreCh = chOrder.filter(function (k) {
+        return k !== mainCh;
+      });
+    function chTile(k) {
+      return '<button class="sw-ct ' + CHS[k].cls + '" id="' + CHS[k].id + '"><span class="sw-gi">' + CHS[k].art + "</span>" + CHS[k].label + "<small>" + CHS[k].sub + "</small></button>";
+    }
     function gameTile(k) {
       return '<button class="sw-gt ' + GM[k].cls + '" id="' + GM[k].id + '"><span class="sw-gi">' + scenery("game", GM[k].icon) + "</span>" + esc(GM[k].label) + "</button>";
     }
@@ -1661,9 +1679,7 @@
       '<div class="sw-hrow"><div class="sw-hpet">' + pet("happy") + '</div><div class="sw-hsay"><div class="sw-bub">' + esc(say1) + "<b>" + esc(say2) + '</b></div><div class="sw-wchs">' + chipsHtml(list) + "</div></div></div>" +
       '<button class="sw-start" id="swToday">' + PLAY + esc(btn) + "</button></div>" +
       '<div class="sw-sect">Play with your words</div><div class="sw-games sw-g2c">' + mainG.map(gameTile).join("") + '</div><button class="sw-more" id="swMore">More games · 更多游戏 ▾</button><div class="sw-games sw-moreg" id="swMoreG" style="display:none">' + moreG.map(gameTile).join("") + "</div>" +
-      '<div class="sw-sect">Challenges · 挑战</div><div class="sw-chal">' +
-      '<button class="sw-ct sw-c1" id="swSpell"><span class="sw-gi">' + scenery("game", "spell") + "</span>Bubble spell<small>泡泡拼词</small></button>" +
-      '<button class="sw-ct sw-c2" id="swBattle"><span class="sw-gi">' + monArt(1, "cheer") + "</span>Monster battle<small>打怪兽 · " + monsDone(s) + " / 5</small></button></div>" +
+      '<div class="sw-sect">Challenge · 挑战</div><div class="sw-chal sw-chal1">' + chTile(mainCh) + '</div><button class="sw-more" id="swMoreC">All challenges · 所有挑战 ▾</button><div class="sw-chal sw-morec" id="swMoreCG" style="display:none">' + moreCh.map(chTile).join("") + "</div>" +
       '<div class="sw-sect">Word islands</div><div class="sw-isl-wrap">' + scenery("islands", { known: known, total: words.length, title: D.stages[0].title, ready: readyIslands(), stages: islandInfo(s) }) + '<div class="sw-ipet">' + pet("happy") + "</div></div>" +
       '<div class="sw-sect">My words</div><button class="sw-album" id="swWall"><span class="sw-bk">' + scenery("book") + '</span><span class="sw-at"><b>My word album</b><span>' + known + " known · " + learning + " learning · " + (words.length - seen) + ' to meet</span></span><span class="sw-stk">' + stickers + "</span></button></div>";
     box.innerHTML = h;
@@ -1722,13 +1738,30 @@
       g.style.display = open ? "" : "none";
       this.textContent = open ? "Fewer games ▴" : "More games · 更多游戏 ▾";
     };
-    document.getElementById("swSpell").onclick = function () {
-      back = showHome;
-      startSpell(spellList(readState()));
+    var chStart = {
+      swSpell: function () {
+        startSpell(spellList(readState()));
+      },
+      swBattle: function () {
+        showBattle();
+      },
+      swSiege2: function () {
+        showCastles();
+      },
     };
-    document.getElementById("swBattle").onclick = function () {
-      back = showHome;
-      showBattle();
+    Object.keys(chStart).forEach(function (id) {
+      var b = document.getElementById(id);
+      if (b)
+        b.onclick = function () {
+          back = showHome;
+          chStart[id]();
+        };
+    });
+    document.getElementById("swMoreC").onclick = function () {
+      var g = document.getElementById("swMoreCG"),
+        open = g.style.display === "none";
+      g.style.display = open ? "" : "none";
+      this.textContent = open ? "Fewer challenges ▴" : "All challenges · 所有挑战 ▾";
     };
     document.getElementById("swWall").onclick = showWall;
     Array.prototype.forEach.call(box.querySelectorAll(".sw-isl-qc"), function (q) {
@@ -2607,7 +2640,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -6134,6 +6167,751 @@
       down = null;
     });
     my = run = { mode: "basket", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    last = Date.now();
+    hud();
+    draw();
+  }
+
+  /* ---- Castle siege (the challenge of stage 3): pull your pet back on the slingshot and let it fly at the towers of a castle. Each tower holds a sign with a word;
+     hear a word and hit the sign that has it: the tower crumbles. A castle is a level (a few words); beat it to open the next one. The signs get smaller, the towers
+     sway more and the aim help gets shorter as the levels go up and the child gets it right ---- */
+  var SLINGKEY = "lef_sling_v1",
+    CASTLES = [
+      { n: "Wooden Fort", rounds: 4, sw: 0.2, sway: 0 },
+      { n: "Stone Tower", rounds: 4, sw: 0.18, sway: 0.02 },
+      { n: "Windy Keep", rounds: 5, sw: 0.17, sway: 0.035 },
+      { n: "Royal Castle", rounds: 5, sw: 0.155, sway: 0.05 },
+      { n: "Dragon's Castle", rounds: 6, sw: 0.14, sway: 0.06 },
+    ];
+  function readSling() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(SLINGKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { done: o.done && typeof o.done === "object" ? o.done : {}, best: o.best && typeof o.best === "object" ? o.best : {}, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeSling(o) {
+    try {
+      ls.setItem(SLINGKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function castlesDone(o) {
+    var n = 0;
+    for (var k = 1; k <= CASTLES.length; k++) if (o.done[k]) n++;
+    return n;
+  }
+  // the castles to choose from (a castle opens when the one before it has fallen)
+  function showCastles() {
+    trk("sw_view", "castles", "", "screen");
+    var st = readSling(),
+      h = '<div class="sw-top"><button class="sw-back" id="swClose">← Back</button></div><div class="sw-ttl"><span class="sw-aa">🏰</span><div><h1>Castle siege</h1><div class="sw-sub">' + castlesDone(st) + " of " + CASTLES.length + ' castles fallen · pull the pet back and hit the word!</div></div></div><div class="sw-aq">';
+    CASTLES.forEach(function (c, n) {
+      var open = n === 0 || st.done[n],
+        won = !!st.done[n + 1];
+      h += '<button class="sw-aqc sw-cas' + (open ? "" : " sw-aqno") + '" data-l="' + (n + 1) + '"' + (open ? "" : " disabled") + '><div class="sw-dgal">' + (won ? "🏳️" : open ? "🏰" : "🔒") + '</div><div class="sw-aqn">Level ' + (n + 1) + " · " + esc(c.n) + '</div><div class="sw-aqr" style="color:#6A48E8">' + (won ? "Fallen ✓ · best " + (st.best[n + 1] || 0) : open ? c.rounds + " words" : "Beat the one before") + "</div></button>";
+    });
+    box.innerHTML = h + "</div>";
+    document.getElementById("swClose").onclick = showHome;
+    Array.prototype.forEach.call(box.querySelectorAll(".sw-cas"), function (b) {
+      b.onclick = function () {
+        back = showCastles;
+        startSling(+b.getAttribute("data-l"));
+      };
+    });
+  }
+  function startSling(level) {
+    gameTag = "game";
+    trk("sw_game_start", "siege", "level " + level, "game");
+    var C = CASTLES[level - 1],
+      words = gameWords(readState(), C.rounds),
+      pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 2),
+      rnd = seeded((Date.now() % 3181) + 53),
+      store = readSling(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      shots = 0,
+      tries = 0,
+      fails = 0,
+      lastWrong = false,
+      help = 0,
+      spdNote = "",
+      done = false,
+      cur = null,
+      towers = [],
+      ball = null,
+      debris = [],
+      parts = [],
+      texts = [],
+      imgs = {},
+      mood = "happy",
+      pull = null,
+      wait = 0.4,
+      last = 0,
+      clock = 0,
+      my = null,
+      raf = null,
+      cv = null,
+      ctx = null,
+      W = 340,
+      H = 300,
+      GY = 270,
+      AX = 50,
+      AY = 190,
+      BR = 14,
+      G = 500,
+      KV = 6,
+      RMAX = 60;
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swGsc"),
+        b = document.getElementById("swGcb"),
+        c = document.getElementById("swGlv");
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = "Tower " + Math.min(i + 1, rounds.length) + " / " + rounds.length + spdNote;
+    }
+    function pace(up) {
+      spdNote = up ? " 🔼" : " 🔽";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
+    }
+    function petImg(m) {
+      if (imgs[m]) return imgs[m];
+      var svg = petArt(m);
+      if (!svg) return null;
+      svg = svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="428" ');
+      var im = new Image();
+      im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      imgs[m] = im;
+      return im;
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+    }
+    function finish() {
+      cleanup();
+      var st = readSling(),
+        newlyWon = !st.done[level];
+      st.done[level] = 1;
+      st.best[level] = Math.max(st.best[level] || 0, score);
+      st.lvl = lvl;
+      writeSling(st);
+      var hasNext = level < CASTLES.length,
+        extra = '<div class="sw-dbig sw-dpop">🏰💥</div><div class="sw-fcount">' + esc(C.n) + " has fallen!" + (newlyWon && hasNext ? " Level " + (level + 1) + " is open." : "") + " Castles fallen: " + castlesDone(st) + " / " + CASTLES.length + '</div>' +
+          (hasNext ? '<button class="sw-go" id="swNextL">Next castle →</button>' : "") + '<div class="sw-stage"><div class="sw-pet sw-pets sw-hop">' + petArt("happy") + "</div></div>";
+      endGame("c", first, "Castle siege · level " + level, function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · " + shots + " shots";
+      }, function () {
+        startSling(level);
+      }, extra, function () {
+        var b = document.getElementById("swNextL");
+        if (b)
+          b.onclick = function () {
+            back = showCastles;
+            startSling(level + 1);
+          };
+      });
+    }
+    // ---- the towers of one round: three towers, each with a sign on top; the right one is the word we hear
+    function newRound() {
+      var r = rounds[i],
+        k = wkey(r.w),
+        others = r.opts
+          .filter(function (w) {
+            return wkey(w) !== k;
+          })
+          .slice(0, help > 0 ? 1 : 2),
+        list = shuffle([{ w: r.w, target: true }].concat(
+          others.map(function (w) {
+            return { w: w, target: false };
+          })
+        ), rnd),
+        n = list.length,
+        hs = shuffle([2, 3, 1], rnd),
+        sw = W * Math.max(0.11, C.sw - 0.006 * lvl + 0.008 * (lvl < 2 ? 2 - lvl : 0)),
+        bw = W * 0.075,
+        bh = H * 0.075;
+      if (help > 0) help--;
+      towers = list.map(function (it, j) {
+        var cx = W * (n === 2 ? 0.62 + 0.22 * j : 0.55 + (0.34 * j) / (n - 1)),
+          nb = hs[j % 3],
+          t = { x0: cx, cx: cx, w: it.w, target: it.target, blocks: [], sign: null, ph: rnd() * 6.283, shake: 0, dead: false };
+        for (var q = 0; q < nb; q++) t.blocks.push({ dx: 0, y: GY - bh * (q + 1), w: bw, h: bh, dead: false });
+        t.sign = { dx: 0, y: GY - bh * nb - H * 0.075, w: sw, h: H * 0.075, dead: false };
+        return t;
+      });
+      cur = { r: r, k: k };
+      shots = shots;
+      fails = 0;
+      ball = null;
+      setTimeout(function () {
+        if (alive() && cur && cur.r === r) play("w", r.w);
+      }, 350);
+    }
+    function sway(t) {
+      var amp = W * (C.sway + 0.004 * lvl);
+      return amp ? amp * Math.sin(clock * 1.1 + t.ph) : 0;
+    }
+    function nextBall() {
+      ball = { x: AX, y: AY, vx: 0, vy: 0, fly: false, t: 0, rot: 0, stuck: 0, hitDone: false, hit: false };
+      mood = "happy";
+    }
+    // does a shot with this speed get to (tx, ty) without knocking into another tower first?
+    function pathClear(vx, vy, tx, ty, selfT) {
+      var x = AX,
+        y = AY,
+        a = vx,
+        b = vy,
+        k;
+      for (k = 0; k < 240; k++) {
+        b += G * 0.02;
+        x += a * 0.02;
+        y += b * 0.02;
+        if (Math.abs(x - tx) < BR * 0.7 && Math.abs(y - ty) < BR) return true;
+        if (y > GY || x > tx + BR * 3) return false;
+        for (var q = 0; q < towers.length; q++) {
+          var t = towers[q];
+          if (t.dead) continue;
+          var off = sway(t),
+            r = [];
+          t.blocks.forEach(function (bl) {
+            r.push([t.cx + off - bl.w / 2, bl.y, bl.w, bl.h]);
+          });
+          if (t !== selfT) r.push([t.cx + off - t.sign.w / 2, t.sign.y, t.sign.w, t.sign.h]);
+          for (var w = 0; w < r.length; w++) {
+            var cx = Math.max(r[w][0], Math.min(x, r[w][0] + r[w][2])),
+              cy = Math.max(r[w][1], Math.min(y, r[w][1] + r[w][3]));
+            if ((x - cx) * (x - cx) + (y - cy) * (y - cy) < BR * 0.8 * BR * 0.8) return false;
+          }
+        }
+      }
+      return false;
+    }
+    // the pull that sends the ball through the middle of a tower's sign (a flat shot if the way is free, a lob over the others if not): the point to pull the ball back to, or null
+    function solve(t) {
+      var tx = t.cx + sway(t),
+        ty = t.sign.y + t.sign.h / 2,
+        vmax = KV * RMAX,
+        dx = tx - AX,
+        dy = AY - ty,
+        deg,
+        firstOk = null;
+      if (dx <= 10) return null;
+      for (deg = 38; deg <= 72; deg += 6) {
+        var th = (deg * Math.PI) / 180,
+          den = 2 * Math.cos(th) * Math.cos(th) * (dx * Math.tan(th) - dy);
+        if (den <= 0) continue;
+        var v = Math.sqrt((G * dx * dx) / den);
+        if (v > vmax * 0.98) continue;
+        var res = { x: AX - (v / KV) * Math.cos(th), y: AY + (v / KV) * Math.sin(th), v: v, th: th };
+        if (!firstOk) firstOk = res;
+        if (pathClear(v * Math.cos(th), -v * Math.sin(th), tx, ty, t)) return res;
+      }
+      return firstOk;
+    }
+    function results(t, ok) {
+      var k = cur.k,
+        now = Date.now();
+      if (ok) {
+        if (first[k] === undefined) first[k] = true;
+        lastWrong = tries > 0 || fails >= 3;
+        if (tries === 0 && fails < 2) {
+          lvl = Math.min(8, lvl + 0.6);
+          pace(true);
+        }
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        var pts = 10 + Math.min(combo, 6) * 3 + (fails === 0 && tries === 0 ? 10 : 0);
+        score += pts;
+        collapse(t);
+        texts.push({ x: t.cx + sway(t), y: t.sign.y, t: now, s: "+" + pts, c: "#FFE066" });
+        sfx("bang");
+        say((combo >= 3 ? "Combo ×" + combo + "! " : "Boom! ") + cur.r.w);
+        try {
+          if (hooks.burst && combo >= 3) {
+            var br = cv.getBoundingClientRect();
+            hooks.burst(br.left + t.cx, br.top + t.sign.y);
+          }
+        } catch (e) {}
+        tries = 0;
+        mood = "excited";
+        i++;
+        cur = null;
+        if (i >= rounds.length) {
+          // the whole castle falls
+          towers.forEach(function (x) {
+            if (!x.dead) collapse(x);
+          });
+          sfx("big");
+          done = true;
+          setTimeout(function () {
+            if (my && run === my) finish();
+          }, 1800);
+        } else wait = 1.3;
+        hud();
+      } else {
+        first[k] = false;
+        tries++;
+        combo = 0;
+        lvl = Math.max(0, lvl - 0.8);
+        if (tries >= 2 || lastWrong) help = 2;
+        pace(false);
+        t.shake = now;
+        sfx("poke");
+        mood = "surprised";
+        say("Not that sign! Listen again. A little easier now.");
+        var rr = cur.r;
+        setTimeout(function () {
+          if (alive() && cur && cur.r === rr) play("w", rr.w);
+        }, 700);
+        hud();
+      }
+    }
+    function collapse(t) {
+      t.dead = true;
+      var now = Date.now(),
+        x = t.cx + sway(t);
+      t.blocks.forEach(function (b) {
+        debris.push({ x: x, y: b.y, w: b.w, h: b.h, vx: (rnd() - 0.5) * 160, vy: -rnd() * 160, rot: 0, vr: (rnd() - 0.5) * 6, c: "#C98F4E", t: now });
+      });
+      debris.push({ x: x, y: t.sign.y, w: t.sign.w, h: t.sign.h, vx: (rnd() - 0.5) * 120, vy: -200, rot: 0, vr: (rnd() - 0.5) * 5, c: "#fff", w2: t.w, t: now });
+      for (var q = 0; q < 18; q++) {
+        var a = rnd() * 6.283,
+          sp = 80 + rnd() * 180;
+        parts.push({ x: x, y: t.sign.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 100, t: now, c: ["#FFD23F", "#FF8A3D", "#fff", "#C98F4E"][q % 4], r: 2 + rnd() * 3 });
+      }
+    }
+    function hitRect(rx, ry, rw, rh) {
+      var cx = Math.max(rx, Math.min(ball.x, rx + rw)),
+        cy = Math.max(ry, Math.min(ball.y, ry + rh)),
+        dx = ball.x - cx,
+        dy = ball.y - cy,
+        d2 = dx * dx + dy * dy;
+      if (d2 > BR * BR) return null;
+      var d = Math.sqrt(d2) || 0.001;
+      return { nx: d2 ? dx / d : 0, ny: d2 ? dy / d : -1, pen: BR - d };
+    }
+    function bounce(h, e) {
+      ball.x += h.nx * h.pen;
+      ball.y += h.ny * h.pen;
+      var vn = ball.vx * h.nx + ball.vy * h.ny;
+      if (vn < 0) {
+        ball.vx -= (1 + e) * vn * h.nx;
+        ball.vy -= (1 + e) * vn * h.ny;
+      }
+    }
+    function physics(dt) {
+      var sub = 3,
+        s;
+      for (s = 0; s < sub; s++) {
+        var d = dt / sub;
+        ball.vy += G * d;
+        ball.x += ball.vx * d;
+        ball.y += ball.vy * d;
+        if (ball.y > GY - BR) {
+          ball.y = GY - BR;
+          ball.vy *= -0.3;
+          ball.vx *= 0.7;
+          if (Math.abs(ball.vy) < 30) ball.vy = 0;
+        }
+        towers.forEach(function (t) {
+          if (t.dead) return;
+          var off = sway(t),
+            hh;
+          t.blocks.forEach(function (b) {
+            if (b.dead) return;
+            hh = hitRect(t.cx + off - b.w / 2, b.y, b.w, b.h);
+            if (hh) bounce(hh, 0.35);
+          });
+          var sg = t.sign;
+          hh = hitRect(t.cx + off - sg.w / 2, sg.y, sg.w, sg.h);
+          if (hh && !ball.hitDone) {
+            ball.hitDone = true;
+            ball.hit = true;
+            bounce(hh, 0.5);
+            results(t, t.target);
+          } else if (hh) bounce(hh, 0.3);
+        });
+      }
+    }
+    function drawBall(b, ts) {
+      var im = petImg(mood),
+        D = BR * 2;
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      ctx.beginPath();
+      ctx.arc(0, 0, BR, 0, 6.283);
+      ctx.fillStyle = "#FFD9A8";
+      ctx.fill();
+      ctx.clip();
+      if (im && im.complete && im.naturalWidth) {
+        var dw = D * 1.55,
+          dh = dw * (428 / 288);
+        ctx.drawImage(im, -dw / 2, -dh * 0.325, dw, dh);
+      }
+      ctx.restore();
+      ctx.strokeStyle = "#8A5A2B";
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, BR, 0, 6.283);
+      ctx.stroke();
+    }
+    function trajectory(vx, vy, upTo, colour) {
+      var x = AX,
+        y = AY,
+        a = vx,
+        b2 = vy,
+        k,
+        n = 0;
+      ctx.fillStyle = colour;
+      for (k = 0; k < 90 && n < upTo; k++) {
+        b2 += G * 0.05;
+        x += a * 0.05;
+        y += b2 * 0.05;
+        if (y > GY || x > W) break;
+        if (k % 2 === 0) {
+          ctx.beginPath();
+          ctx.arc(x, y, 2.6, 0, 6.283);
+          ctx.fill();
+          n++;
+        }
+      }
+    }
+    function draw() {
+      if (!cv || done) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, Math.max(0, (ts - last) / 1000)),
+        k;
+      last = ts;
+      clock += dt;
+      if (!cur && !done && wait > 0 && i < rounds.length) {
+        wait -= dt;
+        if (wait <= 0) {
+          newRound();
+          nextBall();
+        }
+      }
+      if (ball && ball.fly) {
+        ball.t += dt;
+        physics(dt);
+        ball.rot += ball.vx * dt * 0.02;
+        var speed = Math.abs(ball.vx) + Math.abs(ball.vy);
+        ball.stuck = speed < 40 && ball.t > 0.4 ? ball.stuck + dt : 0; // resting on the ground or on a tower
+        if (ball.x > W + BR * 3 || ball.x < -BR * 3 || ball.stuck > 0.5 || ball.t > 6) {
+          if (cur) {
+            if (!ball.hit) {
+              fails++;
+              say(fails >= 3 ? "Follow the gold dots for a hint!" : "Missed! Pull back and try again.");
+            }
+            nextBall();
+          } else ball = null;
+        }
+      }
+      debris.forEach(function (d) {
+        d.vy += G * 1.2 * dt;
+        d.x += d.vx * dt;
+        d.y += d.vy * dt;
+        d.rot += d.vr * dt;
+        if (d.y > GY - d.h / 2) {
+          d.y = GY - d.h / 2;
+          d.vy *= -0.3;
+          d.vx *= 0.6;
+          d.vr *= 0.6;
+        }
+      });
+      debris = debris.filter(function (d) {
+        return ts - d.t < 2200;
+      });
+      parts.forEach(function (p) {
+        p.vy += 500 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+      });
+      parts = parts.filter(function (p) {
+        return ts - p.t < 900;
+      });
+      texts = texts.filter(function (t) {
+        return ts - t.t < 1000;
+      });
+      // sky, sun, clouds, hills, ground
+      var bg = ctx.createLinearGradient(0, 0, 0, GY);
+      bg.addColorStop(0, "#6EC1F2");
+      bg.addColorStop(1, "#DFF1FF");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#FFE066";
+      ctx.beginPath();
+      ctx.arc(W * 0.82, H * 0.14, W * 0.06, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      [[0.25, 0.2, 1], [0.6, 0.12, 0.7]].forEach(function (cl, n) {
+        var cx2 = ((cl[0] * W + ts * 0.005 * (n + 1)) % (W + 120)) - 60,
+          cy2 = cl[1] * H;
+        ctx.beginPath();
+        ctx.ellipse(cx2, cy2, 30 * cl[2], 10 * cl[2], 0, 0, 6.283);
+        ctx.ellipse(cx2 + 18 * cl[2], cy2 - 7 * cl[2], 18 * cl[2], 11 * cl[2], 0, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.fillStyle = "#A6DE87";
+      ctx.beginPath();
+      ctx.moveTo(0, GY);
+      for (k = 0; k <= W; k += 8) ctx.lineTo(k, GY - 24 - 10 * Math.sin((k / W) * 5) - 6 * Math.sin((k / W) * 11));
+      ctx.lineTo(W, GY);
+      ctx.fill();
+      ctx.fillStyle = "#79C96A";
+      ctx.fillRect(0, GY, W, H - GY);
+      // the towers
+      towers.forEach(function (t) {
+        if (t.dead) return;
+        var off = sway(t),
+          shk = ts - t.shake < 350 ? Math.sin(ts / 22) * 3 : 0;
+        ctx.save();
+        ctx.translate(off + shk, 0);
+        t.blocks.forEach(function (b) {
+          ctx.fillStyle = "#C98F4E";
+          ctx.strokeStyle = "#8A5A2B";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          if (ctx.roundRect) ctx.roundRect(t.cx - b.w / 2, b.y, b.w, b.h, 3);
+          else ctx.rect(t.cx - b.w / 2, b.y, b.w, b.h);
+          ctx.fill();
+          ctx.stroke();
+          ctx.strokeStyle = "rgba(120,70,20,.35)";
+          ctx.beginPath();
+          ctx.moveTo(t.cx - b.w * 0.3, b.y + b.h * 0.35);
+          ctx.lineTo(t.cx + b.w * 0.3, b.y + b.h * 0.35);
+          ctx.moveTo(t.cx - b.w * 0.3, b.y + b.h * 0.7);
+          ctx.lineTo(t.cx + b.w * 0.15, b.y + b.h * 0.7);
+          ctx.stroke();
+        });
+        var sg = t.sign,
+          hint = fails >= 3 && t.target,
+          blink = Math.sin(ts / 120) > 0;
+        if (hint) {
+          var gl = ctx.createRadialGradient(t.cx, sg.y + sg.h / 2, sg.h * 0.3, t.cx, sg.y + sg.h / 2, sg.w * 0.9);
+          gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+          gl.addColorStop(1, "rgba(255,214,64,0)");
+          ctx.fillStyle = gl;
+          ctx.beginPath();
+          ctx.arc(t.cx, sg.y + sg.h / 2, sg.w * 0.9, 0, 6.283);
+          ctx.fill();
+        }
+        ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
+        ctx.strokeStyle = "#E5483A";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(t.cx - sg.w / 2, sg.y, sg.w, sg.h, 6);
+        else ctx.rect(t.cx - sg.w / 2, sg.y, sg.w, sg.h);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#1E2A4A";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        var fs = Math.round(sg.h * 0.66);
+        ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+        while (ctx.measureText(t.w).width > sg.w * 0.88 && fs > 8) {
+          fs--;
+          ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+        }
+        ctx.fillText(t.w, t.cx, sg.y + sg.h / 2 + 1);
+        ctx.restore();
+      });
+      // the slingshot (behind and in front of the pet)
+      ctx.strokeStyle = "#8A5A2B";
+      ctx.lineWidth = 7;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(AX, GY);
+      ctx.lineTo(AX, AY + 16);
+      ctx.moveTo(AX, AY + 16);
+      ctx.lineTo(AX - 11, AY - 6);
+      ctx.moveTo(AX, AY + 16);
+      ctx.lineTo(AX + 11, AY - 6);
+      ctx.stroke();
+      var bx = ball ? ball.x : AX,
+        by = ball ? ball.y : AY;
+      if (pull) {
+        // the aim: dotted arc (it gets shorter on the higher levels), the gold one is a hint
+        var lvx = (AX - pull.x) * KV,
+          lvy = (AY - pull.y) * KV,
+          keep = Math.max(5, Math.round(28 - lvl * 2.2 - level * 2));
+        trajectory(lvx, lvy, keep, "rgba(30,42,74,.55)");
+      }
+      if (fails >= 3 && ball && !ball.fly && cur) {
+        var tg = towers.filter(function (t) {
+            return t.target && !t.dead;
+          })[0],
+          sol = tg && solve(tg);
+        if (sol) trajectory((AX - sol.x) * KV, (AY - sol.y) * KV, 40, "rgba(255,196,0,.9)");
+      }
+      if (ball && !ball.fly) {
+        ctx.strokeStyle = "#5A2A06";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(AX - 11, AY - 6);
+        ctx.lineTo(bx - BR * 0.6, by);
+        ctx.moveTo(AX + 11, AY - 6);
+        ctx.lineTo(bx - BR * 0.6, by);
+        ctx.stroke();
+      }
+      if (ball) drawBall(ball, ts);
+      ctx.strokeStyle = "#8A5A2B";
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(AX + 11, AY - 6);
+      ctx.lineTo(AX + 9, AY + 6);
+      ctx.stroke();
+      debris.forEach(function (d) {
+        ctx.save();
+        ctx.translate(d.x, d.y);
+        ctx.rotate(d.rot);
+        ctx.globalAlpha = Math.max(0, 1 - (ts - d.t) / 2200);
+        ctx.fillStyle = d.c;
+        ctx.strokeStyle = d.c === "#fff" ? "#E5483A" : "#8A5A2B";
+        ctx.lineWidth = 2;
+        ctx.fillRect(-d.w / 2, -d.h / 2, d.w, d.h);
+        ctx.strokeRect(-d.w / 2, -d.h / 2, d.w, d.h);
+        if (d.w2) {
+          ctx.fillStyle = "#1E2A4A";
+          ctx.font = "700 " + Math.round(d.h * 0.6) + "px Fredoka, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(d.w2, 0, 1);
+        }
+        ctx.restore();
+      });
+      parts.forEach(function (p) {
+        ctx.globalAlpha = Math.max(0, 1 - (ts - p.t) / 900);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      texts.forEach(function (t) {
+        var age = (ts - t.t) / 1000;
+        ctx.globalAlpha = Math.max(0, 1 - age);
+        ctx.fillStyle = t.c;
+        ctx.strokeStyle = "rgba(30,42,74,.92)";
+        ctx.lineWidth = 4.5;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(W * 0.075) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText(t.s, t.x, t.y - age * 36);
+        ctx.fillText(t.s, t.x, t.y - age * 36);
+        ctx.globalAlpha = 1;
+      });
+      if (ball && !ball.fly && !pull && cur && shots === 0) {
+        ctx.fillStyle = "rgba(30,42,74,.62)";
+        ctx.font = "700 " + Math.round(W * 0.042) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Pull the pet back, then let go!", W * 0.45, H * 0.1);
+      }
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Castle ' + level + " · " + esc(C.n) + "</span></div>" +
+      '<div class="sw-card"><div class="sw-kind">Castle siege</div><div class="sw-sent" style="font-size:21px">Hit the sign with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swGsc"></span><span class="sw-mcb" id="swGcb"></span><span class="sw-spd" id="swGlv"></span></div>' +
+      '<canvas class="sw-snk" id="swSiege"></canvas><div class="sw-msg" id="swMsg">Pull back and let go!</div></div>';
+    bindQuit();
+    cv = document.getElementById("swSiege");
+    W = Math.max(280, Math.min(440, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 0.82);
+    GY = Math.round(H * 0.9);
+    AX = Math.round(W * 0.15);
+    AY = Math.round(H * 0.66);
+    BR = Math.max(12, Math.round(W * 0.042));
+    G = H * 1.5;
+    RMAX = Math.round(W * 0.17);
+    KV = Math.sqrt(W * 0.98 * G) / RMAX;
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = W + "px";
+    cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    petImg("happy");
+    petImg("excited");
+    petImg("surprised");
+    document.getElementById("swHear").onclick = function () {
+      if (cur) play("w", cur.r.w);
+    };
+    function pos(e) {
+      var r = cv.getBoundingClientRect();
+      return { x: ((e.clientX - r.left) * W) / r.width, y: ((e.clientY - r.top) * H) / r.height };
+    }
+    cv.addEventListener("pointerdown", function (e) {
+      if (!ball || ball.fly) return;
+      var p = pos(e);
+      if (Math.abs(p.x - ball.x) < BR * 3 && Math.abs(p.y - ball.y) < BR * 3) {
+        pull = { x: ball.x, y: ball.y };
+        try {
+          cv.setPointerCapture(e.pointerId);
+        } catch (e2) {}
+      }
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (!pull || !ball) return;
+      var p = pos(e),
+        dx = p.x - AX,
+        dy = p.y - AY,
+        d = Math.sqrt(dx * dx + dy * dy);
+      if (d > RMAX) {
+        dx = (dx / d) * RMAX;
+        dy = (dy / d) * RMAX;
+      }
+      pull = { x: AX + dx, y: AY + dy };
+      ball.x = pull.x;
+      ball.y = pull.y;
+    });
+    function release() {
+      if (!pull || !ball) {
+        pull = null;
+        return;
+      }
+      var vx = (AX - pull.x) * KV,
+        vy = (AY - pull.y) * KV;
+      pull = null;
+      if (vx < 30) {
+        ball.x = AX;
+        ball.y = AY;
+        return;
+      }
+      ball.vx = vx;
+      ball.vy = vy;
+      ball.fly = true;
+      ball.t = 0;
+      shots++;
+      mood = "excited";
+      sfx("pew");
+    }
+    cv.addEventListener("pointerup", release);
+    cv.addEventListener("pointercancel", release);
+    my = run = { mode: "siege", steps: [], i: 0, first: first, rnd: seeded(1) };
     my.stop = function () {
       cleanup();
       my = null;

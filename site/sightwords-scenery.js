@@ -49,6 +49,12 @@
     } else if (kind === "spell") {
       inner = bub(26, 50, 19, "#FF8FB1", "A") + bub(56, 30, 21, "#6AA7FF", "B") + bub(78, 58, 17, "#FFC93C", "C") +
         '<path d="M86 14 l2.4 5 5.6 .7 -4.1 3.8 1 5.5 -4.9 -2.7 -4.9 2.7 1 -5.5 -4.1 -3.8 5.6 -.7z" fill="#FFE066"/>';
+    } else if (kind === "castle") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#9FD3F2"/><rect x="0" y="64" width="100" height="20" fill="#79C96A"/><circle cx="84" cy="14" r="7" fill="#FFE066"/>' +
+        '<rect x="56" y="36" width="12" height="28" fill="#C98F4E" stroke="#8A5A2B" stroke-width="1.6"/><rect x="72" y="46" width="12" height="18" fill="#C98F4E" stroke="#8A5A2B" stroke-width="1.6"/><rect x="40" y="46" width="12" height="18" fill="#C98F4E" stroke="#8A5A2B" stroke-width="1.6"/>' +
+        '<rect x="50" y="22" width="26" height="14" rx="3" fill="#fff" stroke="#E5483A" stroke-width="2"/><text x="63" y="32.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="9" fill="#1E2A4A">go</text>' +
+        '<path d="M16 64 L16 50 M16 50 L10 42 M16 50 L22 42" stroke="#8A5A2B" stroke-width="3.4" stroke-linecap="round" fill="none"/><circle cx="16" cy="46" r="6" fill="#FFB066" stroke="#8A5A2B" stroke-width="1.6"/>' +
+        '<path d="M16 46 Q34 6 54 28" fill="none" stroke="#1E2A4A" stroke-width="2.2" stroke-dasharray="1 5" stroke-linecap="round" opacity=".6"/>';
     } else if (kind === "hoop") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#CFEAFB"/><rect x="0" y="54" width="100" height="30" fill="#E0B070"/>' +
         '<rect x="22" y="8" width="56" height="22" rx="5" fill="#fff" stroke="#E5483A" stroke-width="3"/><text x="50" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">go</text>' +
