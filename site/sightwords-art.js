@@ -82,6 +82,11 @@
       walk: { L: [[-3, -22, -11, -3], [3, -22, 10, -3]], A: [[-13, -30, -10, -20], [14, -31, 17, -22]] },
       // both arms curve in front and meet low down, like a cradle under something held against the chest (draw it with arms: "only" over the thing)
       cradle: { L: ST, A: [[-16, -28, 10, -23], [17, -30, -6, -23]] },
+      pointUp: { L: ST, A: [HL, [20, -50, 33, -62]] }, // the right arm pointing up and to the right
+      pointDown: { L: ST, A: [HL, [20, -34, 33, -25]] }, // the right arm pointing down and to the right
+      holdbook: { L: ST, A: [[-17, -30, -15, -25], [17, -30, 15, -25]] }, // both hands at the two bottom corners of an open book held up in front of the chest
+      grip: { L: ST, A: [[-18, -37, -13, -34], [18, -37, 13, -34]] }, // both hands on the two sides of something held up in front of the chest (a letter, a card)
+      cradleB: { L: ST, A: [[-18, -30, 8, -27], [19, -37, 4, -34]] }, // holding a baby lying along one forearm, the head in the crook of the elbow, the other hand resting on the baby
       cradleR: { L: ST, A: [[-14, -28, 27, -24], [25, -31, 3, -23]] }, // the same, with the thing held on the right side
       // walking to the right while the left arm reaches back and down to the handle of something pulled behind (draw the wagon first, the child over it)
       // both arms straight up with the hands above the head, gripping a bar lifted overhead (draw the bar, then the arms again over it with arms: "only")
