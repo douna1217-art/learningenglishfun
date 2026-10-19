@@ -1305,6 +1305,10 @@
       "#swOverlay .sw-boat svg{display:block;width:100%;height:auto}" +
       "#swOverlay .sw-fpet{width:74px;margin:0 auto -16px;position:relative;z-index:1}" +
       "#swOverlay .sw-fpet svg{display:block;width:100%;height:auto;overflow:visible}" +
+      "#swOverlay .sw-fpet.sw-fwig{transform-origin:50% 90%;animation:swwig 1.4s ease-in-out}" +
+      "@keyframes swwig{0%{transform:none}12%{transform:rotate(-14deg) translateY(-10px)}26%{transform:rotate(14deg) translateY(0)}40%{transform:rotate(-12deg) translateY(-12px)}54%{transform:rotate(12deg) translateY(0)}70%{transform:rotate(-7deg) translateY(-6px)}100%{transform:none}}" +
+      "#swOverlay .sw-hs{position:absolute;width:22px;height:22px;z-index:7;pointer-events:none}" +
+      "#swOverlay .sw-hs svg{display:block;width:100%;height:100%}" +
       "#swOverlay .sw-fline{position:absolute;width:3px;margin-left:-1.5px;background:#fff;opacity:.9;transform-origin:50% 0;z-index:1;border-radius:2px}" +
       "#swOverlay .sw-bk{position:absolute;left:10px;top:8px;background:#fff;border-radius:999px;padding:4px 14px;font-weight:800;font-size:18px;z-index:4}" +
       "#swOverlay .sw-drop{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#EAF7FF;border:2px solid #fff;z-index:5;pointer-events:none}" +
@@ -1340,7 +1344,7 @@
       "#swOverlay .sw-aqn{font-family:'Fredoka',sans-serif;font-weight:700;font-size:18px;margin-top:6px}" +
       "#swOverlay .sw-aqr{font-weight:800;font-size:12px}" +
       "@media(max-width:560px){#swOverlay .sw-sea{height:330px}#swOverlay .sw-fsh{width:96px}#swOverlay .sw-boat{width:112px}#swOverlay .sw-fpet{width:62px}#swOverlay .sw-frs{width:120px}}" +
-      "@media(prefers-reduced-motion:reduce){#swOverlay .sw-fbob{animation:none}}" +
+      "@media(prefers-reduced-motion:reduce){#swOverlay .sw-fbob,#swOverlay .sw-fpet.sw-fwig{animation:none}}" +
       "@media(max-width:560px){#swOverlay .sw-sky{height:235px}#swOverlay .sw-bal{width:23%}#swOverlay .sw-bw{font-size:22px}#swOverlay .sw-pet{width:170px}#swOverlay .sw-plate{font-size:28px;padding:14px 12px;min-width:86px}#swOverlay .sw-plates{gap:10px}#swOverlay .sw-mem,#swOverlay .sw-mem.sw-c5{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}#swOverlay .sw-mc{height:104px}#swOverlay .sw-mc .sw-mface{font-size:16px;padding:4px}#swOverlay .sw-mc .sw-mface svg{width:100%;height:100%}#swOverlay .sw-sopt{font-size:20px;padding:10px 14px}#swOverlay h1{font-size:28px}#swOverlay .sw-big{font-size:68px}#swOverlay .sw-sent{font-size:23px}#swOverlay .sw-opt{font-size:32px;padding:10px 18px;min-width:90px}#swOverlay .sw-tok{font-size:24px}#swOverlay .sw-grid{grid-template-columns:1fr}#swOverlay .sw-ttl h1{font-size:26px}#swOverlay .sw-bncard h1{font-size:20px}#swOverlay .sw-slab b{font-size:16px}#swOverlay .sw-tw i{font-size:12px;padding:1px 8px}#swOverlay .sw-bub{font-size:17px;padding:9px 13px}#swOverlay .sw-start{font-size:20px}#swOverlay .sw-gt{font-size:13px}#swOverlay .sw-ct{font-size:15px}#swOverlay .sw-bo{font-size:25px;padding:14px 6px}#swOverlay .sw-sl{height:48px;font-size:26px}#swOverlay .sw-ctx{font-size:18px}#swOverlay .sw-arena{height:184px}#swOverlay .sw-apet{width:92px}#swOverlay .sw-amon{width:108px}#swOverlay .sw-lb{width:54px;height:54px;margin:-27px 0 0 -27px;font-size:28px}#swOverlay .sw-bpet{width:70px}#swOverlay .sw-sheet{left:8px;right:8px;bottom:8px;padding:12px}#swOverlay .sw-shp{width:96px}#swOverlay .sw-shw{font-size:32px}#swOverlay .sw-shs{font-size:16px}}" +
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-qgo,#swOverlay .sw-opt.sw-bad,#swOverlay .sw-sopt.sw-bad,#swOverlay .sw-mc.sw-pair,#swOverlay .sw-bal,#swOverlay .sw-plate.sw-bad,#swOverlay .sw-pet.sw-jump,#swOverlay .sw-pet.sw-dance,#swOverlay .sw-pet.sw-hop,#swOverlay .sw-sky.sw-shake{animation:none}#swOverlay .sw-pf{display:none}#swOverlay .sw-bs{animation:none;opacity:1}#swOverlay .sw-hpet,#swOverlay .sw-ipet,#swOverlay .sw-cready,#swOverlay .sw-rchest,#swOverlay .sw-pbody.sw-chew,#swOverlay .sw-want,#swOverlay .sw-pwalk.sw-wj,#swOverlay .sw-bnpet,#swOverlay .sw-npet,#swOverlay .sw-node.sw-nx,#swOverlay .sw-copen,#swOverlay .sw-start,#swOverlay .sw-tile.sw-next,#swOverlay .sw-isl-go .sw-ibody,#swOverlay .sw-cl1,#swOverlay .sw-cl2{animation:none}}";
     document.head.appendChild(st);
@@ -2880,6 +2884,52 @@
           return '<span class="sw-tf' + (n === newIdx ? " sw-tin" : "") + '" style="top:' + (24 + (n % 3) * 17) + "px;animation-duration:" + dur + "s;animation-delay:" + delay + 's"><span class="sw-tfi" style="animation-duration:' + dur + "s;animation-delay:" + delay + 's">' + fishSvg(it.sp) + '</span><span class="sw-tfw" style="font-size:' + (w.length > 8 ? 9 : w.length > 6 ? 10 : 12) + 'px">' + esc(w) + "</span></span>";
         }).join("");
     }
+    // a catch: the pet wiggles with joy and hearts and stars fly out of the boat
+    function cheer(sea) {
+      var pe = sea.querySelector(".sw-fpet"),
+        i,
+        calm = false;
+      try {
+        calm = root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      } catch (e) {}
+      if (pe) {
+        pe.innerHTML = petArt("excited");
+        pe.classList.remove("sw-fwig");
+        void pe.offsetWidth;
+        pe.classList.add("sw-fwig");
+        setTimeout(function () {
+          if (run === my && pe.parentNode) {
+            pe.classList.remove("sw-fwig");
+            pe.innerHTML = petArt("happy");
+          }
+        }, 1500);
+      }
+      if (calm) return;
+      var star = '<svg viewBox="0 0 28 28" aria-hidden="true"><path d="M14 1 L17.5 10.5 L27 14 L17.5 17.5 L14 27 L10.5 17.5 L1 14 L10.5 10.5Z" fill="#FFD23F" stroke="#E0A800" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+      for (i = 0; i < 10; i++) {
+        var d = document.createElement("i"),
+          a = -Math.PI * (0.05 + (0.9 * i) / 9),
+          dist = 60 + Math.random() * 60;
+        d.className = "sw-hs";
+        d.innerHTML = i % 2 ? star : HEARTSVG;
+        d.style.left = sea.clientWidth / 2 + "px";
+        d.style.top = "46px";
+        sea.appendChild(d);
+        if (d.animate) {
+          try {
+            d.animate([{ transform: "translate(-50%,-50%) scale(.3)", opacity: 1 }, { transform: "translate(calc(-50% + " + Math.cos(a) * dist + "px),calc(-50% + " + Math.sin(a) * dist * 0.7 + "px)) scale(1) rotate(" + (Math.random() * 60 - 30) + "deg)", opacity: 1, offset: 0.6 }, { transform: "translate(calc(-50% + " + Math.cos(a) * dist * 1.15 + "px),calc(-50% + " + (Math.sin(a) * dist * 0.7 + 18) + "px)) scale(.8)", opacity: 0 }], { duration: 1200, easing: "ease-out", fill: "forwards", delay: i * 40 });
+          } catch (e2) {}
+        }
+        setTimeout(
+          (function (n) {
+            return function () {
+              if (n.parentNode) n.parentNode.removeChild(n);
+            };
+          })(d),
+          1500
+        );
+      }
+    }
     function finish() {
       var found = readFish(),
         thumbs = caught
@@ -2982,6 +3032,7 @@
               if (b.parentNode) b.parentNode.removeChild(b);
               var bk = document.getElementById("swBk");
               if (bk) bk.textContent = "🐟 " + caught.length;
+              cheer(sea);
               reveal();
             };
             if (b.animate) {
