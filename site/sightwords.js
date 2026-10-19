@@ -1349,14 +1349,15 @@
       "#swOverlay .sw-games.sw-g2c{grid-template-columns:repeat(2,minmax(0,1fr))}" +
       "#swOverlay .sw-more{display:block;margin:-12px auto 22px;background:#fff;border-radius:999px;padding:8px 20px;font-weight:800;font-size:14px;color:#4A2FB8;box-shadow:0 4px 0 #C9C0F5}" +
       "#swOverlay .sw-moreg{margin-top:-8px}" +
-      "#swOverlay .sw-mhud{display:flex;align-items:center;justify-content:center;gap:14px;margin:10px 0 0;font-weight:800;font-size:18px}" +
+      "#swOverlay .sw-mhud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 14px;margin:10px 0 0;font-weight:800;font-size:18px}" +
       "#swOverlay .sw-mpet{width:54px;margin:0}" +
-      "#swOverlay .sw-mcb{color:#E5683A;min-width:110px;text-align:left}" +
+      "#swOverlay .sw-mcb{color:#E5683A;min-width:96px;text-align:left}" +
+      "#swOverlay .sw-spd{font-size:13px;color:#4A5878;letter-spacing:1px}" +
       "#swOverlay .sw-field{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px 8px;background:linear-gradient(#BDE7A0,#8FCF74);border-radius:26px;padding:10px 10px 6px;box-shadow:inset 0 0 0 4px #fff;margin:10px 0}" +
       "#swOverlay .sw-hl{position:relative;height:122px}" +
       "#swOverlay .sw-hole{position:absolute;left:8%;right:8%;bottom:10px;height:36px;border-radius:50%;background:#3E2A18}" +
       "#swOverlay .sw-mclip{position:absolute;left:0;right:0;top:0;bottom:30px;overflow:hidden;z-index:1}" +
-      "#swOverlay .sw-mole{position:absolute;left:50%;bottom:0;width:100px;max-width:100%;margin-left:-50px;padding:0;background:none;transform:translateY(110%);transition:transform .22s ease-out;cursor:pointer;-webkit-tap-highlight-color:transparent}" +
+      "#swOverlay .sw-mole{position:absolute;left:50%;bottom:0;width:100px;max-width:100%;margin-left:-50px;padding:0;background:none;transform:translateY(110%);transition:transform var(--mt,.22s) ease-out;cursor:pointer;-webkit-tap-highlight-color:transparent}" +
       "#swOverlay .sw-mole.sw-up{transform:translateY(0)}" +
       "#swOverlay .sw-mole svg{display:block;width:100%;height:auto;pointer-events:none}" +
       "#swOverlay .sw-mw{position:absolute;left:50%;top:58%;transform:translateX(-50%);background:#FFF6D8;border:3px solid #B87333;border-radius:10px;padding:0 8px 1px;font-family:'Fredoka',sans-serif;font-weight:700;color:#1E2A4A;white-space:nowrap;pointer-events:none;line-height:1.3}" +
@@ -3170,7 +3171,7 @@
       o = JSON.parse(ls.getItem(MOLEKEY));
     } catch (e) {}
     o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
-    return { best: +o.best || 0, golden: +o.golden || 0 };
+    return { best: +o.best || 0, golden: +o.golden || 0, lvl: o.lvl === undefined ? 3.5 : Math.max(0, Math.min(8, +o.lvl || 0)) };
   }
   function writeMole(o) {
     try {
@@ -3196,6 +3197,7 @@
       rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
       rnd = seeded((Date.now() % 7919) + 5),
       store = readMole(),
+      lvl = store.lvl, // the speed level: it goes up after clean rounds and down after slips or missed moles, and is kept for the next game
       first = {},
       timers = [],
       i = 0,
@@ -3216,6 +3218,7 @@
         newBest = score > store.best;
       store.best = best;
       store.golden += golden;
+      store.lvl = lvl;
       writeMole(store);
       var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + best + ". ") + (golden ? "Golden moles today: " + golden + ". " : "") + "Golden moles found: " + store.golden + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
       endGame("w", first, "Whack-a-word", function () {
@@ -3237,12 +3240,15 @@
         laps = 0,
         busy = false,
         upTimer = null,
+        mist = 0,
+        popAt = 0,
+        upMs = 5000,
         holes = "",
         n;
       for (n = 0; n < 6; n++) holes += '<div class="sw-hl" data-h="' + n + '"><div class="sw-hole"></div><div class="sw-mclip"><button class="sw-mole" tabindex="-1"></button></div><div class="sw-dirt"></div></div>';
       box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Whack-a-word · ' + (i + 1) + " / " + rounds.length + "</span></div>" +
         '<div class="sw-card"><div class="sw-kind">Whack-a-word</div><div class="sw-sent" style="font-size:22px">Whack the mole with the word you hear!</div>' +
-        '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><div class="sw-fpet sw-mpet" id="swMpet">' + petArt("happy") + '</div><span class="sw-msc" id="swMsc">Score ' + score + '</span><span class="sw-mcb" id="swMcb"></span></div><div class="sw-field" id="swField">' + holes + '</div><div class="sw-msg" id="swMsg"></div></div>';
+        '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><div class="sw-fpet sw-mpet" id="swMpet">' + petArt("happy") + '</div><span class="sw-msc" id="swMsc">Score ' + score + '</span><span class="sw-mcb" id="swMcb"></span><span class="sw-spd" id="swSpd"></span></div><div class="sw-field" id="swField">' + holes + '</div><div class="sw-msg" id="swMsg"></div></div>';
       bindQuit();
       var field = document.getElementById("swField");
       function hud() {
@@ -3250,6 +3256,10 @@
           b = document.getElementById("swMcb");
         if (a) a.textContent = "Score " + score;
         if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+        var sp = document.getElementById("swSpd"),
+          dots = 1 + Math.round(lvl / 2);
+        if (sp) sp.textContent = "Speed " + new Array(dots + 1).join("●") + new Array(6 - dots).join("○");
+        field.style.setProperty("--mt", Math.max(0.12, 0.22 - lvl * 0.012) + "s");
       }
       function hole(h) {
         return field.children[h];
@@ -3320,7 +3330,10 @@
           }).slice(0, 2),
           ws = shuffle([r.w].concat(others), rnd),
           gold = rnd() < 0.3,
-          up = 6600 - Math.min(i, 5) * 600;
+          up = 7200 - lvl * 550,
+          stag = Math.max(70, 160 - lvl * 12);
+        upMs = up;
+        popAt = Date.now() + 120 + 2 * stag;
         shown = [];
         ws.forEach(function (w, j) {
           var h = order[j],
@@ -3332,7 +3345,7 @@
           shown.push(h);
           later(function () {
             m.classList.add("sw-up");
-          }, 120 + j * 150);
+          }, 120 + j * stag);
         });
         if (gold) {
           var gm = hole(order[3]).querySelector(".sw-mole");
@@ -3354,6 +3367,8 @@
           if (busy) return;
           laps++;
           combo = 0;
+          mist++;
+          lvl = Math.max(0, lvl - 0.8);
           hud();
           say("Too slow! Listen again.");
           Array.prototype.forEach.call(field.querySelectorAll(".sw-mole"), function (mm) {
@@ -3393,6 +3408,8 @@
           el.classList.add("sw-oops");
           sfx("poke");
           combo = 0;
+          mist++;
+          lvl = Math.max(0, lvl - 0.8);
           hud();
           tries++;
           say("Not that one! Listen again.");
@@ -3407,6 +3424,7 @@
         }
         busy = true;
         clearTimeout(upTimer);
+        if (mist === 0) lvl = Math.min(8, lvl + 0.7 + (Date.now() - popAt < upMs * 0.35 ? 0.4 : 0)); // a clean, quick whack: a little faster next time
         combo++;
         if (combo > bestCombo) bestCombo = combo;
         var pts = 10 + Math.min(combo, 6) * 3;
@@ -3430,7 +3448,7 @@
         later(function () {
           i++;
           show();
-        }, 1300);
+        }, Math.max(800, 1300 - lvl * 60));
       };
       hud();
       pop();
