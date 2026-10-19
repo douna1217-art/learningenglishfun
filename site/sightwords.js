@@ -3479,7 +3479,7 @@
       o = JSON.parse(ls.getItem(SNAKEKEY));
     } catch (e) {}
     o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
-    return { best: +o.best || 0, len: +o.len || 0, lvl: o.lvl === undefined ? 2.5 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+    return { best: +o.best || 0, len: +o.len || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
   }
   function writeSnake(o) {
     try {
@@ -3640,7 +3640,7 @@
       apples.splice(apples.indexOf(ap), 1);
       if (right) {
         if (first[k] === undefined) first[k] = true;
-        if (mist === 0) lvl = Math.min(8, lvl + 0.7);
+        if (mist === 0) lvl = Math.min(8, lvl + 0.5);
         combo++;
         if (combo > bestCombo) bestCombo = combo;
         var pts = 10 + Math.min(combo, 6) * 3;
@@ -3668,7 +3668,7 @@
         first[k] = false;
         mist++;
         wrongTries++;
-        lvl = Math.max(0, lvl - 0.8);
+        lvl = Math.max(0, lvl - 1);
         combo = 0;
         snake.pop();
         if (snake.length > 3) snake.pop(); // a wrong apple: the snake gets one shorter
@@ -3706,7 +3706,7 @@
           else snake.pop();
         }
       }
-      if (alive()) tick = setTimeout(step, Math.round(420 - lvl * 32));
+      if (alive()) tick = setTimeout(step, Math.round(720 - lvl * 45)); // about 0.7 s a step at first, 0.36 s at the fastest
     }
     function pill(text, x, y) {
       var fs = Math.max(12, Math.round(cell * 0.56));
@@ -3881,7 +3881,7 @@
       my = null;
     };
     hud();
-    tick = setTimeout(step, 400);
+    tick = setTimeout(step, 600);
     draw(Date.now());
   }
 
