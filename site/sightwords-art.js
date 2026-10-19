@@ -436,10 +436,12 @@
     return '<path d="M0 0 L-16 0 M-4 -8 L-20 -8 M-4 8 L-20 8" fill="none" stroke="#B9C7DD" stroke-width="3" stroke-linecap="round"/>';
   }
   function bubble(o) {
-    var w = o.w || 56, h = o.h || 40, s = "";
-    s += '<path d="M' + (-w / 2 + 12) + " " + (h / 2 - 1) + " L" + (-w / 2 + 6) + " " + (h / 2 + 12) + " L" + (-w / 2 + 24) + " " + (h / 2 - 1) + 'Z" fill="#FFFFFE" stroke="' + INK + '" stroke-width="2" stroke-linejoin="round"/>';
+    var w = o.w || 56, h = o.h || 40, s = "", r = o.tail === "right";
+    // the tail points down at the speaker: bottom-left by default, bottom-right with tail:"right"
+    var tx = r ? w / 2 - 12 : -w / 2 + 12, tip = r ? w / 2 - 6 : -w / 2 + 6, tx2 = r ? w / 2 - 24 : -w / 2 + 24, px = r ? w / 2 - 24.5 : -w / 2 + 10.5;
+    s += '<path d="M' + tx + " " + (h / 2 - 1) + " L" + tip + " " + (h / 2 + 12) + " L" + tx2 + " " + (h / 2 - 1) + 'Z" fill="#FFFFFE" stroke="' + INK + '" stroke-width="2" stroke-linejoin="round"/>';
     s += '<rect x="' + -w / 2 + '" y="' + -h / 2 + '" width="' + w + '" height="' + h + '" rx="14" fill="#FFFFFE" stroke="' + INK + '" stroke-width="2.2"/>';
-    s += '<rect x="' + (-w / 2 + 10.5) + '" y="' + (h / 2 - 3) + '" width="14" height="4.5" fill="#FFFFFE"/>';
+    s += '<rect x="' + px + '" y="' + (h / 2 - 3) + '" width="14" height="4.5" fill="#FFFFFE"/>';
     return s + render(o.inner || [], o.uid);
   }
   function thought(o) {
