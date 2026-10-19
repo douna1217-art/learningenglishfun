@@ -1614,7 +1614,7 @@
         feed: { id: "swFeed", cls: "sw-g3", icon: "feed", label: feedLabel() },
         mem: { id: "swMem", cls: "sw-g1", icon: "memory", label: "Memory match" },
         snake: { id: "swSnake", cls: "sw-g6", icon: "snake", label: "Word snake" },
-        runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word runner" },
+        runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word racer" },
       },
       mainG = GAMESETS[gameSetNo(s) - 1],
       moreG = Object.keys(GM).filter(function (k) {
@@ -3981,9 +3981,9 @@
     draw(Date.now());
   }
 
-  /* ---- Word runner: your pet runs along a road toward the words (it runs to the right, seen from the side); the road has three lanes, one above the other.
-     Hear a word and run through the gate whose sign has it. Coins in the lanes, a wrong gate = a stumble. The speed follows the child's accuracy.
-     Up and down arrow keys, swipes, taps above or below the pet, or the two buttons ---- */
+  /* ---- Word racer: your pet drives a race car along a road toward the words (seen from the side, the car heads to the right); the road has three lanes,
+     one above the other. Hear a word and drive through the gate whose sign has it. Coins in the lanes, a wrong gate = a bump. The speed follows the child's
+     accuracy. Up and down arrow keys, swipes, taps above or below the car, or the two buttons ---- */
   var RUNKEY = "lef_runner_v1";
   function readRunner() {
     var o = null;
@@ -4028,10 +4028,15 @@
       my = null,
       raf = null,
       keyH = null,
-      rig = null,
       cv = null,
       ctx = null,
-      pe = null,
+      carY = 0,
+      boostUntil = 0,
+      shakeUntil = 0,
+      mood = "happy",
+      imgs = {},
+      puffs = [],
+      puffAt = 0,
       W = 340,
       H = 260,
       GY = 90, // where the ground starts
@@ -4084,7 +4089,7 @@
       store.lvl = lvl;
       writeRunner(store);
       var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Coins today: " + coinN + ". Coins in all: " + store.coins + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
-      endGame("r", first, "Word runner", function () {
+      endGame("r", first, "Word racer", function () {
         return score + " points!";
       }, function (r, t) {
         return r + " of " + t + " on the first try · best combo ×" + bestCombo;
@@ -4120,22 +4125,8 @@
         started = true;
         wait = 0.4;
         last = Date.now();
-        if (rig) {
-          try {
-            rig.setAct("walk", { dir: -1 });
-          } catch (e) {}
-        }
       }
       lane = Math.max(0, Math.min(2, n));
-      place();
-    }
-    function place() {
-      if (!pe) return;
-      var w = Math.round(W * 0.17 * laneS(lane) * 1.1),
-        h = w * 1.49;
-      pe.style.width = w + "px";
-      pe.style.left = PX - w / 2 + "px";
-      pe.style.top = laneY(lane) - h * 0.94 + "px";
     }
     function resolve() {
       var g = gate,
@@ -4191,44 +4182,143 @@
       }
       hud();
     }
-    // a happy jump when the gate was right, a stumble when it was wrong
+    // the gate was right: a boost (flames behind the car, the pet cheers); wrong: the car bumps and shakes, the pet is surprised
+    function setMood(m, ms) {
+      mood = m;
+      setTimeout(function () {
+        if (alive()) mood = "happy";
+      }, ms);
+    }
     function hop() {
-      if (rig) {
-        try {
-          rig.setFace("excited");
-        } catch (e) {}
-        setTimeout(function () {
-          if (alive() && rig) {
-            try {
-              rig.setFace("happy");
-            } catch (e2) {}
-          }
-        }, 1100);
-      }
-      if (pe && pe.animate) {
-        try {
-          pe.animate([{ transform: "translateY(0)" }, { transform: "translateY(-18px)" }, { transform: "translateY(0)" }, { transform: "translateY(-9px)" }, { transform: "translateY(0)" }], { duration: 650, easing: "ease-out" });
-        } catch (e3) {}
-      }
+      boostUntil = Date.now() + 1300;
+      setMood("excited", 1300);
     }
     function stumble() {
-      if (rig) {
-        try {
-          rig.setFace("surprised");
-        } catch (e) {}
-        setTimeout(function () {
-          if (alive() && rig) {
-            try {
-              rig.setFace("happy");
-            } catch (e2) {}
-          }
-        }, 900);
+      shakeUntil = Date.now() + 700;
+      setMood("surprised", 1000);
+      for (var q = 0; q < 6; q++) puffs.push({ x: PX - 10 + q * 4, y: laneY(lane) - 30, vx: -30 - q * 6, vy: -20 - q * 5, t: Date.now(), r: 8, c: "230,235,245" });
+    }
+    // the pet's picture (its own, with clothes), to show in the car's window
+    function petImg(m) {
+      if (imgs[m]) return imgs[m];
+      var svg = petArt(m);
+      if (!svg) return null;
+      svg = svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="428" ');
+      var im = new Image();
+      im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      imgs[m] = im;
+      return im;
+    }
+    function drawCar(now) {
+      var s = laneS(lane),
+        u = W * 0.07 * s,
+        sh = now < shakeUntil ? Math.sin(now / 25) * 2.5 : 0,
+        bob = started ? Math.sin(clock * 22) * 1.2 : 0,
+        cx = PX + sh,
+        gy = carY + bob,
+        k,
+        a = clock * 16;
+      // shadow
+      ctx.fillStyle = "rgba(20,25,50,.28)";
+      ctx.beginPath();
+      ctx.ellipse(cx, carY + 2, u * 2.6, u * 0.32, 0, 0, 6.283);
+      ctx.fill();
+      // flames when boosted
+      if (now < boostUntil) {
+        var fl = 0.7 + 0.3 * Math.sin(now / 40);
+        ctx.fillStyle = "#FF8A1F";
+        ctx.beginPath();
+        ctx.moveTo(cx - u * 2.3, gy - u * 1.2);
+        ctx.lineTo(cx - u * (3.6 * fl + 1.6), gy - u * 1.0);
+        ctx.lineTo(cx - u * 2.3, gy - u * 0.7);
+        ctx.fill();
+        ctx.fillStyle = "#FFE066";
+        ctx.beginPath();
+        ctx.moveTo(cx - u * 2.3, gy - u * 1.1);
+        ctx.lineTo(cx - u * (2.4 * fl + 1.6), gy - u * 1.0);
+        ctx.lineTo(cx - u * 2.3, gy - u * 0.85);
+        ctx.fill();
       }
-      if (pe && pe.animate) {
-        try {
-          pe.animate([{ transform: "rotate(0)" }, { transform: "translateX(-14px) rotate(-14deg)" }, { transform: "translateX(6px) rotate(8deg)" }, { transform: "translateX(-4px) rotate(-4deg)" }, { transform: "rotate(0)" }], { duration: 650, easing: "ease-out" });
-        } catch (e3) {}
+      // body
+      ctx.fillStyle = "#E5483A";
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(cx - u * 2.3, gy - u * 2.0, u * 4.6, u * 1.45, u * 0.5);
+      else ctx.rect(cx - u * 2.3, gy - u * 2.0, u * 4.6, u * 1.45);
+      ctx.fill();
+      ctx.fillStyle = "#C93A2E";
+      ctx.beginPath();
+      ctx.moveTo(cx - u * 1.1, gy - u * 2.0);
+      ctx.lineTo(cx - u * 0.75, gy - u * 3.25);
+      ctx.lineTo(cx + u * 1.0, gy - u * 3.25);
+      ctx.lineTo(cx + u * 1.55, gy - u * 2.0);
+      ctx.closePath();
+      ctx.fill();
+      // the pet in the window, behind the glass
+      var wx = cx - u * 0.55,
+        wy = gy - u * 3.05,
+        ww = u * 1.45,
+        wh = u * 1.0,
+        im = petImg(mood);
+      ctx.save();
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(wx, wy, ww, wh, u * 0.22);
+      else ctx.rect(wx, wy, ww, wh);
+      ctx.fillStyle = "#CFEFFF";
+      ctx.fill();
+      ctx.clip();
+      if (im && im.complete && im.naturalWidth) {
+        var dw = ww * 1.5,
+          dh = dw * (428 / 288);
+        ctx.drawImage(im, wx + ww * 0.5 - dw * 0.5, wy - dh * 0.17 - wh * 0.02, dw, dh);
       }
+      ctx.restore();
+      // the window frame (the pet shows through it)
+      ctx.strokeStyle = "#8A97AD";
+      ctx.lineWidth = Math.max(2, u * 0.12);
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(wx, wy, ww, wh, u * 0.22);
+      else ctx.rect(wx, wy, ww, wh);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,.35)";
+      ctx.beginPath();
+      ctx.moveTo(wx + ww * 0.55, wy);
+      ctx.lineTo(wx + ww * 0.8, wy);
+      ctx.lineTo(wx + ww * 0.55 - ww * 0.15, wy + wh);
+      ctx.lineTo(wx + ww * 0.3 - ww * 0.15, wy + wh);
+      ctx.fill();
+      // stripe, spoiler, lights
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fillRect(cx - u * 2.2, gy - u * 1.45, u * 4.4, u * 0.2);
+      ctx.fillStyle = "#2B3347";
+      ctx.fillRect(cx - u * 2.12, gy - u * 2.7, u * 0.15, u * 0.75);
+      ctx.fillRect(cx - u * 2.55, gy - u * 2.85, u * 0.95, u * 0.2);
+      ctx.fillStyle = "#FFE066";
+      ctx.beginPath();
+      ctx.arc(cx + u * 2.12, gy - u * 1.5, u * 0.22, 0, 6.283);
+      ctx.fill();
+      ctx.fillStyle = "#FF6B4A";
+      ctx.fillRect(cx - u * 2.34, gy - u * 1.6, u * 0.12, u * 0.3);
+      // wheels
+      [-1.5, 1.45].forEach(function (wxo) {
+        var wcx = cx + wxo * u,
+          wcy = gy - u * 0.62;
+        ctx.fillStyle = "#2B3347";
+        ctx.beginPath();
+        ctx.arc(wcx, wcy, u * 0.66, 0, 6.283);
+        ctx.fill();
+        ctx.fillStyle = "#C9D7E8";
+        ctx.beginPath();
+        ctx.arc(wcx, wcy, u * 0.36, 0, 6.283);
+        ctx.fill();
+        ctx.strokeStyle = "#6C7A93";
+        ctx.lineWidth = Math.max(1.5, u * 0.09);
+        for (k = 0; k < 4; k++) {
+          ctx.beginPath();
+          ctx.moveTo(wcx, wcy);
+          ctx.lineTo(wcx + Math.cos(a + (k * Math.PI) / 2) * u * 0.34, wcy + Math.sin(a + (k * Math.PI) / 2) * u * 0.34);
+          ctx.stroke();
+        }
+      });
     }
     function board(text, cx, cy, w, h, hint, blink) {
       ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
@@ -4282,11 +4372,14 @@
           return c.p < 1.12;
         });
       }
-      if (rig) {
-        try {
-          rig.at(clock * 1.7); // the clock runs faster than a walk: this is a run
-        } catch (e) {}
+      carY += (laneY(lane) - carY) * Math.min(1, dt * 14);
+      if (started && ts - puffAt > 70) {
+        puffAt = ts;
+        puffs.push({ x: PX - W * 0.075 * laneS(lane) * 2.4, y: carY - W * 0.07 * 0.9, vx: -60, vy: -8, t: ts, r: 3 + W * 0.012, c: "235,240,250" });
       }
+      puffs = puffs.filter(function (p) {
+        return ts - p.t < 700;
+      });
       ctx.clearRect(0, 0, W, H);
       var g1 = ctx.createLinearGradient(0, 0, 0, GY);
       g1.addColorStop(0, "#BFE6FF");
@@ -4384,6 +4477,27 @@
           board(sg.w, gx, by, bw, bh, hint, blink);
         });
       }
+      // speed lines and exhaust puffs
+      if (started) {
+        ctx.strokeStyle = "rgba(255,255,255,.45)";
+        ctx.lineWidth = 2;
+        for (k = 0; k < 7; k++) {
+          var lx = ((((k * 97 - scroll * 900) % (W + 80)) + (W + 80)) % (W + 80)) - 40,
+            ly = roadTop + 10 + ((k * 53) % Math.max(10, H - roadTop - 20));
+          ctx.beginPath();
+          ctx.moveTo(lx, ly);
+          ctx.lineTo(lx + 26, ly);
+          ctx.stroke();
+        }
+      }
+      puffs.forEach(function (p) {
+        var age = (ts - p.t) / 700;
+        ctx.fillStyle = "rgba(" + p.c + "," + (0.7 * (1 - age)).toFixed(2) + ")";
+        ctx.beginPath();
+        ctx.arc(p.x + (p.vx * (ts - p.t)) / 1000, p.y + (p.vy * (ts - p.t)) / 1000, p.r * (1 + age * 1.2), 0, 6.283);
+        ctx.fill();
+      });
+      drawCar(ts);
       if (!started) {
         ctx.fillStyle = "rgba(30,42,74,.62)";
         ctx.fillRect(0, H * 0.18, W, 44);
@@ -4391,35 +4505,16 @@
         ctx.font = "700 " + Math.round(W * 0.05) + "px Fredoka, sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("Press ▲ ▼ or swipe to start!", W / 2, H * 0.18 + 22);
+        ctx.fillText("Press ▲ ▼ or swipe to start the engine!", W / 2, H * 0.18 + 22);
       }
       raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
     }
-    // the side view: copies of the picture stacked behind it give the turned pet some thickness (as in the Monster battle)
-    function sideOn(t) {
-      var svg = t.querySelector("svg");
-      if (svg) {
-        var xml = svg.outerHTML.indexOf("xmlns=") < 0 ? svg.outerHTML.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" ') : svg.outerHTML,
-          uri = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
-        for (var k = 1; k <= LAYERS; k++) {
-          var im = document.createElement("img");
-          im.className = "sw-ly";
-          im.alt = "";
-          im.src = uri;
-          im.style.transform = "translateZ(-" + k * 3 + "px) scaleX(-1)";
-          im.style.filter = "brightness(" + (0.9 - k * 0.05).toFixed(2) + ")";
-          t.insertBefore(im, t.firstChild);
-        }
-      }
-      t.classList.add("sw-turned", "sw-in");
-    }
-    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word runner</span></div>' +
-      '<div class="sw-card"><div class="sw-kind">Word runner</div><div class="sw-sent" style="font-size:22px">Run through the gate with the word you hear!</div>' +
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word racer</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Word racer</div><div class="sw-sent" style="font-size:22px">Drive through the gate with the word you hear!</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swRsc"></span><span class="sw-msc" id="swRco"></span><span class="sw-mcb" id="swRcb"></span><span class="sw-spd" id="swRsp"></span></div>' +
-      '<div class="sw-rwrap" id="swRw"><canvas class="sw-snk" id="swRun"></canvas><div class="sw-apet sw-rapet" id="swRpet"><div class="sw-turn" id="swRtn"></div></div></div><div class="sw-rlr"><button class="sw-dp sw-dpw" id="swRu" aria-label="Up">▲</button><button class="sw-dp sw-dpw" id="swRd" aria-label="Down">▼</button></div><div class="sw-msg" id="swMsg"></div></div>';
+      '<div class="sw-rwrap" id="swRw"><canvas class="sw-snk" id="swRun"></canvas></div><div class="sw-rlr"><button class="sw-dp sw-dpw" id="swRu" aria-label="Up">▲</button><button class="sw-dp sw-dpw" id="swRd" aria-label="Down">▼</button></div><div class="sw-msg" id="swMsg"></div></div>';
     bindQuit();
     cv = document.getElementById("swRun");
-    pe = document.getElementById("swRpet");
     W = Math.max(260, Math.min(440, Math.floor((cv.parentNode.parentNode.clientWidth || 340) - 56)));
     H = Math.round(W * 0.74);
     GY = Math.round(H * 0.32);
@@ -4433,21 +4528,10 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     document.getElementById("swRw").style.width = W + "px";
     document.getElementById("swRw").style.height = H + "px";
-    pe.style.bottom = "auto";
-    // the pet is a living rig (the same drawing it has everywhere else): it runs to the right, seen from the side
-    var host = document.getElementById("swRtn");
-    if (root.PetRig && root.PetRig.mount && root.petSvg) {
-      try {
-        var pa = petRigArgs();
-        rig = root.PetRig.mount(host, pa.type, pa.eq, { gaze: -1, lean: -8, flip: true, faces: ["happy", "excited", "surprised"], manual: true });
-        if (rig) rig.turn(true);
-      } catch (e) {
-        rig = null;
-      }
-    }
-    if (!rig) host.innerHTML = petArt("happy");
-    sideOn(host);
-    place();
+    carY = laneY(1);
+    petImg("happy");
+    petImg("excited");
+    petImg("surprised");
     document.getElementById("swHear").onclick = function () {
       if (gate) play("w", gate.r.w);
       else if (rounds[i]) play("w", rounds[i].w);
@@ -4491,11 +4575,6 @@
     my = run = { mode: "runner", steps: [], i: 0, first: first, rnd: seeded(1) };
     my.stop = function () {
       cleanup();
-      if (rig) {
-        try {
-          rig.stop();
-        } catch (e) {}
-      }
       my = null;
     };
     last = Date.now();
