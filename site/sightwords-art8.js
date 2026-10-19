@@ -325,7 +325,7 @@
     result: [["scoreboard", 120, G, 1.4, { a: 5, b: 2 }], ["check", 186, 44, 1.2], ["heart", 56, 40, 0.9]],
     // ---- Frozen lake
     climb: [["snowslope", 0, 0, 1, {}], ["kid", 70, 112, 0.9, kb("walk", { look: 1, mouth: "open" })], ["kid", 116, 94, 0.8, kg("walk", { look: 1, mouth: "open" })], ["flag", 204, 62, 1.0, {}]],
-    catch: [["curve", 0, 0, 1, { x1: 200, y1: 24, cx: 160, cy: 20, x2: 112, y2: 62, c: "#6A48E8", w: 2.4, dash: true }], ["kid", 100, G, 1.5, kb("grip", { look: 0, mouth: "open", arms: "none" })], ["ball", 100, 98, 1.3, {}], ["kid", 100, G, 1.5, kb("grip", { arms: "only" })], ["sparkle", 150, 60, 0.9], ["heart", 56, 46, 0.8]],
+    catch: [["curve", 0, 0, 1, { x1: 200, y1: 24, cx: 160, cy: 20, x2: 112, y2: 62, c: "#6A48E8", w: 2.4, dash: true }], ["kid", 100, G, 1.5, kb("cup", { look: 0, mouth: "open", arms: "none" })], ["ball", 100, 108, 1.2, {}], ["kid", 100, G, 1.5, kb("cup", { arms: "only" })], ["sparkle", 150, 60, 0.9], ["heart", 56, 46, 0.8]],
     push: [["kid", 50, G, 1.5, kb("push", { look: 1, mouth: "open" })], ["crate", 142, G, 1.4, {}], ["sweat", 48, 52, 0.8], ["arrow", 0, 0, 1, { x1: 176, y1: 60, x2: 214, y2: 60, c: P }]],
     lift: [["kid", 120, G, 1.4, kb("lift", { look: 0, mouth: "open" })], ["box", 120, 46, 1.0, {}], ["sweat", 158, 70, 0.8]],
     throw: [["kid", 56, G, 1.4, kb("throw", { look: 1, mouth: "open", arms: "none" })], ["ball", 91, 38, 1.1, {}], ["kid", 56, G, 1.4, kb("throw", { arms: "only" })], ["curve", 0, 0, 1, { x1: 104, y1: 36, cx: 166, cy: -26, x2: 224, y2: 112, c: "#6A48E8", w: 2.6, dash: true }], ["whoosh", 78, 34, 0.8, {}]],
