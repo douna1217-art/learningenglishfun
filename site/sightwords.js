@@ -1364,7 +1364,8 @@
       "#swOverlay .sw-mw.sw-mg{background:#FFE680;border-color:#E0A800;font-size:15px}" +
       "#swOverlay .sw-dirt{position:absolute;left:3%;right:3%;bottom:0;height:34px;border-radius:50%;background:radial-gradient(ellipse at 50% 20%,#A57A52,#7B5535);z-index:2;pointer-events:none}" +
       "#swOverlay .sw-mole.sw-oops{animation:swshake .4s}" +
-      "#swOverlay .sw-mole.sw-hint{filter:drop-shadow(0 0 8px #FFE066);animation:swhint .6s ease-in-out infinite alternate}" +
+      "#swOverlay .sw-mole.sw-hint{animation:swgoldb .45s ease-in-out infinite alternate}" +
+      "@keyframes swgoldb{from{filter:drop-shadow(0 0 5px #FFC400) brightness(1)}to{filter:drop-shadow(0 0 18px #FFF08A) brightness(1.4)}}" +
       "#swOverlay .sw-hmr{position:absolute;left:50%;top:-6px;width:64px;height:64px;transform-origin:50% 90%;z-index:5;pointer-events:none}" +
       "#swOverlay .sw-hmr svg{display:block;width:100%;height:100%}" +
       "#swOverlay .sw-bonk{position:absolute;left:50%;top:6px;z-index:6;font-family:'Fredoka',sans-serif;font-weight:700;font-size:20px;color:#FFE066;-webkit-text-stroke:2px #C0392B;paint-order:stroke fill;white-space:nowrap;pointer-events:none}" +
@@ -3313,6 +3314,12 @@
           if (hm.parentNode) hm.parentNode.removeChild(hm);
         }, 520);
       }
+      // the hint: the right mole turns gold and blinks
+      function goldHint(m) {
+        var w = m.getAttribute("data-w") || "";
+        m.innerHTML = moleSvg(true, false) + '<span class="sw-mw" style="font-size:' + (w.length > 8 ? 12 : w.length > 6 ? 14 : 17) + 'px">' + esc(w) + "</span>";
+        m.classList.add("sw-hint");
+      }
       function sparks(h, txt) {
         var c = hole(h),
           t = document.createElement("div");
@@ -3364,6 +3371,7 @@
           m.setAttribute("data-w", w);
           m.removeAttribute("data-g");
           m.innerHTML = moleSvg(false, false) + '<span class="sw-mw" style="font-size:' + (w.length > 8 ? 12 : w.length > 6 ? 14 : 17) + 'px">' + esc(w) + "</span>";
+          if (tries >= 2 && wkey(w) === k) goldHint(m);
           shown.push(h);
           later(function () {
             m.classList.add("sw-up");
@@ -3446,7 +3454,7 @@
           }, 450);
           if (tries >= 2)
             Array.prototype.forEach.call(field.querySelectorAll(".sw-mole"), function (mm) {
-              if (wkey(mm.getAttribute("data-w") || "") === k) mm.classList.add("sw-hint");
+              if (wkey(mm.getAttribute("data-w") || "") === k) goldHint(mm);
             });
           return;
         }
