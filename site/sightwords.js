@@ -3214,7 +3214,8 @@
       combo = 0,
       bestCombo = 0,
       golden = 0,
-      help = 0, // rounds with only one wrong mole after a wrong tap
+      help = 0, // rounds with only one wrong mole after repeated slips
+      lastWrong = false, // the round before had a slip
       spdNote = "",
       my = null;
     function later(fn, ms) {
@@ -3432,7 +3433,10 @@
           combo = 0;
           mist++;
           lvl = Math.max(0, lvl - 0.6);
-          help = 2; // a wrong mole means the word is not known yet: the next rounds have fewer wrong moles
+          if (tries + 1 >= 2 || lastWrong) help = 2; // wrong twice in a round, or in two rounds in a row: the next rounds have fewer wrong moles
+          later(function () {
+            play("w", r.w); // the word is read again
+          }, 700);
           pace(false);
           hud();
           tries++;
@@ -3448,6 +3452,7 @@
         }
         busy = true;
         clearTimeout(upTimer);
+        lastWrong = mist > 0;
         if (mist === 0) {
           lvl = Math.min(8, lvl + 0.7 + (Date.now() - popAt < upMs * 0.35 ? 0.4 : 0)); // a clean, quick whack: a little faster next time
           pace(true);
@@ -3530,7 +3535,8 @@
       target = null,
       fx = [],
       my = null,
-      help = 0, // rounds with only one wrong apple: a wrong apple means the word is not known yet, so the next rounds are easier
+      help = 0, // rounds with only one wrong apple: after repeated slips the next rounds are easier
+      lastWrong = false, // the round before had a wrong apple
       spdNote = "",
       tick = null,
       raf = null,
@@ -3669,6 +3675,7 @@
       apples.splice(apples.indexOf(ap), 1);
       if (right) {
         if (first[k] === undefined) first[k] = true;
+        lastWrong = mist > 0;
         if (mist === 0) {
           lvl = Math.min(8, lvl + 0.6); // a clean apple: faster
           pace(true);
@@ -3700,9 +3707,12 @@
         first[k] = false;
         mist++;
         wrongTries++;
-        lvl = Math.max(0, lvl - 0.8); // a wrong apple: a little slower, and the next rounds have fewer wrong apples
-        help = 2;
+        lvl = Math.max(0, lvl - 0.8); // a wrong apple: a little slower
+        if (wrongTries >= 2 || lastWrong) help = 2; // wrong twice in a round, or in two rounds in a row: the next rounds have fewer wrong apples
         pace(false);
+        setTimeout(function () {
+          if (alive() && target) play("w", target.w); // the word is read again
+        }, 700);
         combo = 0;
         snake.pop();
         if (snake.length > 3) snake.pop(); // a wrong apple: the snake gets one shorter
