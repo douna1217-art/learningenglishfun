@@ -1347,6 +1347,9 @@
       "@media(prefers-reduced-motion:reduce){#swOverlay .sw-fbob,#swOverlay .sw-fpet.sw-fwig{animation:none}}" +
       "#swOverlay .sw-g5{background:#DDEFC5;box-shadow:0 6px 0 #9CC57A}" +
       "#swOverlay .sw-games.sw-g2c{grid-template-columns:repeat(2,minmax(0,1fr))}" +
+      "#swOverlay .sw-gt,#swOverlay .sw-ct{position:relative}" +
+      "#swOverlay .sw-qm{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:#fff;color:#4A2FB8;font:800 14px/22px 'Fredoka',sans-serif;text-align:center;box-shadow:0 2px 0 #C9C0F5}" +
+      "#swOverlay .sw-how{text-align:center}#swOverlay .sw-how .sw-start{margin:18px auto 0}" +
       "#swOverlay .sw-more{display:block;margin:-12px auto 22px;background:#fff;border-radius:999px;padding:8px 20px;font-weight:800;font-size:14px;color:#4A2FB8;box-shadow:0 4px 0 #C9C0F5}" +
       "#swOverlay .sw-moreg{margin-top:-8px}" +
       "#swOverlay .sw-mhud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 14px;margin:10px 0 0;font-weight:800;font-size:18px}" +
@@ -1584,6 +1587,46 @@
     for (var m = 1; m <= 5; m++) if (s.rev[monKey(m)]) n++;
     return n;
   }
+  // how to play: shown the first time a game is opened, and any time from the little ? on its tile
+  var HOWTO = {
+    swMem: ["Memory match", "记忆配对", "Flip two cards. Match each picture with its sentence.", "翻开两张牌，把图片和它的句子配成一对。"],
+    swBal: ["Balloon pop", "戳气球", "Listen to the word, then pop the balloon that has it.", "听单词，戳破写着这个词的气球。"],
+    swFeed: ["Feed your pet", "喂宠物", "Read the sentence and pick the missing word to feed your pet.", "读句子，选出缺的那个词来喂宠物。"],
+    swFish: ["Word fishing", "钓单词", "Drag the hook to the fish that wears the word you hear. Tap or hold to drop the line.", "听单词，把鱼钩放到写着这个词的鱼那里去钓。"],
+    swMole: ["Whack-a-word", "打地鼠", "Tap the mole holding the word you hear. Watch for the golden one!", "听单词，点举着这个词的地鼠。留意金色的那只！"],
+    swSnake: ["Word snake", "词汇蛇", "Steer the snake with your finger or the arrow keys. Eat the apple with the right word.", "用手指或方向键控制蛇，吃掉有正确单词的苹果。"],
+    swRunner: ["Word racer", "单词赛车", "Slide left or right to pick a lane. Drive through the gate with the right word.", "左右滑动换车道，从有正确单词的门穿过去。"],
+    swSlash2: ["Word slash", "切水果", "Swipe across the fruit with the right word. Do not touch the bombs!", "划过有正确单词的水果。不要碰炸弹！"],
+    swDet: ["Word detective", "单词神探", "Read the clues and open the folder with the right word to catch the culprit.", "读线索，打开写着正确单词的档案夹，抓住嫌疑人。"],
+    swHoop: ["Word basketball", "单词投篮", "Flick the ball up at the hoop that shows the right word.", "把球往上弹，投进有正确单词的篮筐。"],
+    swSpell: ["Bubble spell", "泡泡拼词", "Listen, then tap the letter bubbles in the right order to spell the word.", "听单词，按顺序点字母泡泡，把它拼出来。"],
+    swBattle: ["Monster battle", "打怪兽", "Answer the word questions to power up your pet and beat the monster.", "回答单词题，给宠物加油，打败怪兽。"],
+    swSiege2: ["Castle siege", "弹弓攻城", "Pull the sling back and let go. Hit the sign with the right word to knock the tower down. Pull further to shoot further. A faint dotted line shows the path.", "向后拉弹弓再松手，打中写着正确单词的牌子，塔就会倒。拉得越远飞得越远，虚线是飞行路线。"],
+  };
+  function howSeen() {
+    try {
+      return JSON.parse(localStorage.getItem("lef_howto_v1") || "{}");
+    } catch (e) {
+      return {};
+    }
+  }
+  function howSet(id) {
+    try {
+      var m = howSeen();
+      m[id] = 1;
+      localStorage.setItem("lef_howto_v1", JSON.stringify(m));
+    } catch (e) {}
+  }
+  // shows the card for a game, then calls go()
+  function howTo(id, go) {
+    var t = HOWTO[id];
+    if (!t) return go();
+    howSet(id);
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button></div><div class="sw-card sw-how"><div class="sw-kind">How to play · 玩法</div><h1>' + esc(t[0]) + " · " + esc(t[1]) + '</h1><div class="sw-sent" style="font-size:20px">' + esc(t[2]) + '</div><div class="sw-sent" style="font-size:18px;color:#5B6B8C">' + esc(t[3]) + '</div><button class="sw-start" id="swHowGo">' + PLAY + "Let’s play! · 开始</button></div>";
+    document.getElementById("swQuit").onclick = showHome;
+    document.getElementById("swHowGo").onclick = go;
+    ov.scrollTop = 0;
+  }
   function showHome() {
     var s = readState(),
       words = allWords(),
@@ -1668,10 +1711,10 @@
         return k !== mainCh;
       });
     function chTile(k) {
-      return '<button class="sw-ct ' + CHS[k].cls + '" id="' + CHS[k].id + '"><span class="sw-gi">' + CHS[k].art + "</span>" + CHS[k].label + "<small>" + CHS[k].sub + "</small></button>";
+      return '<button class="sw-ct ' + CHS[k].cls + '" id="' + CHS[k].id + '"><span class="sw-gi">' + CHS[k].art + "</span>" + CHS[k].label + "<small>" + CHS[k].sub + '</small><span class="sw-qm" data-q="' + CHS[k].id + '">?</span></button>';
     }
     function gameTile(k) {
-      return '<button class="sw-gt ' + GM[k].cls + '" id="' + GM[k].id + '"><span class="sw-gi">' + scenery("game", GM[k].icon) + "</span>" + esc(GM[k].label) + "</button>";
+      return '<button class="sw-gt ' + GM[k].cls + '" id="' + GM[k].id + '"><span class="sw-gi">' + scenery("game", GM[k].icon) + "</span>" + esc(GM[k].label) + '<span class="sw-qm" data-q="' + GM[k].id + '">?</span></button>';
     }
     var h = '<div class="sw-home"><div class="sw-top"><button class="sw-back" id="swClose">← Back</button>' + (p ? '<span class="sw-starpill">' + scenery("star") + (+p.stars || 0) + "</span>" : "") + "</div>" +
       '<div class="sw-ttl"><span class="sw-aa">Aa</span><div><h1>Sight words</h1><div class="sw-sub">The words you will see in almost every story · 高频词</div></div></div>' +
@@ -1729,7 +1772,8 @@
       if (b)
         b.onclick = function () {
           back = showHome;
-          starters[id]();
+          if (howSeen()[id]) starters[id]();
+          else howTo(id, starters[id]);
         };
     });
     document.getElementById("swMore").onclick = function () {
@@ -1754,7 +1798,8 @@
       if (b)
         b.onclick = function () {
           back = showHome;
-          chStart[id]();
+          if (howSeen()[id]) chStart[id]();
+          else howTo(id, chStart[id]);
         };
     });
     document.getElementById("swMoreC").onclick = function () {
@@ -1763,6 +1808,14 @@
       g.style.display = open ? "" : "none";
       this.textContent = open ? "Fewer challenges ▴" : "All challenges · 所有挑战 ▾";
     };
+    Array.prototype.forEach.call(box.querySelectorAll(".sw-qm"), function (q) {
+      q.onclick = function (e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        var id = q.getAttribute("data-q");
+        back = showHome;
+        howTo(id, starters[id] || chStart[id]);
+      };
+    });
     document.getElementById("swWall").onclick = showWall;
     Array.prototype.forEach.call(box.querySelectorAll(".sw-isl-qc"), function (q) {
       var n = +q.getAttribute("data-s") || 1;
