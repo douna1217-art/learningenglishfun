@@ -6791,18 +6791,33 @@
         ctx.fillText(t.w, t.cx, sg.y + sg.h / 2 + 1);
         ctx.restore();
       });
-      // the slingshot (behind and in front of the pet)
-      ctx.strokeStyle = "#8A5A2B";
-      ctx.lineWidth = 7;
+      // the slingshot: a wooden Y with an elastic band (behind and in front of the pet)
+      var FY = AY + 30,
+        FT = AY - 22,
+        FW = 22;
+      function fork(side) {
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#6B3F18";
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.moveTo(AX, FY);
+        ctx.lineTo(AX + side * FW, FT);
+        ctx.stroke();
+        ctx.strokeStyle = "#A8713A";
+        ctx.lineWidth = 6;
+        ctx.stroke();
+      }
       ctx.lineCap = "round";
+      ctx.strokeStyle = "#6B3F18";
+      ctx.lineWidth = 12;
       ctx.beginPath();
-      ctx.moveTo(AX, GY);
-      ctx.lineTo(AX, AY + 16);
-      ctx.moveTo(AX, AY + 16);
-      ctx.lineTo(AX - 11, AY - 6);
-      ctx.moveTo(AX, AY + 16);
-      ctx.lineTo(AX + 11, AY - 6);
+      ctx.moveTo(AX, GY + 4);
+      ctx.lineTo(AX, FY);
       ctx.stroke();
+      ctx.strokeStyle = "#A8713A";
+      ctx.lineWidth = 8;
+      ctx.stroke();
+      fork(-1);
       var bx = ball ? ball.x : AX,
         by = ball ? ball.y : AY;
       if (pull) {
@@ -6820,22 +6835,44 @@
         if (sol) trajectory((AX - sol.x) * KV, (AY - sol.y) * KV, 40, "rgba(255,196,0,.9)");
       }
       if (ball && !ball.fly) {
-        ctx.strokeStyle = "#5A2A06";
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = "#D8452E";
+        ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.moveTo(AX - 11, AY - 6);
-        ctx.lineTo(bx - BR * 0.6, by);
-        ctx.moveTo(AX + 11, AY - 6);
-        ctx.lineTo(bx - BR * 0.6, by);
+        ctx.moveTo(AX - FW, FT);
+        ctx.lineTo(bx - BR * 0.4, by + BR * 0.5);
+        ctx.moveTo(AX + FW, FT);
+        ctx.lineTo(bx + BR * 0.4, by + BR * 0.5);
         ctx.stroke();
       }
       if (ball) drawBall(ball, ts);
-      ctx.strokeStyle = "#8A5A2B";
-      ctx.lineWidth = 7;
-      ctx.beginPath();
-      ctx.moveTo(AX + 11, AY - 6);
-      ctx.lineTo(AX + 9, AY + 6);
-      ctx.stroke();
+      fork(1);
+      // before the first shot: show how to pull it
+      if (!shots && !pull && ball && !ball.fly) {
+        var wob = Math.sin(ts / 260) * 6;
+        ctx.save();
+        ctx.fillStyle = "rgba(30,42,74,.85)";
+        ctx.strokeStyle = "rgba(30,42,74,.85)";
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        var ay = AY + 34 + 12,
+          ax1 = AX - 6 + wob * -1,
+          ax0 = AX - 6 - Math.min(44, AX - 22) + wob * -1;
+        ctx.beginPath();
+        ctx.moveTo(ax1, ay);
+        ctx.lineTo(ax0, ay);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(ax0 - 8, ay);
+        ctx.lineTo(ax0 + 4, ay - 8);
+        ctx.lineTo(ax0 + 4, ay + 8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.font = "700 13px Fredoka, sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText("Pull back · 往后拉", Math.max(4, ax0 - 8), ay + 20);
+        ctx.restore();
+      }
       debris.forEach(function (d) {
         ctx.save();
         ctx.translate(d.x, d.y);
