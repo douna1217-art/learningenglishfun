@@ -71,10 +71,22 @@
   "text": "The bed is against the wall.",
   "voice": "fable"
  },
+ "s-age.mp3": {
+  "id": "3a3481533ac2",
+  "model": "gpt-4o-mini-tts",
+  "text": "What is your age?",
+  "voice": "fable"
+ },
  "s-ago.mp3": {
   "id": "c8f15258cf97",
   "model": "gpt-4o-mini-tts",
   "text": "I came here a long time ago.",
+  "voice": "fable"
+ },
+ "s-agree.mp3": {
+  "id": "d35a89b9ba53",
+  "model": "gpt-4o-mini-tts",
+  "text": "We all agree.",
   "voice": "fable"
  },
  "s-agreed.mp3": {
@@ -99,6 +111,12 @@
   "id": "8a5ba3f3a41c",
   "model": "gpt-4o-mini-tts",
   "text": "We can all play.",
+  "voice": "fable"
+ },
+ "s-allow.mp3": {
+  "id": "c00523606fbe",
+  "model": "gpt-4o-mini-tts",
+  "text": "Mom will allow me to play.",
   "voice": "fable"
  },
  "s-almost.mp3": {
@@ -173,6 +191,12 @@
   "text": "The cat and the dog play.",
   "voice": "fable"
  },
+ "s-anger.mp3": {
+  "id": "4466dbe4d92b",
+  "model": "gpt-4o-mini-tts",
+  "text": "I feel anger.",
+  "voice": "fable"
+ },
  "s-angle.mp3": {
   "id": "3a51a7a15198",
   "model": "gpt-4o-mini-tts",
@@ -227,6 +251,12 @@
   "text": "This is a play area.",
   "voice": "fable"
  },
+ "s-arm.mp3": {
+  "id": "2794d808a4c5",
+  "model": "gpt-4o-mini-tts",
+  "text": "I hurt my arm.",
+  "voice": "fable"
+ },
  "s-arms.mp3": {
   "id": "0ec0f2c91727",
   "model": "gpt-4o-mini-tts",
@@ -237,6 +267,12 @@
   "id": "838f6c69472c",
   "model": "gpt-4o-mini-tts",
   "text": "We run around the tree.",
+  "voice": "fable"
+ },
+ "s-arrange.mp3": {
+  "id": "c3494c4ad22b",
+  "model": "gpt-4o-mini-tts",
+  "text": "I arrange the flowers.",
   "voice": "fable"
  },
  "s-arrived.mp3": {
@@ -273,6 +309,12 @@
   "id": "646cd505570d",
   "model": "gpt-4o-mini-tts",
   "text": "The dog ate the cake.",
+  "voice": "fable"
+ },
+ "s-atom.mp3": {
+  "id": "c3bc4de2830f",
+  "model": "gpt-4o-mini-tts",
+  "text": "An atom is very small.",
   "voice": "fable"
  },
  "s-away.mp3": {
@@ -315,6 +357,12 @@
   "id": "81d075188653",
   "model": "gpt-4o-mini-tts",
   "text": "The tree has a thick base.",
+  "voice": "fable"
+ },
+ "s-bat.mp3": {
+  "id": "0e516a3ded16",
+  "model": "gpt-4o-mini-tts",
+  "text": "I hit the ball with a bat.",
   "voice": "fable"
  },
  "s-be.mp3": {
@@ -521,6 +569,12 @@
   "text": "My body is warm.",
   "voice": "fable"
  },
+ "s-bone.mp3": {
+  "id": "e8a72faf528f",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog has a bone.",
+  "voice": "fable"
+ },
  "s-bones.mp3": {
   "id": "6fe9dff28fe2",
   "model": "gpt-4o-mini-tts",
@@ -599,6 +653,18 @@
   "text": "Bring me the ball.",
   "voice": "fable"
  },
+ "s-broad.mp3": {
+  "id": "72a47e6e7449",
+  "model": "gpt-4o-mini-tts",
+  "text": "The river is broad.",
+  "voice": "fable"
+ },
+ "s-broke.mp3": {
+  "id": "3c8b805ecc2c",
+  "model": "gpt-4o-mini-tts",
+  "text": "The glass broke.",
+  "voice": "fable"
+ },
  "s-broken.mp3": {
   "id": "9b3e0ec9b52d",
   "model": "gpt-4o-mini-tts",
@@ -639,6 +705,12 @@
   "id": "c8db95ef4fcf",
   "model": "gpt-4o-mini-tts",
   "text": "We built a house.",
+  "voice": "fable"
+ },
+ "s-burn.mp3": {
+  "id": "b596455c6df3",
+  "model": "gpt-4o-mini-tts",
+  "text": "Fire will burn the wood.",
   "voice": "fable"
  },
  "s-burning.mp3": {
@@ -683,6 +755,12 @@
   "text": "Mom came to see me.",
   "voice": "fable"
  },
+ "s-camp.mp3": {
+  "id": "7f1214bd0dc3",
+  "model": "gpt-4o-mini-tts",
+  "text": "We camp near the lake.",
+  "voice": "fable"
+ },
  "s-can.mp3": {
   "id": "e695c294f412",
   "model": "gpt-4o-mini-tts",
@@ -699,6 +777,12 @@
   "id": "f1fcec57cbfe",
   "model": "gpt-4o-mini-tts",
   "text": "I can’t see the cat.",
+  "voice": "fable"
+ },
+ "s-capital.mp3": {
+  "id": "e027179ff3e1",
+  "model": "gpt-4o-mini-tts",
+  "text": "The capital is a big city.",
   "voice": "fable"
  },
  "s-captain.mp3": {
@@ -749,6 +833,12 @@
   "text": "The cat is on my bed.",
   "voice": "fable"
  },
+ "s-catch.mp3": {
+  "id": "026abb03c42f",
+  "model": "gpt-4o-mini-tts",
+  "text": "I catch the ball.",
+  "voice": "fable"
+ },
  "s-cattle.mp3": {
   "id": "c0b75cf12541",
   "model": "gpt-4o-mini-tts",
@@ -767,6 +857,12 @@
   "text": "The cells are small.",
   "voice": "fable"
  },
+ "s-cent.mp3": {
+  "id": "b332c7a61944",
+  "model": "gpt-4o-mini-tts",
+  "text": "The apple is one cent.",
+  "voice": "fable"
+ },
  "s-center.mp3": {
   "id": "4287ad9209a4",
   "model": "gpt-4o-mini-tts",
@@ -777,6 +873,12 @@
   "id": "8cb249b118ef",
   "model": "gpt-4o-mini-tts",
   "text": "The apple is ten cents.",
+  "voice": "fable"
+ },
+ "s-century.mp3": {
+  "id": "5de67d58f6d6",
+  "model": "gpt-4o-mini-tts",
+  "text": "A century is a hundred years.",
   "voice": "fable"
  },
  "s-certain.mp3": {
@@ -803,6 +905,12 @@
   "text": "I change my hat.",
   "voice": "fable"
  },
+ "s-character.mp3": {
+  "id": "fe45d195cf13",
+  "model": "gpt-4o-mini-tts",
+  "text": "She is a character in the story.",
+  "voice": "fable"
+ },
  "s-chart.mp3": {
   "id": "6c8de1601d45",
   "model": "gpt-4o-mini-tts",
@@ -819,6 +927,12 @@
   "id": "b7c87046b850",
   "model": "gpt-4o-mini-tts",
   "text": "I see a little chicken.",
+  "voice": "fable"
+ },
+ "s-chief.mp3": {
+  "id": "e4815dd6a741",
+  "model": "gpt-4o-mini-tts",
+  "text": "The chief has a big hat.",
   "voice": "fable"
  },
  "s-child.mp3": {
@@ -863,6 +977,12 @@
   "text": "I live in a big city.",
   "voice": "fable"
  },
+ "s-claim.mp3": {
+  "id": "a1d53ef617c7",
+  "model": "gpt-4o-mini-tts",
+  "text": "I claim this seat.",
+  "voice": "fable"
+ },
  "s-class.mp3": {
   "id": "4aa87d70488e",
   "model": "gpt-4o-mini-tts",
@@ -881,16 +1001,34 @@
   "text": "The water is clear.",
   "voice": "fable"
  },
+ "s-climb.mp3": {
+  "id": "63c68fbba5c5",
+  "model": "gpt-4o-mini-tts",
+  "text": "We climb the hill.",
+  "voice": "fable"
+ },
  "s-climbed.mp3": {
   "id": "7fafcb2d0939",
   "model": "gpt-4o-mini-tts",
   "text": "The cat climbed the tree.",
   "voice": "fable"
  },
+ "s-clock.mp3": {
+  "id": "3d15ea512a6d",
+  "model": "gpt-4o-mini-tts",
+  "text": "The clock is on the wall.",
+  "voice": "fable"
+ },
  "s-close.mp3": {
   "id": "064f484587c0",
   "model": "gpt-4o-mini-tts",
   "text": "Close the door.",
+  "voice": "fable"
+ },
+ "s-clothe.mp3": {
+  "id": "5f53012f7463",
+  "model": "gpt-4o-mini-tts",
+  "text": "Mom will clothe the baby.",
   "voice": "fable"
  },
  "s-clothes.mp3": {
@@ -921,6 +1059,18 @@
   "id": "a1f45c5ad57d",
   "model": "gpt-4o-mini-tts",
   "text": "I am cold.",
+  "voice": "fable"
+ },
+ "s-collect.mp3": {
+  "id": "114321e48f71",
+  "model": "gpt-4o-mini-tts",
+  "text": "I collect a rock.",
+  "voice": "fable"
+ },
+ "s-colony.mp3": {
+  "id": "28ee3b2d129c",
+  "model": "gpt-4o-mini-tts",
+  "text": "The colony is by the sea.",
   "voice": "fable"
  },
  "s-color.mp3": {
@@ -963,6 +1113,24 @@
   "id": "40defa597d39",
   "model": "gpt-4o-mini-tts",
   "text": "I complete the book.",
+  "voice": "fable"
+ },
+ "s-consider.mp3": {
+  "id": "b19ed8f12cef",
+  "model": "gpt-4o-mini-tts",
+  "text": "I consider the plan.",
+  "voice": "fable"
+ },
+ "s-continent.mp3": {
+  "id": "3dcedd6ebb64",
+  "model": "gpt-4o-mini-tts",
+  "text": "A continent is very big.",
+  "voice": "fable"
+ },
+ "s-continue.mp3": {
+  "id": "21755379e60c",
+  "model": "gpt-4o-mini-tts",
+  "text": "We continue to walk.",
   "voice": "fable"
  },
  "s-continued.mp3": {
@@ -1115,6 +1283,12 @@
   "text": "We dance and sing.",
   "voice": "fable"
  },
+ "s-danger.mp3": {
+  "id": "4f90568d0f53",
+  "model": "gpt-4o-mini-tts",
+  "text": "A red sign means danger.",
+  "voice": "fable"
+ },
  "s-dark.mp3": {
   "id": "39a9cb8e24a0",
   "model": "gpt-4o-mini-tts",
@@ -1151,6 +1325,12 @@
   "text": "The pond is deep.",
   "voice": "fable"
  },
+ "s-depend.mp3": {
+  "id": "6190a40fb807",
+  "model": "gpt-4o-mini-tts",
+  "text": "I depend on my mom.",
+  "voice": "fable"
+ },
  "s-describe.mp3": {
   "id": "93a81be4d256",
   "model": "gpt-4o-mini-tts",
@@ -1167,6 +1347,12 @@
   "id": "13117c6760e7",
   "model": "gpt-4o-mini-tts",
   "text": "I design a house.",
+  "voice": "fable"
+ },
+ "s-determine.mp3": {
+  "id": "55f9182e3002",
+  "model": "gpt-4o-mini-tts",
+  "text": "I will determine the weight.",
   "voice": "fable"
  },
  "s-did.mp3": {
@@ -1211,6 +1397,12 @@
   "text": "The house is a long distance away.",
   "voice": "fable"
  },
+ "s-divide.mp3": {
+  "id": "876048b68a7c",
+  "model": "gpt-4o-mini-tts",
+  "text": "I divide the apples.",
+  "voice": "fable"
+ },
  "s-divided.mp3": {
   "id": "36b390f873b8",
   "model": "gpt-4o-mini-tts",
@@ -1251,6 +1443,12 @@
   "id": "2428202c3d49",
   "model": "gpt-4o-mini-tts",
   "text": "I have a new doll.",
+  "voice": "fable"
+ },
+ "s-dollar.mp3": {
+  "id": "6346f3d9abdf",
+  "model": "gpt-4o-mini-tts",
+  "text": "The toy is one dollar.",
   "voice": "fable"
  },
  "s-dollars.mp3": {
@@ -1337,6 +1535,12 @@
   "text": "We play during the day.",
   "voice": "fable"
  },
+ "s-ear.mp3": {
+  "id": "9b4f66c1296b",
+  "model": "gpt-4o-mini-tts",
+  "text": "I hear with my ear.",
+  "voice": "fable"
+ },
  "s-early.mp3": {
   "id": "be73034ccd29",
   "model": "gpt-4o-mini-tts",
@@ -1379,6 +1583,12 @@
   "text": "The cat is at the edge.",
   "voice": "fable"
  },
+ "s-effect.mp3": {
+  "id": "b5d0f16f1d7b",
+  "model": "gpt-4o-mini-tts",
+  "text": "Rain has an effect on the plant.",
+  "voice": "fable"
+ },
  "s-egg.mp3": {
   "id": "e006e0a9c6ef",
   "model": "gpt-4o-mini-tts",
@@ -1401,6 +1611,12 @@
   "id": "1742c099ce60",
   "model": "gpt-4o-mini-tts",
   "text": "Either hat is good.",
+  "voice": "fable"
+ },
+ "s-electric.mp3": {
+  "id": "6efc9f242a2e",
+  "model": "gpt-4o-mini-tts",
+  "text": "The car is electric.",
   "voice": "fable"
  },
  "s-else.mp3": {
@@ -1439,6 +1655,12 @@
   "text": "I have enough money.",
   "voice": "fable"
  },
+ "s-enter.mp3": {
+  "id": "ace6fdbe6c1f",
+  "model": "gpt-4o-mini-tts",
+  "text": "We enter the room.",
+  "voice": "fable"
+ },
  "s-entered.mp3": {
   "id": "70fa282a0922",
   "model": "gpt-4o-mini-tts",
@@ -1461,6 +1683,12 @@
   "id": "33c4abf171e4",
   "model": "gpt-4o-mini-tts",
   "text": "We go home in the evening.",
+  "voice": "fable"
+ },
+ "s-event.mp3": {
+  "id": "acf206e9e286",
+  "model": "gpt-4o-mini-tts",
+  "text": "The party is a big event.",
   "voice": "fable"
  },
  "s-ever.mp3": {
@@ -1487,6 +1715,12 @@
   "text": "I like everything here.",
   "voice": "fable"
  },
+ "s-exact.mp3": {
+  "id": "7f71b61bd456",
+  "model": "gpt-4o-mini-tts",
+  "text": "I need the exact time.",
+  "voice": "fable"
+ },
  "s-example.mp3": {
   "id": "e65ea81face5",
   "model": "gpt-4o-mini-tts",
@@ -1497,6 +1731,12 @@
   "id": "1477cd7a3bd7",
   "model": "gpt-4o-mini-tts",
   "text": "Everyone is here except Sam.",
+  "voice": "fable"
+ },
+ "s-excite.mp3": {
+  "id": "fe88abce9e4e",
+  "model": "gpt-4o-mini-tts",
+  "text": "The game will excite me.",
   "voice": "fable"
  },
  "s-exciting.mp3": {
@@ -1515,6 +1755,12 @@
   "id": "88f2e7fb2349",
   "model": "gpt-4o-mini-tts",
   "text": "I expect a big gift.",
+  "voice": "fable"
+ },
+ "s-experiment.mp3": {
+  "id": "173c6a963054",
+  "model": "gpt-4o-mini-tts",
+  "text": "We do an experiment.",
   "voice": "fable"
  },
  "s-explain.mp3": {
@@ -1607,6 +1853,12 @@
   "text": "My father is big.",
   "voice": "fable"
  },
+ "s-fear.mp3": {
+  "id": "2d4251a33dc2",
+  "model": "gpt-4o-mini-tts",
+  "text": "I have no fear.",
+  "voice": "fable"
+ },
  "s-feel.mp3": {
   "id": "4c4329725812",
   "model": "gpt-4o-mini-tts",
@@ -1685,10 +1937,22 @@
   "text": "I am fine.",
   "voice": "fable"
  },
+ "s-finger.mp3": {
+  "id": "7858cde4ba81",
+  "model": "gpt-4o-mini-tts",
+  "text": "I hurt my finger.",
+  "voice": "fable"
+ },
  "s-fingers.mp3": {
   "id": "e5369837acfe",
   "model": "gpt-4o-mini-tts",
   "text": "I have ten fingers.",
+  "voice": "fable"
+ },
+ "s-finish.mp3": {
+  "id": "37694c03b7e9",
+  "model": "gpt-4o-mini-tts",
+  "text": "I finish my book.",
   "voice": "fable"
  },
  "s-finished.mp3": {
@@ -1895,10 +2159,28 @@
   "text": "I put gas in the car.",
   "voice": "fable"
  },
+ "s-gather.mp3": {
+  "id": "e9a3b319279c",
+  "model": "gpt-4o-mini-tts",
+  "text": "We gather by the fire.",
+  "voice": "fable"
+ },
  "s-gave.mp3": {
   "id": "fe95d85382d9",
   "model": "gpt-4o-mini-tts",
   "text": "Mom gave me a hat.",
+  "voice": "fable"
+ },
+ "s-general.mp3": {
+  "id": "5438cad513c2",
+  "model": "gpt-4o-mini-tts",
+  "text": "I know the general idea.",
+  "voice": "fable"
+ },
+ "s-gentle.mp3": {
+  "id": "ae1c41a4d6a2",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat is gentle.",
   "voice": "fable"
  },
  "s-get.mp3": {
@@ -1973,10 +2255,22 @@
   "text": "I got a new hat.",
   "voice": "fable"
  },
+ "s-grand.mp3": {
+  "id": "f0a4c6598ce0",
+  "model": "gpt-4o-mini-tts",
+  "text": "The castle is grand.",
+  "voice": "fable"
+ },
  "s-grass.mp3": {
   "id": "d905bc13f325",
   "model": "gpt-4o-mini-tts",
   "text": "The dog is on the grass.",
+  "voice": "fable"
+ },
+ "s-gray.mp3": {
+  "id": "ce83d1ad7e78",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat is gray.",
   "voice": "fable"
  },
  "s-great.mp3": {
@@ -2067,6 +2361,12 @@
   "id": "a2ff20a77149",
   "model": "gpt-4o-mini-tts",
   "text": "Mom has a cake.",
+  "voice": "fable"
+ },
+ "s-hat.mp3": {
+  "id": "dffbc3bce913",
+  "model": "gpt-4o-mini-tts",
+  "text": "I wear a red hat.",
   "voice": "fable"
  },
  "s-have.mp3": {
@@ -2171,6 +2471,12 @@
   "text": "This is his dog.",
   "voice": "fable"
  },
+ "s-history.mp3": {
+  "id": "c061869116ae",
+  "model": "gpt-4o-mini-tts",
+  "text": "I read a history book.",
+  "voice": "fable"
+ },
  "s-hit.mp3": {
   "id": "bbe645d3a615",
   "model": "gpt-4o-mini-tts",
@@ -2243,10 +2549,28 @@
   "text": "The bear is huge.",
   "voice": "fable"
  },
+ "s-human.mp3": {
+  "id": "bbe652b4c23a",
+  "model": "gpt-4o-mini-tts",
+  "text": "I am a human.",
+  "voice": "fable"
+ },
  "s-hundred.mp3": {
   "id": "d6aaf6d9d107",
   "model": "gpt-4o-mini-tts",
   "text": "I see one hundred ducks.",
+  "voice": "fable"
+ },
+ "s-hunt.mp3": {
+  "id": "2277c892b06c",
+  "model": "gpt-4o-mini-tts",
+  "text": "The cat will hunt a bird.",
+  "voice": "fable"
+ },
+ "s-hurry.mp3": {
+  "id": "56572c2948b1",
+  "model": "gpt-4o-mini-tts",
+  "text": "We must hurry.",
   "voice": "fable"
  },
  "s-hurt.mp3": {
@@ -2279,6 +2603,12 @@
   "text": "I will help if you ask.",
   "voice": "fable"
  },
+ "s-imagine.mp3": {
+  "id": "e0710e5b3b11",
+  "model": "gpt-4o-mini-tts",
+  "text": "I imagine a big castle.",
+  "voice": "fable"
+ },
  "s-important.mp3": {
   "id": "e0f7417ce4ca",
   "model": "gpt-4o-mini-tts",
@@ -2295,6 +2625,24 @@
   "id": "80a046f1d545",
   "model": "gpt-4o-mini-tts",
   "text": "The stick is ten inches long.",
+  "voice": "fable"
+ },
+ "s-include.mp3": {
+  "id": "e348e00134c6",
+  "model": "gpt-4o-mini-tts",
+  "text": "The box will include a toy.",
+  "voice": "fable"
+ },
+ "s-indicate.mp3": {
+  "id": "8f18fb412cbc",
+  "model": "gpt-4o-mini-tts",
+  "text": "The sign will indicate the way.",
+  "voice": "fable"
+ },
+ "s-industry.mp3": {
+  "id": "3980b928cd7f",
+  "model": "gpt-4o-mini-tts",
+  "text": "Many men work in industry.",
   "voice": "fable"
  },
  "s-insects.mp3": {
@@ -2315,6 +2663,12 @@
   "text": "Eat an apple instead of cake.",
   "voice": "fable"
  },
+ "s-instrument.mp3": {
+  "id": "0dc3587082ba",
+  "model": "gpt-4o-mini-tts",
+  "text": "I play an instrument.",
+  "voice": "fable"
+ },
  "s-interesting.mp3": {
   "id": "7bf2112ad60d",
   "model": "gpt-4o-mini-tts",
@@ -2325,6 +2679,12 @@
   "id": "cb82807fae95",
   "model": "gpt-4o-mini-tts",
   "text": "The cat ran into the box.",
+  "voice": "fable"
+ },
+ "s-invent.mp3": {
+  "id": "34ad8d6d74bc",
+  "model": "gpt-4o-mini-tts",
+  "text": "I want to invent a robot.",
   "voice": "fable"
  },
  "s-iron.mp3": {
@@ -2375,10 +2735,22 @@
   "text": "Mom has a good job.",
   "voice": "fable"
  },
+ "s-join.mp3": {
+  "id": "426d1d754fa5",
+  "model": "gpt-4o-mini-tts",
+  "text": "Please join our game.",
+  "voice": "fable"
+ },
  "s-joined.mp3": {
   "id": "cb8079fd53fb",
   "model": "gpt-4o-mini-tts",
   "text": "The dog joined our game.",
+  "voice": "fable"
+ },
+ "s-joy.mp3": {
+  "id": "d2e677e23657",
+  "model": "gpt-4o-mini-tts",
+  "text": "She cried for joy.",
   "voice": "fable"
  },
  "s-jump.mp3": {
@@ -2501,6 +2873,12 @@
   "text": "We laughed at the funny dog.",
   "voice": "fable"
  },
+ "s-law.mp3": {
+  "id": "27745b8d9644",
+  "model": "gpt-4o-mini-tts",
+  "text": "We follow the law.",
+  "voice": "fable"
+ },
  "s-lead.mp3": {
   "id": "a452cbaeaad7",
   "model": "gpt-4o-mini-tts",
@@ -2579,10 +2957,22 @@
   "text": "The water level is high.",
   "voice": "fable"
  },
+ "s-lie.mp3": {
+  "id": "232784f4dd5a",
+  "model": "gpt-4o-mini-tts",
+  "text": "I lie on the bed.",
+  "voice": "fable"
+ },
  "s-life.mp3": {
   "id": "f86bc1de3882",
   "model": "gpt-4o-mini-tts",
   "text": "I like my life.",
+  "voice": "fable"
+ },
+ "s-lift.mp3": {
+  "id": "952a4ee18d60",
+  "model": "gpt-4o-mini-tts",
+  "text": "I lift the box.",
   "voice": "fable"
  },
  "s-lifted.mp3": {
@@ -2631,6 +3021,18 @@
   "id": "b55b1667005d",
   "model": "gpt-4o-mini-tts",
   "text": "I live in a house.",
+  "voice": "fable"
+ },
+ "s-locate.mp3": {
+  "id": "1590b9886cdd",
+  "model": "gpt-4o-mini-tts",
+  "text": "I locate the city on the map.",
+  "voice": "fable"
+ },
+ "s-lone.mp3": {
+  "id": "1533aa1aad72",
+  "model": "gpt-4o-mini-tts",
+  "text": "A lone bird is in the sky.",
   "voice": "fable"
  },
  "s-long.mp3": {
@@ -2693,6 +3095,12 @@
   "text": "This is the main road.",
   "voice": "fable"
  },
+ "s-major.mp3": {
+  "id": "2cc1b712444f",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is a major road.",
+  "voice": "fable"
+ },
  "s-make.mp3": {
   "id": "22780a44ff5f",
   "model": "gpt-4o-mini-tts",
@@ -2739,6 +3147,12 @@
   "id": "a888654faade",
   "model": "gpt-4o-mini-tts",
   "text": "We have a soccer match.",
+  "voice": "fable"
+ },
+ "s-material.mp3": {
+  "id": "0499cb8d6845",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is a soft material.",
   "voice": "fable"
  },
  "s-matter.mp3": {
@@ -2807,6 +3221,12 @@
   "text": "The bell is made of metal.",
   "voice": "fable"
  },
+ "s-method.mp3": {
+  "id": "667c473f1a99",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is a good method.",
+  "voice": "fable"
+ },
  "s-middle.mp3": {
   "id": "dcae0bd4c308",
   "model": "gpt-4o-mini-tts",
@@ -2861,6 +3281,18 @@
   "text": "I miss my dog.",
   "voice": "fable"
  },
+ "s-mix.mp3": {
+  "id": "2d243390ce95",
+  "model": "gpt-4o-mini-tts",
+  "text": "I mix the paint.",
+  "voice": "fable"
+ },
+ "s-modern.mp3": {
+  "id": "49bfd9dc09ac",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is a modern house.",
+  "voice": "fable"
+ },
  "s-moment.mp3": {
   "id": "76a12a4b65f9",
   "model": "gpt-4o-mini-tts",
@@ -2871,6 +3303,12 @@
   "id": "0f340c2b556a",
   "model": "gpt-4o-mini-tts",
   "text": "I have money for a hat.",
+  "voice": "fable"
+ },
+ "s-month.mp3": {
+  "id": "63c47bdac443",
+  "model": "gpt-4o-mini-tts",
+  "text": "May is a month.",
   "voice": "fable"
  },
  "s-months.mp3": {
@@ -2901,6 +3339,12 @@
   "id": "a70208e2df0f",
   "model": "gpt-4o-mini-tts",
   "text": "This is my mother.",
+  "voice": "fable"
+ },
+ "s-mount.mp3": {
+  "id": "8b4bf8315daa",
+  "model": "gpt-4o-mini-tts",
+  "text": "I mount the horse.",
   "voice": "fable"
  },
  "s-mountains.mp3": {
@@ -2957,16 +3401,40 @@
   "text": "My name is Sam.",
   "voice": "fable"
  },
+ "s-nation.mp3": {
+  "id": "d8ae74fcf76a",
+  "model": "gpt-4o-mini-tts",
+  "text": "Our nation has a flag.",
+  "voice": "fable"
+ },
+ "s-natural.mp3": {
+  "id": "35517a10543a",
+  "model": "gpt-4o-mini-tts",
+  "text": "A tree is a natural thing.",
+  "voice": "fable"
+ },
  "s-near.mp3": {
   "id": "4e7648c3e045",
   "model": "gpt-4o-mini-tts",
   "text": "The bird is near the tree.",
   "voice": "fable"
  },
+ "s-necessary.mp3": {
+  "id": "05f5fa517da4",
+  "model": "gpt-4o-mini-tts",
+  "text": "Water is necessary.",
+  "voice": "fable"
+ },
  "s-need.mp3": {
   "id": "ae96702abc83",
   "model": "gpt-4o-mini-tts",
   "text": "I need my hat.",
+  "voice": "fable"
+ },
+ "s-neighbor.mp3": {
+  "id": "2ec4ceaa4b57",
+  "model": "gpt-4o-mini-tts",
+  "text": "My neighbor has a dog.",
   "voice": "fable"
  },
  "s-nest.mp3": {
@@ -2999,10 +3467,28 @@
   "text": "I sleep at night.",
   "voice": "fable"
  },
+ "s-nine.mp3": {
+  "id": "b986fba2dbe6",
+  "model": "gpt-4o-mini-tts",
+  "text": "I have nine cats.",
+  "voice": "fable"
+ },
  "s-no.mp3": {
   "id": "8ff2ff5c3464",
   "model": "gpt-4o-mini-tts",
   "text": "No, it is not red.",
+  "voice": "fable"
+ },
+ "s-noise.mp3": {
+  "id": "efc1e79c3d0d",
+  "model": "gpt-4o-mini-tts",
+  "text": "I hear a loud noise.",
+  "voice": "fable"
+ },
+ "s-noon.mp3": {
+  "id": "aa1315ef9dc8",
+  "model": "gpt-4o-mini-tts",
+  "text": "We eat at noon.",
   "voice": "fable"
  },
  "s-north.mp3": {
@@ -3095,6 +3581,12 @@
   "text": "Oh, it is a cat!",
   "voice": "fable"
  },
+ "s-oil.mp3": {
+  "id": "b49310abbe90",
+  "model": "gpt-4o-mini-tts",
+  "text": "I need oil for the car.",
+  "voice": "fable"
+ },
  "s-old.mp3": {
   "id": "cbfe68e863ab",
   "model": "gpt-4o-mini-tts",
@@ -3131,6 +3623,12 @@
   "text": "Open the gift.",
   "voice": "fable"
  },
+ "s-operate.mp3": {
+  "id": "0cd0e801a7f6",
+  "model": "gpt-4o-mini-tts",
+  "text": "The doctor will operate.",
+  "voice": "fable"
+ },
  "s-opposite.mp3": {
   "id": "2012dc4abf25",
   "model": "gpt-4o-mini-tts",
@@ -3147,6 +3645,12 @@
   "id": "cd08601f8b50",
   "model": "gpt-4o-mini-tts",
   "text": "Put them in order.",
+  "voice": "fable"
+ },
+ "s-organ.mp3": {
+  "id": "dd0b5f6f0fbc",
+  "model": "gpt-4o-mini-tts",
+  "text": "I play the organ.",
   "voice": "fable"
  },
  "s-our.mp3": {
@@ -3209,6 +3713,12 @@
   "text": "We go to the park.",
   "voice": "fable"
  },
+ "s-particular.mp3": {
+  "id": "12644c493ebd",
+  "model": "gpt-4o-mini-tts",
+  "text": "I want this particular hat.",
+  "voice": "fable"
+ },
  "s-party.mp3": {
   "id": "c8e07ff65dc3",
   "model": "gpt-4o-mini-tts",
@@ -3237,6 +3747,18 @@
   "id": "3e661d3a58a8",
   "model": "gpt-4o-mini-tts",
   "text": "I pay for the cake.",
+  "voice": "fable"
+ },
+ "s-perhaps.mp3": {
+  "id": "1e40be82b51e",
+  "model": "gpt-4o-mini-tts",
+  "text": "Perhaps it will rain.",
+  "voice": "fable"
+ },
+ "s-period.mp3": {
+  "id": "37aab21e1a13",
+  "model": "gpt-4o-mini-tts",
+  "text": "Put a period at the end.",
   "voice": "fable"
  },
  "s-person.mp3": {
@@ -3299,6 +3821,12 @@
   "text": "The plane can fly.",
   "voice": "fable"
  },
+ "s-planet.mp3": {
+  "id": "4dab192cab06",
+  "model": "gpt-4o-mini-tts",
+  "text": "The planet is big.",
+  "voice": "fable"
+ },
  "s-planets.mp3": {
   "id": "e5de9fe2a823",
   "model": "gpt-4o-mini-tts",
@@ -3347,6 +3875,12 @@
   "text": "The poor cat is cold.",
   "voice": "fable"
  },
+ "s-position.mp3": {
+  "id": "63590ae4785f",
+  "model": "gpt-4o-mini-tts",
+  "text": "The dog is in a good position.",
+  "voice": "fable"
+ },
  "s-pounds.mp3": {
   "id": "6156aa80825e",
   "model": "gpt-4o-mini-tts",
@@ -3365,6 +3899,12 @@
   "text": "I practice every day.",
   "voice": "fable"
  },
+ "s-prepare.mp3": {
+  "id": "01fb3fd9214c",
+  "model": "gpt-4o-mini-tts",
+  "text": "We prepare the food.",
+  "voice": "fable"
+ },
  "s-present.mp3": {
   "id": "9aa883df7a19",
   "model": "gpt-4o-mini-tts",
@@ -3377,16 +3917,58 @@
   "text": "I see a pretty bird.",
   "voice": "fable"
  },
+ "s-print.mp3": {
+  "id": "8baa7591555c",
+  "model": "gpt-4o-mini-tts",
+  "text": "Please print this page.",
+  "voice": "fable"
+ },
  "s-printed.mp3": {
   "id": "8fea1b27a9b1",
   "model": "gpt-4o-mini-tts",
   "text": "I printed the picture.",
   "voice": "fable"
  },
+ "s-probable.mp3": {
+  "id": "f3147a1922db",
+  "model": "gpt-4o-mini-tts",
+  "text": "Rain is probable today.",
+  "voice": "fable"
+ },
  "s-problem.mp3": {
   "id": "afa519354b27",
   "model": "gpt-4o-mini-tts",
   "text": "I have a problem.",
+  "voice": "fable"
+ },
+ "s-process.mp3": {
+  "id": "3d6412b1bb64",
+  "model": "gpt-4o-mini-tts",
+  "text": "We follow the process.",
+  "voice": "fable"
+ },
+ "s-property.mp3": {
+  "id": "4f4ecf17dac6",
+  "model": "gpt-4o-mini-tts",
+  "text": "The house is on my property.",
+  "voice": "fable"
+ },
+ "s-protect.mp3": {
+  "id": "c944db3623b6",
+  "model": "gpt-4o-mini-tts",
+  "text": "A hat will protect me.",
+  "voice": "fable"
+ },
+ "s-prove.mp3": {
+  "id": "4f053c6dc37b",
+  "model": "gpt-4o-mini-tts",
+  "text": "I can prove it.",
+  "voice": "fable"
+ },
+ "s-provide.mp3": {
+  "id": "e20ffdaf095e",
+  "model": "gpt-4o-mini-tts",
+  "text": "The farm will provide food.",
   "voice": "fable"
  },
  "s-pull.mp3": {
@@ -3399,6 +3981,12 @@
   "id": "73a63767ddcb",
   "model": "gpt-4o-mini-tts",
   "text": "I pulled the box.",
+  "voice": "fable"
+ },
+ "s-push.mp3": {
+  "id": "90b4cab03e0b",
+  "model": "gpt-4o-mini-tts",
+  "text": "I push the box.",
   "voice": "fable"
  },
  "s-pushed.mp3": {
@@ -3455,10 +4043,22 @@
   "text": "I hear the radio.",
   "voice": "fable"
  },
+ "s-rail.mp3": {
+  "id": "ccfa3658224e",
+  "model": "gpt-4o-mini-tts",
+  "text": "The train is on the rail.",
+  "voice": "fable"
+ },
  "s-rain.mp3": {
   "id": "be4067f83683",
   "model": "gpt-4o-mini-tts",
   "text": "I use an umbrella in the rain.",
+  "voice": "fable"
+ },
+ "s-raise.mp3": {
+  "id": "b116a48ff78d",
+  "model": "gpt-4o-mini-tts",
+  "text": "We raise the flag.",
   "voice": "fable"
  },
  "s-raised.mp3": {
@@ -3471,6 +4071,12 @@
   "id": "206f57282a3c",
   "model": "gpt-4o-mini-tts",
   "text": "The dog ran to me.",
+  "voice": "fable"
+ },
+ "s-rather.mp3": {
+  "id": "882b3a3be4a5",
+  "model": "gpt-4o-mini-tts",
+  "text": "I would rather play.",
   "voice": "fable"
  },
  "s-reached.mp3": {
@@ -3497,6 +4103,18 @@
   "text": "This is a real cat.",
   "voice": "fable"
  },
+ "s-reason.mp3": {
+  "id": "ff439b72ea4a",
+  "model": "gpt-4o-mini-tts",
+  "text": "I have a good reason.",
+  "voice": "fable"
+ },
+ "s-receive.mp3": {
+  "id": "ec8b6a78f8a4",
+  "model": "gpt-4o-mini-tts",
+  "text": "I receive a letter.",
+  "voice": "fable"
+ },
  "s-received.mp3": {
   "id": "ae853cd88698",
   "model": "gpt-4o-mini-tts",
@@ -3515,10 +4133,22 @@
   "text": "I see a red hat.",
   "voice": "fable"
  },
+ "s-region.mp3": {
+  "id": "e540cd4bc50a",
+  "model": "gpt-4o-mini-tts",
+  "text": "This region is cold.",
+  "voice": "fable"
+ },
  "s-remember.mp3": {
   "id": "a1e18bf72c9f",
   "model": "gpt-4o-mini-tts",
   "text": "I remember my name.",
+  "voice": "fable"
+ },
+ "s-repeat.mp3": {
+  "id": "9dcf29b1e0b1",
+  "model": "gpt-4o-mini-tts",
+  "text": "Please repeat it.",
   "voice": "fable"
  },
  "s-report.mp3": {
@@ -3527,10 +4157,28 @@
   "text": "I show Mom my report.",
   "voice": "fable"
  },
+ "s-represent.mp3": {
+  "id": "b05e1e8dc894",
+  "model": "gpt-4o-mini-tts",
+  "text": "A flag can represent a team.",
+  "voice": "fable"
+ },
+ "s-require.mp3": {
+  "id": "7d1d4dd7850f",
+  "model": "gpt-4o-mini-tts",
+  "text": "A plant will require water.",
+  "voice": "fable"
+ },
  "s-rest.mp3": {
   "id": "88c95978ec94",
   "model": "gpt-4o-mini-tts",
   "text": "I rest in my bed.",
+  "voice": "fable"
+ },
+ "s-result.mp3": {
+  "id": "40c1264b5bdb",
+  "model": "gpt-4o-mini-tts",
+  "text": "The result is good.",
   "voice": "fable"
  },
  "s-return.mp3": {
@@ -3599,6 +4247,12 @@
   "text": "The frog is on the rock.",
   "voice": "fable"
  },
+ "s-roll.mp3": {
+  "id": "9fea1356b40f",
+  "model": "gpt-4o-mini-tts",
+  "text": "The ball can roll.",
+  "voice": "fable"
+ },
  "s-rolled.mp3": {
   "id": "d8a2a98c254b",
   "model": "gpt-4o-mini-tts",
@@ -3641,6 +4295,12 @@
   "text": "The seeds are in a row.",
   "voice": "fable"
  },
+ "s-rub.mp3": {
+  "id": "4a3b2ebad6ba",
+  "model": "gpt-4o-mini-tts",
+  "text": "I rub my hands.",
+  "voice": "fable"
+ },
  "s-rule.mp3": {
   "id": "29c88bb50f44",
   "model": "gpt-4o-mini-tts",
@@ -3669,6 +4329,12 @@
   "id": "a15c03322748",
   "model": "gpt-4o-mini-tts",
   "text": "We sail on the sea.",
+  "voice": "fable"
+ },
+ "s-salt.mp3": {
+  "id": "87730dce4437",
+  "model": "gpt-4o-mini-tts",
+  "text": "I put salt on the egg.",
   "voice": "fable"
  },
  "s-same.mp3": {
@@ -3743,6 +4409,12 @@
   "text": "I see a ship at sea.",
   "voice": "fable"
  },
+ "s-search.mp3": {
+  "id": "db8323f1a5c8",
+  "model": "gpt-4o-mini-tts",
+  "text": "I search for my hat.",
+  "voice": "fable"
+ },
  "s-seat.mp3": {
   "id": "c37bcbc55be0",
   "model": "gpt-4o-mini-tts",
@@ -3791,6 +4463,12 @@
   "text": "I have seen a bear.",
   "voice": "fable"
  },
+ "s-select.mp3": {
+  "id": "d990e8de53b5",
+  "model": "gpt-4o-mini-tts",
+  "text": "Select a red hat.",
+  "voice": "fable"
+ },
  "s-sell.mp3": {
   "id": "32401753efbf",
   "model": "gpt-4o-mini-tts",
@@ -3801,6 +4479,12 @@
   "id": "855985646ab4",
   "model": "gpt-4o-mini-tts",
   "text": "I send a letter.",
+  "voice": "fable"
+ },
+ "s-sense.mp3": {
+  "id": "45573522b95b",
+  "model": "gpt-4o-mini-tts",
+  "text": "Smell is a sense.",
   "voice": "fable"
  },
  "s-sent.mp3": {
@@ -3825,6 +4509,12 @@
   "id": "2be8917940fa",
   "model": "gpt-4o-mini-tts",
   "text": "I set the table.",
+  "voice": "fable"
+ },
+ "s-settle.mp3": {
+  "id": "d40d33d57a47",
+  "model": "gpt-4o-mini-tts",
+  "text": "The birds settle in the tree.",
   "voice": "fable"
  },
  "s-seven.mp3": {
@@ -3869,6 +4559,12 @@
   "text": "I see a white sheep.",
   "voice": "fable"
  },
+ "s-shine.mp3": {
+  "id": "9c4ffb27f1db",
+  "model": "gpt-4o-mini-tts",
+  "text": "The sun will shine.",
+  "voice": "fable"
+ },
  "s-ship.mp3": {
   "id": "4b66e0e0923b",
   "model": "gpt-4o-mini-tts",
@@ -3911,6 +4607,12 @@
   "text": "The bird is on my shoulder.",
   "voice": "fable"
  },
+ "s-shout.mp3": {
+  "id": "c0eb83609550",
+  "model": "gpt-4o-mini-tts",
+  "text": "I shout to my dog.",
+  "voice": "fable"
+ },
  "s-shouted.mp3": {
   "id": "de8ed460cb8e",
   "model": "gpt-4o-mini-tts",
@@ -3927,6 +4629,12 @@
   "id": "d61d048b2c90",
   "model": "gpt-4o-mini-tts",
   "text": "The dog is at my side.",
+  "voice": "fable"
+ },
+ "s-sight.mp3": {
+  "id": "d9928a2a5074",
+  "model": "gpt-4o-mini-tts",
+  "text": "The sea is a pretty sight.",
   "voice": "fable"
  },
  "s-sign.mp3": {
@@ -4023,6 +4731,12 @@
   "id": "6962b0cf7479",
   "model": "gpt-4o-mini-tts",
   "text": "I smell the flower.",
+  "voice": "fable"
+ },
+ "s-smile.mp3": {
+  "id": "a4376ca3afd4",
+  "model": "gpt-4o-mini-tts",
+  "text": "I smile at my mom.",
   "voice": "fable"
  },
  "s-smiled.mp3": {
@@ -4149,6 +4863,12 @@
   "id": "da1856703696",
   "model": "gpt-4o-mini-tts",
   "text": "I can spell my name.",
+  "voice": "fable"
+ },
+ "s-spoke.mp3": {
+  "id": "076e2fcb037d",
+  "model": "gpt-4o-mini-tts",
+  "text": "Mom spoke to me.",
   "voice": "fable"
  },
  "s-spot.mp3": {
@@ -4283,6 +5003,12 @@
   "text": "The bus is on the street.",
   "voice": "fable"
  },
+ "s-stretch.mp3": {
+  "id": "d1556db2009a",
+  "model": "gpt-4o-mini-tts",
+  "text": "I stretch my arms.",
+  "voice": "fable"
+ },
  "s-string.mp3": {
   "id": "be0a0016bd50",
   "model": "gpt-4o-mini-tts",
@@ -4307,10 +5033,28 @@
   "text": "I study at school.",
   "voice": "fable"
  },
+ "s-subject.mp3": {
+  "id": "991b32a68641",
+  "model": "gpt-4o-mini-tts",
+  "text": "Art is my best subject.",
+  "voice": "fable"
+ },
+ "s-success.mp3": {
+  "id": "1eccd373420e",
+  "model": "gpt-4o-mini-tts",
+  "text": "The team had great success.",
+  "voice": "fable"
+ },
  "s-such.mp3": {
   "id": "56e6ed5c62e6",
   "model": "gpt-4o-mini-tts",
   "text": "It is such a big hat!",
+  "voice": "fable"
+ },
+ "s-sudden.mp3": {
+  "id": "7fb4659c8ad3",
+  "model": "gpt-4o-mini-tts",
+  "text": "A sudden rain fell.",
   "voice": "fable"
  },
  "s-suddenly.mp3": {
@@ -4325,6 +5069,18 @@
   "text": "The cake has sugar.",
   "voice": "fable"
  },
+ "s-suggest.mp3": {
+  "id": "96679e9dc469",
+  "model": "gpt-4o-mini-tts",
+  "text": "I suggest a game.",
+  "voice": "fable"
+ },
+ "s-suit.mp3": {
+  "id": "80a9e267f0f5",
+  "model": "gpt-4o-mini-tts",
+  "text": "He has a blue suit.",
+  "voice": "fable"
+ },
  "s-summer.mp3": {
   "id": "2ccd9496d161",
   "model": "gpt-4o-mini-tts",
@@ -4335,6 +5091,12 @@
   "id": "5839bb3bba53",
   "model": "gpt-4o-mini-tts",
   "text": "The sun is big and red.",
+  "voice": "fable"
+ },
+ "s-supply.mp3": {
+  "id": "15e6cca69c72",
+  "model": "gpt-4o-mini-tts",
+  "text": "We need a supply of food.",
   "voice": "fable"
  },
  "s-sure.mp3": {
@@ -4359,6 +5121,12 @@
   "id": "ff26b9bd75ed",
   "model": "gpt-4o-mini-tts",
   "text": "The fish can swim.",
+  "voice": "fable"
+ },
+ "s-symbol.mp3": {
+  "id": "6dd08e4b7f3e",
+  "model": "gpt-4o-mini-tts",
+  "text": "A heart is a symbol of love.",
   "voice": "fable"
  },
  "s-table.mp3": {
@@ -4403,10 +5171,22 @@
   "text": "I can tell Mom.",
   "voice": "fable"
  },
+ "s-temperature.mp3": {
+  "id": "8ae60b4ee11f",
+  "model": "gpt-4o-mini-tts",
+  "text": "The temperature is low.",
+  "voice": "fable"
+ },
  "s-ten.mp3": {
   "id": "174092829272",
   "model": "gpt-4o-mini-tts",
   "text": "I see ten fish.",
+  "voice": "fable"
+ },
+ "s-term.mp3": {
+  "id": "5d1e9fef191e",
+  "model": "gpt-4o-mini-tts",
+  "text": "This is a new term.",
   "voice": "fable"
  },
  "s-test.mp3": {
@@ -4547,6 +5327,24 @@
   "text": "The dog ran through the door.",
   "voice": "fable"
  },
+ "s-throw.mp3": {
+  "id": "3cbe2eb33163",
+  "model": "gpt-4o-mini-tts",
+  "text": "I throw the ball.",
+  "voice": "fable"
+ },
+ "s-thus.mp3": {
+  "id": "723d7a1b72ba",
+  "model": "gpt-4o-mini-tts",
+  "text": "He ran fast, thus he was first.",
+  "voice": "fable"
+ },
+ "s-tie.mp3": {
+  "id": "d613f3050b51",
+  "model": "gpt-4o-mini-tts",
+  "text": "Dad has a red tie.",
+  "voice": "fable"
+ },
  "s-tied.mp3": {
   "id": "81eda69c2d9d",
   "model": "gpt-4o-mini-tts",
@@ -4587,6 +5385,12 @@
   "id": "d1407948dcb0",
   "model": "gpt-4o-mini-tts",
   "text": "Mom told me a story.",
+  "voice": "fable"
+ },
+ "s-tone.mp3": {
+  "id": "f079e06e57cd",
+  "model": "gpt-4o-mini-tts",
+  "text": "Use a soft tone.",
   "voice": "fable"
  },
  "s-too.mp3": {
@@ -4721,6 +5525,12 @@
   "text": "Turn at the red house.",
   "voice": "fable"
  },
+ "s-twenty.mp3": {
+  "id": "0bc2dcfd87f8",
+  "model": "gpt-4o-mini-tts",
+  "text": "We have twenty cats.",
+  "voice": "fable"
+ },
  "s-two.mp3": {
   "id": "b0c20df8ffe1",
   "model": "gpt-4o-mini-tts",
@@ -4791,6 +5601,18 @@
   "id": "e7eb0337286b",
   "model": "gpt-4o-mini-tts",
   "text": "The river is in the valley.",
+  "voice": "fable"
+ },
+ "s-value.mp3": {
+  "id": "ac00d1336ae4",
+  "model": "gpt-4o-mini-tts",
+  "text": "Gold has a high value.",
+  "voice": "fable"
+ },
+ "s-vary.mp3": {
+  "id": "6dd6377546d1",
+  "model": "gpt-4o-mini-tts",
+  "text": "The hats vary in color.",
   "voice": "fable"
  },
  "s-very.mp3": {
@@ -4881,6 +5703,12 @@
   "id": "78de3677741e",
   "model": "gpt-4o-mini-tts",
   "text": "The fish is in the water.",
+  "voice": "fable"
+ },
+ "s-wave.mp3": {
+  "id": "db7ae2db9fda",
+  "model": "gpt-4o-mini-tts",
+  "text": "I wave to the ship.",
   "voice": "fable"
  },
  "s-waves.mp3": {
@@ -4979,6 +5807,12 @@
   "text": "Where is my hat?",
   "voice": "fable"
  },
+ "s-whether.mp3": {
+  "id": "610c1c04cf4e",
+  "model": "gpt-4o-mini-tts",
+  "text": "Ask whether it is hot.",
+  "voice": "fable"
+ },
  "s-which.mp3": {
   "id": "121c811bd54a",
   "model": "gpt-4o-mini-tts",
@@ -5061,6 +5895,12 @@
   "id": "d5dc58cee96e",
   "model": "gpt-4o-mini-tts",
   "text": "I look out the window.",
+  "voice": "fable"
+ },
+ "s-wing.mp3": {
+  "id": "8cbaf6cd60e8",
+  "model": "gpt-4o-mini-tts",
+  "text": "The bird has one big wing.",
   "voice": "fable"
  },
  "s-wings.mp3": {
@@ -5321,10 +6161,22 @@
   "text": "against",
   "voice": "fable"
  },
+ "w-age.mp3": {
+  "id": "4d8adc14fe03",
+  "model": "gpt-4o-mini-tts",
+  "text": "age",
+  "voice": "fable"
+ },
  "w-ago.mp3": {
   "id": "314e34a4fc66",
   "model": "gpt-4o-mini-tts",
   "text": "ago",
+  "voice": "fable"
+ },
+ "w-agree.mp3": {
+  "id": "3e9d4403ea8f",
+  "model": "gpt-4o-mini-tts",
+  "text": "agree",
   "voice": "fable"
  },
  "w-agreed.mp3": {
@@ -5349,6 +6201,12 @@
   "id": "a2e903074fa2",
   "model": "gpt-4o-mini-tts",
   "text": "all",
+  "voice": "fable"
+ },
+ "w-allow.mp3": {
+  "id": "8894afa73fd2",
+  "model": "gpt-4o-mini-tts",
+  "text": "allow",
   "voice": "fable"
  },
  "w-almost.mp3": {
@@ -5424,6 +6282,12 @@
   "text": "and",
   "voice": "fable"
  },
+ "w-anger.mp3": {
+  "id": "34c9fd448450",
+  "model": "gpt-4o-mini-tts",
+  "text": "anger",
+  "voice": "fable"
+ },
  "w-angle.mp3": {
   "id": "5d745ba6198b",
   "model": "gpt-4o-mini-tts",
@@ -5478,6 +6342,12 @@
   "text": "area",
   "voice": "fable"
  },
+ "w-arm.mp3": {
+  "id": "2cb1d9f89751",
+  "model": "gpt-4o-mini-tts",
+  "text": "arm",
+  "voice": "fable"
+ },
  "w-arms.mp3": {
   "id": "899942b22066",
   "model": "gpt-4o-mini-tts",
@@ -5488,6 +6358,12 @@
   "id": "9d4d911636d3",
   "model": "gpt-4o-mini-tts",
   "text": "around",
+  "voice": "fable"
+ },
+ "w-arrange.mp3": {
+  "id": "d68679f5e68a",
+  "model": "gpt-4o-mini-tts",
+  "text": "arrange",
   "voice": "fable"
  },
  "w-arrived.mp3": {
@@ -5524,6 +6400,12 @@
   "id": "4b605f61ae7d",
   "model": "gpt-4o-mini-tts",
   "text": "ate",
+  "voice": "fable"
+ },
+ "w-atom.mp3": {
+  "id": "d03c4f759ecd",
+  "model": "gpt-4o-mini-tts",
+  "text": "atom",
   "voice": "fable"
  },
  "w-away.mp3": {
@@ -5566,6 +6448,12 @@
   "id": "94b18f416788",
   "model": "gpt-4o-mini-tts",
   "text": "base",
+  "voice": "fable"
+ },
+ "w-bat.mp3": {
+  "id": "1f9f9ae7e558",
+  "model": "gpt-4o-mini-tts",
+  "text": "bat",
   "voice": "fable"
  },
  "w-be.mp3": {
@@ -5772,6 +6660,12 @@
   "text": "body",
   "voice": "fable"
  },
+ "w-bone.mp3": {
+  "id": "793febb9387f",
+  "model": "gpt-4o-mini-tts",
+  "text": "bone",
+  "voice": "fable"
+ },
  "w-bones.mp3": {
   "id": "daab74cb22be",
   "model": "gpt-4o-mini-tts",
@@ -5850,6 +6744,18 @@
   "text": "bring",
   "voice": "fable"
  },
+ "w-broad.mp3": {
+  "id": "a0648603401c",
+  "model": "gpt-4o-mini-tts",
+  "text": "broad",
+  "voice": "fable"
+ },
+ "w-broke.mp3": {
+  "id": "f8bd5f5dc0aa",
+  "model": "gpt-4o-mini-tts",
+  "text": "broke",
+  "voice": "fable"
+ },
  "w-broken.mp3": {
   "id": "c322e8778548",
   "model": "gpt-4o-mini-tts",
@@ -5890,6 +6796,12 @@
   "id": "ae8a2177572c",
   "model": "gpt-4o-mini-tts",
   "text": "built",
+  "voice": "fable"
+ },
+ "w-burn.mp3": {
+  "id": "a48e96a9fac9",
+  "model": "gpt-4o-mini-tts",
+  "text": "burn",
   "voice": "fable"
  },
  "w-burning.mp3": {
@@ -5934,6 +6846,12 @@
   "text": "came",
   "voice": "fable"
  },
+ "w-camp.mp3": {
+  "id": "9a7bc01ebe86",
+  "model": "gpt-4o-mini-tts",
+  "text": "camp",
+  "voice": "fable"
+ },
  "w-can.mp3": {
   "id": "3448d940e8f7",
   "model": "gpt-4o-mini-tts",
@@ -5950,6 +6868,12 @@
   "id": "d45373c242a5",
   "model": "gpt-4o-mini-tts",
   "text": "can’t",
+  "voice": "fable"
+ },
+ "w-capital.mp3": {
+  "id": "a08fbe744cd5",
+  "model": "gpt-4o-mini-tts",
+  "text": "capital",
   "voice": "fable"
  },
  "w-captain.mp3": {
@@ -6000,6 +6924,12 @@
   "text": "cat",
   "voice": "fable"
  },
+ "w-catch.mp3": {
+  "id": "cb3f234f88ef",
+  "model": "gpt-4o-mini-tts",
+  "text": "catch",
+  "voice": "fable"
+ },
  "w-cattle.mp3": {
   "id": "6cca68056eec",
   "model": "gpt-4o-mini-tts",
@@ -6018,6 +6948,12 @@
   "text": "cells",
   "voice": "fable"
  },
+ "w-cent.mp3": {
+  "id": "3971dd1ee9a5",
+  "model": "gpt-4o-mini-tts",
+  "text": "cent",
+  "voice": "fable"
+ },
  "w-center.mp3": {
   "id": "ff290be7d11b",
   "model": "gpt-4o-mini-tts",
@@ -6028,6 +6964,12 @@
   "id": "94e334e9efad",
   "model": "gpt-4o-mini-tts",
   "text": "cents",
+  "voice": "fable"
+ },
+ "w-century.mp3": {
+  "id": "7d044f6e04e6",
+  "model": "gpt-4o-mini-tts",
+  "text": "century",
   "voice": "fable"
  },
  "w-certain.mp3": {
@@ -6054,6 +6996,12 @@
   "text": "change",
   "voice": "fable"
  },
+ "w-character.mp3": {
+  "id": "cca0c4264f36",
+  "model": "gpt-4o-mini-tts",
+  "text": "character",
+  "voice": "fable"
+ },
  "w-chart.mp3": {
   "id": "e041fbc74f4b",
   "model": "gpt-4o-mini-tts",
@@ -6070,6 +7018,12 @@
   "id": "fe4e9ff02c6e",
   "model": "gpt-4o-mini-tts",
   "text": "chicken",
+  "voice": "fable"
+ },
+ "w-chief.mp3": {
+  "id": "2ea315ab2883",
+  "model": "gpt-4o-mini-tts",
+  "text": "chief",
   "voice": "fable"
  },
  "w-child.mp3": {
@@ -6114,6 +7068,12 @@
   "text": "city",
   "voice": "fable"
  },
+ "w-claim.mp3": {
+  "id": "c4dfaae5d5ab",
+  "model": "gpt-4o-mini-tts",
+  "text": "claim",
+  "voice": "fable"
+ },
  "w-class.mp3": {
   "id": "3ef6fd421bbd",
   "model": "gpt-4o-mini-tts",
@@ -6132,16 +7092,34 @@
   "text": "clear",
   "voice": "fable"
  },
+ "w-climb.mp3": {
+  "id": "caf2fb6a90f6",
+  "model": "gpt-4o-mini-tts",
+  "text": "climb",
+  "voice": "fable"
+ },
  "w-climbed.mp3": {
   "id": "09aa58faf4fe",
   "model": "gpt-4o-mini-tts",
   "text": "climbed",
   "voice": "fable"
  },
+ "w-clock.mp3": {
+  "id": "12c34132aeae",
+  "model": "gpt-4o-mini-tts",
+  "text": "clock",
+  "voice": "fable"
+ },
  "w-close.mp3": {
   "id": "9668e24d5de1",
   "model": "gpt-4o-mini-tts",
   "text": "close",
+  "voice": "fable"
+ },
+ "w-clothe.mp3": {
+  "id": "38f410970ac0",
+  "model": "gpt-4o-mini-tts",
+  "text": "clothe",
   "voice": "fable"
  },
  "w-clothes.mp3": {
@@ -6172,6 +7150,18 @@
   "id": "76ec5382727c",
   "model": "gpt-4o-mini-tts",
   "text": "cold",
+  "voice": "fable"
+ },
+ "w-collect.mp3": {
+  "id": "f6666641a1f2",
+  "model": "gpt-4o-mini-tts",
+  "text": "collect",
+  "voice": "fable"
+ },
+ "w-colony.mp3": {
+  "id": "cebf8a57d714",
+  "model": "gpt-4o-mini-tts",
+  "text": "colony",
   "voice": "fable"
  },
  "w-color.mp3": {
@@ -6214,6 +7204,24 @@
   "id": "ae9c8cd45e5b",
   "model": "gpt-4o-mini-tts",
   "text": "complete",
+  "voice": "fable"
+ },
+ "w-consider.mp3": {
+  "id": "6d53620d169c",
+  "model": "gpt-4o-mini-tts",
+  "text": "consider",
+  "voice": "fable"
+ },
+ "w-continent.mp3": {
+  "id": "613543c6f1e2",
+  "model": "gpt-4o-mini-tts",
+  "text": "continent",
+  "voice": "fable"
+ },
+ "w-continue.mp3": {
+  "id": "efd8a22e6b30",
+  "model": "gpt-4o-mini-tts",
+  "text": "continue",
   "voice": "fable"
  },
  "w-continued.mp3": {
@@ -6366,6 +7374,12 @@
   "text": "dance",
   "voice": "fable"
  },
+ "w-danger.mp3": {
+  "id": "ac9f6e80402a",
+  "model": "gpt-4o-mini-tts",
+  "text": "danger",
+  "voice": "fable"
+ },
  "w-dark.mp3": {
   "id": "590f334ae156",
   "model": "gpt-4o-mini-tts",
@@ -6402,6 +7416,12 @@
   "text": "deep",
   "voice": "fable"
  },
+ "w-depend.mp3": {
+  "id": "57d83967a536",
+  "model": "gpt-4o-mini-tts",
+  "text": "depend",
+  "voice": "fable"
+ },
  "w-describe.mp3": {
   "id": "4bd333a16566",
   "model": "gpt-4o-mini-tts",
@@ -6418,6 +7438,12 @@
   "id": "ee372d7ad7d2",
   "model": "gpt-4o-mini-tts",
   "text": "design",
+  "voice": "fable"
+ },
+ "w-determine.mp3": {
+  "id": "590f5a934131",
+  "model": "gpt-4o-mini-tts",
+  "text": "determine",
   "voice": "fable"
  },
  "w-did.mp3": {
@@ -6462,6 +7488,12 @@
   "text": "distance",
   "voice": "fable"
  },
+ "w-divide.mp3": {
+  "id": "9a00fbfe1d3f",
+  "model": "gpt-4o-mini-tts",
+  "text": "divide",
+  "voice": "fable"
+ },
  "w-divided.mp3": {
   "id": "e25486eb9f73",
   "model": "gpt-4o-mini-tts",
@@ -6502,6 +7534,12 @@
   "id": "38e7cc56fd4e",
   "model": "gpt-4o-mini-tts",
   "text": "doll",
+  "voice": "fable"
+ },
+ "w-dollar.mp3": {
+  "id": "896105a13334",
+  "model": "gpt-4o-mini-tts",
+  "text": "dollar",
   "voice": "fable"
  },
  "w-dollars.mp3": {
@@ -6588,6 +7626,12 @@
   "text": "during",
   "voice": "fable"
  },
+ "w-ear.mp3": {
+  "id": "4a081482d8fc",
+  "model": "gpt-4o-mini-tts",
+  "text": "ear",
+  "voice": "fable"
+ },
  "w-early.mp3": {
   "id": "b620d1392dc6",
   "model": "gpt-4o-mini-tts",
@@ -6630,6 +7674,12 @@
   "text": "edge",
   "voice": "fable"
  },
+ "w-effect.mp3": {
+  "id": "15462e1b8600",
+  "model": "gpt-4o-mini-tts",
+  "text": "effect",
+  "voice": "fable"
+ },
  "w-egg.mp3": {
   "id": "e1a9a8f72300",
   "model": "gpt-4o-mini-tts",
@@ -6652,6 +7702,12 @@
   "id": "15df9ed45777",
   "model": "gpt-4o-mini-tts",
   "text": "either",
+  "voice": "fable"
+ },
+ "w-electric.mp3": {
+  "id": "462bfe8ac064",
+  "model": "gpt-4o-mini-tts",
+  "text": "electric",
   "voice": "fable"
  },
  "w-else.mp3": {
@@ -6690,6 +7746,12 @@
   "text": "enough",
   "voice": "fable"
  },
+ "w-enter.mp3": {
+  "id": "a26ae65707c2",
+  "model": "gpt-4o-mini-tts",
+  "text": "enter",
+  "voice": "fable"
+ },
  "w-entered.mp3": {
   "id": "68af414540ce",
   "model": "gpt-4o-mini-tts",
@@ -6712,6 +7774,12 @@
   "id": "7233c36900fc",
   "model": "gpt-4o-mini-tts",
   "text": "evening",
+  "voice": "fable"
+ },
+ "w-event.mp3": {
+  "id": "68e1dac6cc1a",
+  "model": "gpt-4o-mini-tts",
+  "text": "event",
   "voice": "fable"
  },
  "w-ever.mp3": {
@@ -6738,6 +7806,12 @@
   "text": "everything",
   "voice": "fable"
  },
+ "w-exact.mp3": {
+  "id": "5614d51488a7",
+  "model": "gpt-4o-mini-tts",
+  "text": "exact",
+  "voice": "fable"
+ },
  "w-example.mp3": {
   "id": "e76402168c87",
   "model": "gpt-4o-mini-tts",
@@ -6748,6 +7822,12 @@
   "id": "8b5105ff22b8",
   "model": "gpt-4o-mini-tts",
   "text": "except",
+  "voice": "fable"
+ },
+ "w-excite.mp3": {
+  "id": "1f1fc9d65d00",
+  "model": "gpt-4o-mini-tts",
+  "text": "excite",
   "voice": "fable"
  },
  "w-exciting.mp3": {
@@ -6766,6 +7846,12 @@
   "id": "7bb55bdb8ccd",
   "model": "gpt-4o-mini-tts",
   "text": "expect",
+  "voice": "fable"
+ },
+ "w-experiment.mp3": {
+  "id": "d9eb5db85717",
+  "model": "gpt-4o-mini-tts",
+  "text": "experiment",
   "voice": "fable"
  },
  "w-explain.mp3": {
@@ -6858,6 +7944,12 @@
   "text": "father",
   "voice": "fable"
  },
+ "w-fear.mp3": {
+  "id": "07ad0ebcccf6",
+  "model": "gpt-4o-mini-tts",
+  "text": "fear",
+  "voice": "fable"
+ },
  "w-feel.mp3": {
   "id": "84fe272d8086",
   "model": "gpt-4o-mini-tts",
@@ -6936,10 +8028,22 @@
   "text": "fine",
   "voice": "fable"
  },
+ "w-finger.mp3": {
+  "id": "f325ab3e57ef",
+  "model": "gpt-4o-mini-tts",
+  "text": "finger",
+  "voice": "fable"
+ },
  "w-fingers.mp3": {
   "id": "86dd19eabf6e",
   "model": "gpt-4o-mini-tts",
   "text": "fingers",
+  "voice": "fable"
+ },
+ "w-finish.mp3": {
+  "id": "ff9ba4577064",
+  "model": "gpt-4o-mini-tts",
+  "text": "finish",
   "voice": "fable"
  },
  "w-finished.mp3": {
@@ -7146,10 +8250,28 @@
   "text": "gas",
   "voice": "fable"
  },
+ "w-gather.mp3": {
+  "id": "2257691e2a38",
+  "model": "gpt-4o-mini-tts",
+  "text": "gather",
+  "voice": "fable"
+ },
  "w-gave.mp3": {
   "id": "9814007f1429",
   "model": "gpt-4o-mini-tts",
   "text": "gave",
+  "voice": "fable"
+ },
+ "w-general.mp3": {
+  "id": "3b425a885c2e",
+  "model": "gpt-4o-mini-tts",
+  "text": "general",
+  "voice": "fable"
+ },
+ "w-gentle.mp3": {
+  "id": "5fd452fcf2b0",
+  "model": "gpt-4o-mini-tts",
+  "text": "gentle",
   "voice": "fable"
  },
  "w-get.mp3": {
@@ -7224,10 +8346,22 @@
   "text": "got",
   "voice": "fable"
  },
+ "w-grand.mp3": {
+  "id": "aeaaedfe7550",
+  "model": "gpt-4o-mini-tts",
+  "text": "grand",
+  "voice": "fable"
+ },
  "w-grass.mp3": {
   "id": "627047623647",
   "model": "gpt-4o-mini-tts",
   "text": "grass",
+  "voice": "fable"
+ },
+ "w-gray.mp3": {
+  "id": "55697907bcc4",
+  "model": "gpt-4o-mini-tts",
+  "text": "gray",
   "voice": "fable"
  },
  "w-great.mp3": {
@@ -7318,6 +8452,12 @@
   "id": "476ca09688e7",
   "model": "gpt-4o-mini-tts",
   "text": "has",
+  "voice": "fable"
+ },
+ "w-hat.mp3": {
+  "id": "ec2de165321b",
+  "model": "gpt-4o-mini-tts",
+  "text": "hat",
   "voice": "fable"
  },
  "w-have.mp3": {
@@ -7423,6 +8563,12 @@
   "text": "his",
   "voice": "fable"
  },
+ "w-history.mp3": {
+  "id": "7bbdddb37a43",
+  "model": "gpt-4o-mini-tts",
+  "text": "history",
+  "voice": "fable"
+ },
  "w-hit.mp3": {
   "id": "a0b6de927bce",
   "model": "gpt-4o-mini-tts",
@@ -7495,10 +8641,28 @@
   "text": "huge",
   "voice": "fable"
  },
+ "w-human.mp3": {
+  "id": "2d3c07b18d0e",
+  "model": "gpt-4o-mini-tts",
+  "text": "human",
+  "voice": "fable"
+ },
  "w-hundred.mp3": {
   "id": "cf0c5220d140",
   "model": "gpt-4o-mini-tts",
   "text": "hundred",
+  "voice": "fable"
+ },
+ "w-hunt.mp3": {
+  "id": "315041c86e40",
+  "model": "gpt-4o-mini-tts",
+  "text": "hunt",
+  "voice": "fable"
+ },
+ "w-hurry.mp3": {
+  "id": "83c404d014e2",
+  "model": "gpt-4o-mini-tts",
+  "text": "hurry",
   "voice": "fable"
  },
  "w-hurt.mp3": {
@@ -7531,6 +8695,12 @@
   "text": "if",
   "voice": "fable"
  },
+ "w-imagine.mp3": {
+  "id": "97fe912c9699",
+  "model": "gpt-4o-mini-tts",
+  "text": "imagine",
+  "voice": "fable"
+ },
  "w-important.mp3": {
   "id": "e722ae15d5c4",
   "model": "gpt-4o-mini-tts",
@@ -7547,6 +8717,24 @@
   "id": "e7ea5e498dbb",
   "model": "gpt-4o-mini-tts",
   "text": "inches",
+  "voice": "fable"
+ },
+ "w-include.mp3": {
+  "id": "77aadbeba86d",
+  "model": "gpt-4o-mini-tts",
+  "text": "include",
+  "voice": "fable"
+ },
+ "w-indicate.mp3": {
+  "id": "8864051df149",
+  "model": "gpt-4o-mini-tts",
+  "text": "indicate",
+  "voice": "fable"
+ },
+ "w-industry.mp3": {
+  "id": "6171d25325a3",
+  "model": "gpt-4o-mini-tts",
+  "text": "industry",
   "voice": "fable"
  },
  "w-insects.mp3": {
@@ -7567,6 +8755,12 @@
   "text": "instead",
   "voice": "fable"
  },
+ "w-instrument.mp3": {
+  "id": "73687c9d8221",
+  "model": "gpt-4o-mini-tts",
+  "text": "instrument",
+  "voice": "fable"
+ },
  "w-interesting.mp3": {
   "id": "03dca27ada76",
   "model": "gpt-4o-mini-tts",
@@ -7577,6 +8771,12 @@
   "id": "cc1053a41847",
   "model": "gpt-4o-mini-tts",
   "text": "into",
+  "voice": "fable"
+ },
+ "w-invent.mp3": {
+  "id": "410aca192a07",
+  "model": "gpt-4o-mini-tts",
+  "text": "invent",
   "voice": "fable"
  },
  "w-iron.mp3": {
@@ -7627,10 +8827,22 @@
   "text": "job",
   "voice": "fable"
  },
+ "w-join.mp3": {
+  "id": "42745d975eb2",
+  "model": "gpt-4o-mini-tts",
+  "text": "join",
+  "voice": "fable"
+ },
  "w-joined.mp3": {
   "id": "4a6e6e628da6",
   "model": "gpt-4o-mini-tts",
   "text": "joined",
+  "voice": "fable"
+ },
+ "w-joy.mp3": {
+  "id": "89c80aa79f74",
+  "model": "gpt-4o-mini-tts",
+  "text": "joy",
   "voice": "fable"
  },
  "w-jump.mp3": {
@@ -7753,6 +8965,12 @@
   "text": "laughed",
   "voice": "fable"
  },
+ "w-law.mp3": {
+  "id": "c5083ebc0634",
+  "model": "gpt-4o-mini-tts",
+  "text": "law",
+  "voice": "fable"
+ },
  "w-lead.mp3": {
   "id": "a8dfca5055df",
   "model": "gpt-4o-mini-tts",
@@ -7831,10 +9049,22 @@
   "text": "level",
   "voice": "fable"
  },
+ "w-lie.mp3": {
+  "id": "c6370bf68be1",
+  "model": "gpt-4o-mini-tts",
+  "text": "lie",
+  "voice": "fable"
+ },
  "w-life.mp3": {
   "id": "a3c5df5c1e42",
   "model": "gpt-4o-mini-tts",
   "text": "life",
+  "voice": "fable"
+ },
+ "w-lift.mp3": {
+  "id": "e9b60278f9e8",
+  "model": "gpt-4o-mini-tts",
+  "text": "lift",
   "voice": "fable"
  },
  "w-lifted.mp3": {
@@ -7883,6 +9113,18 @@
   "id": "e567a1a1d951",
   "model": "gpt-4o-mini-tts",
   "text": "live",
+  "voice": "fable"
+ },
+ "w-locate.mp3": {
+  "id": "cc84591c0d07",
+  "model": "gpt-4o-mini-tts",
+  "text": "locate",
+  "voice": "fable"
+ },
+ "w-lone.mp3": {
+  "id": "f606a2d90279",
+  "model": "gpt-4o-mini-tts",
+  "text": "lone",
   "voice": "fable"
  },
  "w-long.mp3": {
@@ -7945,6 +9187,12 @@
   "text": "main",
   "voice": "fable"
  },
+ "w-major.mp3": {
+  "id": "5d7b00108c30",
+  "model": "gpt-4o-mini-tts",
+  "text": "major",
+  "voice": "fable"
+ },
  "w-make.mp3": {
   "id": "994d2cc0bffb",
   "model": "gpt-4o-mini-tts",
@@ -7991,6 +9239,12 @@
   "id": "b6dd60d3b38a",
   "model": "gpt-4o-mini-tts",
   "text": "match",
+  "voice": "fable"
+ },
+ "w-material.mp3": {
+  "id": "a476fe6918ce",
+  "model": "gpt-4o-mini-tts",
+  "text": "material",
   "voice": "fable"
  },
  "w-matter.mp3": {
@@ -8059,6 +9313,12 @@
   "text": "metal",
   "voice": "fable"
  },
+ "w-method.mp3": {
+  "id": "2b432350a712",
+  "model": "gpt-4o-mini-tts",
+  "text": "method",
+  "voice": "fable"
+ },
  "w-middle.mp3": {
   "id": "25c90cb3c496",
   "model": "gpt-4o-mini-tts",
@@ -8113,6 +9373,18 @@
   "text": "miss",
   "voice": "fable"
  },
+ "w-mix.mp3": {
+  "id": "2beaf6a62a94",
+  "model": "gpt-4o-mini-tts",
+  "text": "mix",
+  "voice": "fable"
+ },
+ "w-modern.mp3": {
+  "id": "5b6370ab71f5",
+  "model": "gpt-4o-mini-tts",
+  "text": "modern",
+  "voice": "fable"
+ },
  "w-moment.mp3": {
   "id": "3cc18f23a670",
   "model": "gpt-4o-mini-tts",
@@ -8123,6 +9395,12 @@
   "id": "429266f3f71f",
   "model": "gpt-4o-mini-tts",
   "text": "money",
+  "voice": "fable"
+ },
+ "w-month.mp3": {
+  "id": "8d6be7ac17e4",
+  "model": "gpt-4o-mini-tts",
+  "text": "month",
   "voice": "fable"
  },
  "w-months.mp3": {
@@ -8153,6 +9431,12 @@
   "id": "9cf25f338308",
   "model": "gpt-4o-mini-tts",
   "text": "mother",
+  "voice": "fable"
+ },
+ "w-mount.mp3": {
+  "id": "f28eecb886d4",
+  "model": "gpt-4o-mini-tts",
+  "text": "mount",
   "voice": "fable"
  },
  "w-mountains.mp3": {
@@ -8209,16 +9493,40 @@
   "text": "name",
   "voice": "fable"
  },
+ "w-nation.mp3": {
+  "id": "a1a288136de3",
+  "model": "gpt-4o-mini-tts",
+  "text": "nation",
+  "voice": "fable"
+ },
+ "w-natural.mp3": {
+  "id": "9f50581f77a1",
+  "model": "gpt-4o-mini-tts",
+  "text": "natural",
+  "voice": "fable"
+ },
  "w-near.mp3": {
   "id": "5e37eed25caa",
   "model": "gpt-4o-mini-tts",
   "text": "near",
   "voice": "fable"
  },
+ "w-necessary.mp3": {
+  "id": "3c74253e3cdb",
+  "model": "gpt-4o-mini-tts",
+  "text": "necessary",
+  "voice": "fable"
+ },
  "w-need.mp3": {
   "id": "c45eb1c95601",
   "model": "gpt-4o-mini-tts",
   "text": "need",
+  "voice": "fable"
+ },
+ "w-neighbor.mp3": {
+  "id": "291c53e8395c",
+  "model": "gpt-4o-mini-tts",
+  "text": "neighbor",
   "voice": "fable"
  },
  "w-nest.mp3": {
@@ -8251,10 +9559,28 @@
   "text": "night",
   "voice": "fable"
  },
+ "w-nine.mp3": {
+  "id": "be3d227e250b",
+  "model": "gpt-4o-mini-tts",
+  "text": "nine",
+  "voice": "fable"
+ },
  "w-no.mp3": {
   "id": "fc271bdb1fe6",
   "model": "gpt-4o-mini-tts",
   "text": "no",
+  "voice": "fable"
+ },
+ "w-noise.mp3": {
+  "id": "ee2d86077397",
+  "model": "gpt-4o-mini-tts",
+  "text": "noise",
+  "voice": "fable"
+ },
+ "w-noon.mp3": {
+  "id": "c3b852a0158a",
+  "model": "gpt-4o-mini-tts",
+  "text": "noon",
   "voice": "fable"
  },
  "w-north.mp3": {
@@ -8347,6 +9673,12 @@
   "text": "oh",
   "voice": "fable"
  },
+ "w-oil.mp3": {
+  "id": "8d68a1ef05b3",
+  "model": "gpt-4o-mini-tts",
+  "text": "oil",
+  "voice": "fable"
+ },
  "w-old.mp3": {
   "id": "329bd2221932",
   "model": "gpt-4o-mini-tts",
@@ -8383,6 +9715,12 @@
   "text": "open",
   "voice": "fable"
  },
+ "w-operate.mp3": {
+  "id": "60907c48fae7",
+  "model": "gpt-4o-mini-tts",
+  "text": "operate",
+  "voice": "fable"
+ },
  "w-opposite.mp3": {
   "id": "2b987d28654c",
   "model": "gpt-4o-mini-tts",
@@ -8399,6 +9737,12 @@
   "id": "6325d3d62cb2",
   "model": "gpt-4o-mini-tts",
   "text": "order",
+  "voice": "fable"
+ },
+ "w-organ.mp3": {
+  "id": "adcc748f24a5",
+  "model": "gpt-4o-mini-tts",
+  "text": "organ",
   "voice": "fable"
  },
  "w-our.mp3": {
@@ -8461,6 +9805,12 @@
   "text": "park",
   "voice": "fable"
  },
+ "w-particular.mp3": {
+  "id": "b9abff4f53f8",
+  "model": "gpt-4o-mini-tts",
+  "text": "particular",
+  "voice": "fable"
+ },
  "w-party.mp3": {
   "id": "2197ddafec19",
   "model": "gpt-4o-mini-tts",
@@ -8489,6 +9839,18 @@
   "id": "19a6da25c9be",
   "model": "gpt-4o-mini-tts",
   "text": "pay",
+  "voice": "fable"
+ },
+ "w-perhaps.mp3": {
+  "id": "64c0dcffe49b",
+  "model": "gpt-4o-mini-tts",
+  "text": "perhaps",
+  "voice": "fable"
+ },
+ "w-period.mp3": {
+  "id": "97aa9282b1bb",
+  "model": "gpt-4o-mini-tts",
+  "text": "period",
   "voice": "fable"
  },
  "w-person.mp3": {
@@ -8551,6 +9913,12 @@
   "text": "plane",
   "voice": "fable"
  },
+ "w-planet.mp3": {
+  "id": "13d0d1697c2d",
+  "model": "gpt-4o-mini-tts",
+  "text": "planet",
+  "voice": "fable"
+ },
  "w-planets.mp3": {
   "id": "3a1e44c4ee1f",
   "model": "gpt-4o-mini-tts",
@@ -8599,6 +9967,12 @@
   "text": "poor",
   "voice": "fable"
  },
+ "w-position.mp3": {
+  "id": "d6c2d176b703",
+  "model": "gpt-4o-mini-tts",
+  "text": "position",
+  "voice": "fable"
+ },
  "w-pounds.mp3": {
   "id": "baa487a72b61",
   "model": "gpt-4o-mini-tts",
@@ -8617,6 +9991,12 @@
   "text": "practice",
   "voice": "fable"
  },
+ "w-prepare.mp3": {
+  "id": "5029eb6099cd",
+  "model": "gpt-4o-mini-tts",
+  "text": "prepare",
+  "voice": "fable"
+ },
  "w-present.mp3": {
   "id": "270c3f4c3bdd",
   "model": "gpt-4o-mini-tts",
@@ -8629,16 +10009,58 @@
   "text": "pretty",
   "voice": "fable"
  },
+ "w-print.mp3": {
+  "id": "bc5de22ed397",
+  "model": "gpt-4o-mini-tts",
+  "text": "print",
+  "voice": "fable"
+ },
  "w-printed.mp3": {
   "id": "401bc93cca87",
   "model": "gpt-4o-mini-tts",
   "text": "printed",
   "voice": "fable"
  },
+ "w-probable.mp3": {
+  "id": "ef575bb4e027",
+  "model": "gpt-4o-mini-tts",
+  "text": "probable",
+  "voice": "fable"
+ },
  "w-problem.mp3": {
   "id": "aedc3a5e11bf",
   "model": "gpt-4o-mini-tts",
   "text": "problem",
+  "voice": "fable"
+ },
+ "w-process.mp3": {
+  "id": "05359ab87055",
+  "model": "gpt-4o-mini-tts",
+  "text": "process",
+  "voice": "fable"
+ },
+ "w-property.mp3": {
+  "id": "ee26400c0dd4",
+  "model": "gpt-4o-mini-tts",
+  "text": "property",
+  "voice": "fable"
+ },
+ "w-protect.mp3": {
+  "id": "7cd85706808c",
+  "model": "gpt-4o-mini-tts",
+  "text": "protect",
+  "voice": "fable"
+ },
+ "w-prove.mp3": {
+  "id": "e547b81f2921",
+  "model": "gpt-4o-mini-tts",
+  "text": "prove",
+  "voice": "fable"
+ },
+ "w-provide.mp3": {
+  "id": "05cbeca350a9",
+  "model": "gpt-4o-mini-tts",
+  "text": "provide",
   "voice": "fable"
  },
  "w-pull.mp3": {
@@ -8651,6 +10073,12 @@
   "id": "7c659b5c7e29",
   "model": "gpt-4o-mini-tts",
   "text": "pulled",
+  "voice": "fable"
+ },
+ "w-push.mp3": {
+  "id": "af4e1f488b48",
+  "model": "gpt-4o-mini-tts",
+  "text": "push",
   "voice": "fable"
  },
  "w-pushed.mp3": {
@@ -8707,10 +10135,22 @@
   "text": "radio",
   "voice": "fable"
  },
+ "w-rail.mp3": {
+  "id": "c550c04a7a67",
+  "model": "gpt-4o-mini-tts",
+  "text": "rail",
+  "voice": "fable"
+ },
  "w-rain.mp3": {
   "id": "ed2144a22ea1",
   "model": "gpt-4o-mini-tts",
   "text": "rain",
+  "voice": "fable"
+ },
+ "w-raise.mp3": {
+  "id": "d3530041b65b",
+  "model": "gpt-4o-mini-tts",
+  "text": "raise",
   "voice": "fable"
  },
  "w-raised.mp3": {
@@ -8723,6 +10163,12 @@
   "id": "843e7879d79a",
   "model": "gpt-4o-mini-tts",
   "text": "ran",
+  "voice": "fable"
+ },
+ "w-rather.mp3": {
+  "id": "10e1d8e04426",
+  "model": "gpt-4o-mini-tts",
+  "text": "rather",
   "voice": "fable"
  },
  "w-reached.mp3": {
@@ -8749,6 +10195,18 @@
   "text": "real",
   "voice": "fable"
  },
+ "w-reason.mp3": {
+  "id": "b5a833279125",
+  "model": "gpt-4o-mini-tts",
+  "text": "reason",
+  "voice": "fable"
+ },
+ "w-receive.mp3": {
+  "id": "b911f9a2c506",
+  "model": "gpt-4o-mini-tts",
+  "text": "receive",
+  "voice": "fable"
+ },
  "w-received.mp3": {
   "id": "b826e0c89252",
   "model": "gpt-4o-mini-tts",
@@ -8767,10 +10225,22 @@
   "text": "red",
   "voice": "fable"
  },
+ "w-region.mp3": {
+  "id": "0a01dcc66cf8",
+  "model": "gpt-4o-mini-tts",
+  "text": "region",
+  "voice": "fable"
+ },
  "w-remember.mp3": {
   "id": "b597aaa72883",
   "model": "gpt-4o-mini-tts",
   "text": "remember",
+  "voice": "fable"
+ },
+ "w-repeat.mp3": {
+  "id": "d11a6dc965af",
+  "model": "gpt-4o-mini-tts",
+  "text": "repeat",
   "voice": "fable"
  },
  "w-report.mp3": {
@@ -8779,10 +10249,28 @@
   "text": "report",
   "voice": "fable"
  },
+ "w-represent.mp3": {
+  "id": "deddff7bdbb9",
+  "model": "gpt-4o-mini-tts",
+  "text": "represent",
+  "voice": "fable"
+ },
+ "w-require.mp3": {
+  "id": "f9a303c1e289",
+  "model": "gpt-4o-mini-tts",
+  "text": "require",
+  "voice": "fable"
+ },
  "w-rest.mp3": {
   "id": "e1c6869a29e4",
   "model": "gpt-4o-mini-tts",
   "text": "rest",
+  "voice": "fable"
+ },
+ "w-result.mp3": {
+  "id": "ab44c6a0c2f9",
+  "model": "gpt-4o-mini-tts",
+  "text": "result",
   "voice": "fable"
  },
  "w-return.mp3": {
@@ -8851,6 +10339,12 @@
   "text": "rock",
   "voice": "fable"
  },
+ "w-roll.mp3": {
+  "id": "62bf72faea1b",
+  "model": "gpt-4o-mini-tts",
+  "text": "roll",
+  "voice": "fable"
+ },
  "w-rolled.mp3": {
   "id": "c4183d00407d",
   "model": "gpt-4o-mini-tts",
@@ -8893,6 +10387,12 @@
   "text": "row",
   "voice": "fable"
  },
+ "w-rub.mp3": {
+  "id": "c12b703c5659",
+  "model": "gpt-4o-mini-tts",
+  "text": "rub",
+  "voice": "fable"
+ },
  "w-rule.mp3": {
   "id": "6a092e0d3355",
   "model": "gpt-4o-mini-tts",
@@ -8921,6 +10421,12 @@
   "id": "52c33532c11d",
   "model": "gpt-4o-mini-tts",
   "text": "sail",
+  "voice": "fable"
+ },
+ "w-salt.mp3": {
+  "id": "0ef98bd349c0",
+  "model": "gpt-4o-mini-tts",
+  "text": "salt",
   "voice": "fable"
  },
  "w-same.mp3": {
@@ -8995,6 +10501,12 @@
   "text": "sea",
   "voice": "fable"
  },
+ "w-search.mp3": {
+  "id": "0860852ccbd7",
+  "model": "gpt-4o-mini-tts",
+  "text": "search",
+  "voice": "fable"
+ },
  "w-seat.mp3": {
   "id": "aa75f8554d06",
   "model": "gpt-4o-mini-tts",
@@ -9043,6 +10555,12 @@
   "text": "seen",
   "voice": "fable"
  },
+ "w-select.mp3": {
+  "id": "2a329517da5d",
+  "model": "gpt-4o-mini-tts",
+  "text": "select",
+  "voice": "fable"
+ },
  "w-sell.mp3": {
   "id": "0c5fbc569d57",
   "model": "gpt-4o-mini-tts",
@@ -9053,6 +10571,12 @@
   "id": "76acf008d847",
   "model": "gpt-4o-mini-tts",
   "text": "send",
+  "voice": "fable"
+ },
+ "w-sense.mp3": {
+  "id": "60de6dc80b30",
+  "model": "gpt-4o-mini-tts",
+  "text": "sense",
   "voice": "fable"
  },
  "w-sent.mp3": {
@@ -9077,6 +10601,12 @@
   "id": "66c0463e17fb",
   "model": "gpt-4o-mini-tts",
   "text": "set",
+  "voice": "fable"
+ },
+ "w-settle.mp3": {
+  "id": "ba734b84f3ea",
+  "model": "gpt-4o-mini-tts",
+  "text": "settle",
   "voice": "fable"
  },
  "w-seven.mp3": {
@@ -9122,6 +10652,12 @@
   "text": "sheep",
   "voice": "fable"
  },
+ "w-shine.mp3": {
+  "id": "df0f6f11b3bd",
+  "model": "gpt-4o-mini-tts",
+  "text": "shine",
+  "voice": "fable"
+ },
  "w-ship.mp3": {
   "id": "04c61b0b6304",
   "model": "gpt-4o-mini-tts",
@@ -9164,6 +10700,12 @@
   "text": "shoulder",
   "voice": "fable"
  },
+ "w-shout.mp3": {
+  "id": "fb15e1b8bcea",
+  "model": "gpt-4o-mini-tts",
+  "text": "shout",
+  "voice": "fable"
+ },
  "w-shouted.mp3": {
   "id": "c43bfac2aadd",
   "model": "gpt-4o-mini-tts",
@@ -9180,6 +10722,12 @@
   "id": "af939b5b6d8c",
   "model": "gpt-4o-mini-tts",
   "text": "side",
+  "voice": "fable"
+ },
+ "w-sight.mp3": {
+  "id": "4bdf80221f68",
+  "model": "gpt-4o-mini-tts",
+  "text": "sight",
   "voice": "fable"
  },
  "w-sign.mp3": {
@@ -9276,6 +10824,12 @@
   "id": "2f7eaaf62e2c",
   "model": "gpt-4o-mini-tts",
   "text": "smell",
+  "voice": "fable"
+ },
+ "w-smile.mp3": {
+  "id": "4e4b5bf9372a",
+  "model": "gpt-4o-mini-tts",
+  "text": "smile",
   "voice": "fable"
  },
  "w-smiled.mp3": {
@@ -9402,6 +10956,12 @@
   "id": "99a4a2e89c13",
   "model": "gpt-4o-mini-tts",
   "text": "spell",
+  "voice": "fable"
+ },
+ "w-spoke.mp3": {
+  "id": "d739464bb676",
+  "model": "gpt-4o-mini-tts",
+  "text": "spoke",
   "voice": "fable"
  },
  "w-spot.mp3": {
@@ -9536,6 +11096,12 @@
   "text": "street",
   "voice": "fable"
  },
+ "w-stretch.mp3": {
+  "id": "03d79bbb3a17",
+  "model": "gpt-4o-mini-tts",
+  "text": "stretch",
+  "voice": "fable"
+ },
  "w-string.mp3": {
   "id": "f949be1094f6",
   "model": "gpt-4o-mini-tts",
@@ -9560,10 +11126,28 @@
   "text": "study",
   "voice": "fable"
  },
+ "w-subject.mp3": {
+  "id": "32f503182a17",
+  "model": "gpt-4o-mini-tts",
+  "text": "subject",
+  "voice": "fable"
+ },
+ "w-success.mp3": {
+  "id": "0f924b2c53b0",
+  "model": "gpt-4o-mini-tts",
+  "text": "success",
+  "voice": "fable"
+ },
  "w-such.mp3": {
   "id": "2576cbcf0aa8",
   "model": "gpt-4o-mini-tts",
   "text": "such",
+  "voice": "fable"
+ },
+ "w-sudden.mp3": {
+  "id": "377aed221414",
+  "model": "gpt-4o-mini-tts",
+  "text": "sudden",
   "voice": "fable"
  },
  "w-suddenly.mp3": {
@@ -9578,6 +11162,18 @@
   "text": "sugar",
   "voice": "fable"
  },
+ "w-suggest.mp3": {
+  "id": "b7e62fef3854",
+  "model": "gpt-4o-mini-tts",
+  "text": "suggest",
+  "voice": "fable"
+ },
+ "w-suit.mp3": {
+  "id": "80f58bb2e6ea",
+  "model": "gpt-4o-mini-tts",
+  "text": "suit",
+  "voice": "fable"
+ },
  "w-summer.mp3": {
   "id": "0970aef4f1e1",
   "model": "gpt-4o-mini-tts",
@@ -9588,6 +11184,12 @@
   "id": "5b7022867b79",
   "model": "gpt-4o-mini-tts",
   "text": "sun",
+  "voice": "fable"
+ },
+ "w-supply.mp3": {
+  "id": "97ad3b396e4d",
+  "model": "gpt-4o-mini-tts",
+  "text": "supply",
   "voice": "fable"
  },
  "w-sure.mp3": {
@@ -9612,6 +11214,12 @@
   "id": "e4308e00a389",
   "model": "gpt-4o-mini-tts",
   "text": "swim",
+  "voice": "fable"
+ },
+ "w-symbol.mp3": {
+  "id": "6f0e399b227c",
+  "model": "gpt-4o-mini-tts",
+  "text": "symbol",
   "voice": "fable"
  },
  "w-table.mp3": {
@@ -9657,10 +11265,22 @@
   "text": "tell",
   "voice": "fable"
  },
+ "w-temperature.mp3": {
+  "id": "d2d2403dc3a5",
+  "model": "gpt-4o-mini-tts",
+  "text": "temperature",
+  "voice": "fable"
+ },
  "w-ten.mp3": {
   "id": "9802ae6298ea",
   "model": "gpt-4o-mini-tts",
   "text": "ten",
+  "voice": "fable"
+ },
+ "w-term.mp3": {
+  "id": "ab1c79ad649e",
+  "model": "gpt-4o-mini-tts",
+  "text": "term",
   "voice": "fable"
  },
  "w-test.mp3": {
@@ -9801,6 +11421,24 @@
   "text": "through",
   "voice": "fable"
  },
+ "w-throw.mp3": {
+  "id": "931dc36ad283",
+  "model": "gpt-4o-mini-tts",
+  "text": "throw",
+  "voice": "fable"
+ },
+ "w-thus.mp3": {
+  "id": "9914c6122445",
+  "model": "gpt-4o-mini-tts",
+  "text": "thus",
+  "voice": "fable"
+ },
+ "w-tie.mp3": {
+  "id": "5667b976a887",
+  "model": "gpt-4o-mini-tts",
+  "text": "tie",
+  "voice": "fable"
+ },
  "w-tied.mp3": {
   "id": "0b04db6361cf",
   "model": "gpt-4o-mini-tts",
@@ -9841,6 +11479,12 @@
   "id": "63ce91680fbe",
   "model": "gpt-4o-mini-tts",
   "text": "told",
+  "voice": "fable"
+ },
+ "w-tone.mp3": {
+  "id": "f520b0e228aa",
+  "model": "gpt-4o-mini-tts",
+  "text": "tone",
   "voice": "fable"
  },
  "w-too.mp3": {
@@ -9975,6 +11619,12 @@
   "text": "turn",
   "voice": "fable"
  },
+ "w-twenty.mp3": {
+  "id": "1ea4a8ae7d2a",
+  "model": "gpt-4o-mini-tts",
+  "text": "twenty",
+  "voice": "fable"
+ },
  "w-two.mp3": {
   "id": "b6bb59b2cbc1",
   "model": "gpt-4o-mini-tts",
@@ -10045,6 +11695,18 @@
   "id": "46084f19b010",
   "model": "gpt-4o-mini-tts",
   "text": "valley",
+  "voice": "fable"
+ },
+ "w-value.mp3": {
+  "id": "0f103c1a0496",
+  "model": "gpt-4o-mini-tts",
+  "text": "value",
+  "voice": "fable"
+ },
+ "w-vary.mp3": {
+  "id": "674510b2283e",
+  "model": "gpt-4o-mini-tts",
+  "text": "vary",
   "voice": "fable"
  },
  "w-very.mp3": {
@@ -10135,6 +11797,12 @@
   "id": "547a2bda0905",
   "model": "gpt-4o-mini-tts",
   "text": "water",
+  "voice": "fable"
+ },
+ "w-wave.mp3": {
+  "id": "a4d5f0a98581",
+  "model": "gpt-4o-mini-tts",
+  "text": "wave",
   "voice": "fable"
  },
  "w-waves.mp3": {
@@ -10233,6 +11901,12 @@
   "text": "where",
   "voice": "fable"
  },
+ "w-whether.mp3": {
+  "id": "0a09c8d84ba0",
+  "model": "gpt-4o-mini-tts",
+  "text": "whether",
+  "voice": "fable"
+ },
  "w-which.mp3": {
   "id": "df624814e877",
   "model": "gpt-4o-mini-tts",
@@ -10315,6 +11989,12 @@
   "id": "dd1b64c25488",
   "model": "gpt-4o-mini-tts",
   "text": "window",
+  "voice": "fable"
+ },
+ "w-wing.mp3": {
+  "id": "8afdb336eb99",
+  "model": "gpt-4o-mini-tts",
+  "text": "wing",
   "voice": "fable"
  },
  "w-wings.mp3": {
