@@ -49,6 +49,7 @@ STAGES = [
     {"id": 5, "title": "Word adventurers", "source": "Fry words, part 2", "grades": "3\u20134", "words": 140, "ready": False},
     {"id": 6, "title": "Word divers", "source": "Fry words, part 3", "grades": "4\u20135", "words": 140, "ready": False},
     {"id": 7, "title": "Word travelers", "source": "Fry words, part 4", "grades": "5\u20136", "words": 140, "ready": False},
+    {"id": 8, "title": "Word pioneers", "source": "Fry words, part 5", "grades": "5\u20136", "words": 140, "ready": False},
 ]
 
 # one short sentence per word. The word appears exactly once; "{w}" marks nothing, the app finds it by itself.

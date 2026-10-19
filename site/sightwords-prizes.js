@@ -19,7 +19,7 @@
     return o + '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.5).toFixed(1) + '" fill="#FFD23F" stroke="#E0A800" stroke-width="0.8"/>';
   }
 
-  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10), island 3 (the castle kingdom, units 11-15) and island 4 (outer space, units 16-20) and island 5 (the jungle, units 21-25) and island 6 (the deep sea, units 26-30) and island 7 (the desert, units 31-35); each has the island, the unit, the world it belongs to, the item
+  // one prize per unit: island 1 (the mountain, units 1-5), island 2 (the beach, units 6-10), island 3 (the castle kingdom, units 11-15) and island 4 (outer space, units 16-20) and island 5 (the jungle, units 21-25) and island 6 (the deep sea, units 26-30) and island 7 (the desert, units 31-35) and island 8 (the polar island, units 36-40); each has the island, the unit, the world it belongs to, the item
   var LIST = [
     {
       id: "ch-flower", island: 1, unit: 1, world: "Flower foothills", slot: "hat", name: "Flower crown", cn: "花环", vb: "12 26 96 40", a: { hx: 60, hy: 46, hs: 1 },
@@ -494,6 +494,70 @@
           '<path d="M-24 6 Q0 -6 24 6" fill="none" stroke="#7A4E2A" stroke-width="6.4" stroke-linecap="round"/><path d="M-24 6 Q0 -6 24 6" fill="none" stroke="#A8713A" stroke-width="3.4" stroke-linecap="round"/>' +
           '<g transform="translate(-20 -6) rotate(-16)"><ellipse cx="0" cy="-9" rx="8.4" ry="14" fill="#D8A25E" stroke="#8A5A22" stroke-width="2.4"/><ellipse cx="0" cy="-8" rx="4.4" ry="9" fill="#F4C9A0"/></g>' +
           '<g transform="translate(20 -6) rotate(16)"><ellipse cx="0" cy="-9" rx="8.4" ry="14" fill="#D8A25E" stroke="#8A5A22" stroke-width="2.4"/><ellipse cx="0" cy="-8" rx="4.4" ry="9" fill="#F4C9A0"/></g>'
+        );
+      },
+    },
+
+    // island 8 (the polar island): units 36-40
+    {
+      id: "ch-snowcap", island: 8, unit: 36, world: "Snow hills", slot: "hat", name: "Pom-pom cap", cn: "绒球雪帽", vb: "20 2 80 60", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-21 4 Q-24 -20 0 -24 Q24 -20 21 4Z" fill="#4FA8F0" stroke="#2A66C9" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M-13 -14 Q0 -20 13 -14 M-17 -6 Q0 -12 17 -6" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" opacity=".85"/>' +
+          '<rect x="-25" y="-2" width="50" height="11" rx="5.5" fill="#FFFFFF" stroke="#BFD6EE" stroke-width="2.4"/><path d="M-14 1 V7 M-4 1 V7 M6 1 V7 M16 1 V7" stroke="#D5E4F5" stroke-width="2" stroke-linecap="round"/>' +
+          '<circle cx="0" cy="-29" r="6.6" fill="#FFFFFF" stroke="#BFD6EE" stroke-width="2.2"/><circle cx="-2" cy="-31" r="1.8" fill="#EAF3FC"/>'
+        );
+      },
+    },
+    {
+      id: "ch-snowflakeneck", island: 8, unit: 37, world: "Igloo village", slot: "neck", name: "Snowflake necklace", cn: "雪花项链", vb: "18 92 84 62", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny - 104,
+          o = "";
+        [[30, 101], [37, 108], [46, 113.5], [60, 116], [74, 113.5], [83, 108], [90, 101]].forEach(function (c, i) {
+          o += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="3.9" fill="' + (i % 2 ? "#FFFFFF" : "#BFE6FF") + '" stroke="#5B93C4" stroke-width="1.6"/><circle cx="' + (c[0] - 1.1) + '" cy="' + (c[1] - 1.3) + '" r="1.2" fill="#FFFFFF"/>';
+        });
+        o += '<path d="M60 119 L60 123" stroke="#5B93C4" stroke-width="2"/><g transform="translate(60 138)" stroke="#5B93C4" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M0 -14 V14 M-12 -7 L12 7 M-12 7 L12 -7"/><path d="M-4 -12 L0 -8 L4 -12 M-4 12 L0 8 L4 12" stroke-width="1.8"/></g><circle cx="60" cy="138" r="3.4" fill="#FFFFFF" stroke="#5B93C4" stroke-width="1.8"/>';
+        return '<g transform="translate(0,' + y + ')">' + o + "</g>";
+      },
+    },
+    {
+      id: "ch-icegoggles", island: 8, unit: 38, world: "Frozen lake", slot: "face", name: "Snow goggles", cn: "雪地护目镜", vb: "4 4 116 60", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx,
+          x2 = 60 + a.edx,
+          r = a.er + 5.5,
+          y = a.ey;
+        function lens(x) {
+          return '<circle cx="' + x + '" cy="' + y + '" r="' + (r + 1.6) + '" fill="#FFFFFF" stroke="#2A66C9" stroke-width="2"/><circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="rgba(140,215,255,.65)" stroke="#3C8BD6" stroke-width="2.4"/>' +
+            '<path d="M' + (x - r * 0.55) + " " + (y - r * 0.2) + " Q" + (x - r * 0.35) + " " + (y - r * 0.6) + " " + (x + r * 0.05) + " " + (y - r * 0.62) + '" fill="none" stroke="#fff" stroke-width="2.2" opacity=".9"/>' +
+            '<circle cx="' + (x - r - 0.6) + '" cy="' + y + '" r="1.4" fill="#FFFFFF"/><circle cx="' + (x + r + 0.6) + '" cy="' + y + '" r="1.4" fill="#FFFFFF"/>';
+        }
+        return '<g stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M' + (x1 - r - 2) + " " + y + " L" + (x1 - r - 16) + " " + (y - 2) + " M" + (x2 + r + 2) + " " + y + " L" + (x2 + r + 16) + " " + (y - 2) + '" fill="none" stroke="#E5483A" stroke-width="5.4"/>' +
+          '<path d="M' + (x1 + r) + " " + y + " H" + (x2 - r) + '" fill="none" stroke="#2A66C9" stroke-width="4.4"/>' + lens(x1) + lens(x2) + "</g>";
+      },
+    },
+    {
+      id: "ch-auroracrown", island: 8, unit: 39, world: "Northern lights", slot: "hat", name: "Aurora crown", cn: "极光王冠", vb: "20 -4 80 64", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<path d="M-26 -26 Q-13 -40 0 -28 T26 -30" fill="none" stroke="#7CF5C0" stroke-width="5.4" stroke-linecap="round" opacity=".9"/><path d="M-24 -20 Q-12 -32 0 -22 T24 -24" fill="none" stroke="#B58AE8" stroke-width="4" stroke-linecap="round" opacity=".85"/>' +
+          '<path d="M-24 4 L-24 -14 L-14 -4 L-7 -22 L0 -6 L7 -22 L14 -4 L24 -14 L24 4Z" fill="#CFF1FF" stroke="#4F9CD6" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M-24 0 H24" stroke="#4F9CD6" stroke-width="2.2"/><circle cx="-14" cy="-3" r="2.4" fill="#B58AE8"/><circle cx="0" cy="-2" r="2.6" fill="#7CF5C0"/><circle cx="14" cy="-3" r="2.4" fill="#B58AE8"/>' +
+          '<path d="M-7 -26 l1.2 2.6 l2.8 .4 l-2 2 l.5 2.8 l-2.5 -1.4 l-2.5 1.4 l.5 -2.8 l-2 -2 l2.8 -.4Z" fill="#FFFFFF"/>'
+        );
+      },
+    },
+    {
+      id: "ch-penguinhat", island: 8, unit: 40, world: "Penguin cove", slot: "hat", name: "Penguin hat", cn: "企鹅帽", vb: "20 8 80 52", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<ellipse cx="-24" cy="-4" rx="5" ry="9" fill="#2F3A52" stroke="#1B2236" stroke-width="2" transform="rotate(14 -24 -4)"/><ellipse cx="24" cy="-4" rx="5" ry="9" fill="#2F3A52" stroke="#1B2236" stroke-width="2" transform="rotate(-14 24 -4)"/>' +
+          '<path d="M-23 6 Q-26 -24 0 -26 Q26 -24 23 6Z" fill="#2F3A52" stroke="#1B2236" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<ellipse cx="0" cy="-8" rx="15" ry="13" fill="#FFFFFF"/><circle cx="-6" cy="-12" r="2.4" fill="#1E2A4A"/><circle cx="6" cy="-12" r="2.4" fill="#1E2A4A"/><circle cx="-5.4" cy="-12.8" r=".8" fill="#fff"/><circle cx="6.6" cy="-12.8" r=".8" fill="#fff"/>' +
+          '<path d="M-5 -6 L5 -6 L0 1Z" fill="#FF9F3D" stroke="#C47A10" stroke-width="1.6" stroke-linejoin="round"/>'
         );
       },
     },

@@ -132,8 +132,11 @@
     { id: "sw735", tier: "diamond", glyph: "aa", name: "Word Ocean", cn: "单词海洋", metric: "words123456", need: 735, en: "Know all 735 words of Stages 1 to 6", zh: "认识第一到第六阶段的全部 735 个词" },
     { id: "chest30", tier: "diamond", glyph: "shell", name: "Deep Sea Master", cn: "深海大师", metric: "chests6", need: 5, en: "Open all 5 chests on the deep-sea island", zh: "打开深海岛上的全部 5 个宝箱" },
     { id: "sw140d", tier: "gold", glyph: "aa", name: "Desert Reader", cn: "沙漠小读者", metric: "words7", need: 140, en: "Know all 140 words of Stage 7", zh: "认识第七阶段的全部 140 个词" },
-    { id: "sw875", tier: "diamond", glyph: "aa", name: "Word Desert", cn: "单词沙漠", metric: "words", need: 875, en: "Know all 875 words of Stages 1 to 7", zh: "认识第一到第七阶段的全部 875 个词" },
+    { id: "sw875", tier: "diamond", glyph: "aa", name: "Word Desert", cn: "单词沙漠", metric: "words1234567", need: 875, en: "Know all 875 words of Stages 1 to 7", zh: "认识第一到第七阶段的全部 875 个词" },
     { id: "chest35", tier: "diamond", glyph: "cactus", name: "Desert Master", cn: "沙漠大师", metric: "chests7", need: 5, en: "Open all 5 chests on the desert island", zh: "打开沙漠岛上的全部 5 个宝箱" },
+    { id: "sw140e", tier: "gold", glyph: "aa", name: "Polar Reader", cn: "极地小读者", metric: "words8", need: 140, en: "Know all 140 words of Stage 8", zh: "认识第八阶段的全部 140 个词" },
+    { id: "sw1015", tier: "diamond", glyph: "aa", name: "Word Aurora", cn: "单词极光", metric: "words", need: 1015, en: "Know all 1015 words of Stages 1 to 8", zh: "认识第一到第八阶段的全部 1015 个词" },
+    { id: "chest40", tier: "diamond", glyph: "flake", name: "Polar Master", cn: "极地大师", metric: "chests8", need: 5, en: "Open all 5 chests on the polar island", zh: "打开极地岛上的全部 5 个宝箱" },
   ];
   var DEF_BY = {};
   DEFS.forEach(function (d) {
@@ -155,9 +158,9 @@
 
   // What the sight-word badges count, from lef_words_v1 ({words:{key:{box}}, lessons:{id:{acc}}, rev:{...}}):
   // words = known words (box 3 or more), stars3 = lessons with 3 stars (90% right on the first try), swrev = days a review earned its star,
-  // chests = treasure chests opened (rev keys "chest<island>-<unit>"), chests1 to chests7 = those of the mountain, the beach, the castle, the space, the jungle, the deep-sea and the desert island;
+  // chests = treasure chests opened (rev keys "chest<island>-<unit>"), chests1 to chests8 = those of the mountain, the beach, the castle, the space, the jungle, the deep-sea, the desert and the polar island;
   // words1 = known words of stage 1 (stage1 = the lower-case keys of its words; without it every known word counts), words3 = known words of stage 3 (stage3 = its keys; without it 0), words4, words5 and words6 = known words of stage 4, 5 and 6 (stage4, stage5, stage6 = their keys), words12345 = known words that are not in stage 6, words1234 = known words that are in neither stage 5 nor 6, words123 = known words that are in none of stages 4 to 6, words12 = known words that are in none of stages 3 to 6
-  function swMetrics(sw, stage1, stage3, stage4, stage5, stage6, stage7) {
+  function swMetrics(sw, stage1, stage3, stage4, stage5, stage6, stage7, stage8) {
     sw = isObj(sw) ? sw : {};
     var words = 0,
       words1 = 0,
@@ -166,6 +169,7 @@
       words5 = 0,
       words6 = 0,
       words7 = 0,
+      words8 = 0,
       stars3 = 0,
       swrev = 0,
       chests = 0,
@@ -176,6 +180,7 @@
       chests5 = 0,
       chests6 = 0,
       chests7 = 0,
+      chests8 = 0,
       monsters = 0;
     if (isObj(sw.words))
       Object.keys(sw.words).forEach(function (k) {
@@ -188,6 +193,7 @@
           if (stage5 && stage5.indexOf(k) >= 0) words5++;
           if (stage6 && stage6.indexOf(k) >= 0) words6++;
           if (stage7 && stage7.indexOf(k) >= 0) words7++;
+          if (stage8 && stage8.indexOf(k) >= 0) words8++;
         }
       });
     if (isObj(sw.lessons))
@@ -208,9 +214,10 @@
           if (/^chest5-/.test(k)) chests5++;
           if (/^chest6-/.test(k)) chests6++;
           if (/^chest7-/.test(k)) chests7++;
+          if (/^chest8-/.test(k)) chests8++;
         }
       });
-    return { words: words, words1: words1, words12: words - words3 - words4 - words5 - words6 - words7, words123: words - words4 - words5 - words6 - words7, words1234: words - words5 - words6 - words7, words12345: words - words6 - words7, words123456: words - words7, words3: words3, words4: words4, words5: words5, words6: words6, words7: words7, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2, chests3: chests3, chests4: chests4, chests5: chests5, chests6: chests6, chests7: chests7, monsters: monsters };
+    return { words: words, words1: words1, words12: words - words3 - words4 - words5 - words6 - words7 - words8, words123: words - words4 - words5 - words6 - words7 - words8, words1234: words - words5 - words6 - words7 - words8, words12345: words - words6 - words7 - words8, words123456: words - words7 - words8, words1234567: words - words8, words3: words3, words4: words4, words5: words5, words6: words6, words7: words7, words8: words8, stars3: stars3, swrev: swrev, chests: chests, chests1: chests1, chests2: chests2, chests3: chests3, chests4: chests4, chests5: chests5, chests6: chests6, chests7: chests7, chests8: chests8, monsters: monsters };
   }
 
   var core = {
@@ -344,7 +351,14 @@
           return w.toLowerCase().replace(/[^a-z]/g, "");
         });
     } catch (e) {}
-    var sm = swMetrics(readJ("lef_words_v1", null), st1, st3, st4, st5, st6, st7);
+    var st8 = null;
+    try {
+      if (root.SW_DATA8 && root.SW_DATA8.words)
+        st8 = Object.keys(root.SW_DATA8.words).map(function (w) {
+          return w.toLowerCase().replace(/[^a-z]/g, "");
+        });
+    } catch (e) {}
+    var sm = swMetrics(readJ("lef_words_v1", null), st1, st3, st4, st5, st6, st7, st8);
     return {
       books: fin,
       subjects: subjects,
@@ -360,11 +374,13 @@
       words1234: sm.words1234,
       words12345: sm.words12345,
       words123456: sm.words123456,
+      words1234567: sm.words1234567,
       words3: sm.words3,
       words4: sm.words4,
       words5: sm.words5,
       words6: sm.words6,
       words7: sm.words7,
+      words8: sm.words8,
       stars3: sm.stars3,
       swrev: sm.swrev,
       chests: sm.chests,
@@ -375,6 +391,7 @@
       chests5: sm.chests5,
       chests6: sm.chests6,
       chests7: sm.chests7,
+      chests8: sm.chests8,
       monsters: sm.monsters,
     };
   }
@@ -421,6 +438,8 @@
       return '<path d="M-12 10Q-15 -8 2 -14Q14 -15 13 -3Q12 9 -12 10Z" fill="' + F("#5DBB5A") + '"' + sw + ' stroke-width="2.2"/><path d="M-10 9Q-2 0 9 -9" fill="none" stroke="' + S + '" stroke-width="2" stroke-linecap="round"/><path d="M-1 3L-6 -3M3 -1L1 -8" fill="none" stroke="' + S + '" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="9" r="3.6" fill="' + F("#FFD23F") + '"' + sw + ' stroke-width="1.8"/>';
     if (g === "shell")
       return '<path d="M0 12 L-14 -6 Q0 -18 14 -6Z" fill="' + F("#FFB3C7") + '"' + sw + ' stroke-width="2.2"/><path d="M0 12 L-8 -7 M0 12 V-11 M0 12 L8 -7" fill="none" stroke="' + S + '" stroke-width="1.8" stroke-linecap="round"/><circle cx="0" cy="3" r="3.6" fill="' + F("#FFFBF2") + '"' + sw + ' stroke-width="1.6"/><path d="M-13 -6 Q-17 -12 -12 -14" fill="none" stroke="' + S + '" stroke-width="1.6" stroke-linecap="round"/>';
+    if (g === "flake")
+      return '<path d="M0 -14 V14 M-12 -7 L12 7 M-12 7 L12 -7" fill="none" stroke="' + F("#7DD3FC") + '" stroke-width="3.4" stroke-linecap="round"/><path d="M-4 -12 L0 -8 L4 -12 M-4 12 L0 8 L4 12 M-13 -1 L-8 -5 M-13 -1 L-8 3 M13 -1 L8 -5 M13 -1 L8 3" fill="none" stroke="' + F("#7DD3FC") + '"' + sw + ' stroke-width="1.8"/><circle r="3" fill="' + F("#FFFFFF") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "cactus")
       return '<path d="M-5 13V-8Q-5 -15 0 -15Q5 -15 5 -8V13Z" fill="' + F("#4FA06A") + '"' + sw + ' stroke-width="2.2"/><path d="M-5 3H-10Q-13 3 -13 0V-6" fill="none" stroke="' + S + '" stroke-width="2.4" stroke-linecap="round"/><path d="M5 -1H10Q13 -1 13 -4V-9" fill="none" stroke="' + S + '" stroke-width="2.4" stroke-linecap="round"/><circle cx="0" cy="-17" r="3" fill="' + F("#FF8FB1") + '"' + sw + ' stroke-width="1.6"/>';
     if (g === "castle")

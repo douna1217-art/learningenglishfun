@@ -167,6 +167,19 @@
   function domeHouse(x, base, k, c) {
     return '<g transform="translate(' + x + " " + base + ") scale(" + k + ')"><rect x="-14" y="-18" width="28" height="18" fill="' + (c || "#F5E3B8") + '"/><path d="M-16 -18 Q0 -42 16 -18Z" fill="#E5883A"/><rect x="-4" y="-12" width="8" height="12" rx="4" fill="#8A5A2B"/><circle cx="0" cy="-33" r="2" fill="#FFD23F"/></g>';
   }
+  // the polar island: igloos, penguins, icebergs and the northern lights
+  function iglooAt(x, base, k) {
+    return '<g transform="translate(' + x + " " + base + ") scale(" + k + ')"><path d="M-22 0 Q-22 -30 0 -30 Q22 -30 22 0Z" fill="#F4F9FF" stroke="#B9D2EC" stroke-width="2"/><path d="M-20 -14 H20 M-14 -24 H14 M-6 -30 V-24 M6 -24 V-14 M-12 -14 V0 M12 -14 V0" stroke="#CFE0F2" stroke-width="1.6" fill="none"/><path d="M-8 0 V-8 Q-8 -14 0 -14 Q8 -14 8 -8 V0Z" fill="#5F82AC"/></g>';
+  }
+  function penguinAt(x, y, k, flip) {
+    return '<g transform="translate(' + x + " " + y + ") scale(" + (flip ? -k : k) + " " + k + ')"><ellipse cx="-4" cy="0" rx="5" ry="2.4" fill="#FF9F3D"/><ellipse cx="5" cy="0" rx="5" ry="2.4" fill="#FF9F3D"/><ellipse cx="0" cy="-12" rx="10" ry="13" fill="#2F3A52"/><ellipse cx="1.5" cy="-10" rx="6.4" ry="10" fill="#FFFFFF"/><path d="M-9 -14 Q-15 -8 -11 -4 Q-8 -8 -8 -14Z" fill="#2F3A52"/><circle cx="0" cy="-27" r="7.6" fill="#2F3A52"/><circle cx="-2.6" cy="-28" r="1.5" fill="#FFFFFF"/><circle cx="3.2" cy="-28" r="1.5" fill="#FFFFFF"/><path d="M-1.5 -24.6 L7 -23.4 L-1.5 -21.4Z" fill="#FF9F3D"/></g>';
+  }
+  function icebergAt(x, base, w, h) {
+    return '<polygon points="' + (x - w / 2) + "," + base + " " + (x - w * 0.22) + "," + (base - h * 0.7) + " " + (x - w * 0.02) + "," + (base - h) + " " + (x + w * 0.2) + "," + (base - h * 0.6) + " " + (x + w / 2) + "," + base + '" fill="#F4FAFF"/><polygon points="' + (x - w * 0.02) + "," + (base - h) + " " + (x + w * 0.2) + "," + (base - h * 0.6) + " " + (x + w / 2) + "," + base + " " + x + "," + base + '" fill="#C9E1F5"/>';
+  }
+  function auroraAt(y, h, c1, c2) {
+    return '<path d="M0 ' + y + " Q90 " + (y - h) + " 180 " + (y + h * 0.2) + " T360 " + (y - h * 0.3) + " V" + (y + h) + " Q270 " + (y + h * 1.5) + " 180 " + (y + h * 0.9) + " T0 " + (y + h * 1.2) + 'Z" fill="' + c1 + '" opacity=".5"/><path d="M0 ' + (y + h * 0.5) + " Q100 " + (y - h * 0.4) + " 190 " + (y + h * 0.6) + " T360 " + (y + h * 0.3) + " V" + (y + h * 1.3) + " Q260 " + (y + h * 1.6) + " 170 " + (y + h * 1.2) + " T0 " + (y + h * 1.5) + 'Z" fill="' + c2 + '" opacity=".4"/>';
+  }
   var SKY = '<rect width="360" height="100" fill="#BFE6FF"/>';
 
   // each island has five little worlds; a world has a name, a header picture (360 x 100), the colour behind its trail and the colour of the dotted path.
@@ -346,6 +359,23 @@
         return '<rect width="360" height="100" fill="#FFCE9A"/><rect width="360" height="36" fill="#FFB27A" opacity=".5"/>' + sunAt(250, 62, 16) + duneAt(300, 100, 220, 34, "#E5A860") + duneAt(60, 100, 240, 28, "#EBB56E") + camelAt(70, 84, 0.7) + camelAt(130, 86, 0.7) + camelAt(192, 84, 0.7) + dots([[300, 24, 2], [40, 20, 2]], 2, "#FFFFFF");
       } },
     ],
+    8: [
+      { name: "Snow hills", bg: "#E6F3FF", dash: "#9CC4EC", art: function () {
+        return '<rect width="360" height="100" fill="#CFE8FF"/>' + sunAt(300, 28, 12) + cloudAt(70, 24, 1) + duneAt(80, 100, 240, 40, "#FFFFFF") + duneAt(260, 100, 260, 34, "#F0F7FF") + duneAt(170, 100, 200, 20, "#E4F0FF") + pineAt(46, 94, 40, "#2F7A5C", "#3E9A74") + pineAt(72, 96, 28, "#2F7A5C", "#3E9A74") + pineAt(312, 94, 38, "#2F7A5C", "#3E9A74") + dots([[130, 30, 2, "#FFFFFF"], [200, 50, 2, "#FFFFFF"], [240, 22, 1.6, "#FFFFFF"]], 2, "#FFFFFF");
+      } },
+      { name: "Igloo village", bg: "#EAF2FB", dash: "#8FB4DC", art: function () {
+        return '<rect width="360" height="100" fill="#D9ECFF"/>' + cloudAt(280, 24, 1) + '<path d="M0 82 Q90 72 180 80 T360 76 L360 100 L0 100Z" fill="#FFFFFF"/>' + iglooAt(100, 90, 1.1) + iglooAt(190, 92, 1.4) + iglooAt(280, 90, 1) + pineAt(34, 92, 36, "#2F7A5C", "#3E9A74") + pineAt(334, 92, 32, "#2F7A5C", "#3E9A74") + dots([[160, 30, 2, "#FFFFFF"], [230, 46, 2, "#FFFFFF"], [60, 40, 1.6, "#FFFFFF"]], 2, "#FFFFFF");
+      } },
+      { name: "Frozen lake", bg: "#E3F4FA", dash: "#7CC6E0", art: function () {
+        return '<rect width="360" height="100" fill="#D6EEFF"/>' + cloudAt(60, 22, 1) + '<path d="M0 70 Q90 62 180 68 T360 64 L360 100 L0 100Z" fill="#FFFFFF"/><ellipse cx="180" cy="82" rx="110" ry="14" fill="#9FDCF2"/><path d="M120 80 Q150 76 180 80 M190 86 Q220 82 246 86 M150 88 L176 84" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round" opacity=".8"/>' + pineAt(36, 78, 42, "#2F7A5C", "#3E9A74") + pineAt(62, 80, 30, "#2F7A5C", "#3E9A74") + pineAt(322, 78, 40, "#2F7A5C", "#3E9A74");
+      } },
+      { name: "Northern lights", bg: "#D9E4F7", dash: "#8AA2E0", art: function () {
+        return '<rect width="360" height="100" fill="#1E2A5E"/>' + auroraAt(26, 18, "#7CF5C0", "#B58AE8") + dots([[40, 16, 1.6], [90, 40, 1.2], [150, 12, 1.8], [220, 38, 1.2], [270, 10, 1.6], [330, 44, 1.4], [20, 60, 1.2]], 1.6, "#FFFFFF") + '<path d="M0 82 Q90 72 180 80 T360 76 L360 100 L0 100Z" fill="#E4EEFA"/>' + pineAt(40, 90, 34, "#1B3A4B", "#26566C") + pineAt(320, 90, 36, "#1B3A4B", "#26566C") + iglooAt(180, 92, 0.9);
+      } },
+      { name: "Penguin cove", bg: "#DDF0FA", dash: "#6FB6E0", art: function () {
+        return '<rect width="360" height="100" fill="#CFE8FF"/>' + sunAt(60, 26, 12) + '<rect y="66" width="360" height="34" fill="#4FA8F0"/><path d="M0 66 Q30 60 60 66 T120 66 T180 66 T240 66 T300 66 T360 66" fill="none" stroke="#FFFFFF" stroke-width="2.4"/>' + icebergAt(100, 86, 90, 50) + icebergAt(300, 88, 70, 36) + penguinAt(80, 86, 0.7) + penguinAt(112, 88, 0.6, true) + penguinAt(290, 88, 0.6);
+      } },
+    ],
   };
 
   // the big banner at the top of an island's page (360 x 340, the bottom is always kept)
@@ -385,6 +415,11 @@
         '<path d="M0 304 Q90 290 180 302 T360 296 L360 340 L0 340Z" fill="#E4CB8A"/><path d="M0 322 Q120 312 240 322 T360 318 L360 340 L0 340Z" fill="#D2B672"/>' + shipAt(250, 304, 1.25, -12) + kelpAt(24, 330, 80, "#2F8A4C") + kelpAt(50, 332, 64) + kelpAt(332, 332, 84, "#2F8A4C") +
         coralAt(86, 328, 1.5, "#FF7A8A", "#FFB3C0") + coralAt(150, 332, 1.2, "#FFA94D", "#FFD08A") + coralAt(190, 330, 1.4, "#B58AE8", "#D8BFF5") + shellAt(122, 330, 1.2, "#FFB3C7") + chestAt(292, 336, 0.9);
     },
+    8: function () {
+      return '<rect width="360" height="340" fill="#BCDDF7"/><rect y="0" width="360" height="140" fill="#7FA6E0" opacity=".55"/>' + auroraAt(40, 26, "#7CF5C0", "#E8A0F0") + dots([[40, 30, 1.8], [110, 70, 1.4], [200, 22, 1.8], [260, 84, 1.4], [330, 40, 1.8]], 1.8, "#FFFFFF") + sunAt(300, 120, 22) + cloudAt(60, 100, 1.1) +
+        icebergAt(290, 250, 130, 100) + '<rect y="250" width="360" height="90" fill="#4FA8F0"/><path d="M0 250 Q30 242 60 250 T120 250 T180 250 T240 250 T300 250 T360 250" fill="none" stroke="#FFFFFF" stroke-width="3"/>' + icebergAt(290, 262, 120, 90) +
+        '<path d="M0 300 Q90 270 180 292 T360 280 L360 340 L0 340Z" fill="#FFFFFF"/><path d="M0 322 Q120 306 240 320 T360 314 L360 340 L0 340Z" fill="#E4F0FF"/>' + iglooAt(80, 312, 1.8) + iglooAt(180, 322, 1.3) + pineAt(30, 330, 90, "#2F7A5C", "#3E9A74") + pineAt(330, 332, 70, "#2F7A5C", "#3E9A74") + penguinAt(230, 330, 1.3) + penguinAt(268, 334, 1.1, true);
+    },
     7: function () {
       return '<rect width="360" height="340" fill="#FFE7BE"/><rect y="0" width="360" height="120" fill="#FFD9A0" opacity=".55"/>' + sunAt(280, 80, 30) + cloudAt(70, 60, 1.1) +
         pyramidAt(150, 262, 150, 92, "#E8C27A", "#C99A4A") + pyramidAt(250, 266, 92, 56, "#EBCB88", "#CFA458") + duneAt(60, 340, 260, 82, "#F0C878") + duneAt(280, 340, 280, 64, "#E9BB68") + '<path d="M0 306 Q120 290 240 306 T360 300 L360 340 L0 340Z" fill="#F6D48E"/>' +
@@ -417,6 +452,7 @@
     5: { body: "#2F7A4C", lid: "#46A06B", band: "#FFD23F" },
     6: { body: "#2F6F95", lid: "#4A93BD", band: "#FFD23F" },
     7: { body: "#A8682A", lid: "#D79A4A", band: "#FFD23F" },
+    8: { body: "#3A7FB0", lid: "#6CB6DE", band: "#FFFFFF" },
   };
   function emblem(stage) {
     if (stage === 2) return '<path d="M40 40 L30 52 Q40 58 50 52Z" fill="#FFD9E6"/><path d="M40 40 L36 54 M40 40 L40 56 M40 40 L44 54" stroke="#E88FB1" stroke-width="1.6"/>';
@@ -425,6 +461,7 @@
     if (stage === 5) return '<path d="M40 56 Q28 48 34 36 Q44 38 46 48 Q44 54 40 56Z" fill="#9BE08A"/><path d="M40 56 L38 42" stroke="#2F8A4C" stroke-width="1.6"/>';
     if (stage === 6) return '<path d="M40 58 L28 44 Q40 32 52 44Z" fill="#FFB3C7"/><path d="M40 58 L33 44 M40 58 V38 M40 58 L47 44" stroke="#E88FB1" stroke-width="1.4"/><circle cx="40" cy="52" r="2.6" fill="#FFFBF2"/>';
     if (stage === 7) return '<path d="M40 60 V42 Q40 36 44 36 Q48 36 48 42 V60Z" fill="#7FD07F" transform="translate(-4 0)"/><path d="M36 52 H31 Q28 52 28 48 V44" fill="none" stroke="#7FD07F" stroke-width="4" stroke-linecap="round"/><path d="M48 50 H53 Q56 50 56 46 V42" fill="none" stroke="#7FD07F" stroke-width="4" stroke-linecap="round"/><circle cx="40" cy="35" r="3" fill="#FF8FB1"/>';
+    if (stage === 8) return '<g stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M40 34 V62 M28 41 L52 55 M28 55 L52 41"/></g><circle cx="40" cy="48" r="3" fill="#FFFFFF"/>';
     return "";
   }
   function chest(o) {
@@ -469,8 +506,8 @@
     function K(real, grey) {
       return g ? grey : real;
     }
-    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4", "#7A6A3E", "#3F7396", "#B07A3C"][n],
-      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8", "#6CCB5F", "#F0DDA8", "#F6E0A4"][n],
+    var earth = ["", "#A98B6B", "#D9B77A", "#9AA3C4", "#6B5BC4", "#7A6A3E", "#3F7396", "#B07A3C", "#6E9CC4"][n],
+      top = ["", "#8FD07F", "#F6DFA4", "#8FD07F", "#CFC8E8", "#6CCB5F", "#F0DDA8", "#F6E0A4", "#F2F8FF"][n],
       o = '<path d="M-62 0 Q-52 46 0 58 Q52 46 62 0Z" fill="' + K(earth, "#B9C3D8") + '"/><path d="M-40 30 Q-30 46 0 52 Q30 46 40 30" fill="none" stroke="' + K("rgba(0,0,0,.14)", "#A3AEC6") + '" stroke-width="3" stroke-linecap="round"/><ellipse cx="0" cy="0" rx="64" ry="22" fill="' + K(top, "#D5DDEC") + '"/>';
     if (n === 1) {
       o += mount(-2, -2, 70, 66, K("#8FA3C7", "#AEBAD2"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) + mount(32, 0, 46, 38, K("#A7B8D6", "#9FACC7"), true).replace(/#FFFFFF/g, K("#FFFFFF", "#E6EBF5")) +
@@ -498,6 +535,9 @@
         '<path d="M-48 6 V-18 Q-48 -26 -42 -26 Q-36 -26 -36 -18 V6Z" fill="' + K("#4FA06A", "#9FACC7") + '"/><path d="M-48 -6 H-56 Q-60 -6 -60 -11 V-18" fill="none" stroke="' + K("#4FA06A", "#9FACC7") + '" stroke-width="5" stroke-linecap="round"/><path d="M-36 -10 H-30 Q-26 -10 -26 -15 V-22" fill="none" stroke="' + K("#4FA06A", "#9FACC7") + '" stroke-width="5" stroke-linecap="round"/>' +
         '<path d="M-30 14 Q-12 6 4 14Z" fill="' + K("#E9BB68", "#AEBAD2") + '"/><path d="M30 12 Q46 2 62 12Z" fill="' + K("#E9BB68", "#AEBAD2") + '"/>' +
         (g ? "" : camelAt(46, 2, 0.5) + '<circle cx="-28" cy="-52" r="9" fill="#FFD23F" opacity=".9"/>');
+    } else if (n === 8) {
+      o += iglooAt(-18, 4, 0.9).replace(/#F4F9FF/g, K("#F4F9FF", "#E6EBF5")).replace(/#5F82AC/g, K("#5F82AC", "#9FACC7")) + pineAt(30, 8, 38, K("#2F7A5C", "#9FACC7"), K("#3E9A74", "#AEBAD2")) + pineAt(-46, 8, 28, K("#2F7A5C", "#9FACC7"), K("#3E9A74", "#AEBAD2")) +
+        (g ? "" : penguinAt(8, 10, 0.55) + penguinAt(52, 6, 0.45, true) + twinkle(-40, -44, 5, "#FFFFFF") + '<path d="M-46 -44 Q-20 -60 6 -46 T52 -50" fill="none" stroke="#7CF5C0" stroke-width="5" stroke-linecap="round" opacity=".7"/>');
     } else {
       o += '<ellipse cx="14" cy="-30" rx="46" ry="10" fill="none" stroke="' + K("#E6B5F5", "#9FACC7") + '" stroke-width="6" transform="rotate(-14 14 -30)"/><circle cx="14" cy="-30" r="24" fill="' + K("#FF9F5A", "#AEBAD2") + '"/><path d="M-6 -36 Q14 -28 34 -38" stroke="' + K("#FFC48A", "#C7D0E0") + '" stroke-width="4" fill="none"/>' +
         '<ellipse cx="-34" cy="2" rx="9" ry="3" fill="' + K("#A9A4C4", "#B9C3D8") + '"/><ellipse cx="38" cy="6" rx="8" ry="2.6" fill="' + K("#A9A4C4", "#B9C3D8") + '"/>' + (g ? "" : rocket(-32, -14, 0.7, -12)) + twinkle(-48, -42, 5, K("#FFE98A", "#C7D0E0"));
@@ -509,11 +549,11 @@
   // o = { known, total, title, ready: {1: true, 2: true}, stages: {1: {title, known, total, check}, 2: ...} }. Without stages, island 1 shows known and total.
   // check: true puts an orange "Quick check" tag next to "Open" (the group with class sw-isl-qc, data-s = the island, is its click target).
   // The group with class sw-isl-go (data-s = the island) is the click target.
-  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466], 5: [84, 700], 6: [280, 790], 7: [84, 1030] };
+  var POS = { 1: [84, 100], 2: [280, 150], 3: [84, 396], 4: [280, 466], 5: [84, 700], 6: [280, 790], 7: [84, 1030], 8: [280, 1250] };
   function islands(o) {
     var ready = o.ready || { 1: true },
       out = "";
-    [1, 2, 3, 4, 5, 6, 7].forEach(function (n) {
+    [1, 2, 3, 4, 5, 6, 7, 8].forEach(function (n) {
       var info = o.stages && o.stages[n] ? o.stages[n] : n === 1 ? { title: o.title || "First words", known: o.known || 0, total: o.total || 1 } : { title: "", known: 0, total: 1 },
         pct = Math.max(0, Math.min(1, info.known / (info.total || 1))),
         x = POS[n][0],
@@ -535,10 +575,10 @@
         out += '<g class="sw-isl-go" data-s="' + n + '" tabindex="0" role="button" aria-label="Open Stage ' + n + '"><rect x="' + (x - 70) + '" y="' + (y - 100) + '" width="140" height="240" fill="#FFFFFF" opacity="0"/><g transform="translate(' + x + "," + y + ')"><g class="sw-ibody">' + soft(islandArt(n, false)) + "</g>" + label + tag + "</g></g>";
       else out += '<g transform="translate(' + x + "," + y + ')">' + soft(islandArt(n, true)) + label + "</g>";
     });
-    return '<svg class="sw-isvg" viewBox="0 0 360 1200" role="group" aria-label="Word islands">' +
-      '<rect x="0" y="0" width="360" height="1200" rx="28" fill="#DFF1FF"/>' +
-      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/><ellipse cx="300" cy="640" rx="24" ry="8"/><ellipse cx="316" cy="634" rx="12" ry="8"/><ellipse cx="60" cy="800" rx="24" ry="8"/><ellipse cx="74" cy="794" rx="12" ry="8"/><ellipse cx="44" cy="900" rx="24" ry="8"/><ellipse cx="58" cy="894" rx="12" ry="8"/><ellipse cx="320" cy="690" rx="20" ry="7"/><ellipse cx="318" cy="930" rx="24" ry="8"/><ellipse cx="332" cy="924" rx="12" ry="8"/><ellipse cx="40" cy="1170" rx="22" ry="7"/><ellipse cx="54" cy="1164" rx="11" ry="7"/><ellipse cx="300" cy="1120" rx="20" ry="7"/></g>' +
-      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466 C300 540 130 610 84 700 C120 770 240 720 280 790 C300 860 120 940 84 1030" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
+    return '<svg class="sw-isvg" viewBox="0 0 360 1440" role="group" aria-label="Word islands">' +
+      '<rect x="0" y="0" width="360" height="1440" rx="28" fill="#DFF1FF"/>' +
+      '<g fill="#FFFFFF"><ellipse cx="44" cy="26" rx="26" ry="9"/><ellipse cx="60" cy="20" rx="14" ry="9"/><ellipse cx="52" cy="560" rx="24" ry="8"/><ellipse cx="66" cy="554" rx="12" ry="8"/><ellipse cx="318" cy="36" rx="20" ry="7"/><ellipse cx="300" cy="640" rx="24" ry="8"/><ellipse cx="316" cy="634" rx="12" ry="8"/><ellipse cx="60" cy="800" rx="24" ry="8"/><ellipse cx="74" cy="794" rx="12" ry="8"/><ellipse cx="44" cy="900" rx="24" ry="8"/><ellipse cx="58" cy="894" rx="12" ry="8"/><ellipse cx="320" cy="690" rx="20" ry="7"/><ellipse cx="318" cy="930" rx="24" ry="8"/><ellipse cx="332" cy="924" rx="12" ry="8"/><ellipse cx="40" cy="1170" rx="22" ry="7"/><ellipse cx="60" cy="1300" rx="24" ry="8"/><ellipse cx="74" cy="1294" rx="12" ry="8"/><ellipse cx="320" cy="1390" rx="22" ry="7"/><ellipse cx="334" cy="1384" rx="11" ry="7"/><ellipse cx="54" cy="1164" rx="11" ry="7"/><ellipse cx="300" cy="1120" rx="20" ry="7"/></g>' +
+      '<path d="M84 100 C150 70 200 110 280 150 C330 225 110 300 84 396 C130 450 200 410 280 466 C300 540 130 610 84 700 C120 770 240 720 280 790 C300 860 120 940 84 1030 C150 1090 330 1130 280 1250" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-dasharray="1 15"/>' + out + "</svg>";
   }
 
   root.SWScenery = { hero: hero, game: game, book: book, star: star, islands: islands, banner: bannerArt, unitArt: unitArt, unitTheme: unitTheme, chest: chest };
