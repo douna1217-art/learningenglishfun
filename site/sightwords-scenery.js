@@ -60,6 +60,12 @@
         '<ellipse cx="30" cy="26" rx="20" ry="7" fill="#fff" stroke="#6AA7FF" stroke-width="3"/><path d="M20 22 A10 10 0 0 1 40 22Z" fill="#BEEBFF"/><text x="30" y="29" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="9" fill="#1E2A4A">go</text>' +
         '<rect x="62" y="30" width="5" height="12" rx="2" fill="#FFE066"/><rect x="62" y="12" width="5" height="12" rx="2" fill="#FFE066" opacity=".5"/>' +
         '<path d="M64 52 C74 58 73 68 70 72 L58 72 C55 68 54 58 64 52Z" fill="#F4F7FC" stroke="#8795B4" stroke-width="1.6"/><path d="M64 52 C68 54 70 56 71 58 L57 58 C58 56 60 54 64 52Z" fill="#E5483A"/><circle cx="64" cy="64" r="4.5" fill="#FFD9A8" stroke="#6AA7FF" stroke-width="1.6"/><path d="M60 72 L64 80 L68 72Z" fill="#FFB703"/>';
+    } else if (kind === "dungeon") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#DDD1F0"/><path d="M0 0 H100 M0 84 H100 M0 0 V84 M100 0 V84 M34 0 V50 M68 84 V34 M34 50 H60" fill="none" stroke="#4B3F72" stroke-width="6" stroke-linecap="round"/>' +
+        '<rect x="70" y="10" width="26" height="12" rx="3" fill="#fff" stroke="#E5483A" stroke-width="2"/><text x="83" y="19.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="9" fill="#1E2A4A">go</text>' +
+        '<rect x="72" y="28" width="22" height="14" fill="#B5762C" stroke="#6B3F18" stroke-width="2"/><path d="M72 28 A11 6 0 0 1 94 28Z" fill="#C98F4E" stroke="#6B3F18" stroke-width="2"/><rect x="81" y="30" width="4" height="7" fill="#FFD23F"/>' +
+        '<circle cx="18" cy="62" r="11" fill="#FFD9A8" stroke="#8A5A2B" stroke-width="2.4"/><circle cx="14" cy="60" r="1.8" fill="#1E2A4A"/><circle cx="22" cy="60" r="1.8" fill="#1E2A4A"/>' +
+        '<path d="M44 22 A8 8 0 0 1 60 22 V34 L56 31 L52 34 L48 31 L44 34Z" fill="#fff" stroke="#8795B4" stroke-width="1.6"/><circle cx="49" cy="22" r="1.4" fill="#1E2A4A"/><circle cx="55" cy="22" r="1.4" fill="#1E2A4A"/>';
     } else if (kind === "hoop") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#CFEAFB"/><rect x="0" y="54" width="100" height="30" fill="#E0B070"/>' +
         '<rect x="22" y="8" width="56" height="22" rx="5" fill="#fff" stroke="#E5483A" stroke-width="3"/><text x="50" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">go</text>' +

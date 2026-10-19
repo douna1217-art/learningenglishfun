@@ -929,6 +929,7 @@
       "#swOverlay .sw-ct .sw-gi{width:62%}" +
       "#swOverlay .sw-c1{background:#D4F3FF;box-shadow:0 6px 0 #8FCBE6}" +
       "#swOverlay .sw-c2{background:#FFE2C9;box-shadow:0 6px 0 #EBA877}" +
+      "#swOverlay .sw-ct.sw-cd{background:#FFE6A8;box-shadow:0 6px 0 #E0B24A}" +
       "#swOverlay .sw-ct.sw-cs{background:#D9D6FF;box-shadow:0 6px 0 #9E97E6}" +
       "#swOverlay .sw-bbs{padding:16px 14px 18px}" +
       "#swOverlay .sw-bhead{display:flex;align-items:center;text-align:left}" +
@@ -1602,6 +1603,7 @@
     swHoop: ["Word basketball", "单词投篮", "Flick the ball up at the hoop that shows the right word.", "把球往上弹，投进有正确单词的篮筐。"],
     swSpell: ["Bubble spell", "泡泡拼词", "Listen, then tap the letter bubbles in the right order to spell the word.", "听单词，按顺序点字母泡泡，把它拼出来。"],
     swBattle: ["Monster battle", "打怪兽", "Answer the word questions to power up your pet and beat the monster.", "回答单词题，给宠物加油，打败怪兽。"],
+    swDungeon: ["Word dungeon", "词汇地牢", "Drag to walk through the maze. Find the treasure chest that has the word you hear. A ghost floats around: if it touches you, you go back to the start!", "拖动宠物在迷宫里走路，找到写着你听到的单词的宝箱。小心幽灵，被它碰到会回到起点！"],
     swSpace: ["Space shooter", "太空射手", "Drag left and right to fly your rocket. It fires by itself. Shoot the saucer that has the word you hear. Do not let it get past you!", "左右拖动飞船，它会自动开火。打中写着你听到的单词的飞碟，别让它飞过去！"],
     swSiege2: ["Castle siege", "弹弓攻城", "Pull the sling back and let go. Hit the sign with the right word to knock the tower down. Pull further to shoot further. A faint dotted line shows the path.", "向后拉弹弓再松手，打中写着正确单词的牌子，塔就会倒。拉得越远飞得越远，虚线是飞行路线。"],
   };
@@ -1707,8 +1709,9 @@
         spell: { id: "swSpell", cls: "sw-c1", label: "Bubble spell", sub: "泡泡拼词", art: scenery("game", "spell") },
         siege: { id: "swSiege2", cls: "sw-c3", label: "Castle siege", sub: "弹弓攻城 · " + castlesDone(readSling()) + " / " + CASTLES.length, art: scenery("game", "castle") },
         space: { id: "swSpace", cls: "sw-cs", label: "Space shooter", sub: "太空射手 · best " + readSpace().best, art: scenery("game", "space") },
+        dungeon: { id: "swDungeon", cls: "sw-cd", label: "Word dungeon", sub: "词汇地牢 · best " + readDungeon().best, art: scenery("game", "dungeon") },
       },
-      chOrder = ["battle", "spell", "siege", "space"],
+      chOrder = ["battle", "spell", "siege", "space", "dungeon"],
       mainCh = chOrder[Math.min(chOrder.length, (/[?&]stage=(\d)/.exec((root.location && root.location.search) || "") ? +/[?&]stage=(\d)/.exec(root.location.search)[1] : reachedStage(s))) - 1],
       moreCh = chOrder.filter(function (k) {
         return k !== mainCh;
@@ -1797,6 +1800,9 @@
       },
       swSpace: function () {
         startSpace(gameWords(readState(), 8));
+      },
+      swDungeon: function () {
+        startDungeon(gameWords(readState(), 8));
       },
     };
     Object.keys(chStart).forEach(function (id) {
@@ -2699,7 +2705,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : kind === "g" ? "dungeon" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -6231,6 +6237,771 @@
       my = null;
     };
     last = Date.now();
+    hud();
+    draw();
+  }
+
+  /* ---- Word dungeon (the challenge of stage 5): the pet explores a maze of rooms. Hear a word and walk to the treasure chest that has it. A ghost drifts about the maze
+     (it sends you back to the start, nothing worse). Bigger mazes and a quicker ghost as the child gets it right, smaller ones and a gold hint as they miss ---- */
+  var DUNKEY = "lef_dungeon_v1";
+  function readDungeon() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(DUNKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, chests: +o.chests || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeDungeon(o) {
+    try {
+      ls.setItem(DUNKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startDungeon(words) {
+    gameTag = "game";
+    trk("sw_game_start", "dungeon", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 5113) + 29),
+      store = readDungeon(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      chestN = 0,
+      tries = 0,
+      lastWrong = false,
+      help = 0,
+      spdNote = "",
+      done = false,
+      cols = 5,
+      rows = 6,
+      CELL = 60,
+      W = 340,
+      H = 360,
+      open = [],
+      start = { c: 0, r: 0 },
+      chests = [],
+      ghost = null,
+      pet = null,
+      want = { x: 0, y: 0 },
+      ghostCells = [],
+      ptr = null,
+      keys = {},
+      keyH = null,
+      keyU = null,
+      imgs = {},
+      fx = [],
+      texts = [],
+      cur = null,
+      grace = 0,
+      shake = 0,
+      wait = 0.2,
+      moved = false,
+      mood = "happy",
+      last = 0,
+      clock = 0,
+      my = null,
+      raf = null,
+      cv = null,
+      ctx = null,
+      DIRS = [[0, -1, 1, 4], [1, 0, 2, 8], [0, 1, 4, 1], [-1, 0, 8, 2]];
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swKsc"),
+        b = document.getElementById("swKcb"),
+        c = document.getElementById("swKlv");
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = "Room " + Math.min(i + 1, rounds.length) + " / " + rounds.length + spdNote;
+    }
+    function pace(up) {
+      spdNote = up ? " 🐇" : " 🐢";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
+    }
+    function petImg(m) {
+      if (imgs[m]) return imgs[m];
+      var svg = petArt(m);
+      if (!svg) return null;
+      svg = svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="428" ');
+      var im = new Image();
+      im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      imgs[m] = im;
+      return im;
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+      if (keyH) document.removeEventListener("keydown", keyH);
+      if (keyU) document.removeEventListener("keyup", keyU);
+      keyH = keyU = null;
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best;
+      store.best = Math.max(store.best, score);
+      store.chests += chestN;
+      store.lvl = lvl;
+      writeDungeon(store);
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Chests opened in all: " + store.chests + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      endGame("g", first, "Word dungeon", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startDungeon(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    function layout() {
+      var dpr = root.devicePixelRatio || 1;
+      cols = lvl < 3 ? 5 : lvl < 6 ? 6 : 7;
+      rows = cols + 1;
+      CELL = Math.floor(W / cols);
+      H = CELL * rows;
+      cv.style.width = CELL * cols + "px";
+      cv.style.height = H + "px";
+      cv.width = Math.round(CELL * cols * dpr);
+      cv.height = Math.round(H * dpr);
+      ctx = cv.getContext("2d");
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function nbrs(c, r) {
+      var out = [];
+      DIRS.forEach(function (d, n) {
+        if (open[r][c] & d[2]) out.push({ c: c + d[0], r: r + d[1], n: n });
+      });
+      return out;
+    }
+    function dists(c0, r0) {
+      var d = [],
+        q = [[c0, r0]],
+        x,
+        y;
+      for (y = 0; y < rows; y++) {
+        d.push([]);
+        for (x = 0; x < cols; x++) d[y].push(-1);
+      }
+      d[r0][c0] = 0;
+      while (q.length) {
+        var p = q.shift();
+        nbrs(p[0], p[1]).forEach(function (n) {
+          if (d[n.r][n.c] < 0) {
+            d[n.r][n.c] = d[p[1]][p[0]] + 1;
+            q.push([n.c, n.r]);
+          }
+        });
+      }
+      return d;
+    }
+    function carve() {
+      var x,
+        y,
+        seen = [];
+      open = [];
+      for (y = 0; y < rows; y++) {
+        open.push([]);
+        seen.push([]);
+        for (x = 0; x < cols; x++) {
+          open[y].push(0);
+          seen[y].push(false);
+        }
+      }
+      var stack = [[Math.floor(cols / 2), rows - 1]];
+      seen[rows - 1][Math.floor(cols / 2)] = true;
+      while (stack.length) {
+        var t = stack[stack.length - 1],
+          opts = [];
+        DIRS.forEach(function (d) {
+          var nx = t[0] + d[0],
+            ny = t[1] + d[1];
+          if (nx >= 0 && ny >= 0 && nx < cols && ny < rows && !seen[ny][nx]) opts.push([nx, ny, d]);
+        });
+        if (!opts.length) {
+          stack.pop();
+          continue;
+        }
+        var o = opts[Math.floor(rnd() * opts.length)];
+        open[t[1]][t[0]] |= o[2][2];
+        open[o[1]][o[0]] |= o[2][3];
+        seen[o[1]][o[0]] = true;
+        stack.push([o[0], o[1]]);
+      }
+      // a few extra doors, so there are loops to run round
+      var extra = Math.round(cols * rows * 0.05);
+      while (extra-- > 0) {
+        var ex = Math.floor(rnd() * cols),
+          ey = Math.floor(rnd() * rows),
+          d2 = DIRS[Math.floor(rnd() * 4)],
+          fx2 = ex + d2[0],
+          fy2 = ey + d2[1];
+        if (fx2 >= 0 && fy2 >= 0 && fx2 < cols && fy2 < rows) {
+          open[ey][ex] |= d2[2];
+          open[fy2][fx2] |= d2[3];
+        }
+      }
+      start = { c: Math.floor(cols / 2), r: rows - 1 };
+    }
+    // a new room for the word in hand
+    function enter() {
+      var r = rounds[i],
+        k = wkey(r.w),
+        others = r.opts
+          .filter(function (w) {
+            return wkey(w) !== k;
+          })
+          .slice(0, help > 0 ? 1 : 2),
+        list = shuffle([{ w: r.w, target: true }].concat(
+          others.map(function (w) {
+            return { w: w, target: false };
+          })
+        ), rnd);
+      if (help > 0) help--;
+      layout();
+      carve();
+      var d = dists(start.c, start.r),
+        maxd = 0,
+        cells = [],
+        x,
+        y;
+      for (y = 0; y < rows; y++)
+        for (x = 0; x < cols; x++) {
+          if (d[y][x] > maxd) maxd = d[y][x];
+          cells.push({ c: x, r: y, d: d[y][x] });
+        }
+      // the chests sit at dead ends, so walking past one never opens it by accident
+      var ends = shuffle(
+          cells.filter(function (q) {
+            return q.d >= 3 && nbrs(q.c, q.r).length === 1;
+          }),
+          rnd
+        ),
+        far = ends.concat(
+          shuffle(
+            cells.filter(function (q) {
+              return q.d >= Math.max(3, maxd * 0.45) && ends.indexOf(q) < 0;
+            }),
+            rnd
+          )
+        );
+      chests = [];
+      far.forEach(function (q) {
+        if (chests.length >= list.length) return;
+        var okSpot = chests.every(function (o) {
+          return Math.abs(o.c - q.c) + Math.abs(o.r - q.r) >= 3;
+        });
+        if (okSpot) chests.push({ c: q.c, r: q.r, w: list[chests.length].w, target: list[chests.length].target, flash: 0, open: 0 });
+      });
+      // (a tiny maze might not have room for them all)
+      while (chests.length < list.length) {
+        var q2 = far[chests.length] || cells[Math.floor(rnd() * cells.length)];
+        chests.push({ c: q2.c, r: q2.r, w: list[chests.length].w, target: list[chests.length].target, flash: 0, open: 0 });
+      }
+      var gc = shuffle(
+        cells.filter(function (q) {
+          return q.d >= maxd * 0.5 && !chests.some(function (o) {
+            return o.c === q.c && o.r === q.r;
+          });
+        }),
+        rnd
+      )[0] || cells[0];
+      ghostCells = shuffle(
+        cells.filter(function (q) {
+          return q.d >= maxd * 0.5 && !chests.some(function (o) {
+            return o.c === q.c && o.r === q.r;
+          });
+        }),
+        rnd
+      );
+      ghost = { c: gc.c, r: gc.r, nc: gc.c, nr: gc.r, t: 1, last: -1, hc: gc.c, hr: gc.r };
+      pet = { c: start.c, r: start.r, nc: start.c, nr: start.r, t: 1, moving: false };
+      cur = { r: r, k: k };
+      grace = 2.2;
+      fx = [];
+      setTimeout(function () {
+        if (alive() && cur && cur.r === r) play("w", r.w);
+      }, 350);
+    }
+    function dirOf(wx, wy) {
+      for (var n = 0; n < 4; n++) if (DIRS[n][0] === wx && DIRS[n][1] === wy) return n;
+      return -1;
+    }
+    function ghostStep(dt) {
+      var spd = 0.8 + lvl * 0.12;
+      if (ghost.t >= 1) {
+        ghost.c = ghost.nc;
+        ghost.r = ghost.nr;
+        var opts = nbrs(ghost.c, ghost.r),
+          fwd = opts.filter(function (o) {
+            return o.n !== ((ghost.last + 2) % 4);
+          });
+        if (fwd.length) opts = fwd;
+        var pick;
+        if (rnd() < 0.03 * lvl && pet) {
+          var best = 1e9;
+          opts.forEach(function (o) {
+            var dd = Math.abs(o.c - pet.c) + Math.abs(o.r - pet.r);
+            if (dd < best) {
+              best = dd;
+              pick = o;
+            }
+          });
+        } else pick = opts[Math.floor(rnd() * opts.length)];
+        if (pick) {
+          ghost.nc = pick.c;
+          ghost.nr = pick.r;
+          ghost.last = pick.n;
+          ghost.t = 0;
+        }
+      }
+      if (ghost.t < 1) ghost.t = Math.min(1, ghost.t + dt * spd);
+    }
+    function pos(o) {
+      return { x: (o.c + (o.nc - o.c) * Math.min(1, o.t) + 0.5) * CELL, y: (o.r + (o.nr - o.r) * Math.min(1, o.t) + 0.5) * CELL };
+    }
+    function arrive() {
+      for (var q = 0; q < chests.length; q++) {
+        var ch = chests[q];
+        if (ch.c === pet.c && ch.r === pet.r && !ch.done) {
+          var now = Date.now();
+          if (ch.target) openChest(ch, now);
+          else wrongChest(ch, now);
+          return;
+        }
+      }
+    }
+    function openChest(ch, now) {
+      var k = cur.k;
+      if (first[k] === undefined) first[k] = true;
+      lastWrong = tries > 0;
+      if (tries === 0) {
+        lvl = Math.min(8, lvl + 0.6);
+        pace(true);
+      }
+      combo++;
+      if (combo > bestCombo) bestCombo = combo;
+      chestN++;
+      var pts = 10 + Math.min(combo, 6) * 3;
+      score += pts;
+      ch.open = now;
+      ch.done = true;
+      var p = pos(pet);
+      texts.push({ x: p.x, y: p.y - CELL * 0.6, t: now, s: "+" + pts, c: "#FFE066" });
+      for (var q = 0; q < 26; q++) {
+        var a = rnd() * 6.283,
+          sp = 70 + rnd() * 170;
+        fx.push({ x: p.x, y: p.y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, t: now, c: ["#FFD23F", "#FF8A3D", "#fff", "#7EDD6B"][q % 4], r: 2 + rnd() * 2.4 });
+      }
+      sfx("big");
+      mood = "excited";
+      say((combo >= 3 ? "Combo ×" + combo + "! " : "Treasure! ") + cur.r.w + (tries === 0 && combo >= 2 ? " · Bigger maze!" : ""));
+      try {
+        if (hooks.burst && combo >= 3) {
+          var br = cv.getBoundingClientRect();
+          hooks.burst(br.left + p.x, br.top + p.y);
+        }
+      } catch (e) {}
+      tries = 0;
+      i++;
+      cur = null;
+      wait = 1.3;
+      if (i >= rounds.length) {
+        done = true;
+        setTimeout(function () {
+          if (my && run === my) finish();
+        }, 1400);
+      }
+      hud();
+    }
+    function wrongChest(ch, now) {
+      first[cur.k] = false;
+      tries++;
+      combo = 0;
+      lvl = Math.max(0, lvl - 0.8);
+      if (tries >= 2 || lastWrong) help = 2;
+      pace(false);
+      ch.flash = now;
+      sfx("poke");
+      mood = "happy";
+      shake = now + 300;
+      say("Not that chest! Listen again. Slowing down a little.");
+      var rr = cur.r;
+      setTimeout(function () {
+        if (alive() && cur && cur.r === rr) play("w", rr.w);
+      }, 700);
+      hud();
+    }
+    function caught(now) {
+      sfx("poke");
+      shake = now + 350;
+      var p = pos(pet);
+      texts.push({ x: p.x, y: p.y - CELL * 0.6, t: now, s: "Boo!", c: "#FFFFFF" });
+      pet = { c: start.c, r: start.r, nc: start.c, nr: start.r, t: 1, moving: false };
+      var gn = ghostCells[Math.floor(rnd() * ghostCells.length)] || { c: ghost.hc, r: ghost.hr };
+      ghost.c = ghost.nc = gn.c;
+      ghost.r = ghost.nr = gn.r;
+      ghost.t = 1;
+      ghost.last = -1;
+      grace = 2.5;
+      say("The ghost sent you back to the start! Find the chest with the word.");
+    }
+    function petStep(dt) {
+      var wx = want.x,
+        wy = want.y,
+        guard = 0;
+      if (keys.l) {
+        wx = -1;
+        wy = 0;
+      } else if (keys.r) {
+        wx = 1;
+        wy = 0;
+      } else if (keys.u) {
+        wx = 0;
+        wy = -1;
+      } else if (keys.d) {
+        wx = 0;
+        wy = 1;
+      }
+      var left = dt;
+      while (left > 0 && guard++ < 4) {
+        if (!pet.moving) {
+          var n = dirOf(wx, wy);
+          if (n < 0 || !(open[pet.r][pet.c] & DIRS[n][2])) return;
+          pet.nc = pet.c + wx;
+          pet.nr = pet.r + wy;
+          pet.t = 0;
+          pet.moving = true;
+          moved = true;
+        } else {
+          // turning back half way is allowed
+          if (wx === pet.c - pet.nc && wy === pet.r - pet.nr && (wx || wy)) {
+            var oc = pet.c,
+              or = pet.r;
+            pet.c = pet.nc;
+            pet.r = pet.nr;
+            pet.nc = oc;
+            pet.nr = or;
+            pet.t = 1 - pet.t;
+          }
+        }
+        var need = (1 - pet.t) / 4.4;
+        if (left >= need) {
+          left -= need;
+          pet.c = pet.nc;
+          pet.r = pet.nr;
+          pet.t = 1;
+          pet.moving = false;
+          arrive();
+          if (done || !cur) return;
+        } else {
+          pet.t += left * 4.4;
+          left = 0;
+        }
+      }
+    }
+    function drawChest(ch, ts) {
+      var x = ch.c * CELL,
+        y = ch.r * CELL,
+        hint = tries >= 2 && ch.target,
+        blink = Math.sin(ts / 120) > 0,
+        pw = CELL * 0.94,
+        ph = CELL * 0.34,
+        cx = x + CELL / 2,
+        cy = y + CELL * 0.72,
+        w = CELL * 0.62,
+        h = CELL * 0.34,
+        openAmt = ch.open ? Math.min(1, (ts - ch.open) / 250) : 0;
+      ctx.save();
+      if (ts - ch.flash < 350) ctx.translate(Math.sin(ts / 25) * 3, 0);
+      if (hint) {
+        var gl = ctx.createRadialGradient(cx, y + CELL * 0.5, CELL * 0.1, cx, y + CELL * 0.5, CELL * 0.8);
+        gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+        gl.addColorStop(1, "rgba(255,214,64,0)");
+        ctx.fillStyle = gl;
+        ctx.beginPath();
+        ctx.arc(cx, y + CELL * 0.5, CELL * 0.8, 0, 6.283);
+        ctx.fill();
+      }
+      // the chest
+      ctx.fillStyle = "#B5762C";
+      ctx.strokeStyle = "#6B3F18";
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.rect(cx - w / 2, cy - h / 2 + h * 0.18, w, h * 0.82);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#C98F4E";
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - h * 0.32 - openAmt * h * 0.45, w / 2, h * 0.38, 0, Math.PI, 6.283);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#FFD23F";
+      ctx.fillRect(cx - w * 0.07, cy - h * 0.05, w * 0.14, h * 0.4);
+      if (openAmt) {
+        ctx.fillStyle = "#FFE066";
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - h * 0.2, w * 0.4, h * 0.2, 0, 0, 6.283);
+        ctx.fill();
+      }
+      // the word on a plate above it
+      var px = cx - pw / 2,
+        py = y + CELL * 0.04;
+      ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
+      ctx.strokeStyle = "#E5483A";
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(px, py, pw, ph, 7);
+      else ctx.rect(px, py, pw, ph);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#1E2A4A";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      var fs = Math.round(ph * 0.66);
+      ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      while (ctx.measureText(ch.w).width > pw * 0.86 && fs > 8) {
+        fs--;
+        ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      }
+      ctx.fillText(ch.w, cx, py + ph / 2 + 1);
+      ctx.restore();
+    }
+    function draw() {
+      if (!alive() || !ctx) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, (ts - last) / 1000),
+        x,
+        y;
+      last = ts;
+      clock += dt;
+      if (!cur && !done) {
+        wait -= dt;
+        if (wait <= 0 && i < rounds.length) enter();
+      }
+      if (cur && pet) {
+        petStep(dt);
+        if (cur && ghost) {
+          if (grace > 0) grace -= dt;
+          if (moved) ghostStep(dt);
+          var pp = pos(pet),
+            gp = pos(ghost);
+          if (grace <= 0 && Math.abs(pp.x - gp.x) + Math.abs(pp.y - gp.y) < CELL * 0.6) caught(ts);
+        }
+      }
+      fx.forEach(function (p) {
+        p.vy += 260 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+      });
+      fx = fx.filter(function (p) {
+        return ts - p.t < 900;
+      });
+      texts = texts.filter(function (t) {
+        return ts - t.t < 1000;
+      });
+      var Wc = CELL * cols,
+        sh = ts < shake ? Math.sin(ts / 20) * 3 : 0;
+      ctx.save();
+      ctx.translate(sh, 0);
+      // floor
+      for (y = 0; y < rows; y++)
+        for (x = 0; x < cols; x++) {
+          ctx.fillStyle = (x + y) % 2 ? "#E6DDF6" : "#DDD1F0";
+          ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        }
+      // the way in
+      ctx.fillStyle = "rgba(106,72,232,.18)";
+      ctx.fillRect(start.c * CELL, start.r * CELL, CELL, CELL);
+      // walls
+      ctx.strokeStyle = "#4B3F72";
+      ctx.lineWidth = Math.max(5, CELL * 0.1);
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      for (y = 0; y < rows; y++)
+        for (x = 0; x < cols; x++) {
+          var m = open[y][x],
+            x0 = x * CELL,
+            y0 = y * CELL;
+          if (!(m & 1)) {
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x0 + CELL, y0);
+          }
+          if (!(m & 8)) {
+            ctx.moveTo(x0, y0);
+            ctx.lineTo(x0, y0 + CELL);
+          }
+          if (y === rows - 1 && !(m & 4)) {
+            ctx.moveTo(x0, y0 + CELL);
+            ctx.lineTo(x0 + CELL, y0 + CELL);
+          }
+          if (x === cols - 1 && !(m & 2)) {
+            ctx.moveTo(x0 + CELL, y0);
+            ctx.lineTo(x0 + CELL, y0 + CELL);
+          }
+        }
+      ctx.stroke();
+      chests.forEach(function (ch) {
+        drawChest(ch, ts);
+      });
+      // the ghost
+      if (ghost) {
+        var g = pos(ghost),
+          gr = CELL * 0.3,
+          bob = Math.sin(ts / 200) * 3;
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = "#FFFFFF";
+        ctx.strokeStyle = "#8795B4";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(g.x, g.y + bob - gr * 0.2, gr, Math.PI, 6.283);
+        ctx.lineTo(g.x + gr, g.y + bob + gr * 0.8);
+        for (var w = 3; w >= 0; w--) ctx.lineTo(g.x + ((w - 1.5) * gr) / 1.5, g.y + bob + gr * (w % 2 ? 0.8 : 0.45));
+        ctx.lineTo(g.x - gr, g.y + bob + gr * 0.8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = "#1E2A4A";
+        ctx.beginPath();
+        ctx.arc(g.x - gr * 0.38, g.y + bob - gr * 0.2, gr * 0.14, 0, 6.283);
+        ctx.arc(g.x + gr * 0.38, g.y + bob - gr * 0.2, gr * 0.14, 0, 6.283);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      // the pet
+      if (pet) {
+        var pp2 = pos(pet),
+          pr = CELL * 0.34,
+          im = petImg(mood);
+        ctx.fillStyle = "rgba(30,20,60,.25)";
+        ctx.beginPath();
+        ctx.ellipse(pp2.x, pp2.y + pr * 0.95, pr * 0.8, pr * 0.22, 0, 0, 6.283);
+        ctx.fill();
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(pp2.x, pp2.y, pr, 0, 6.283);
+        ctx.fillStyle = "#FFD9A8";
+        ctx.fill();
+        ctx.clip();
+        if (im && im.complete && im.naturalWidth) {
+          var dw = pr * 2 * 1.55,
+            dh = dw * (428 / 288);
+          ctx.drawImage(im, pp2.x - dw / 2, pp2.y - dh * 0.325, dw, dh);
+        }
+        ctx.restore();
+        ctx.strokeStyle = "#8A5A2B";
+        ctx.lineWidth = 2.6;
+        ctx.beginPath();
+        ctx.arc(pp2.x, pp2.y, pr, 0, 6.283);
+        ctx.stroke();
+      }
+      fx.forEach(function (p) {
+        ctx.globalAlpha = Math.max(0, 1 - (ts - p.t) / 900);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      texts.forEach(function (t) {
+        var age = (ts - t.t) / 1000;
+        ctx.globalAlpha = Math.max(0, 1 - age);
+        ctx.fillStyle = t.c;
+        ctx.strokeStyle = "rgba(30,42,74,.92)";
+        ctx.lineWidth = 4.5;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(Wc * 0.07) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText(t.s, t.x, t.y - age * 30);
+        ctx.fillText(t.s, t.x, t.y - age * 30);
+        ctx.globalAlpha = 1;
+      });
+      if (!moved && cur) {
+        ctx.fillStyle = "rgba(30,20,60,.8)";
+        ctx.font = "700 " + Math.round(Wc * 0.04) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Drag to walk · 拖动走路", Wc / 2, start.r * CELL - CELL * 0.1);
+      }
+      ctx.restore();
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Word dungeon</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Word dungeon</div><div class="sw-sent" style="font-size:22px">Find the treasure chest with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
+      '<canvas class="sw-snk" id="swDunCv"></canvas><div class="sw-msg" id="swMsg">Drag to walk through the maze. Watch out for the ghost!</div></div>';
+    bindQuit();
+    cv = document.getElementById("swDunCv");
+    W = Math.max(260, Math.min(420, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    layout();
+    document.getElementById("swHear").onclick = function () {
+      if (cur) play("w", cur.r.w);
+      else if (rounds[i]) play("w", rounds[i].w);
+    };
+    function steer(e) {
+      if (!pet) return;
+      var r = cv.getBoundingClientRect(),
+        px = ((e.clientX - r.left) * CELL * cols) / r.width,
+        py = ((e.clientY - r.top) * H) / r.height,
+        p = pos(pet),
+        dx = px - p.x,
+        dy = py - p.y;
+      if (Math.abs(dx) < CELL * 0.25 && Math.abs(dy) < CELL * 0.25) {
+        want = { x: 0, y: 0 };
+        return;
+      }
+      if (Math.abs(dx) >= Math.abs(dy)) want = { x: dx > 0 ? 1 : -1, y: 0 };
+      else want = { x: 0, y: dy > 0 ? 1 : -1 };
+    }
+    cv.addEventListener("pointerdown", function (e) {
+      ptr = true;
+      steer(e);
+      try {
+        cv.setPointerCapture(e.pointerId);
+      } catch (e2) {}
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (ptr) steer(e);
+    });
+    function release() {
+      ptr = null;
+      want = { x: 0, y: 0 };
+    }
+    cv.addEventListener("pointerup", release);
+    cv.addEventListener("pointercancel", release);
+    keyH = function (e) {
+      var c = e.keyCode;
+      if (c === 37 || c === 65) keys.l = true;
+      if (c === 39 || c === 68) keys.r = true;
+      if (c === 38 || c === 87) keys.u = true;
+      if (c === 40 || c === 83) keys.d = true;
+      if (c >= 37 && c <= 40 && e.preventDefault) e.preventDefault();
+    };
+    keyU = function (e) {
+      var c = e.keyCode;
+      if (c === 37 || c === 65) keys.l = false;
+      if (c === 39 || c === 68) keys.r = false;
+      if (c === 38 || c === 87) keys.u = false;
+      if (c === 40 || c === 83) keys.d = false;
+    };
+    document.addEventListener("keydown", keyH);
+    document.addEventListener("keyup", keyU);
+    my = run = { mode: "dungeon", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    last = Date.now();
+    enter();
     hud();
     draw();
   }
