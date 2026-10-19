@@ -200,6 +200,15 @@
     return '<g transform="translate(0,' + dy + ") rotate(" + lean + ' 0 -22)">' + s.replace(/^<g transform="[^"]*">/, "").replace(/<\/g>$/, "") + '</g><g transform="translate(0,' + dy + ") rotate(" + lean + ' 0 -22)"><circle cx="0" cy="-53" r="12.4" ' + f(hair, 2.4) + '/><path d="M-6 -62 Q0 -66 6 -62 M-8 -55 Q0 -50 8 -55" fill="none" stroke="' + dk(hair, 0.3) + '" stroke-width="1.6" stroke-linecap="round" opacity=".7"/></g>';
   };
 
+  // a filling-station roof with a sign, over the whole picture (picture coordinates)
+  KITS.station = function (o) {
+    var s = '<rect x="22" y="40" width="8" height="94" fill="#B9C3D8" stroke="#8A97AD" stroke-width="1.6"/><rect x="210" y="40" width="8" height="94" fill="#B9C3D8" stroke="#8A97AD" stroke-width="1.6"/>';
+    s += '<rect x="10" y="22" width="220" height="24" rx="6" ' + f("#FFFFFE", 2.4) + '/><rect x="10" y="36" width="220" height="10" rx="4" fill="#E5483A"/>';
+    s += '<text x="120" y="36" text-anchor="middle" font-family="' + FONT + '" font-weight="700" font-size="16" fill="#1E2A4A">OIL</text>';
+    s += '<path d="M78 24 Q73 31 78 34 Q83 31 78 24Z M162 24 Q157 31 162 34 Q167 31 162 24Z" fill="#5A3A1A"/>';
+    return s;
+  };
+
   // @@KITS_END
 
   /* ------------------------------------------------------------------ backgrounds */
@@ -226,7 +235,7 @@
     // ---- Snow hills
     wave: [["boat", 180, 106, 0.9, {}], ["kidback", 64, G, 1.5, kb("wave", {})], ["sparkle", 112, 44, 0.8]],
     planet: [["planet", 120, 108, 2.1, {}], ["star", 40, 36, 0.9], ["star", 204, 46, 0.7], ["star", 30, 112, 0.6], ["sparkle", 182, 30, 0.7]],
-    oil: [["car", 160, G, 1.25, {}], ["kid", 52, G, 1.4, man({ pose: "reach", look: 1, mouth: "open" })], ["oilcan", 100, 98, 0.95, { pour: true, rot: 28 }]],
+    oil: [["station", 0, 0, 1, {}], ["car", 78, G, 1.25, { flip: true }], ["gaspump", 206, G, 1.0, { hx: -16, hy: -30 }], ["curve", 0, 0, 1, { x1: 192, y1: G - 30, cx: 178, cy: G + 14, x2: 142, y2: G - 42, c: "#3A3F4D", w: 3.6 }], ["kid", 164, G, 1.1, kb("reach", { look: -1, flip: true, mouth: "open" })], ["line", 0, 0, 1, { x1: 134, y1: G - 46, x2: 146, y2: G - 40, c: "#8A97AD", w: 6 }]],
     salt: [["table", 150, G, 1.5, {}], ["plate", 150, G - 37, 1.2, {}], ["egg", 150, G - 39, 1.3, {}], ["saltshaker", 196, G - 38, 1.0, {}], ["dots", 150, G - 56, 1.0, {}], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })], ["sparkle", 150, 40, 0.8]],
     bone: [["dog", 110, G, 1.9, {}], ["bone", 176, G, 2.2, {}], ["heart", 150, 44, 0.9]],
     wing: [["bird", 120, G - 12, 2.5, {}], ["hl", 118, 90, 1.0, { r: 19 }], ["sparkle", 196, 40, 0.8]],
@@ -371,7 +380,7 @@
     // @@SCENES_END
   };
   var BG8 = {
-    wave: "icesea", planet: "space", oil: "polar", salt: "in", bone: "polar", wing: "polar", bat: "polar", rail: "polar", clock: "in", tie: "in",
+    wave: "icesea", planet: "space", oil: "plain", salt: "in", bone: "polar", wing: "polar", bat: "polar", rail: "polar", clock: "in", tie: "in",
     hat: "polar", suit: "in", finger: "in", ear: "in", arm: "polar", instrument: "in", dollar: "in", cent: "in", print: "in", camp: "polar",
     supply: "polar", material: "in", property: "polar", noon: "polar", month: "in", nine: "polar", twenty: "polar", century: "polar",
     neighbor: "polar", chief: "in", colony: "icesea", human: "polar", character: "in", region: "in", continent: "in", capital: "polar", nation: "polar", subject: "in",
