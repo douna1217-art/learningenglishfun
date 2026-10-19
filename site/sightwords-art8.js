@@ -236,7 +236,7 @@
     wave: [["boat", 180, 106, 0.9, {}], ["kidback", 64, G, 1.5, kb("wave", {})], ["sparkle", 112, 44, 0.8]],
     planet: [["planet", 120, 108, 2.1, {}], ["star", 40, 36, 0.9], ["star", 204, 46, 0.7], ["star", 30, 112, 0.6], ["sparkle", 182, 30, 0.7]],
     oil: [["station", 0, 0, 1, {}], ["car", 78, G, 1.25, { flip: true }], ["gaspump", 206, G, 1.0, { hx: -16, hy: -30 }], ["curve", 0, 0, 1, { x1: 192, y1: G - 30, cx: 178, cy: G + 14, x2: 142, y2: G - 42, c: "#3A3F4D", w: 3.6 }], ["kid", 164, G, 1.1, kb("reach", { look: -1, flip: true, mouth: "open" })], ["line", 0, 0, 1, { x1: 134, y1: G - 46, x2: 146, y2: G - 40, c: "#8A97AD", w: 6 }]],
-    salt: [["table", 150, G, 1.5, {}], ["plate", 150, G - 37, 1.2, {}], ["egg", 150, G - 39, 1.3, {}], ["saltshaker", 196, G - 38, 1.0, {}], ["dots", 150, G - 56, 1.0, {}], ["kid", 56, G, 1.5, kb("point", { look: 1, mouth: "open" })], ["sparkle", 150, 40, 0.8]],
+    salt: [["table", 142, G, 1.5, {}], ["plate", 134, G - 37, 1.2, {}], ["egg", 134, G - 39, 1.3, {}], ["kid", 56, G, 1.5, kb("wave", { look: 1, mouth: "open", arms: "none" })], ["saltshaker", 86, 54, 1.05, { rot: 125, pour: true }], ["kid", 56, G, 1.5, kb("wave", { arms: "only" })], ["sparkle", 196, 56, 0.8]],
     bone: [["dog", 110, G, 1.9, {}], ["bone", 176, G, 2.2, {}], ["heart", 150, 44, 0.9]],
     wing: [["bird", 120, G - 12, 2.5, {}], ["hl", 118, 90, 1.0, { r: 19 }], ["sparkle", 196, 40, 0.8]],
     bat: [["kid", 80, G, 1.5, kb("reach", { look: 1, mouth: "open" })], ["bat", 118, 90, 2.0, { rot: -30 }], ["ball", 178, 62, 1.5, {}], ["whoosh", 152, 78, 1.0, {}]],
