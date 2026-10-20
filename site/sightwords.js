@@ -931,8 +931,8 @@
       "#swOverlay .sw-c1{background:#D4F3FF;box-shadow:0 6px 0 #8FCBE6}" +
       "#swOverlay .sw-c2{background:#FFE2C9;box-shadow:0 6px 0 #EBA877}" +
       "#swOverlay .sw-ct.sw-cy{background:#FFE3B8;box-shadow:0 6px 0 #E8A96B}" +
-      "#swOverlay .sw-pctop{position:relative}#swOverlay .sw-pcnext{position:absolute;right:2px;top:50%;transform:translateY(-50%);margin:0;padding:10px 14px;font-size:18px;line-height:1.1;border-radius:20px;animation:swpcnx .9s ease-in-out infinite}#swOverlay .sw-pcnext small{display:block;font-size:12px;opacity:.85;font-weight:700}" +
-      "@keyframes swpcnx{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-50%) scale(1.07)}}" +
+      "#swOverlay .sw-pcnext{position:absolute;margin:0;padding:10px 14px;font-size:18px;line-height:1.1;border-radius:20px;animation:swpcnx .9s ease-in-out infinite}#swOverlay .sw-pcnext small{display:block;font-size:12px;opacity:.85;font-weight:700}" +
+      "@keyframes swpcnx{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}" +
       "#swOverlay .sw-pcpyr{width:130px;margin:6px auto}#swOverlay .sw-pcpyr svg{display:block;width:100%;height:auto}" +
       "#swOverlay .sw-pcgrid{display:grid;gap:6px;justify-content:center;margin:10px auto}" +
       "#swOverlay .sw-pct{display:flex;align-items:center;justify-content:center;border:3px solid #E3CFA0;background:#FFF9EA;border-radius:10px;font-family:'Fredoka',sans-serif;font-weight:700;text-transform:uppercase;color:#1E2A4A;box-sizing:border-box}" +
@@ -6517,14 +6517,20 @@
     }
     // the child moves on when ready: a "Next" button on the right, beside the pyramid
     function nextIn() {
-      var el = document.getElementById("swPcTop");
-      if (el && !document.getElementById("swPcNext")) {
+      var body = document.getElementById("swPcBody"),
+        grid = body && body.querySelector(".sw-pcgrid");
+      if (body && grid && !document.getElementById("swPcNext")) {
         var b = document.createElement("button");
         b.id = "swPcNext";
         b.className = "sw-go sw-pcnext";
         b.innerHTML = (i >= rounds.length ? "Finish" : "Next") + " ▶<small>" + (i >= rounds.length ? "完成" : "下一个") + "</small>";
         b.onclick = advance;
-        el.appendChild(b);
+        body.appendChild(b);
+        // beside the empty rows, just right of the tiles (over the empty rows if the screen is too narrow for that)
+        var bw = b.offsetWidth || 110,
+          right = grid.offsetLeft + grid.offsetWidth + 14;
+        b.style.top = grid.offsetTop + grid.offsetHeight * 0.55 + "px";
+        b.style.left = (right + bw <= body.offsetWidth ? right : Math.max(0, grid.offsetLeft + grid.offsetWidth - bw - 8)) + "px";
       }
     }
     function submit() {
@@ -6532,7 +6538,7 @@
         submit2();
       } catch (e) {
         busy = false;
-        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101g");
+        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101h");
         nextIn(1200);
       }
     }
@@ -6611,7 +6617,7 @@
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Pyramid code</span></div>' +
       '<div class="sw-card"><div class="sw-kind">Pyramid code</div><div class="sw-sent" style="font-size:22px">Crack the secret code! Spell the word you hear.</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
-      '<div id="swPcTop" class="sw-pctop"><div class="sw-pcpyr" id="swPcPyr"></div></div><div id="swPcBody"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101g</div></div>';
+      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody" style="position:relative"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101h</div></div>';
     bindQuit();
     document.getElementById("swHear").onclick = function () {
       if (rounds[i]) play("w", rounds[i].w);
