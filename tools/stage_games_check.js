@@ -23,9 +23,9 @@ const ok = (c, n, x) => (c ? passed++ : (failed++, console.log("  FAIL:", n, x =
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
   const open = async (state) => {
-    await page.goto(base + "/index.html");
+    await page.goto(base + "/index.html?swtest=1");
     await page.evaluate((st) => { localStorage.clear(); if (st) localStorage.setItem("lef_words_v1", JSON.stringify(st)); }, state || null);
-    await page.goto(base + "/index.html");
+    await page.goto(base + "/index.html?swtest=1");
     await page.waitForTimeout(700);
     await page.evaluate(() => { const b = [...document.querySelectorAll("button,a")].find((x) => /sight/i.test(x.textContent) && x.offsetParent); b && b.click(); });
     await page.waitForTimeout(800);
@@ -59,6 +59,27 @@ const ok = (c, n, x) => (c ? passed++ : (failed++, console.log("  FAIL:", n, x =
   await open({ words: {}, lessons: all, rev: {} });
   await stagePage(1);
   ok((await count(".sw-ct")) === 1 && (await count(".sw-ct.sw-locked")) === 0, "stage finished: the challenge is open");
+  // the end of a lesson (through the ?swtest=1 door): stage 3's games, and the challenges when the first unit has just been finished
+  const tiles = () => page.evaluate(() => [...document.querySelectorAll("#swOverlay .sw-acts > *")].map((e) => e.getAttribute("data-g") || e.id));
+  await open();
+  const l3 = await page.evaluate(() => window.__swTest.stageLessons(3)), u3 = await page.evaluate(() => window.__swTest.unitLessons(3));
+  await page.evaluate((id) => window.__swTest.lessonDone(id), l3[0]);
+  await page.waitForTimeout(700);
+  let t = await tiles();
+  ok(t.join() === "swNextL,mole,feed", "end of a lesson in stage 3: next lesson, whack-a-word, feed a pet", t);
+  const first = u3[0], lastOfUnit = first[first.length - 1], done = {};
+  first.slice(0, -1).forEach((i) => (done[i] = { t: 1, acc: 90 }));
+  await open({ words: {}, lessons: done, rev: {} });
+  await page.evaluate((id) => window.__swTest.lessonDone(id), lastOfUnit);
+  await page.waitForTimeout(700);
+  t = await tiles();
+  ok(t[0] === "swStageCh" && t[1] === "swUnit" && t.slice(-2).join() === "mole,feed", "finishing a unit: the stage challenge and the unit challenge come first", t);
+  await page.evaluate(() => document.querySelector("#swOverlay .sw-acts .sw-gt").click());
+  await page.waitForTimeout(500);
+  ok(await page.evaluate(() => /HOW TO PLAY/i.test(document.getElementById("swOverlay").innerText)), "end of a lesson: a game opens with its how-to card");
+  await page.evaluate(() => document.getElementById("swQuit").click());
+  await page.waitForTimeout(500);
+  ok(await page.evaluate(() => /Stage 3/.test(document.getElementById("swOverlay").innerText)), "Back from there leads to the stage page");
   ok(errs.length === 0, "no page errors", errs);
   await browser.close();
   server.close();

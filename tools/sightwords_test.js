@@ -1446,6 +1446,11 @@ if (JSD) {
   ok(eq(SW.preferLong(["go", "look", "me", "like", "up"], 4, 8), ["look", "like", "go", "me", "up"]), "spelling words: from level 3 the longer words come first");
   ok(SW.preferLong(["go", "look", "me", "like", "up"], 1, 3).length === 3, "spelling words: at most n words");
   ok(SW.preferLong(["I", "a", "go"], 0, 8).length === 3, "spelling words: when nearly all are short, none is dropped");
+  // what the end-of-lesson page offers
+  ok(eq(SW.finishButtons(3, { stageNow: false, unitNow: false, nextL: 5 }), ["next", "mole", "feed"]), "end of a lesson: next lesson and the stage's two games");
+  ok(eq(SW.finishButtons(3, { stageNow: true, unitNow: true, nextL: 5 }), ["stage", "unit", "next", "mole", "feed"]), "end of a lesson: the stage challenge and the unit challenge come first when they have just opened");
+  ok(eq(SW.finishButtons(8, { stageNow: false, unitNow: false, nextL: 0 }), ["slash", "basket"]), "end of the last lesson: just the stage's games");
+  ok(eq(SW.finishButtons(1, { nextL: 2 }), ["next", "bal", "fish"]), "end of a lesson: missing flags mean nothing extra");
   // the parent's report: the words that keep going wrong
   const hw = SW.hardWords({ words: { go: { n: 4, ok: 1 }, me: { n: 2, ok: 2 }, up: { n: 3, ok: 0 }, see: { n: 1, ok: 0 }, can: { n: 2, ok: 1 } } }, 8);
   ok(eq(hw.map((x) => x[0]), ["up", "go", "can"]), "report: hard words are the ones missed at least half the time over 2+ tries, worst first", hw);

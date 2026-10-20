@@ -592,6 +592,7 @@
     preferLong: preferLong,
     hardWords: hardWords,
     stageGames: stageGames,
+    finishButtons: finishButtons,
     stageChallenge: stageChallenge,
     spellForm: spellForm,
     spellable: spellable,
@@ -1729,6 +1730,14 @@
     detective: { id: "swDet", cls: "sw-g9", icon: "detective", label: "Word detective" },
     basket: { id: "swHoop", cls: "sw-g10", icon: "hoop", label: "Word basketball" },
   };
+  // what the end-of-lesson page offers, in order: the stage challenge and the unit challenge when they have just opened, the next lesson, then the stage's two games
+  function finishButtons(stageNo, o) {
+    var out = [];
+    if (o.stageNow) out.push("stage");
+    if (o.unitNow) out.push("unit");
+    if (o.nextL) out.push("next");
+    return out.concat(stageGames(stageNo));
+  }
   function stageChallenge(sid) {
     return STAGE_CH[Math.max(1, Math.min(STAGE_CH.length, sid)) - 1];
   }
@@ -11204,9 +11213,8 @@
       '<div class="sw-msg sw-good">Words I know: ' + known + " / " + (run.mode === "lesson" ? stageWordsOf(stageOfLesson(run.id)) : allWords()).length + "</div>" +
       (misses.length ? '<div class="sw-msg">The red ones will come back for review tomorrow.</div>' : "") +
       (unitNow ? '<div class="sw-unitdone">' + medal(true) + "<div><b>Unit " + unit.id + " complete!</b> Open the chest.</div></div>" : "") +
-      '<div class="sw-acts">' + (stageNow ? '<button class="sw-go sw-a1 sw-gold" id="swStageCh">Stage challenge · ' + esc(chMeta(STAGE_CH[stageNo - 1], s).label) + "</button>" : "") + (unitNow ? '<button class="sw-go sw-a1 sw-gold" id="swUnit">Unit challenge · Balloon pop</button>' : "") + (nextL ? '<button class="sw-go sw-a1" id="swNextL">Next lesson →</button>' : "") +
-      stageGames(stageNo).map(function (k) {
-        return gameTileHtml(k, false);
+      '<div class="sw-acts">' + finishButtons(stageNo, { stageNow: stageNow, unitNow: unitNow, nextL: nextL }).map(function (k) {
+        return k === "stage" ? '<button class="sw-go sw-a1 sw-gold" id="swStageCh">Stage challenge · ' + esc(chMeta(STAGE_CH[stageNo - 1], s).label) + "</button>" : k === "unit" ? '<button class="sw-go sw-a1 sw-gold" id="swUnit">Unit challenge · Balloon pop</button>' : k === "next" ? '<button class="sw-go sw-a1" id="swNextL">Next lesson →</button>' : gameTileHtml(k, false);
       }).join("") + "</div>" +
       '<div class="sw-fl"><button class="sw-linkbtn" id="swMap">' + backLabel() + "</button>" + (hasBooks ? '<button class="sw-linkbtn" id="swBooksBtn">Read these words in a story</button>' : "") + "</div>";
     if (hasBooks) {
@@ -11301,6 +11309,31 @@
         return { w: shown(h[0]), n: h[1], ok: h[2] };
       }),
       games: games,
+    };
+  }
+
+  // ?swtest=1 in the address opens a door for the browser checks (tools/stage_games_check.js): the end page of a lesson, as if it had just been finished
+  if (root.location && /[?&]swtest=1/.test(root.location.search || "")) {
+    root.__swTest = {
+      lessonDone: function (id) {
+        run = { mode: "lesson", id: id, first: {}, steps: [], i: 0, total: 0 };
+        lessonOf(id).words.forEach(function (w) {
+          run.first[wkey(w)] = true;
+        });
+        mapStage = stageOfLesson(id);
+        back = showMap;
+        finish();
+      },
+      stageLessons: function (sid) {
+        return lessonsOf(sid).map(function (l) {
+          return l.id;
+        });
+      },
+      unitLessons: function (sid) {
+        return unitsOf(sid).map(function (u) {
+          return u.lessons.slice();
+        });
+      },
     };
   }
 
