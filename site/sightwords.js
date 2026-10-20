@@ -6529,12 +6529,14 @@
         b.style.left = "0px";
         b.style.top = "0px";
         body.appendChild(b);
-        // right above the top row of keys (I O P), in a gap made for it
-        var bh = b.offsetHeight || 56,
-          bw = b.offsetWidth || 100;
-        kb.style.marginTop = bh + 10 + "px";
-        b.style.top = kb.offsetTop - bh - 6 + "px";
-        b.style.left = Math.max(0, kb.offsetLeft + kb.offsetWidth - bw) + "px";
+        // above the I O P keys, level with the last empty row of tiles (no gap between the tiles and the keys)
+        var grid = body.querySelector(".sw-pcgrid"),
+          bh = b.offsetHeight || 56,
+          bw = b.offsetWidth || 100,
+          gridRight = grid ? grid.offsetLeft + grid.offsetWidth : 0,
+          want = kb.offsetLeft + kb.offsetWidth - bw;
+        b.style.top = (grid ? grid.offsetTop + grid.offsetHeight - bh : kb.offsetTop - bh - 6) + "px";
+        b.style.left = Math.max(0, Math.min(body.offsetWidth - bw, Math.max(want, gridRight + 6 <= body.offsetWidth - bw ? gridRight + 6 : want))) + "px";
       }
     }
     function submit() {
@@ -6542,7 +6544,7 @@
         submit2();
       } catch (e) {
         busy = false;
-        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101i");
+        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101j");
         nextIn(1200);
       }
     }
@@ -6621,7 +6623,7 @@
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Pyramid code</span></div>' +
       '<div class="sw-card"><div class="sw-kind">Pyramid code</div><div class="sw-sent" style="font-size:22px">Crack the secret code! Spell the word you hear.</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
-      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody" style="position:relative"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101i</div></div>';
+      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody" style="position:relative"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101j</div></div>';
     bindQuit();
     document.getElementById("swHear").onclick = function () {
       if (rounds[i]) play("w", rounds[i].w);
