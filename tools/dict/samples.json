@@ -1,0 +1,228 @@
+[
+ {
+  "w": "bridge",
+  "senses": [
+   {
+    "pos": "noun",
+    "def": "A bridge lets you cross over a river or a road.",
+    "cn": "桥",
+    "ex": "We walked across the bridge to the other side."
+   }
+  ]
+ },
+ {
+  "w": "moon",
+  "senses": [
+   {
+    "pos": "noun",
+    "def": "The moon is the big round light you can see in the sky at night.",
+    "cn": "月亮",
+    "ex": "The moon was bright over the garden."
+   }
+  ]
+ },
+ {
+  "w": "whisper",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "To whisper is to speak very softly, so only one person can hear you.",
+    "cn": "小声说；耳语",
+    "ex": "She leaned in and whispered a secret."
+   }
+  ]
+ },
+ {
+  "w": "carry",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "To carry something is to hold it and take it to another place.",
+    "cn": "搬；拿；带",
+    "ex": "He carried the box up the stairs."
+   }
+  ]
+ },
+ {
+  "w": "garden",
+  "senses": [
+   {
+    "pos": "noun",
+    "def": "A garden is a place outside where people grow flowers or vegetables.",
+    "cn": "花园；菜园",
+    "ex": "We planted beans in the garden."
+   }
+  ]
+ },
+ {
+  "w": "brave",
+  "senses": [
+   {
+    "pos": "adjective",
+    "def": "A brave person is not afraid to do something hard or scary.",
+    "cn": "勇敢的",
+    "ex": "The brave little mouse climbed the tall tree."
+   }
+  ]
+ },
+ {
+  "w": "curious",
+  "senses": [
+   {
+    "pos": "adjective",
+    "def": "When you are curious, you want to find out or learn about something.",
+    "cn": "好奇的",
+    "ex": "Mia was curious about the strange sound."
+   }
+  ]
+ },
+ {
+  "w": "shiver",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "To shiver is to shake a little because you are cold or scared.",
+    "cn": "发抖；打颤",
+    "ex": "I shivered when the cold wind blew."
+   }
+  ]
+ },
+ {
+  "w": "glow",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "To glow is to shine with a soft light.",
+    "cn": "发光；发热",
+    "ex": "The lantern glowed in the dark."
+   }
+  ]
+ },
+ {
+  "w": "run",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "To run is to move fast on your feet. (ran = what you did before; running = what you are doing now)",
+    "cn": "跑；奔跑（ran 是过去式，running 是进行式）",
+    "ex": "The dog ran across the grass."
+   }
+  ]
+ },
+ {
+  "w": "good",
+  "senses": [
+   {
+    "pos": "adjective",
+    "def": "Good means nice, or of a kind you like. (better = more good)",
+    "cn": "好的（better 是比较级，意思是“更好”）",
+    "ex": "That was a good idea!"
+   }
+  ]
+ },
+ {
+  "w": "kitchen",
+  "senses": [
+   {
+    "pos": "noun",
+    "def": "The kitchen is the room where people cook food.",
+    "cn": "厨房",
+    "ex": "Dad is making soup in the kitchen."
+   }
+  ]
+ },
+ {
+  "w": "river",
+  "senses": [
+   {
+    "pos": "noun",
+    "def": "A river is a long stream of water that flows to the sea.",
+    "cn": "河；河流",
+    "ex": "The boat floated down the river."
+   }
+  ]
+ },
+ {
+  "w": "planet",
+  "senses": [
+   {
+    "pos": "noun",
+    "def": "A planet is a very big round thing in space that goes around a star. Earth is a planet.",
+    "cn": "行星",
+    "ex": "Mars is the red planet."
+   }
+  ]
+ },
+ {
+  "w": "volcano",
+  "senses": [
+   {
+    "pos": "noun",
+    "def": "A volcano is a mountain that can shoot out hot melted rock called lava.",
+    "cn": "火山",
+    "ex": "The volcano rumbled and smoke came out."
+   }
+  ]
+ },
+ {
+  "w": "sprout",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "When a seed sprouts, a tiny green plant starts to grow out of it.",
+    "cn": "发芽；长出",
+    "ex": "The bean sprouted after three days."
+   }
+  ]
+ },
+ {
+  "w": "tiny",
+  "senses": [
+   {
+    "pos": "adjective",
+    "def": "Tiny means very, very small.",
+    "cn": "极小的；微小的",
+    "ex": "A tiny ant crawled on my hand."
+   }
+  ]
+ },
+ {
+  "w": "giggle",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "To giggle is to laugh in a quiet, silly way.",
+    "cn": "咯咯地笑",
+    "ex": "The babies giggled at the funny face."
+   }
+  ]
+ },
+ {
+  "w": "cozy",
+  "senses": [
+   {
+    "pos": "adjective",
+    "def": "A cozy place is warm, soft and makes you feel safe and comfortable.",
+    "cn": "温暖舒适的",
+    "ex": "We sat by the fire in the cozy room."
+   }
+  ]
+ },
+ {
+  "w": "wonder",
+  "senses": [
+   {
+    "pos": "verb",
+    "def": "To wonder is to think about something and want to know the answer.",
+    "cn": "想知道；好奇",
+    "ex": "I wonder why the sky is blue."
+   },
+   {
+    "pos": "noun",
+    "def": "A wonder is something so amazing that people stop and look at it.",
+    "cn": "奇迹；奇观",
+    "ex": "The giant waterfall was a wonder to see."
+   }
+  ]
+ }
+]
