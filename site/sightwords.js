@@ -6339,6 +6339,7 @@
     }
     function cleanup() {
       done = true;
+      if (nextT) clearTimeout(nextT);
       if (keyH) document.removeEventListener("keydown", keyH);
       keyH = null;
     }
@@ -6487,6 +6488,30 @@
         paint();
       }
     }
+    // on to the next word by itself, or sooner when the child taps "Next"
+    var nextT = null;
+    function advance() {
+      if (nextT) clearTimeout(nextT);
+      nextT = null;
+      if (!alive()) return;
+      if (i >= rounds.length) {
+        done = true;
+        finish();
+      } else begin();
+    }
+    function nextIn(ms) {
+      if (nextT) clearTimeout(nextT);
+      nextT = setTimeout(advance, ms);
+      var el = document.getElementById("swPcBody");
+      if (el && !document.getElementById("swPcNext")) {
+        var b = document.createElement("button");
+        b.id = "swPcNext";
+        b.className = "sw-go";
+        b.innerHTML = i >= rounds.length ? "Finish ▶" : "Next word ▶";
+        b.onclick = advance;
+        el.appendChild(b);
+      }
+    }
     function submit() {
       var g = (given ? code[0] : "") + buf,
         res = rate(g, code),
@@ -6534,13 +6559,7 @@
         var pe = document.getElementById("swPcPyr");
         if (pe) pe.innerHTML = pyr(i, rounds.length);
         hud();
-        setTimeout(function () {
-          if (!alive()) return;
-          if (i >= rounds.length) {
-            done = true;
-            finish();
-          } else begin();
-        }, 2000);
+        nextIn(2000);
       } else if (guesses.length >= MAXG) {
         first[k] = false;
         combo = 0;
@@ -6554,13 +6573,7 @@
         }, 500);
         i++;
         hud();
-        setTimeout(function () {
-          if (!alive()) return;
-          if (i >= rounds.length) {
-            done = true;
-            finish();
-          } else begin();
-        }, 2800);
+        nextIn(2800);
       } else {
         say(res.every(function (x) { return x !== "g"; }) ? "No letter in the right place yet. Listen again!" : "Getting closer! Green = right place, yellow = wrong place.");
         busy = false;
