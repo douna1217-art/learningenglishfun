@@ -17,6 +17,10 @@
 //     lef_stats_v1   learning days (for the streak), stars earned in total, questions reviewed
 //     lef_badges_v1  badges earned (id -> time)
 //     lef_words_v1   sight words: each word's box and due day, lessons finished
+//     lef_fish_v1 / lef_fishlist_v1 / lef_mole_v1 / lef_snake_v1 / lef_runner_v1 / lef_slash_v1 / lef_detective_v1 / lef_hoops_v1 /
+//     lef_sling_v1 / lef_space_v1 / lef_dungeon_v1 / lef_deep_v1 / lef_pyramid_v1 / lef_sled_v1
+//                    the sight-word games: the aquarium, best scores, castles won, difficulty level (merge: the larger
+//                    number wins, anything won stays won; the tank keeps the last 12 catches from both devices)
 //     lef_opens_v1   recently opened books
 //     lef_gift       welcome-gift flag
 //     les_review_v1  Smart Review records (merge: the higher box of each card wins)
@@ -54,14 +58,20 @@
   var STATS = "lef_stats_v1";
   var BADGES = "lef_badges_v1";
   var WORDS = "lef_words_v1";
+  // the sight-word games (not on the home page, so a pull never reloads the page)
+  var FISHLIST = "lef_fishlist_v1";
+  var GAME_KEYS = ["lef_fish_v1", FISHLIST, "lef_mole_v1", "lef_snake_v1", "lef_runner_v1", "lef_slash_v1", "lef_detective_v1", "lef_hoops_v1", "lef_sling_v1", "lef_space_v1", "lef_dungeon_v1", "lef_deep_v1", "lef_pyramid_v1", "lef_sled_v1"];
   var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT, STATS, BADGES, WORDS];
   var BOOK_RE = /^les-.+-v1$/;
 
   function isHomeKey(k) {
     return HOME_KEYS.indexOf(k) !== -1;
   }
+  function isGameKey(k) {
+    return GAME_KEYS.indexOf(k) !== -1;
+  }
   function isSyncKey(k) {
-    return typeof k === "string" && k.length <= 160 && (isHomeKey(k) || BOOK_RE.test(k));
+    return typeof k === "string" && k.length <= 160 && (isHomeKey(k) || isGameKey(k) || BOOK_RE.test(k));
   }
   function isObj(x) {
     return !!x && typeof x === "object" && !Array.isArray(x);
@@ -333,7 +343,17 @@
     return out;
   }
 
+  // The aquarium's tank: the catches from both devices, the newest 12 (older ones first, so the freshest stay).
+  function mergeFishList(a, b) {
+    return union(b, a)
+      .filter(function (x) {
+        return isObj(x);
+      })
+      .slice(-12);
+  }
+
   function mergeValue(key, local, remote) {
+    if (key === FISHLIST) return mergeFishList(local, remote);
     if (key === WORDS) return mergeWords(local, remote);
     if (key === STATS) return mergeStats(local, remote);
     if (key === BADGES) return mergeBadges(local, remote);
@@ -383,6 +403,9 @@
     mergeStats: mergeStats,
     mergeBadges: mergeBadges,
     mergeWords: mergeWords,
+    mergeFishList: mergeFishList,
+    GAME_KEYS: GAME_KEYS,
+    isGameKey: isGameKey,
     mergeReview: mergeReview,
     mergePlacement: mergePlacement,
     mergeDeep: mergeDeep,
@@ -475,7 +498,7 @@
   }
   function validRemote(k, v) {
     if (!isSyncKey(k) || v === undefined || v === null) return false;
-    if (isHomeKey(k) && k !== GIFT && typeof v !== "object") return false;
+    if ((isHomeKey(k) || isGameKey(k)) && k !== GIFT && typeof v !== "object") return false;
     return true;
   }
   // a blank pet (not adopted yet) is nothing to back up and never counts as a change

@@ -399,6 +399,19 @@ async function profileScenarios() {
   ok(B.get("les_placement_v1").takenAt === 200 && B.get("les_placement_v1").grade === "3", "S17 the newer level-test result wins");
   ok(core.mergeReview(review({ a: card(2) }), review({ a: card(2) })).items.a.box === 2, "S17 equal boxes: local stays");
   ok(core.isSyncKey("les_review_v1") && core.isSyncKey("les_placement_v1"), "S17 review and placement are now synced keys");
+  // the sight-word games: best scores, castles, the aquarium
+  ok(core.GAME_KEYS.every(core.isSyncKey) && !core.isHomeKey("lef_fish_v1"), "game keys are synced but are not home keys (no page reload)");
+  let g = core.mergeValue("lef_space_v1", { best: 120, boom: 9, lvl: 3.2 }, { best: 90, boom: 14, lvl: 2 });
+  ok(g.best === 120 && g.boom === 14 && g.lvl === 3.2, "game numbers: the larger one wins", g);
+  g = core.mergeValue("lef_sling_v1", { done: { 1: true }, best: { 1: 50 }, lvl: 1 }, { done: { 2: true }, best: { 1: 80, 2: 30 }, lvl: 2 });
+  ok(g.done[1] && g.done[2] && g.best[1] === 80 && g.best[2] === 30, "castles won on either device stay won", g);
+  g = core.mergeValue("lef_fish_v1", { a: 2, b: 1 }, { b: 3, c: 1 });
+  ok(g.a === 2 && g.b === 3 && g.c === 1, "fish collection: every species either device caught stays", g);
+  g = core.mergeValue("lef_fishlist_v1", [{ s: "a", w: "go" }, { s: "b", w: "me" }], [{ s: "b", w: "me" }, { s: "c", w: "up" }]);
+  ok(g.length === 3 && g.some((x) => x.s === "c") && g.some((x) => x.s === "a"), "tank: catches from both devices, no duplicates", g);
+  const many = Array.from({ length: 20 }, (_, i) => ({ s: "x" + i, w: "w" + i }));
+  ok(core.mergeValue("lef_fishlist_v1", many, []).length === 12, "tank keeps the newest 12");
+
 
   // 18. a child who has not adopted a pet yet does not make the page poll the server
   s = makeServer(); A = makeDevice(s, "A");

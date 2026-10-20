@@ -6507,7 +6507,7 @@
       }, 1100);
     }
     function sled(x, y, face, col, emoji, wob) {
-      var R = Math.round(W * 0.052);
+      var R = Math.round(W * 0.042);
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(wob);
@@ -6636,7 +6636,7 @@
         ctx.lineTo(mx + W * 0.55, H * 0.5);
         ctx.fill();
       }
-      var lanes = [H * 0.6, H * 0.74, H * 0.9];
+      var lanes = [H * 0.5, H * 0.68, H * 0.88];
       for (q = -1; q < 12; q++) {
         var tx = q * 90 - (cam % 90);
         ctx.fillStyle = "#3C8D5A";
@@ -6719,7 +6719,7 @@
     bindQuit();
     cv = document.getElementById("swSledCv");
     W = Math.max(280, Math.min(460, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
-    H = Math.round(W * 0.62);
+    H = Math.round(W * 0.78);
     TRACK = W * 7;
     var dpr = root.devicePixelRatio || 1;
     cv.style.width = W + "px";
