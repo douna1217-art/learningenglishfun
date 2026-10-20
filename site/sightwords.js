@@ -929,6 +929,22 @@
       "#swOverlay .sw-ct .sw-gi{width:62%}" +
       "#swOverlay .sw-c1{background:#D4F3FF;box-shadow:0 6px 0 #8FCBE6}" +
       "#swOverlay .sw-c2{background:#FFE2C9;box-shadow:0 6px 0 #EBA877}" +
+      "#swOverlay .sw-ct.sw-cy{background:#FFE3B8;box-shadow:0 6px 0 #E8A96B}" +
+      "#swOverlay .sw-pcpyr{width:130px;margin:6px auto}#swOverlay .sw-pcpyr svg{display:block;width:100%;height:auto}" +
+      "#swOverlay .sw-pcgrid{display:grid;gap:6px;justify-content:center;margin:10px auto}" +
+      "#swOverlay .sw-pct{display:flex;align-items:center;justify-content:center;border:3px solid #E3CFA0;background:#FFF9EA;border-radius:10px;font-family:'Fredoka',sans-serif;font-weight:700;text-transform:uppercase;color:#1E2A4A;box-sizing:border-box}" +
+      "#swOverlay .sw-pct.sw-pcc{border-color:#B8862B;animation:swpcpop .12s ease-out}" +
+      "#swOverlay .sw-pct.sw-pcgv{border-color:#35B779;background:#E4F8EC;color:#1E7A4C}" +
+      "#swOverlay .sw-pct.sw-pcg,#swOverlay .sw-pck.sw-pcg{background:#35B779;border-color:#35B779;color:#fff}" +
+      "#swOverlay .sw-pct.sw-pcy,#swOverlay .sw-pck.sw-pcy{background:#FFC93C;border-color:#FFC93C;color:#1E2A4A}" +
+      "#swOverlay .sw-pct.sw-pcx,#swOverlay .sw-pck.sw-pcx{background:#9AA5BD;border-color:#9AA5BD;color:#fff}" +
+      "#swOverlay .sw-pcf{animation:swpcflip .5s ease both}" +
+      "@keyframes swpcflip{0%{transform:rotateX(90deg)}100%{transform:rotateX(0)}}@keyframes swpcpop{0%{transform:scale(.8)}100%{transform:scale(1)}}" +
+      "#swOverlay .sw-pckb{margin:6px auto 0;max-width:400px}#swOverlay .sw-pckb>div{display:flex;justify-content:center;gap:5px;margin-top:6px}" +
+      "#swOverlay .sw-pck{flex:1 1 0;min-width:0;max-width:40px;height:44px;border-radius:9px;background:#fff;border:0;border-bottom:3px solid #C9C0F5;font:700 16px 'Fredoka',sans-serif;text-transform:uppercase;color:#1E2A4A;padding:0}" +
+      "#swOverlay .sw-pck.sw-pckw{max-width:62px;font-size:13px;white-space:nowrap}" +
+      "#swOverlay .sw-pck.sw-pckh{background:#FFE066;border-bottom-color:#E0B24A;animation:swpckh .7s ease-in-out infinite}" +
+      "@keyframes swpckh{0%,100%{background:#FFE066}50%{background:#FFF8C2}}" +
       "#swOverlay .sw-ct.sw-cp{background:#C2EEF2;box-shadow:0 6px 0 #7BC6D0}" +
       "#swOverlay .sw-ct.sw-cd{background:#FFE6A8;box-shadow:0 6px 0 #E0B24A}" +
       "#swOverlay .sw-ct.sw-cs{background:#D9D6FF;box-shadow:0 6px 0 #9E97E6}" +
@@ -1604,6 +1620,7 @@
     swHoop: ["Word basketball", "单词投篮", "Flick the ball up at the hoop that shows the right word.", "把球往上弹，投进有正确单词的篮筐。"],
     swSpell: ["Bubble spell", "泡泡拼词", "Listen, then tap the letter bubbles in the right order to spell the word.", "听单词，按顺序点字母泡泡，把它拼出来。"],
     swBattle: ["Monster battle", "打怪兽", "Answer the word questions to power up your pet and beat the monster.", "回答单词题，给宠物加油，打败怪兽。"],
+    swPyr: ["Pyramid code", "金字塔密码", "Listen to the word and spell it with the letters. Green = right letter, right place. Yellow = right letter, wrong place. Grey = not in the word. You have 6 tries!", "听单词，用字母拼出来。绿色＝字母和位置都对，黄色＝字母对但位置不对，灰色＝单词里没有这个字母。一共有 6 次机会！"],
     swDeep: ["Deep sea treasure", "深海寻宝", "Drag up and down to swim. Swim into the treasure chest that has the word you hear. Keep away from the jellyfish, they take your air!", "上下拖动小宠物游泳，游进写着你听到的单词的宝箱。躲开水母，被它电到会少一格空气！"],
     swDungeon: ["Word dungeon", "词汇地牢", "Drag to walk through the maze. Find the treasure chest that has the word you hear. A ghost floats around: if it touches you, you go back to the start!", "拖动宠物在迷宫里走路，找到写着你听到的单词的宝箱。小心幽灵，被它碰到会回到起点！"],
     swSpace: ["Space shooter", "太空射手", "Drag left and right to fly your rocket. It fires by itself. Shoot the saucer that has the word you hear. Do not let it get past you!", "左右拖动飞船，它会自动开火。打中写着你听到的单词的飞碟，别让它飞过去！"],
@@ -1713,8 +1730,9 @@
         space: { id: "swSpace", cls: "sw-cs", label: "Space shooter", sub: "太空射手 · best " + readSpace().best, art: scenery("game", "space") },
         dungeon: { id: "swDungeon", cls: "sw-cd", label: "Word dungeon", sub: "词汇地牢 · best " + readDungeon().best, art: scenery("game", "dungeon") },
         deep: { id: "swDeep", cls: "sw-cp", label: "Deep sea treasure", sub: "深海寻宝 · best " + readDeep().best, art: scenery("game", "deep") },
+        pyramid: { id: "swPyr", cls: "sw-cy", label: "Pyramid code", sub: "金字塔密码 · best " + readPyr().best, art: scenery("game", "pyramid") },
       },
-      chOrder = ["battle", "spell", "siege", "space", "dungeon", "deep"],
+      chOrder = ["battle", "spell", "siege", "space", "dungeon", "deep", "pyramid"],
       mainCh = chOrder[Math.min(chOrder.length, (/[?&]stage=(\d)/.exec((root.location && root.location.search) || "") ? +/[?&]stage=(\d)/.exec(root.location.search)[1] : reachedStage(s))) - 1],
       moreCh = chOrder.filter(function (k) {
         return k !== mainCh;
@@ -1809,6 +1827,9 @@
       },
       swDeep: function () {
         startDeep(gameWords(readState(), 8));
+      },
+      swPyr: function () {
+        startPyramid(gameWords(readState(), 8));
       },
     };
     Object.keys(chStart).forEach(function (id) {
@@ -2711,7 +2732,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : kind === "g" ? "dungeon" : kind === "q" ? "deepsea" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : kind === "g" ? "dungeon" : kind === "q" ? "deepsea" : kind === "y" ? "pyramid" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -6245,6 +6266,332 @@
     last = Date.now();
     hud();
     draw();
+  }
+
+  /* ---- Pyramid code (the challenge of stage 7): crack the secret code of the pyramid. Hear a word and spell it; after each try the tiles tell you which letters are in the right
+     place (green), in the word but in the wrong place (yellow), or not in it (grey), like a word-guessing puzzle. Every word cracked puts a stone in the pyramid. A gold, blinking key
+     shows the next letter when the child is stuck, and a missed word is spelled out for them ---- */
+  var PYRKEY = "lef_pyramid_v1";
+  function readPyr() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(PYRKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, cracked: +o.cracked || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writePyr(o) {
+    try {
+      ls.setItem(PYRKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startPyramid(words) {
+    gameTag = "game";
+    // a one-letter word is no code to crack
+    var longer = words.filter(function (w) {
+      return String(w).replace(/[^a-zA-Z]/g, "").length >= 2;
+    });
+    if (longer.length >= 4) words = longer;
+    trk("sw_game_start", "pyramid", "", "game");
+    var rounds = roundsFor(words, gamePool(learnedWords(readState()), words, firstLessonsWords(), 4), seeded(Date.now() % 9973), 3),
+      store = readPyr(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      crackedN = 0,
+      help = lvl < 2 ? 1 : 0,
+      lastFail = false,
+      spdNote = "",
+      done = false,
+      busy = false,
+      my = null,
+      code = "",
+      guesses = [],
+      buf = "",
+      given = false,
+      keyH = null,
+      MAXG = 6,
+      keyState = {},
+      newRow = -1,
+      rows = [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+        ["enter", "z", "x", "c", "v", "b", "n", "m", "back"],
+      ];
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swKsc"),
+        b = document.getElementById("swKcb"),
+        c = document.getElementById("swKlv");
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = "Stone " + Math.min(i + 1, rounds.length) + " / " + rounds.length + spdNote;
+    }
+    function cleanup() {
+      done = true;
+      if (keyH) document.removeEventListener("keydown", keyH);
+      keyH = null;
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best;
+      store.best = Math.max(store.best, score);
+      store.cracked += crackedN;
+      store.lvl = lvl;
+      writePyr(store);
+      var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Codes cracked in all: " + store.cracked + '</div><div class="sw-pcpyr">' + pyr(rounds.length, rounds.length) + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      endGame("y", first, "Pyramid code", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " cracked quickly · best combo ×" + bestCombo;
+      }, function () {
+        startPyramid(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    // the pyramid, one stone for every word cracked (1 + 2 + 2 + 3 stones)
+    function pyr(n, total) {
+      var layout = [1, 2, 2, 3],
+        h = '<svg viewBox="0 0 120 64" aria-hidden="true"><rect x="0" y="0" width="120" height="64" rx="10" fill="#FFF1C9"/><circle cx="100" cy="14" r="7" fill="#FFD23F"/>',
+        k = 0,
+        r,
+        c;
+      for (r = 0; r < layout.length; r++)
+        for (c = 0; c < layout[r]; c++) {
+          var x = 60 - (layout[r] * 24) / 2 + c * 24,
+            y = 6 + r * 14,
+            on = k < Math.round((n * 8) / Math.max(1, total));
+          h += '<rect x="' + (x + 1) + '" y="' + y + '" width="22" height="12" rx="2.5" fill="' + (on ? "#E9B949" : "#E8DDBF") + '" stroke="' + (on ? "#B8862B" : "#CDBF98") + '" stroke-width="1.4"/>';
+          k++;
+        }
+      return h + '<rect x="0" y="58" width="120" height="6" rx="3" fill="#E8C98A"/></svg>';
+    }
+    function rate(g, answer) {
+      // two passes, so a repeated letter is only coloured as often as it is in the word
+      var res = [],
+        left = {},
+        q;
+      for (q = 0; q < answer.length; q++) {
+        res.push("x");
+        if (g[q] !== answer[q]) left[answer[q]] = (left[answer[q]] || 0) + 1;
+      }
+      for (q = 0; q < answer.length; q++) if (g[q] === answer[q]) res[q] = "g";
+      for (q = 0; q < answer.length; q++)
+        if (res[q] !== "g" && left[g[q]] > 0) {
+          res[q] = "y";
+          left[g[q]]--;
+        }
+      return res;
+    }
+    // the next letter the child has not found yet (shown on its key)
+    function hintKey() {
+      if (guesses.length < 2) return "";
+      var found = {},
+        q;
+      guesses.forEach(function (g) {
+        for (q = 0; q < g.w.length; q++) if (g.r[q] === "g") found[q] = true;
+      });
+      for (q = 0; q < code.length; q++) if (!found[q]) return code[q];
+      return "";
+    }
+    function paint() {
+      var n = code.length,
+        s = Math.min(54, Math.floor(((box.clientWidth || 340) - 72) / n) - 6),
+        hk = hintKey(),
+        h = '<div class="sw-pcgrid" style="grid-template-columns:repeat(' + n + "," + s + 'px)">',
+        r,
+        c;
+      for (r = 0; r < MAXG; r++)
+        for (c = 0; c < n; c++) {
+          var g = guesses[r],
+            cls = "sw-pct",
+            ch = "";
+          if (g) {
+            ch = g.w[c];
+            cls += " sw-pc" + g.r[c] + (r === newRow ? " sw-pcf" : "");
+          } else if (r === guesses.length) {
+            if (given && c === 0) {
+              ch = code[0];
+              cls += " sw-pcgv";
+            } else {
+              ch = buf[c - (given ? 1 : 0)] || "";
+              if (ch) cls += " sw-pcc";
+            }
+          }
+          h += '<div class="' + cls + '" style="width:' + s + "px;height:" + s + "px;font-size:" + Math.round(s * 0.58) + "px;" + (r === newRow ? "animation-delay:" + c * 0.12 + "s" : "") + '">' + esc(ch) + "</div>";
+        }
+      h += "</div>";
+      var kb = '<div class="sw-pckb">';
+      rows.forEach(function (row) {
+        kb += "<div>";
+        row.forEach(function (k) {
+          var label = k === "enter" ? "Go ✓" : k === "back" ? "⌫" : k,
+            cls = "sw-pck" + (k.length > 1 ? " sw-pckw" : "") + (keyState[k] ? " sw-pc" + keyState[k] : "") + (hk && k === hk ? " sw-pckh" : "");
+          kb += '<button class="' + cls + '" data-k="' + k + '">' + label + "</button>";
+        });
+        kb += "</div>";
+      });
+      var el = document.getElementById("swPcBody");
+      if (!el) return;
+      el.innerHTML = h + kb + "</div>";
+      Array.prototype.forEach.call(el.querySelectorAll(".sw-pck"), function (b) {
+        b.onclick = function () {
+          press(b.getAttribute("data-k"));
+        };
+      });
+      newRow = -1;
+    }
+    function begin() {
+      var r = rounds[i];
+      code = String(r.w).toLowerCase().replace(/[^a-z]/g, "");
+      if (!code) code = "a";
+      guesses = [];
+      buf = "";
+      keyState = {};
+      given = help > 0 && code.length > 2;
+      if (help > 0) help--;
+      busy = false;
+      hud();
+      paint();
+      var pyrEl = document.getElementById("swPcPyr");
+      if (pyrEl) pyrEl.innerHTML = pyr(i, rounds.length);
+      say(given ? "The first letter is a gift! Spell the rest." : "Spell the word you hear!");
+      var rr = r;
+      setTimeout(function () {
+        if (alive() && rounds[i] === rr) play("w", rr.w);
+      }, 350);
+    }
+    function press(k) {
+      if (!alive() || busy) return;
+      var need = code.length - (given ? 1 : 0);
+      if (k === "back") {
+        buf = buf.slice(0, -1);
+        paint();
+      } else if (k === "enter") {
+        if (buf.length < need) {
+          say("This code has " + code.length + " letters.");
+          return;
+        }
+        submit();
+      } else if (/^[a-z]$/.test(k) && buf.length < need) {
+        buf += k;
+        paint();
+      }
+    }
+    function submit() {
+      var g = (given ? code[0] : "") + buf,
+        res = rate(g, code),
+        k = wkey(rounds[i].w),
+        q;
+      guesses.push({ w: g, r: res });
+      for (q = 0; q < g.length; q++) {
+        var cur = keyState[g[q]],
+          nw = res[q];
+        if (cur === "g" || (cur === "y" && nw !== "g")) continue;
+        keyState[g[q]] = nw;
+      }
+      buf = "";
+      newRow = guesses.length - 1;
+      busy = true;
+      sfx(g === code ? "big" : "poke");
+      paint();
+      if (g === code) {
+        var n = guesses.length,
+          quick = n <= 2;
+        if (first[k] === undefined) first[k] = quick;
+        if (quick) {
+          lvl = Math.min(8, lvl + 0.6);
+          combo++;
+          if (combo > bestCombo) bestCombo = combo;
+        } else {
+          lvl = Math.max(0, lvl - 0.2);
+          combo = 0;
+        }
+        crackedN++;
+        var pts = 10 + Math.max(0, 7 - n) * 3 + Math.min(combo, 6) * 2;
+        score += pts;
+        say((n === 1 ? "Cracked in one go! " : "Code cracked! ") + rounds[i].w + " · +" + pts);
+        try {
+          if (hooks.burst && !root.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            var br = document.getElementById("swPcBody").getBoundingClientRect();
+            hooks.burst(br.left + br.width / 2, br.top + 40);
+          }
+        } catch (e) {}
+        i++;
+        var pe = document.getElementById("swPcPyr");
+        if (pe) pe.innerHTML = pyr(i, rounds.length);
+        hud();
+        setTimeout(function () {
+          if (!alive()) return;
+          if (i >= rounds.length) {
+            done = true;
+            finish();
+          } else begin();
+        }, 1500);
+      } else if (guesses.length >= MAXG) {
+        first[k] = false;
+        combo = 0;
+        lvl = Math.max(0, lvl - 0.8);
+        help = 2;
+        lastFail = true;
+        say("The code was “" + rounds[i].w + "”. Let’s hear it again!");
+        var rr = rounds[i];
+        setTimeout(function () {
+          if (alive()) play("w", rr.w);
+        }, 500);
+        i++;
+        hud();
+        setTimeout(function () {
+          if (!alive()) return;
+          if (i >= rounds.length) {
+            done = true;
+            finish();
+          } else begin();
+        }, 2800);
+      } else {
+        say(res.every(function (x) { return x !== "g"; }) ? "No letter in the right place yet. Listen again!" : "Getting closer! Green = right place, yellow = wrong place.");
+        busy = false;
+        if (guesses.length === 2) {
+          var rw = rounds[i];
+          setTimeout(function () {
+            if (alive() && rounds[i] === rw) play("w", rw.w);
+          }, 600);
+        }
+        paint();
+      }
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Pyramid code</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Pyramid code</div><div class="sw-sent" style="font-size:22px">Crack the secret code! Spell the word you hear.</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
+      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody"></div><div class="sw-msg" id="swMsg"></div></div>';
+    bindQuit();
+    document.getElementById("swHear").onclick = function () {
+      if (rounds[i]) play("w", rounds[i].w);
+    };
+    keyH = function (e) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      var k = e.key;
+      if (k === "Enter") press("enter");
+      else if (k === "Backspace") press("back");
+      else if (k && k.length === 1 && /[a-zA-Z]/.test(k)) press(k.toLowerCase());
+      else return;
+      if (e.preventDefault) e.preventDefault();
+    };
+    document.addEventListener("keydown", keyH);
+    my = run = { mode: "pyramid", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    begin();
   }
 
   /* ---- Deep sea treasure (the challenge of stage 6): the pet dives with a helmet and swims up and down (drag, or the arrow keys) while treasure chests drift by.

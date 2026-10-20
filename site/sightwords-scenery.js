@@ -73,6 +73,11 @@
         '<rect x="62" y="34" width="22" height="16" fill="#B5762C" stroke="#6B3F18" stroke-width="2"/><path d="M62 34 A11 7 0 0 1 84 34Z" fill="#C98F4E" stroke="#6B3F18" stroke-width="2"/><rect x="71" y="37" width="4" height="8" fill="#FFD23F"/>' +
         '<path d="M34 54 A9 8 0 0 1 52 54 V58 H34Z" fill="#FFA0CD" stroke="#E86AA6" stroke-width="1.6"/><path d="M38 58 q-2 8 0 12 M43 58 q2 8 0 13 M48 58 q-2 8 0 12" stroke="#FFB6D9" stroke-width="1.8" fill="none"/>' +
         '<circle cx="20" cy="52" r="12" fill="#FFD9A8" stroke="#CFEFFF" stroke-width="4"/><circle cx="16" cy="50" r="1.8" fill="#1E2A4A"/><circle cx="24" cy="50" r="1.8" fill="#1E2A4A"/><rect x="2" y="48" width="6" height="12" rx="2" fill="#3D8BF2"/>';
+    } else if (kind === "pyramid") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#FFE9B8"/><circle cx="84" cy="14" r="8" fill="#FFD23F"/><rect x="0" y="66" width="100" height="18" fill="#EBCB8B"/>' +
+        '<path d="M50 8 L86 66 H14Z" fill="#E9B949" stroke="#B8862B" stroke-width="2.4" stroke-linejoin="round"/><path d="M50 8 L50 66 H14Z" fill="#F3CE6B"/>' +
+        '<rect x="22" y="36" width="15" height="15" rx="3" fill="#35B779"/><rect x="39" y="36" width="15" height="15" rx="3" fill="#FFC93C"/><rect x="56" y="36" width="15" height="15" rx="3" fill="#9AA5BD"/>' +
+        '<text x="29.5" y="48" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#fff">g</text><text x="46.5" y="48" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#1E2A4A">o</text><text x="63.5" y="48" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#fff">t</text>';
     } else if (kind === "hoop") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#CFEAFB"/><rect x="0" y="54" width="100" height="30" fill="#E0B070"/>' +
         '<rect x="22" y="8" width="56" height="22" rx="5" fill="#fff" stroke="#E5483A" stroke-width="3"/><text x="50" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">go</text>' +
