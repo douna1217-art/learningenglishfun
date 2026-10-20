@@ -1372,6 +1372,7 @@
       "#swOverlay .sw-g5{background:#DDEFC5;box-shadow:0 6px 0 #9CC57A}" +
       "#swOverlay .sw-games.sw-g2c{grid-template-columns:repeat(2,minmax(0,1fr))}" +
       "#swOverlay .sw-gt,#swOverlay .sw-ct{position:relative}" +
+      "#swOverlay .sw-locked{opacity:.55;filter:grayscale(.6);cursor:default}#swOverlay .sw-locked small{display:block;font-size:13px;font-weight:700;margin-top:3px}" +
       "#swOverlay .sw-qm{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;background:#fff;color:#4A2FB8;font:800 14px/22px 'Fredoka',sans-serif;text-align:center;box-shadow:0 2px 0 #C9C0F5}" +
       "#swOverlay .sw-how{text-align:center}#swOverlay .sw-how .sw-start{margin:18px auto 0}" +
       "#swOverlay .sw-more{display:block;margin:-12px auto 22px;background:#fff;border-radius:999px;padding:8px 20px;font-weight:800;font-size:14px;color:#4A2FB8;box-shadow:0 4px 0 #C9C0F5}" +
@@ -1573,13 +1574,6 @@
     });
     return top;
   }
-  // the games on show on the home page: two for each pair of stages (the others are under "More games"); ?stage=N tries another stage
-  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "basket"]];
-  function gameSetNo(s) {
-    var m = /[?&]stage=(\d)/.exec((root.location && root.location.search) || ""),
-      st = m ? +m[1] : reachedStage(s);
-    return Math.max(1, Math.min(GAMESETS.length, Math.ceil(st / 2)));
-  }
   function readyIslands() {
     var r = {};
     D.stages.forEach(function (st) {
@@ -1652,10 +1646,118 @@
     if (!t) return go();
     howSet(id);
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button></div><div class="sw-card sw-how"><div class="sw-kind">How to play · 玩法</div><h1>' + esc(t[0]) + " · " + esc(t[1]) + '</h1><div class="sw-sent" style="font-size:20px">' + esc(t[2]) + '</div><div class="sw-sent" style="font-size:18px;color:#5B6B8C">' + esc(t[3]) + '</div><button class="sw-start" id="swHowGo">' + PLAY + "Let’s play! · 开始</button></div>";
-    document.getElementById("swQuit").onclick = showHome;
+    document.getElementById("swQuit").onclick = function () {
+      (back || showHome)();
+    };
     document.getElementById("swHowGo").onclick = go;
     ov.scrollTop = 0;
   }
+  /* ---- the games live inside the stages: after a lesson, and on each stage's own page (a stage's games open with its first lesson, its challenge when all its lessons are done) ---- */
+  var GAMEMETA = {
+    bal: { id: "swBal", cls: "sw-g2", icon: "balloon", label: "Balloon pop" },
+    fish: { id: "swFish", cls: "sw-g4", icon: "fish", label: "Word fishing" },
+    mole: { id: "swMole", cls: "sw-g5", icon: "mole", label: "Whack-a-word" },
+    feed: { id: "swFeed", cls: "sw-g3", icon: "feed", label: "Feed a pet" },
+    mem: { id: "swMem", cls: "sw-g1", icon: "memory", label: "Memory match" },
+    snake: { id: "swSnake", cls: "sw-g6", icon: "snake", label: "Word snake" },
+    runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word racer" },
+    slash: { id: "swSlash2", cls: "sw-g8", icon: "slash", label: "Word slash" },
+    detective: { id: "swDet", cls: "sw-g9", icon: "detective", label: "Word detective" },
+    basket: { id: "swHoop", cls: "sw-g10", icon: "hoop", label: "Word basketball" },
+  };
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "basket"]]; // two for each pair of stages
+  var STAGE_CH = ["battle", "spell", "siege", "space", "dungeon", "deep", "pyramid", "sled"]; // one challenge for each stage
+  function stageGames(sid) {
+    return GAMESETS[Math.max(1, Math.min(GAMESETS.length, Math.ceil(sid / 2))) - 1];
+  }
+  function previewUnlock() {
+    return /[?&]unlock=1/.test((root.location && root.location.search) || "");
+  }
+  function gameTileHtml(k, locked) {
+    var m = GAMEMETA[k],
+      label = k === "feed" ? feedLabel() : m.label;
+    return '<button class="sw-gt ' + m.cls + (locked ? " sw-locked" : "") + '" id="' + m.id + '" data-g="' + k + '"' + (locked ? " disabled" : "") + '><span class="sw-gi">' + scenery("game", m.icon) + "</span>" + esc(label) + (locked ? "<small>🔒</small>" : '<span class="sw-qm" data-q="' + m.id + '">?</span>') + "</button>";
+  }
+  function chMeta(k, s) {
+    var C = {
+      battle: { id: "swBattle", cls: "sw-c2", label: "Monster battle", sub: "打怪兽 · " + monsDone(s) + " / 5", art: monArt(1, "cheer") },
+      spell: { id: "swSpell", cls: "sw-c1", label: "Bubble spell", sub: "泡泡拼词", art: scenery("game", "spell") },
+      siege: { id: "swSiege2", cls: "sw-c3", label: "Castle siege", sub: "弹弓攻城 · " + castlesDone(readSling()) + " / " + CASTLES.length, art: scenery("game", "castle") },
+      space: { id: "swSpace", cls: "sw-cs", label: "Space shooter", sub: "太空射手 · best " + readSpace().best, art: scenery("game", "space") },
+      dungeon: { id: "swDungeon", cls: "sw-cd", label: "Word dungeon", sub: "词汇地牢 · best " + readDungeon().best, art: scenery("game", "dungeon") },
+      deep: { id: "swDeep", cls: "sw-cp", label: "Deep sea treasure", sub: "深海寻宝 · best " + readDeep().best, art: scenery("game", "deep") },
+      pyramid: { id: "swPyr", cls: "sw-cy", label: "Pyramid code", sub: "金字塔密码 · best " + readPyr().best, art: scenery("game", "pyramid") },
+      sled: { id: "swSled", cls: "sw-cl", label: "Sled race", sub: "雪橇赛跑 · best " + readSled().best, art: scenery("game", "sled") },
+    };
+    return C[k];
+  }
+  function chTileHtml(k, s, lockNote) {
+    var m = chMeta(k, s);
+    return '<button class="sw-ct ' + m.cls + (lockNote ? " sw-locked" : "") + '" id="' + m.id + '" data-c="' + k + '"' + (lockNote ? " disabled" : "") + '><span class="sw-gi">' + m.art + "</span>" + m.label + "<small>" + (lockNote ? "🔒 " + lockNote : m.sub) + "</small>" + (lockNote ? "" : '<span class="sw-qm" data-q="' + m.id + '">?</span>') + "</button>";
+  }
+  function gameCount(k) {
+    return k === "feed" || k === "snake" || k === "runner" ? 6 : 8;
+  }
+  // the words a game gets from a stage's page: that stage's learned words first, then the other learned ones
+  function stageGameWords(s, sid, n) {
+    var seen = allWords().filter(function (w) {
+        return s.words[wkey(w)];
+      }),
+      mine = stageWordsOf(sid).filter(function (w) {
+        return s.words[wkey(w)];
+      });
+    return pickWords(mine, seen.length >= 4 ? seen : firstLessonsWords(), n, seeded(Date.now() % 100003));
+  }
+  function startGameKey(k, words) {
+    var f = { bal: startBalloons, fish: startFishing, mole: startWhack, feed: startFeed, snake: startSnake, runner: startRunner, slash: startSlash, detective: startDetective, basket: startBasket, mem: startMemory }[k];
+    if (f) f(words);
+  }
+  function startChallengeKey(k) {
+    var s = readState(),
+      w = function () {
+        return gameWords(s, 8);
+      };
+    if (k === "battle") showBattle();
+    else if (k === "spell") startSpell(spellList(s));
+    else if (k === "siege") showCastles();
+    else if (k === "space") startSpace(w());
+    else if (k === "dungeon") startDungeon(w());
+    else if (k === "deep") startDeep(w());
+    else if (k === "pyramid") startPyramid(w());
+    else if (k === "sled") startSled(w());
+  }
+  // makes the game and challenge tiles inside `scope` work; opts.back is where "Back" leads from the games, opts.words(k) the words for a game
+  function wireGames(scope, opts) {
+    function go(kind, k) {
+      back = opts.back;
+      var id = kind === "g" ? GAMEMETA[k].id : chMeta(k, readState()).id,
+        start = function () {
+          if (kind === "g") startGameKey(k, opts.words(k));
+          else startChallengeKey(k);
+        };
+      if (howSeen()[id]) start();
+      else howTo(id, start);
+    }
+    Array.prototype.forEach.call(scope.querySelectorAll(".sw-gt[data-g]:not(.sw-locked)"), function (b) {
+      b.onclick = function () {
+        go("g", b.getAttribute("data-g"));
+      };
+    });
+    Array.prototype.forEach.call(scope.querySelectorAll(".sw-ct[data-c]:not(.sw-locked)"), function (b) {
+      b.onclick = function () {
+        go("c", b.getAttribute("data-c"));
+      };
+    });
+    Array.prototype.forEach.call(scope.querySelectorAll(".sw-qm"), function (q) {
+      q.onclick = function (e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        var t = q.parentNode;
+        if (t.getAttribute("data-g")) go("g", t.getAttribute("data-g"));
+        else if (t.getAttribute("data-c")) go("c", t.getAttribute("data-c"));
+      };
+    });
+  }
+
   function showHome() {
     var s = readState(),
       words = allWords(),
@@ -1712,51 +1814,11 @@
       var c = PAL[(i * 2 + 1) % PAL.length];
       stickers += '<i style="transform:rotate(' + angles[i] + "deg);background:" + (picks[i] ? c.bg : "#F1F5FA") + ";border-color:" + (picks[i] ? c.edge : "#C9D7E8") + ";color:" + (picks[i] ? c.ink : "#8A97AD") + (picks[i] && picks[i].length > 3 ? ";font-size:12px" : "") + '">' + esc(picks[i] || "?") + "</i>";
     }
-    var GM = {
-        bal: { id: "swBal", cls: "sw-g2", icon: "balloon", label: "Balloon pop" },
-        fish: { id: "swFish", cls: "sw-g4", icon: "fish", label: "Word fishing" },
-        mole: { id: "swMole", cls: "sw-g5", icon: "mole", label: "Whack-a-word" },
-        feed: { id: "swFeed", cls: "sw-g3", icon: "feed", label: feedLabel() },
-        mem: { id: "swMem", cls: "sw-g1", icon: "memory", label: "Memory match" },
-        snake: { id: "swSnake", cls: "sw-g6", icon: "snake", label: "Word snake" },
-        runner: { id: "swRunner", cls: "sw-g7", icon: "runner", label: "Word racer" },
-        slash: { id: "swSlash2", cls: "sw-g8", icon: "slash", label: "Word slash" },
-        detective: { id: "swDet", cls: "sw-g9", icon: "detective", label: "Word detective" },
-        basket: { id: "swHoop", cls: "sw-g10", icon: "hoop", label: "Word basketball" },
-      },
-      mainG = GAMESETS[gameSetNo(s) - 1],
-      moreG = Object.keys(GM).filter(function (k) {
-        return mainG.indexOf(k) < 0;
-      });
-    // one challenge for each stage (the island's own); a stage without one of its own yet shows the latest, and all of them are under "All challenges"
-    var CHS = {
-        battle: { id: "swBattle", cls: "sw-c2", label: "Monster battle", sub: "打怪兽 · " + monsDone(s) + " / 5", art: monArt(1, "cheer") },
-        spell: { id: "swSpell", cls: "sw-c1", label: "Bubble spell", sub: "泡泡拼词", art: scenery("game", "spell") },
-        siege: { id: "swSiege2", cls: "sw-c3", label: "Castle siege", sub: "弹弓攻城 · " + castlesDone(readSling()) + " / " + CASTLES.length, art: scenery("game", "castle") },
-        space: { id: "swSpace", cls: "sw-cs", label: "Space shooter", sub: "太空射手 · best " + readSpace().best, art: scenery("game", "space") },
-        dungeon: { id: "swDungeon", cls: "sw-cd", label: "Word dungeon", sub: "词汇地牢 · best " + readDungeon().best, art: scenery("game", "dungeon") },
-        deep: { id: "swDeep", cls: "sw-cp", label: "Deep sea treasure", sub: "深海寻宝 · best " + readDeep().best, art: scenery("game", "deep") },
-        pyramid: { id: "swPyr", cls: "sw-cy", label: "Pyramid code", sub: "金字塔密码 · best " + readPyr().best, art: scenery("game", "pyramid") },
-        sled: { id: "swSled", cls: "sw-cl", label: "Sled race", sub: "雪橇赛跑 · best " + readSled().best, art: scenery("game", "sled") },
-      },
-      chOrder = ["battle", "spell", "siege", "space", "dungeon", "deep", "pyramid", "sled"],
-      mainCh = chOrder[Math.min(chOrder.length, (/[?&]stage=(\d)/.exec((root.location && root.location.search) || "") ? +/[?&]stage=(\d)/.exec(root.location.search)[1] : reachedStage(s))) - 1],
-      moreCh = chOrder.filter(function (k) {
-        return k !== mainCh;
-      });
-    function chTile(k) {
-      return '<button class="sw-ct ' + CHS[k].cls + '" id="' + CHS[k].id + '"><span class="sw-gi">' + CHS[k].art + "</span>" + CHS[k].label + "<small>" + CHS[k].sub + '</small><span class="sw-qm" data-q="' + CHS[k].id + '">?</span></button>';
-    }
-    function gameTile(k) {
-      return '<button class="sw-gt ' + GM[k].cls + '" id="' + GM[k].id + '"><span class="sw-gi">' + scenery("game", GM[k].icon) + "</span>" + esc(GM[k].label) + '<span class="sw-qm" data-q="' + GM[k].id + '">?</span></button>';
-    }
     var h = '<div class="sw-home"><div class="sw-top"><button class="sw-back" id="swClose">← Back</button>' + (p ? '<span class="sw-starpill">' + scenery("star") + (+p.stars || 0) + "</span>" : "") + "</div>" +
       '<div class="sw-ttl"><span class="sw-aa">Aa</span><div><h1>Sight words</h1><div class="sw-sub">The words you will see in almost every story · 高频词</div></div></div>' +
       '<div class="sw-hero"><div class="sw-herobg">' + scenery("hero") + '</div><span class="sw-tpill">' + esc(pill) + "</span>" +
       '<div class="sw-hrow"><div class="sw-hpet">' + pet("happy") + '</div><div class="sw-hsay"><div class="sw-bub">' + esc(say1) + "<b>" + esc(say2) + '</b></div><div class="sw-wchs">' + chipsHtml(list) + "</div></div></div>" +
       '<button class="sw-start" id="swToday">' + PLAY + esc(btn) + "</button></div>" +
-      '<div class="sw-sect">Play with your words</div><div class="sw-games sw-g2c">' + mainG.map(gameTile).join("") + '</div><button class="sw-more" id="swMore">More games · 更多游戏 ▾</button><div class="sw-games sw-moreg" id="swMoreG" style="display:none">' + moreG.map(gameTile).join("") + "</div>" +
-      '<div class="sw-sect">Challenge · 挑战</div><div class="sw-chal sw-chal1">' + chTile(mainCh) + '</div><button class="sw-more" id="swMoreC">All challenges · 所有挑战 ▾</button><div class="sw-chal sw-morec" id="swMoreCG" style="display:none">' + moreCh.map(chTile).join("") + "</div>" +
       '<div class="sw-sect">Word islands</div><div class="sw-isl-wrap">' + scenery("islands", { known: known, total: words.length, title: D.stages[0].title, ready: readyIslands(), stages: islandInfo(s) }) + '<div class="sw-ipet">' + pet("happy") + "</div></div>" +
       '<div class="sw-sect">My words</div><button class="sw-album" id="swWall"><span class="sw-bk">' + scenery("book") + '</span><span class="sw-at"><b>My word album</b><span>' + known + " known · " + learning + " learning · " + (words.length - seen) + ' to meet</span></span><span class="sw-stk">' + stickers + "</span></button></div>";
     box.innerHTML = h;
@@ -1769,102 +1831,6 @@
         startFeed(gameWords(s, 6, true));
       }
     };
-    var starters = {
-      swMem: function () {
-        startMemory(memoryWords(s));
-      },
-      swBal: function () {
-        startBalloons(gameWords(s, 8));
-      },
-      swFeed: function () {
-        startFeed(gameWords(s, 6, true));
-      },
-      swFish: function () {
-        startFishing(gameWords(s, 8));
-      },
-      swMole: function () {
-        startWhack(gameWords(s, 8));
-      },
-      swSnake: function () {
-        startSnake(gameWords(s, 6));
-      },
-      swRunner: function () {
-        startRunner(gameWords(s, 6));
-      },
-      swSlash2: function () {
-        startSlash(gameWords(s, 8));
-      },
-      swDet: function () {
-        startDetective(gameWords(s, 8));
-      },
-      swHoop: function () {
-        startBasket(gameWords(s, 8));
-      },
-    };
-    Object.keys(starters).forEach(function (id) {
-      var b = document.getElementById(id);
-      if (b)
-        b.onclick = function () {
-          back = showHome;
-          if (howSeen()[id]) starters[id]();
-          else howTo(id, starters[id]);
-        };
-    });
-    document.getElementById("swMore").onclick = function () {
-      var g = document.getElementById("swMoreG"),
-        open = g.style.display === "none";
-      g.style.display = open ? "" : "none";
-      this.textContent = open ? "Fewer games ▴" : "More games · 更多游戏 ▾";
-    };
-    var chStart = {
-      swSpell: function () {
-        startSpell(spellList(readState()));
-      },
-      swBattle: function () {
-        showBattle();
-      },
-      swSiege2: function () {
-        showCastles();
-      },
-      swSpace: function () {
-        startSpace(gameWords(readState(), 8));
-      },
-      swDungeon: function () {
-        startDungeon(gameWords(readState(), 8));
-      },
-      swDeep: function () {
-        startDeep(gameWords(readState(), 8));
-      },
-      swPyr: function () {
-        startPyramid(gameWords(readState(), 8));
-      },
-      swSled: function () {
-        startSled(gameWords(readState(), 8));
-      },
-    };
-    Object.keys(chStart).forEach(function (id) {
-      var b = document.getElementById(id);
-      if (b)
-        b.onclick = function () {
-          back = showHome;
-          if (howSeen()[id]) chStart[id]();
-          else howTo(id, chStart[id]);
-        };
-    });
-    document.getElementById("swMoreC").onclick = function () {
-      var g = document.getElementById("swMoreCG"),
-        open = g.style.display === "none";
-      g.style.display = open ? "" : "none";
-      this.textContent = open ? "Fewer challenges ▴" : "All challenges · 所有挑战 ▾";
-    };
-    Array.prototype.forEach.call(box.querySelectorAll(".sw-qm"), function (q) {
-      q.onclick = function (e) {
-        if (e && e.stopPropagation) e.stopPropagation();
-        var id = q.getAttribute("data-q");
-        back = showHome;
-        howTo(id, starters[id] || chStart[id]);
-      };
-    });
     document.getElementById("swWall").onclick = showWall;
     Array.prototype.forEach.call(box.querySelectorAll(".sw-isl-qc"), function (q) {
       var n = +q.getAttribute("data-s") || 1;
@@ -1967,8 +1933,41 @@
       }
       h += "</div>";
     });
+    // the stage's own games and its challenge
+    var unlockAll = previewUnlock(),
+      gamesOpen = qdone > 0 || unlockAll,
+      stageDone = lessonsOf(sid).every(function (l) {
+        return s.lessons[l.id];
+      }),
+      chOpen = stageDone || unlockAll,
+      mine = stageGames(sid),
+      otherG = ["mem", "detective"].concat(
+        Object.keys(GAMEMETA).filter(function (k) {
+          return mine.indexOf(k) < 0 && k !== "mem" && k !== "detective";
+        })
+      ),
+      leftL = lessonsOf(sid).length - qdone;
+    h += '<div class="sw-sect">Games · 游戏</div>' + (gamesOpen ? "" : '<div class="sw-sub" style="margin-top:-6px">Finish a lesson to open the games.</div>') +
+      '<div class="sw-games sw-g2c">' + mine.map(function (k) {
+        return gameTileHtml(k, !gamesOpen);
+      }).join("") + '</div><button class="sw-more" id="swMore">More games · 更多游戏 ▾</button><div class="sw-games sw-moreg" id="swMoreG" style="display:none">' + otherG.map(function (k) {
+        return gameTileHtml(k, !gamesOpen);
+      }).join("") + "</div>" +
+      '<div class="sw-sect">Stage challenge · 挑战</div><div class="sw-chal sw-chal1">' + chTileHtml(STAGE_CH[sid - 1], s, chOpen ? "" : "Finish " + plural(leftL, "more lesson")) + "</div>";
     box.innerHTML = h + "</div>";
     document.getElementById("swClose").onclick = showHome;
+    document.getElementById("swMore").onclick = function () {
+      var g = document.getElementById("swMoreG"),
+        op = g.style.display === "none";
+      g.style.display = op ? "" : "none";
+      this.textContent = op ? "Fewer games ▴" : "More games · 更多游戏 ▾";
+    };
+    wireGames(box, {
+      back: showMap,
+      words: function (k) {
+        return k === "mem" ? memoryWords(readState()) : stageGameWords(readState(), sid, gameCount(k));
+      },
+    });
     var qgo = document.getElementById("swQGo") || document.getElementById("swQLink"),
       qno = document.getElementById("swQNot");
     if (qgo)
@@ -11036,7 +11035,11 @@
       keys = Object.keys(run.first),
       misses = [];
     var unit = run.mode === "lesson" ? unitOf(D.units, run.id) : null,
-      unitWas = unit ? unitProgress(unit, D.lessons, s).complete : true;
+      unitWas = unit ? unitProgress(unit, D.lessons, s).complete : true,
+      stageNo = run.mode === "lesson" ? stageOfLesson(run.id) : reachedStage(s),
+      stageWas = run.mode === "lesson" ? lessonsOf(stageNo).every(function (l) {
+        return s.lessons[l.id];
+      }) : true;
     run.total = keys.length;
     run.right = keys.filter(function (k) {
       return run.first[k];
@@ -11080,13 +11083,15 @@
     var lesson = run.mode === "lesson" ? lessonOf(run.id) : null,
       known = knownCount(s, run.mode === "lesson" ? stageWordsOf(stageOfLesson(run.id)) : allWords()),
       unitNow = unit && !unitWas && unitProgress(unit, D.lessons, s).complete,
+      stageNow = run.mode === "lesson" && !stageWas && lessonsOf(stageNo).every(function (l) {
+        return s.lessons[l.id];
+      }),
       nextL = (run.mode === "lesson" && nextLesson(lessonsOf(stageOfLesson(run.id)), s)) || nextLesson(D.lessons, s); // the next lesson of the same stage first
     var glad = pct >= 80,
       earned = run.mode === "lesson" ? lessonStars({ acc: pct }) : 0,
       bigStars = "",
       title = pct >= 80 ? "Great job!" : pct >= 50 ? "Good work!" : "Nice try!",
       memWords = lesson ? lesson.words : memoryWords(s),
-      balWords = lesson ? pickWords(lesson.words, learnedWords(s), 8, seeded(Date.now() % 100003)) : gameWords(s, 8),
       hasBooks = !!(lesson && lesson.books && lesson.books.length);
     for (var si = 0; si < earned; si++) bigStars += '<span class="sw-bs" style="animation-delay:' + (0.5 + si * 0.3).toFixed(1) + 's">' + scenery("star") + "</span>";
     // everything fits on one screen: the pet and the result at the top, then the buttons (next lesson, the games), then the small things
@@ -11099,8 +11104,10 @@
       '<div class="sw-msg sw-good">Words I know: ' + known + " / " + (run.mode === "lesson" ? stageWordsOf(stageOfLesson(run.id)) : allWords()).length + "</div>" +
       (misses.length ? '<div class="sw-msg">The red ones will come back for review tomorrow.</div>' : "") +
       (unitNow ? '<div class="sw-unitdone">' + medal(true) + "<div><b>Unit " + unit.id + " complete!</b> Open the chest.</div></div>" : "") +
-      '<div class="sw-acts">' + (unitNow ? '<button class="sw-go sw-a1 sw-gold" id="swUnit">Unit challenge · Balloon pop</button>' : "") + (nextL ? '<button class="sw-go sw-a1" id="swNextL">Next lesson →</button>' : "") +
-      '<button class="sw-gt sw-g1" id="swMem"><span class="sw-gi">' + scenery("game", "memory") + '</span>Memory match</button><button class="sw-gt sw-g2" id="swBal"><span class="sw-gi">' + scenery("game", "balloon") + "</span>Balloon pop</button></div>" +
+      '<div class="sw-acts">' + (stageNow ? '<button class="sw-go sw-a1 sw-gold" id="swStageCh">Stage challenge · ' + esc(chMeta(STAGE_CH[stageNo - 1], s).label) + "</button>" : "") + (unitNow ? '<button class="sw-go sw-a1 sw-gold" id="swUnit">Unit challenge · Balloon pop</button>' : "") + (nextL ? '<button class="sw-go sw-a1" id="swNextL">Next lesson →</button>' : "") +
+      stageGames(stageNo).map(function (k) {
+        return gameTileHtml(k, false);
+      }).join("") + "</div>" +
       '<div class="sw-fl"><button class="sw-linkbtn" id="swMap">' + backLabel() + "</button>" + (hasBooks ? '<button class="sw-linkbtn" id="swBooksBtn">Read these words in a story</button>' : "") + "</div>";
     if (hasBooks) {
       h += '<div class="sw-books" id="swBooks" style="display:none">' +
@@ -11111,12 +11118,21 @@
     box.innerHTML = h + "</div>";
     document.getElementById("swQuit").onclick = goBack;
     document.getElementById("swMap").onclick = goBack;
-    document.getElementById("swMem").onclick = function () {
-      startMemory(memWords);
-    };
-    document.getElementById("swBal").onclick = function () {
-      startBalloons(balWords);
-    };
+    wireGames(box, {
+      back: back,
+      words: function (k) {
+        return k === "mem" ? memWords : lesson ? pickWords(lesson.words, learnedWords(readState()), gameCount(k), seeded(Date.now() % 100003)) : gameWords(readState(), gameCount(k));
+      },
+    });
+    if (stageNow)
+      document.getElementById("swStageCh").onclick = function () {
+        back = showMap;
+        var ck = STAGE_CH[stageNo - 1];
+        if (howSeen()[chMeta(ck, readState()).id]) startChallengeKey(ck);
+        else howTo(chMeta(ck, readState()).id, function () {
+          startChallengeKey(ck);
+        });
+      };
     if (unitNow)
       document.getElementById("swUnit").onclick = function () {
         unitChallenge(unit.id);
