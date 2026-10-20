@@ -715,11 +715,12 @@
     var src = "sightwords/audio/" + (kind === "s" ? "s-" : "w-") + wkey(w) + ".mp3?v=" + AUDIO_V,
       text = kind === "s" ? (wordInfo(w) || {}).s || w : w;
     try {
-      if (audio) {
-        audio.onended = null;
-        audio.pause();
-      }
-      audio = new Audio(src);
+      // one audio element for every word: once a tap has let it play, the browser (Safari above all) lets it speak again later without another tap
+      if (!audio) audio = new Audio();
+      audio.onended = null;
+      audio.onerror = null;
+      audio.pause();
+      audio.src = src;
       audio.onerror = function () {
         speakFallback(text, then);
       };
