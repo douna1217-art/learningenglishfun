@@ -379,6 +379,7 @@
         '<p class="ac-p">' + email + "<small>Terms accepted 已同意条款：" + esc(TERMS_VERSION) + "</small></p>" +
         '<span class="ac-lab">Children 孩子 (' + st.profiles.length + " of " + MAX_CHILDREN + ")</span>" + rows +
         (st.profiles.length < MAX_CHILDREN ? '<button type="button" class="ac-sec" id="acAdd"><b>Add a child</b><s>添加孩子</s></button>' : "") +
+        '<button type="button" class="ac-sec" id="acRep"><b>Learning report</b><s>学习报告</s></button>' +
         '<p class="ac-note"><a class="ac-link" href="terms.html" target="_blank" rel="noopener">Terms 条款</a> &nbsp;·&nbsp; <a class="ac-link" href="privacy.html" target="_blank" rel="noopener">Privacy 隐私</a></p>' +
         '<button type="button" class="ac-sec" id="acOut"><b>Sign out</b><s>退出</s></button>',
       true,
@@ -387,9 +388,54 @@
     var add = doc.getElementById("acAdd");
     if (add) add.onclick = function () { showAddChild(true); };
     doc.getElementById("acOut").onclick = signOut;
+    doc.getElementById("acRep").onclick = showReport;
     el.querySelectorAll("[data-del]").forEach(function (b) {
       b.onclick = function () { showConfirmDelete(b.getAttribute("data-del")); };
     });
+  }
+
+  // The learning report for the child who is playing on this device (the progress is kept per child, so the other child's report is seen by switching to them).
+  function showReport() {
+    var r = root.SightWords && root.SightWords.report ? root.SightWords.report() : null,
+      who = st.active && byId(st.active) ? byId(st.active).nickname : "";
+    var body;
+    if (!r) body = '<p class="ac-p">The sight-words report is not ready yet.<small>单词报告还没有准备好。</small></p>';
+    else {
+      var rows = r.stages
+        .map(function (g) {
+          var pct = g.total ? Math.round((100 * g.known) / g.total) : 0;
+          return (
+            '<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800"><span>Stage ' + g.id + " · " + esc(g.title) + "</span><span>" + g.known + " / " + g.total + " known</span></div>" +
+            '<div style="height:8px;border-radius:99px;background:#E6EEF7;overflow:hidden"><i style="display:block;height:100%;width:' + pct + '%;background:#35B779"></i></div>' +
+            '<small style="font-size:12px;color:#4A5878;font-weight:700">' + g.lessons + " of " + g.lessonsTotal + " lessons done · " + g.learning + " words being learned</small></div>"
+          );
+        })
+        .join("");
+      var hard = r.hard.length
+        ? r.hard
+            .map(function (h) {
+              return '<span style="display:inline-block;margin:3px 4px 3px 0;padding:3px 10px;border-radius:99px;background:#FFE3DE;font-weight:800;font-size:13px">' + esc(h.w) + " <small>" + h.ok + "/" + h.n + "</small></span>";
+            })
+            .join("")
+        : '<span style="font-size:13px;color:#4A5878;font-weight:700">None yet. 暂时没有。</span>';
+      var games = r.games
+        .map(function (g) {
+          return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;border-bottom:1px solid #EEF2F7"><b>' + esc(g.n) + "</b><span>" + esc(g.t) + "</span></div>";
+        })
+        .join("");
+      body =
+        '<span class="ac-lab">Progress by stage 各阶段进度</span>' + rows +
+        '<span class="ac-lab">Words that keep going wrong 总是出错的词 <small>(right first time / tries)</small></span><div>' + hard + "</div>" +
+        '<span class="ac-lab">Games 游戏成绩</span>' + games;
+    }
+    var el = openModal(
+      '<h2 class="ac-h" id="acT">Learning report</h2><p class="ac-hz">学习报告' + (who ? " · " + esc(who) : "") + "</p>" + body +
+        '<button type="button" class="ac-sec" id="acBack"><b>Back</b><s>返回</s></button>',
+      true,
+      "acT"
+    );
+    doc.getElementById("acBack").onclick = showParent;
+    return el;
   }
 
   function showConfirmDelete(id) {

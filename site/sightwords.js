@@ -305,6 +305,61 @@
     });
     return { done: done, total: unit.lessons.length, words: words, known: knownCount(state, words), complete: done === unit.lessons.length };
   }
+  // the words the child keeps missing: at least two tries, at most half of them right the first time (worst first), as [key, tries, right]
+  function hardWords(state, limit) {
+    var out = [];
+    Object.keys(state.words || {}).forEach(function (k) {
+      var r = state.words[k];
+      if (r && (r.n || 0) >= 2 && (r.ok || 0) * 2 <= (r.n || 0)) out.push([k, r.n, r.ok || 0]);
+    });
+    out.sort(function (a, b) {
+      return a[2] / a[1] - b[2] / b[1] || b[1] - a[1];
+    });
+    return out.slice(0, limit || 8);
+  }
+  // a stage's challenge opens when its first unit is finished, or all its lessons are (stageLessons/stageUnits: that stage's own)
+  function challengeOpen(stageLessons, stageUnits, lessons, state) {
+    return (
+      stageLessons.length > 0 &&
+      (stageLessons.every(function (l) {
+        return !!state.lessons[l.id];
+      }) ||
+        stageUnits.some(function (u) {
+          return unitProgress(u, lessons, state).complete;
+        }))
+    );
+  }
+  // how many lessons are left before the nearest unit of the stage is finished
+  function lessonsToChallenge(stageUnits, lessons, state) {
+    var best = 99;
+    stageUnits.forEach(function (u) {
+      var up = unitProgress(u, lessons, state);
+      best = Math.min(best, up.total - up.done);
+    });
+    return best === 99 ? 0 : best;
+  }
+  // the words for a game that spells (pyramid code, sled race): nothing under 2 letters, and from the third level up the longer words come first
+  function preferLong(words, lvl, n) {
+    var len = function (w) {
+        return String(w).replace(/[^a-zA-Z]/g, "").length;
+      },
+      ok = words.filter(function (w) {
+        return len(w) >= 2;
+      });
+    if (ok.length < 4) ok = words.slice();
+    if (lvl >= 3) {
+      ok = ok
+        .filter(function (w) {
+          return len(w) >= 4;
+        })
+        .concat(
+          ok.filter(function (w) {
+            return len(w) < 4;
+          })
+        );
+    }
+    return ok.slice(0, n);
+  }
   // the unit to show open: the first one that is not finished (the last one when all are)
   function currentUnit(units, lessons, state) {
     for (var i = 0; i < units.length; i++) if (!unitProgress(units[i], lessons, state).complete) return units[i];
@@ -528,7 +583,16 @@
     return out;
   }
 
+  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "basket"]]; // two for each pair of stages
+  var STAGE_CH = ["battle", "spell", "siege", "space", "dungeon", "deep", "pyramid", "sled"]; // one challenge for each stage
+
   var core = {
+    challengeOpen: challengeOpen,
+    lessonsToChallenge: lessonsToChallenge,
+    preferLong: preferLong,
+    hardWords: hardWords,
+    stageGames: stageGames,
+    stageChallenge: stageChallenge,
     spellForm: spellForm,
     spellable: spellable,
     bubbleSet: bubbleSet,
@@ -1665,8 +1729,9 @@
     detective: { id: "swDet", cls: "sw-g9", icon: "detective", label: "Word detective" },
     basket: { id: "swHoop", cls: "sw-g10", icon: "hoop", label: "Word basketball" },
   };
-  var GAMESETS = [["bal", "fish"], ["mole", "feed"], ["snake", "runner"], ["slash", "basket"]]; // two for each pair of stages
-  var STAGE_CH = ["battle", "spell", "siege", "space", "dungeon", "deep", "pyramid", "sled"]; // one challenge for each stage
+  function stageChallenge(sid) {
+    return STAGE_CH[Math.max(1, Math.min(STAGE_CH.length, sid)) - 1];
+  }
   function stageGames(sid) {
     return GAMESETS[Math.max(1, Math.min(GAMESETS.length, Math.ceil(sid / 2))) - 1];
   }
@@ -1692,7 +1757,9 @@
     return C[k];
   }
   function chTileHtml(k, s, lockNote) {
-    var m = chMeta(k, s);
+    var m = chMeta(k, s),
+      pz = root.SWPrizes && root.SWPrizes.forChallenge ? root.SWPrizes.forChallenge(k) : null;
+    if (pz && !s.rev[pz.rk] && !lockNote) m.sub += " · 🎁";
     return '<button class="sw-ct ' + m.cls + (lockNote ? " sw-locked" : "") + '" id="' + m.id + '" data-c="' + k + '"' + (lockNote ? " disabled" : "") + '><span class="sw-gi">' + m.art + "</span>" + m.label + "<small>" + (lockNote ? "🔒 " + lockNote : m.sub) + "</small>" + (lockNote ? "" : '<span class="sw-qm" data-q="' + m.id + '">?</span>') + "</button>";
   }
   function gameCount(k) {
@@ -1723,8 +1790,8 @@
     else if (k === "space") startSpace(w());
     else if (k === "dungeon") startDungeon(w());
     else if (k === "deep") startDeep(w());
-    else if (k === "pyramid") startPyramid(w());
-    else if (k === "sled") startSled(w());
+    else if (k === "pyramid") startPyramid(gameWords(s, 16));
+    else if (k === "sled") startSled(gameWords(s, 16));
   }
   // makes the game and challenge tiles inside `scope` work; opts.back is where "Back" leads from the games, opts.words(k) the words for a game
   function wireGames(scope, opts) {
@@ -1936,24 +2003,20 @@
     // the stage's own games and its challenge
     var unlockAll = previewUnlock(),
       gamesOpen = qdone > 0 || unlockAll,
-      stageDone = lessonsOf(sid).every(function (l) {
-        return s.lessons[l.id];
-      }),
-      chOpen = stageDone || unlockAll,
+      chOpen = challengeOpen(lessonsOf(sid), units, D.lessons, s) || unlockAll,
       mine = stageGames(sid),
       otherG = ["mem", "detective"].concat(
         Object.keys(GAMEMETA).filter(function (k) {
           return mine.indexOf(k) < 0 && k !== "mem" && k !== "detective";
         })
-      ),
-      leftL = lessonsOf(sid).length - qdone;
+      );
     h += '<div class="sw-sect">Games · 游戏</div>' + (gamesOpen ? "" : '<div class="sw-sub" style="margin-top:-6px">Finish a lesson to open the games.</div>') +
       '<div class="sw-games sw-g2c">' + mine.map(function (k) {
         return gameTileHtml(k, !gamesOpen);
       }).join("") + '</div><button class="sw-more" id="swMore">More games · 更多游戏 ▾</button><div class="sw-games sw-moreg" id="swMoreG" style="display:none">' + otherG.map(function (k) {
         return gameTileHtml(k, !gamesOpen);
       }).join("") + "</div>" +
-      '<div class="sw-sect">Stage challenge · 挑战</div><div class="sw-chal sw-chal1">' + chTileHtml(STAGE_CH[sid - 1], s, chOpen ? "" : "Finish " + plural(leftL, "more lesson")) + "</div>";
+      '<div class="sw-sect">Stage challenge · 挑战</div><div class="sw-chal sw-chal1">' + chTileHtml(STAGE_CH[sid - 1], s, chOpen ? "" : "Finish " + plural(lessonsToChallenge(units, D.lessons, s), "more lesson")) + "</div>";
     box.innerHTML = h + "</div>";
     document.getElementById("swClose").onclick = showHome;
     document.getElementById("swMore").onclick = function () {
@@ -6296,13 +6359,10 @@
   function startSled(words) {
     gameTag = "game";
     trk("sw_game_start", "sled", "", "game");
-    var longer = words.filter(function (w) {
-      return String(w).replace(/[^a-zA-Z]/g, "").length >= 2;
-    });
-    if (longer.length >= 4) words = longer;
+    var store = readSled(),
+      lvl = store.lvl;
+    words = preferLong(words, lvl, 8);
     var rounds = roundsFor(words, gamePool(learnedWords(readState()), words, firstLessonsWords(), 4), seeded(Date.now() % 9973), 3),
-      store = readSled(),
-      lvl = store.lvl,
       first = {},
       i = 0,
       score = 0,
@@ -6393,13 +6453,15 @@
       writeSled(store);
       var medal = place === 1 ? "🥇" : place === 2 ? "🥈" : "🥉",
         extra = '<div class="sw-fcount">' + medal + " You came " + ord(place) + "! " + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Races won: " + store.wins + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (place === 1 ? "sw-dance" : "sw-hop") + '">' + petArt(place === 1 ? "excited" : "happy") + "</div></div>";
+      var cp = challengePrize("sled");
+      extra += cp.html;
       endGame("t", first, "Sled race", function () {
         return score + " points!";
       }, function (r, t) {
         return r + " of " + t + " words with no slips · best combo ×" + bestCombo;
       }, function () {
         startSled(gameWords(readState(), 8));
-      }, extra, null);
+      }, extra, cp.bind);
     }
     function paintWord() {
       var el = document.getElementById("swSlTiles"),
@@ -6769,14 +6831,11 @@
   }
   function startPyramid(words) {
     gameTag = "game";
-    // a one-letter word is no code to crack
-    var longer = words.filter(function (w) {
-      return String(w).replace(/[^a-zA-Z]/g, "").length >= 2;
-    });
-    if (longer.length >= 4) words = longer;
     trk("sw_game_start", "pyramid", "", "game");
+    // a one-letter word is no code to crack; from the third level up the longer words come first
+    var store = readPyr();
+    words = preferLong(words, store.lvl, 8);
     var rounds = roundsFor(words, gamePool(learnedWords(readState()), words, firstLessonsWords(), 4), seeded(Date.now() % 9973), 3),
-      store = readPyr(),
       lvl = store.lvl,
       first = {},
       i = 0,
@@ -6833,13 +6892,15 @@
       store.lvl = lvl;
       writePyr(store);
       var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Codes cracked in all: " + store.cracked + '</div><div class="sw-pcpyr">' + pyr(rounds.length, rounds.length) + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      var cp = challengePrize("pyramid");
+      extra += cp.html;
       endGame("y", first, "Pyramid code", function () {
         return score + " points!";
       }, function (r, t) {
         return r + " of " + t + " cracked quickly · best combo ×" + bestCombo;
       }, function () {
         startPyramid(gameWords(readState(), 8));
-      }, extra, null);
+      }, extra, cp.bind);
     }
     // the pyramid, one stone for every word cracked (1 + 2 + 2 + 3 stones)
     function pyr(n, total) {
@@ -7239,13 +7300,15 @@
       store.lvl = lvl;
       writeDeep(store);
       var extra = '<div class="sw-fcount">' + (won ? "Treasure hunt complete! " : "The air ran out, but good dive! ") + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Treasures found in all: " + store.found + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (won && newBest ? "sw-dance" : "sw-hop") + '">' + petArt(won ? "excited" : "happy") + "</div></div>";
+      var cp = won ? challengePrize("deep") : { html: "", bind: null };
+      extra += cp.html;
       endGame("q", first, "Deep sea treasure", function () {
         return score + " points!";
       }, function (r, t) {
         return r + " of " + t + " on the first try · best combo ×" + bestCombo;
       }, function () {
         startDeep(gameWords(readState(), 8));
-      }, extra, null);
+      }, extra, cp.bind);
     }
     function speed() {
       return W * (0.11 + 0.012 * lvl);
@@ -7868,13 +7931,15 @@
       store.lvl = lvl;
       writeDungeon(store);
       var extra = '<div class="sw-fcount">' + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Chests opened in all: " + store.chests + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (newBest ? "sw-dance" : "sw-hop") + '">' + petArt(newBest ? "excited" : "happy") + "</div></div>";
+      var cp = challengePrize("dungeon");
+      extra += cp.html;
       endGame("g", first, "Word dungeon", function () {
         return score + " points!";
       }, function (r, t) {
         return r + " of " + t + " on the first try · best combo ×" + bestCombo;
       }, function () {
         startDungeon(gameWords(readState(), 8));
-      }, extra, null);
+      }, extra, cp.bind);
     }
     function layout() {
       var dpr = root.devicePixelRatio || 1;
@@ -8632,13 +8697,15 @@
       writeSpace(store);
       var won = lives > 0;
       var extra = '<div class="sw-fcount">' + (won ? "Mission complete! " : "The shield is gone, but good try! ") + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Saucers zapped in all: " + store.boom + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (won && newBest ? "sw-dance" : "sw-hop") + '">' + petArt(won ? "excited" : "happy") + "</div></div>";
+      var cp = won ? challengePrize("space") : { html: "", bind: null };
+      extra += cp.html;
       endGame("p", first, "Space shooter", function () {
         return score + " points!";
       }, function (r, t) {
         return r + " of " + t + " on the first try · best combo ×" + bestCombo;
       }, function () {
         startSpace(gameWords(readState(), 8));
-      }, extra, null);
+      }, extra, cp.bind);
     }
     function burst(x, y, cols, n, sp) {
       var now = Date.now(),
@@ -9282,9 +9349,10 @@
       st.best[level] = Math.max(st.best[level] || 0, score);
       st.lvl = lvl;
       writeSling(st);
-      var hasNext = level < CASTLES.length,
+      var cp = challengePrize("siege"),
+        hasNext = level < CASTLES.length,
         extra = '<div class="sw-dbig sw-dpop">🏰💥</div><div class="sw-fcount">' + esc(C.n) + " has fallen!" + (newlyWon && hasNext ? " Level " + (level + 1) + " is open." : "") + " Castles fallen: " + castlesDone(st) + " / " + CASTLES.length + '</div>' +
-          (hasNext ? '<button class="sw-go" id="swNextL">Next castle →</button>' : "") + '<div class="sw-stage"><div class="sw-pet sw-pets sw-hop">' + petArt("happy") + "</div></div>";
+          cp.html + (hasNext ? '<button class="sw-go" id="swNextL">Next castle →</button>' : "") + '<div class="sw-stage"><div class="sw-pet sw-pets sw-hop">' + petArt("happy") + "</div></div>";
       endGame("c", first, "Castle siege · level " + level, function () {
         return score + " points!";
       }, function (r, t) {
@@ -9292,6 +9360,7 @@
       }, function () {
         startSling(level);
       }, extra, function () {
+        if (cp.bind) cp.bind();
         var b = document.getElementById("swNextL");
         if (b)
           b.onclick = function () {
@@ -10363,7 +10432,8 @@
     round();
   }
   function spellDone(first) {
-    var ks = Object.keys(first),
+    var cp = challengePrize("spell"),
+      ks = Object.keys(first),
       all =
         ks.length > 0 &&
         ks.every(function (k) {
@@ -10385,8 +10455,8 @@
       '<div class="sw-stage">' + (all ? party() : "") + '<div class="sw-pet sw-pets ' + (all ? "sw-dance" : "sw-hop") + '">' + petArt(all ? "excited" : "happy") + "</div></div>" +
         '<div class="sw-words">' + ks.map(function (k) {
           return '<span class="' + (first[k] ? "" : "sw-miss") + '">' + esc(shown(k)) + "</span>";
-        }).join("") + "</div>",
-      null,
+        }).join("") + "</div>" + cp.html,
+      cp.bind,
       { keepMisses: true }
     );
   }
@@ -10433,6 +10503,40 @@
     var h = "";
     for (var j = 0; j < 3; j++) h += '<i class="' + (j < n ? "" : "sw-lost") + '">' + HEARTSVG + "</i>";
     return h;
+  }
+  // the first time a stage's challenge is finished: 5 stars and the item it gives (with a button to wear it). Returns {html, bind}: html goes into the end page, bind is run once it is on the screen.
+  function challengePrize(ck) {
+    var P = root.SWPrizes,
+      prize = P && P.forChallenge ? P.forChallenge(ck) : null,
+      s = readState();
+    if (!prize || s.rev[prize.rk]) return { html: "", bind: null };
+    s.rev[prize.rk] = Date.now();
+    writeState(s);
+    trk("sw_challenge_prize", ck, "", "game");
+    try {
+      if (hooks.gift) hooks.gift(CHEST_STARS);
+      if (hooks.toast) hooks.toast([[CHEST_STARS, "Challenge finished", "完成挑战"]], CHEST_STARS, false);
+    } catch (e) {}
+    var p = hooks.pet ? hooks.pet() : null;
+    return {
+      html: '<div class="sw-rrow"><span class="sw-rstar">+' + CHEST_STARS + ' ★</span><span class="sw-ritem"><span class="sw-ith sw-rbig">' + prizeThumb(prize.id) + "</span>" + esc(prize.name) + " · " + esc(prize.cn) + "</span></div>" + (p ? '<button class="sw-go" id="swWearC">Wear it now</button>' : '<div class="sw-msg">Adopt a pet on the pet page to wear it.</div>'),
+      bind: function () {
+        var b = document.getElementById("swWearC");
+        if (b)
+          b.onclick = function () {
+            var ok = false;
+            try {
+              ok = hooks.wear ? hooks.wear(prize.id) : false;
+            } catch (e) {}
+            b.textContent = ok ? "Wearing ✓" : "Open the pet page to wear it";
+            b.disabled = true;
+            if (ok) sfx("cheer");
+          };
+        setTimeout(function () {
+          sfx("sparkle");
+        }, 350);
+      },
+    };
   }
   // the first time a monster is beaten: 5 stars and the prize it drops (with the pet wearing it)
   function monsterReveal(m) {
@@ -11037,9 +11141,7 @@
     var unit = run.mode === "lesson" ? unitOf(D.units, run.id) : null,
       unitWas = unit ? unitProgress(unit, D.lessons, s).complete : true,
       stageNo = run.mode === "lesson" ? stageOfLesson(run.id) : reachedStage(s),
-      stageWas = run.mode === "lesson" ? lessonsOf(stageNo).every(function (l) {
-        return s.lessons[l.id];
-      }) : true;
+      stageWas = run.mode === "lesson" ? challengeOpen(lessonsOf(stageNo), unitsOf(stageNo), D.lessons, s) : true;
     run.total = keys.length;
     run.right = keys.filter(function (k) {
       return run.first[k];
@@ -11083,9 +11185,7 @@
     var lesson = run.mode === "lesson" ? lessonOf(run.id) : null,
       known = knownCount(s, run.mode === "lesson" ? stageWordsOf(stageOfLesson(run.id)) : allWords()),
       unitNow = unit && !unitWas && unitProgress(unit, D.lessons, s).complete,
-      stageNow = run.mode === "lesson" && !stageWas && lessonsOf(stageNo).every(function (l) {
-        return s.lessons[l.id];
-      }),
+      stageNow = run.mode === "lesson" && !stageWas && challengeOpen(lessonsOf(stageNo), unitsOf(stageNo), D.lessons, s),
       nextL = (run.mode === "lesson" && nextLesson(lessonsOf(stageOfLesson(run.id)), s)) || nextLesson(D.lessons, s); // the next lesson of the same stage first
     var glad = pct >= 80,
       earned = run.mode === "lesson" ? lessonStars({ acc: pct }) : 0,
@@ -11161,8 +11261,52 @@
     refreshButton();
   }
 
+  // what a parent sees: how far each stage is, the words that keep going wrong, the best of every game (for the child on this device)
+  function report() {
+    if (!D) return null;
+    var s = readState(),
+      stages = [];
+    D.stages.forEach(function (st) {
+      if (!st.ready) return;
+      var ws = stageWordsOf(st.id),
+        ls2 = lessonsOf(st.id),
+        known = knownCount(s, ws),
+        seen = ws.filter(function (w) {
+          return s.words[wkey(w)];
+        }).length;
+      stages.push({ id: st.id, title: st.title, lessons: ls2.filter(function (l) { return s.lessons[l.id]; }).length, lessonsTotal: ls2.length, known: known, learning: seen - known, total: ws.length });
+    });
+    var fish = readFish(),
+      det = readDet(),
+      sl = readSling(),
+      games = [
+        { n: "Whack-a-word 打地鼠", t: "best " + readMole().best + " · golden moles " + readMole().golden },
+        { n: "Word fishing 钓单词", t: fishFound(fish) + " / " + SPECIES.length + " fish in the aquarium" },
+        { n: "Word snake 词汇蛇", t: "best " + readSnake().best + " · longest " + readSnake().len },
+        { n: "Word racer 单词赛车", t: "best " + readRunner().best + " · coins " + readRunner().coins },
+        { n: "Word slash 切水果", t: "best " + readSlash().best },
+        { n: "Word basketball 单词投篮", t: "best " + readHoops().best + " · swishes " + readHoops().swish },
+        { n: "Word detective 神探", t: detFound(det) + " cases solved" },
+        { n: "Monster battle 打怪兽", t: monsDone(s) + " / 5 monsters beaten" },
+        { n: "Castle siege 弹弓攻城", t: castlesDone(sl) + " / " + CASTLES.length + " castles fallen" },
+        { n: "Space shooter 太空射手", t: "best " + readSpace().best },
+        { n: "Word dungeon 词汇地牢", t: "best " + readDungeon().best },
+        { n: "Deep sea treasure 深海寻宝", t: "best " + readDeep().best },
+        { n: "Pyramid code 金字塔密码", t: "best " + readPyr().best + " · codes cracked " + readPyr().cracked },
+        { n: "Sled race 雪橇赛跑", t: "best " + readSled().best + " · races won " + readSled().wins },
+      ];
+    return {
+      stages: stages,
+      hard: hardWords(s, 8).map(function (h) {
+        return { w: shown(h[0]), n: h[1], ok: h[2] };
+      }),
+      games: games,
+    };
+  }
+
   /* ---- public ---- */
   root.SightWords = {
+    report: report,
     init: function (h) {
       hooks.award = h.award || null;
       hooks.toast = h.toast || null;

@@ -288,9 +288,15 @@ const PZ = require("../site/sightwords-prizes.js");
 const st0 = SW.cleanState(null);
 ok(SW.claimChest(st0, 1, 2, 1000) === true && st0.rev["chest1-2"] === 1000 && SW.claimChest(st0, 1, 2, 2000) === false && st0.rev["chest1-2"] === 1000, "chest: the first opening counts, a second one does not and keeps the first time");
 ok(SW.chestKey(1, 3) === "chest1-3", "chest: the key is made of the island and the unit");
-ok(PZ.STARS === 5 && PZ.ids().length === 45 && new Set(PZ.ids()).size === 45, "prizes: forty-five different items (five per island chest set, five monster drops), 5 stars per chest");
+ok(PZ.STARS === 5 && PZ.ids().length === 52 && new Set(PZ.ids()).size === 52, "prizes: fifty-two different items (forty unit chests, five monster drops, seven stage challenges), 5 stars per chest");
 ok(D.units.every((u) => PZ.forUnit(1, u.id) && PZ.forUnit(1, u.id).unit === u.id) && PZ.forUnit(2, 1) === null && PZ.forUnit(1, 6) === null, "prizes: every unit of island 1 has one; units of one island are not mixed up with the other");
-ok(PZ.ids().every((id) => /^(ch|mn)-/.test(id) && ["hat", "face", "neck"].indexOf(PZ.get(id).slot) >= 0 && PZ.isPrize(id) && !PZ.isPrize("x" + id)), "prizes: ids and slots");
+ok(PZ.ids().every((id) => /^(ch|mn|cc)-/.test(id) && ["hat", "face", "neck"].indexOf(PZ.get(id).slot) >= 0 && PZ.isPrize(id) && !PZ.isPrize("x" + id)), "prizes: ids and slots");
+// the stage challenges each give one item (stage 1's challenge, the Monster battle, has the monsters' drops)
+{
+  const chs = ["spell", "siege", "space", "dungeon", "deep", "pyramid", "sled"], items = chs.map((c) => PZ.forChallenge(c));
+  ok(items.every(Boolean) && new Set(items.map((i) => i.id)).size === 7 && PZ.forChallenge("battle") === null && PZ.forChallenge("nope") === null, "prizes: seven challenges, seven different items", items.map((i) => i && i.id));
+  ok(items.every((i) => i.rk === "chal" + i.challenge && PZ.wonIn({ [i.rk]: 5 }, i.id) && !PZ.wonIn({}, i.id)), "prizes: a challenge item is won when its challenge has been finished");
+}
 ok(!PZ.wonIn({}, "ch-flower") && PZ.wonIn({ "chest1-1": 5 }, "ch-flower") && !PZ.wonIn({ "chest1-1": 5 }, "ch-pine") && !PZ.wonIn({ "chest1-1": 5 }, "nope"), "prizes: won when the unit's chest has been opened");
 const fakeG = (a, inner) => '<g transform="translate(' + a.hx + "," + a.hy + ") scale(" + a.hs + ')">' + inner + "</g>";
 let artOk = true;
@@ -1417,5 +1423,33 @@ if (JSD) {
   ok(n0 >= 50 && n1 >= n0 * 0.4 && n1 <= n0 * 0.6 && n2 >= 1 && n2 <= 4, "motion guard: in one second the loop draws every picture at level 0, every other one (30 a second) at level 1 and only a few at level 2", [n0, n1, n2]);
 }
 
+
+// ---- the games live in the stages: which opens when, which words
+{
+  const L = [1, 2, 3, 4, 5, 6].map((id) => ({ id, words: ["w" + id] })),
+    U = [{ id: 1, lessons: [1, 2, 3] }, { id: 2, lessons: [4, 5, 6] }];
+  const st = (...ids) => ({ lessons: Object.fromEntries(ids.map((i) => [i, { t: 1 }])), words: {}, rev: {} });
+  ok(!SW.challengeOpen(L, U, L, st()), "stage challenge: closed at the start");
+  ok(!SW.challengeOpen(L, U, L, st(1, 2)), "stage challenge: still closed with two of the first unit's three lessons");
+  ok(SW.challengeOpen(L, U, L, st(1, 2, 3)), "stage challenge: opens when the first unit is finished");
+  ok(SW.challengeOpen(L, U, L, st(4, 5, 6)), "stage challenge: any finished unit opens it");
+  ok(SW.challengeOpen(L, [], L, st(1, 2, 3, 4, 5, 6)), "stage challenge: opens when every lesson is done, whatever the units");
+  ok(!SW.challengeOpen([], U, L, st(1, 2, 3)), "stage challenge: a stage with no lessons never opens");
+  ok(SW.lessonsToChallenge(U, L, st()) === 3 && SW.lessonsToChallenge(U, L, st(1, 2)) === 1 && SW.lessonsToChallenge(U, L, st(1, 5, 6)) === 1, "lessons left before the challenge: the nearest unit counts");
+  // two games for each pair of stages, one challenge for each stage, all different
+  ok(eq(SW.stageGames(1), SW.stageGames(2)) && eq(SW.stageGames(3), SW.stageGames(4)) && !eq(SW.stageGames(2), SW.stageGames(3)), "games change every two stages");
+  ok(SW.stageGames(1).length === 2 && [1, 2, 3, 4, 5, 6, 7, 8].every((n) => SW.stageGames(n).length === 2), "each stage has two games");
+  const chs = [1, 2, 3, 4, 5, 6, 7, 8].map(SW.stageChallenge);
+  ok(new Set(chs).size === 8 && chs.every(Boolean), "eight stages, eight different challenges", chs);
+  // the spelling games: no one-letter words, longer ones first from the third level
+  ok(eq(SW.preferLong(["I", "a", "go", "me", "see", "up"], 0, 8), ["go", "me", "see", "up"]), "spelling words: one-letter words are left out");
+  ok(eq(SW.preferLong(["go", "look", "me", "like", "up"], 4, 8), ["look", "like", "go", "me", "up"]), "spelling words: from level 3 the longer words come first");
+  ok(SW.preferLong(["go", "look", "me", "like", "up"], 1, 3).length === 3, "spelling words: at most n words");
+  ok(SW.preferLong(["I", "a", "go"], 0, 8).length === 3, "spelling words: when nearly all are short, none is dropped");
+  // the parent's report: the words that keep going wrong
+  const hw = SW.hardWords({ words: { go: { n: 4, ok: 1 }, me: { n: 2, ok: 2 }, up: { n: 3, ok: 0 }, see: { n: 1, ok: 0 }, can: { n: 2, ok: 1 } } }, 8);
+  ok(eq(hw.map((x) => x[0]), ["up", "go", "can"]), "report: hard words are the ones missed at least half the time over 2+ tries, worst first", hw);
+  ok(SW.hardWords({ words: {} }).length === 0 && SW.hardWords({}).length === 0, "report: no words, no hard words");
+}
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

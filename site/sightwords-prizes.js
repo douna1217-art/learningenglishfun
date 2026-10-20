@@ -629,6 +629,97 @@
         return '<g transform="translate(0,' + y + ')">' + o + "</g>";
       },
     },
+
+    // each stage's challenge gives one item the first time the challenge is finished (rev["chal<challenge>"] is set)
+    {
+      id: "cc-bubble", challenge: "spell", rk: "chalspell", world: "Bubble spell", label: "Finish the Bubble spell", slot: "hat", name: "Bubble crown", cn: "泡泡王冠", vb: "20 2 80 52", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.2)">' +
+          '<path d="M-19 6 Q0 -2 19 6" fill="none" stroke="#6AA7FF" stroke-width="4" stroke-linecap="round"/>' +
+          '<circle cx="-14" cy="-5" r="7" fill="#BFE7FF" fill-opacity=".85" stroke="#3D8BF2" stroke-width="2"/>' +
+          '<circle cx="0" cy="-13" r="9" fill="#FFD1EA" fill-opacity=".85" stroke="#E86AA6" stroke-width="2"/>' +
+          '<circle cx="14" cy="-5" r="7" fill="#D9F5C8" fill-opacity=".85" stroke="#5CC27A" stroke-width="2"/>' +
+          '<ellipse cx="-16" cy="-8" rx="2.2" ry="1.2" fill="#fff" opacity=".8"/><ellipse cx="-3" cy="-17" rx="2.8" ry="1.5" fill="#fff" opacity=".8"/><ellipse cx="12" cy="-8" rx="2.2" ry="1.2" fill="#fff" opacity=".8"/></g>'
+        );
+      },
+    },
+    {
+      id: "cc-knight", challenge: "siege", rk: "chalsiege", world: "Castle siege", label: "Bring a castle down", slot: "hat", name: "Knight helmet", cn: "骑士头盔", vb: "20 -2 82 56", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.2)">' +
+          '<path d="M-18 6 Q-19 -22 0 -24 Q19 -22 18 6Z" fill="#C5CEDB" stroke="#6B7A90" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<rect x="-16" y="-9" width="32" height="6" rx="3" fill="#2B3A55"/>' +
+          '<path d="M0 -24 Q8 -38 22 -31 Q15 -28 9 -22Z" fill="#E5483A" stroke="#A82A20" stroke-width="1.6" stroke-linejoin="round"/>' +
+          '<ellipse cx="-8" cy="-16" rx="4" ry="2" transform="rotate(-30 -8 -16)" fill="#fff" opacity=".6"/></g>'
+        );
+      },
+    },
+    {
+      id: "cc-astro", challenge: "space", rk: "chalspace", world: "Space shooter", label: "Finish the Space shooter", slot: "hat", name: "Astronaut helmet", cn: "宇航员头盔", vb: "18 -4 84 58", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.2)">' +
+          '<path d="M-20 6 Q-22 -26 0 -28 Q22 -26 20 6Z" fill="#E8F3FF" fill-opacity=".88" stroke="#8795B4" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M-16 -6 Q0 -20 16 -6" fill="none" stroke="#6AA7FF" stroke-width="3" stroke-linecap="round"/>' +
+          '<path d="M-3 -20 l1.4 3 3.2 .3 -2.4 2.2 .7 3.2 -2.9 -1.7 -2.9 1.7 .7 -3.2 -2.4 -2.2 3.2 -.3z" fill="#FFD23F" stroke="#E0A800" stroke-width=".8"/>' +
+          '<path d="M12 -24 L18 -34" stroke="#8795B4" stroke-width="2.4" stroke-linecap="round"/><circle cx="18.5" cy="-35" r="2.8" fill="#E5483A"/></g>'
+        );
+      },
+    },
+    {
+      id: "cc-torch", challenge: "dungeon", rk: "chaldungeon", world: "Word dungeon", label: "Finish the Word dungeon", slot: "hat", name: "Explorer cap", cn: "探险帽", vb: "18 4 86 50", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.2)">' +
+          '<path d="M-19 5 Q-19 -18 0 -19 Q19 -18 19 5Z" fill="#A9732F" stroke="#5E3A18" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M-22 5 H22" stroke="#5E3A18" stroke-width="4" stroke-linecap="round"/>' +
+          '<path d="M6 -10 L26 -17 L26 -3Z" fill="#FFF3A8" fill-opacity=".75"/>' +
+          '<circle cx="0" cy="-10" r="6" fill="#FFE066" stroke="#B8860B" stroke-width="2"/><circle cx="-1.5" cy="-11.5" r="2" fill="#fff" opacity=".8"/></g>'
+        );
+      },
+    },
+    {
+      id: "cc-snorkel", challenge: "deep", rk: "chaldeep", world: "Deep sea treasure", label: "Finish the Deep sea treasure", slot: "face", name: "Snorkel mask", cn: "潜水镜", vb: "6 2 118 58", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx,
+          x2 = 60 + a.edx,
+          r = a.er + 5.5,
+          y = a.ey;
+        return '<g stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M' + (x1 - r) + " " + y + " L" + (x1 - r - 14) + " " + (y - 2) + " M" + (x2 + r) + " " + y + " L" + (x2 + r + 14) + " " + (y - 2) + '" fill="none" stroke="#1FA8A0" stroke-width="4.6"/>' +
+          '<path d="M' + (x1 + r) + " " + y + " H" + (x2 - r) + '" fill="none" stroke="#1FA8A0" stroke-width="4.4"/>' +
+          '<circle cx="' + x1 + '" cy="' + y + '" r="' + r + '" fill="rgba(160,230,235,.55)" stroke="#1FA8A0" stroke-width="3.6"/>' +
+          '<circle cx="' + x2 + '" cy="' + y + '" r="' + r + '" fill="rgba(160,230,235,.55)" stroke="#1FA8A0" stroke-width="3.6"/>' +
+          '<path d="M' + (x2 + r + 12) + " " + (y - 2) + " L" + (x2 + r + 16) + " " + (y - 26) + " Q" + (x2 + r + 16) + " " + (y - 30) + " " + (x2 + r + 11) + " " + (y - 30) + '" fill="none" stroke="#FF8A3D" stroke-width="5"/>' +
+          "</g>";
+      },
+    },
+    {
+      id: "cc-pharaoh", challenge: "pyramid", rk: "chalpyramid", world: "Pyramid code", label: "Finish the Pyramid code", slot: "hat", name: "Pharaoh headdress", cn: "法老头饰", vb: "20 4 80 50", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.2)">' +
+          '<path d="M-19 5 Q-19 -20 0 -21 Q19 -20 19 5Z" fill="#F4C04A" stroke="#B8862B" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M-13 -15 H13 M-16 -8 H16 M-18 -2 H18" stroke="#3D8BF2" stroke-width="3"/>' +
+          '<rect x="-20" y="-4" width="40" height="8" rx="3" fill="#FFD23F" stroke="#B8862B" stroke-width="2"/>' +
+          '<path d="M0 -3 Q-5 -12 0 -19 Q5 -12 0 -3Z" fill="#35B779" stroke="#1F6A3A" stroke-width="1.6"/><circle cx="0" cy="0" r="2.6" fill="#E5483A"/></g>'
+        );
+      },
+    },
+    {
+      id: "cc-beanie", challenge: "sled", rk: "chalsled", world: "Sled race", label: "Finish the Sled race", slot: "hat", name: "Pom-pom beanie", cn: "毛线帽", vb: "20 -4 80 58", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a,
+          '<g transform="scale(1.2)">' +
+          '<path d="M-19 4 Q-19 -20 0 -22 Q19 -20 19 4Z" fill="#E5483A" stroke="#A82A20" stroke-width="2.4" stroke-linejoin="round"/>' +
+          '<path d="M-17 -9 Q0 -15 17 -9 M-18 -3 Q0 -9 18 -3" stroke="#fff" stroke-width="3" fill="none"/>' +
+          '<rect x="-21" y="1" width="42" height="9" rx="4.5" fill="#FFFFFF" stroke="#A82A20" stroke-width="2.4"/>' +
+          '<circle cx="0" cy="-27" r="6.4" fill="#fff" stroke="#C9D7E8" stroke-width="2"/></g>'
+        );
+      },
+    },
   ];
 
   var BY_ID = {};
@@ -664,6 +755,11 @@
     for (var i = 0; i < LIST.length; i++) if (LIST[i].monster === id) return LIST[i];
     return null;
   }
+  // the prize a stage's challenge gives the first time it is finished
+  function forChallenge(id) {
+    for (var i = 0; i < LIST.length; i++) if (LIST[i].challenge === id) return LIST[i];
+    return null;
+  }
   function thumb(id) {
     var it = root.ITEMS && root.ITEMS[id];
     if (!it || !it.draw) return "";
@@ -691,6 +787,7 @@
     key: key,
     forUnit: forUnit,
     forMonster: forMonster,
+    forChallenge: forChallenge,
     unlocked: unlocked,
     wonIn: wonIn,
     isPrize: function (id) {
