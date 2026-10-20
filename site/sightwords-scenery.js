@@ -66,6 +66,13 @@
         '<rect x="72" y="28" width="22" height="14" fill="#B5762C" stroke="#6B3F18" stroke-width="2"/><path d="M72 28 A11 6 0 0 1 94 28Z" fill="#C98F4E" stroke="#6B3F18" stroke-width="2"/><rect x="81" y="30" width="4" height="7" fill="#FFD23F"/>' +
         '<circle cx="18" cy="62" r="11" fill="#FFD9A8" stroke="#8A5A2B" stroke-width="2.4"/><circle cx="14" cy="60" r="1.8" fill="#1E2A4A"/><circle cx="22" cy="60" r="1.8" fill="#1E2A4A"/>' +
         '<path d="M44 22 A8 8 0 0 1 60 22 V34 L56 31 L52 34 L48 31 L44 34Z" fill="#fff" stroke="#8795B4" stroke-width="1.6"/><circle cx="49" cy="22" r="1.4" fill="#1E2A4A"/><circle cx="55" cy="22" r="1.4" fill="#1E2A4A"/>';
+    } else if (kind === "deep") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#2C8FCB"/><rect x="0" y="0" width="100" height="30" fill="#7FD6F0" opacity=".7"/><rect x="0" y="74" width="100" height="10" fill="#E8C98A"/>' +
+        '<circle cx="20" cy="18" r="3" fill="none" stroke="#fff" stroke-width="1.4" opacity=".7"/><circle cx="84" cy="30" r="2.4" fill="none" stroke="#fff" stroke-width="1.4" opacity=".7"/>' +
+        '<rect x="56" y="14" width="34" height="14" rx="4" fill="#fff" stroke="#E5483A" stroke-width="2.2"/><text x="73" y="24.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="10" fill="#1E2A4A">go</text>' +
+        '<rect x="62" y="34" width="22" height="16" fill="#B5762C" stroke="#6B3F18" stroke-width="2"/><path d="M62 34 A11 7 0 0 1 84 34Z" fill="#C98F4E" stroke="#6B3F18" stroke-width="2"/><rect x="71" y="37" width="4" height="8" fill="#FFD23F"/>' +
+        '<path d="M34 54 A9 8 0 0 1 52 54 V58 H34Z" fill="#FFA0CD" stroke="#E86AA6" stroke-width="1.6"/><path d="M38 58 q-2 8 0 12 M43 58 q2 8 0 13 M48 58 q-2 8 0 12" stroke="#FFB6D9" stroke-width="1.8" fill="none"/>' +
+        '<circle cx="20" cy="52" r="12" fill="#FFD9A8" stroke="#CFEFFF" stroke-width="4"/><circle cx="16" cy="50" r="1.8" fill="#1E2A4A"/><circle cx="24" cy="50" r="1.8" fill="#1E2A4A"/><rect x="2" y="48" width="6" height="12" rx="2" fill="#3D8BF2"/>';
     } else if (kind === "hoop") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#CFEAFB"/><rect x="0" y="54" width="100" height="30" fill="#E0B070"/>' +
         '<rect x="22" y="8" width="56" height="22" rx="5" fill="#fff" stroke="#E5483A" stroke-width="3"/><text x="50" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">go</text>' +

@@ -929,6 +929,7 @@
       "#swOverlay .sw-ct .sw-gi{width:62%}" +
       "#swOverlay .sw-c1{background:#D4F3FF;box-shadow:0 6px 0 #8FCBE6}" +
       "#swOverlay .sw-c2{background:#FFE2C9;box-shadow:0 6px 0 #EBA877}" +
+      "#swOverlay .sw-ct.sw-cp{background:#C2EEF2;box-shadow:0 6px 0 #7BC6D0}" +
       "#swOverlay .sw-ct.sw-cd{background:#FFE6A8;box-shadow:0 6px 0 #E0B24A}" +
       "#swOverlay .sw-ct.sw-cs{background:#D9D6FF;box-shadow:0 6px 0 #9E97E6}" +
       "#swOverlay .sw-bbs{padding:16px 14px 18px}" +
@@ -1603,6 +1604,7 @@
     swHoop: ["Word basketball", "单词投篮", "Flick the ball up at the hoop that shows the right word.", "把球往上弹，投进有正确单词的篮筐。"],
     swSpell: ["Bubble spell", "泡泡拼词", "Listen, then tap the letter bubbles in the right order to spell the word.", "听单词，按顺序点字母泡泡，把它拼出来。"],
     swBattle: ["Monster battle", "打怪兽", "Answer the word questions to power up your pet and beat the monster.", "回答单词题，给宠物加油，打败怪兽。"],
+    swDeep: ["Deep sea treasure", "深海寻宝", "Drag up and down to swim. Swim into the treasure chest that has the word you hear. Keep away from the jellyfish, they take your air!", "上下拖动小宠物游泳，游进写着你听到的单词的宝箱。躲开水母，被它电到会少一格空气！"],
     swDungeon: ["Word dungeon", "词汇地牢", "Drag to walk through the maze. Find the treasure chest that has the word you hear. A ghost floats around: if it touches you, you go back to the start!", "拖动宠物在迷宫里走路，找到写着你听到的单词的宝箱。小心幽灵，被它碰到会回到起点！"],
     swSpace: ["Space shooter", "太空射手", "Drag left and right to fly your rocket. It fires by itself. Shoot the saucer that has the word you hear. Do not let it get past you!", "左右拖动飞船，它会自动开火。打中写着你听到的单词的飞碟，别让它飞过去！"],
     swSiege2: ["Castle siege", "弹弓攻城", "Pull the sling back and let go. Hit the sign with the right word to knock the tower down. Pull further to shoot further. A faint dotted line shows the path.", "向后拉弹弓再松手，打中写着正确单词的牌子，塔就会倒。拉得越远飞得越远，虚线是飞行路线。"],
@@ -1710,8 +1712,9 @@
         siege: { id: "swSiege2", cls: "sw-c3", label: "Castle siege", sub: "弹弓攻城 · " + castlesDone(readSling()) + " / " + CASTLES.length, art: scenery("game", "castle") },
         space: { id: "swSpace", cls: "sw-cs", label: "Space shooter", sub: "太空射手 · best " + readSpace().best, art: scenery("game", "space") },
         dungeon: { id: "swDungeon", cls: "sw-cd", label: "Word dungeon", sub: "词汇地牢 · best " + readDungeon().best, art: scenery("game", "dungeon") },
+        deep: { id: "swDeep", cls: "sw-cp", label: "Deep sea treasure", sub: "深海寻宝 · best " + readDeep().best, art: scenery("game", "deep") },
       },
-      chOrder = ["battle", "spell", "siege", "space", "dungeon"],
+      chOrder = ["battle", "spell", "siege", "space", "dungeon", "deep"],
       mainCh = chOrder[Math.min(chOrder.length, (/[?&]stage=(\d)/.exec((root.location && root.location.search) || "") ? +/[?&]stage=(\d)/.exec(root.location.search)[1] : reachedStage(s))) - 1],
       moreCh = chOrder.filter(function (k) {
         return k !== mainCh;
@@ -1803,6 +1806,9 @@
       },
       swDungeon: function () {
         startDungeon(gameWords(readState(), 8));
+      },
+      swDeep: function () {
+        startDeep(gameWords(readState(), 8));
       },
     };
     Object.keys(chStart).forEach(function (id) {
@@ -2705,7 +2711,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : kind === "g" ? "dungeon" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : kind === "g" ? "dungeon" : kind === "q" ? "deepsea" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -6232,6 +6238,635 @@
       down = null;
     });
     my = run = { mode: "basket", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    last = Date.now();
+    hud();
+    draw();
+  }
+
+  /* ---- Deep sea treasure (the challenge of stage 6): the pet dives with a helmet and swims up and down (drag, or the arrow keys) while treasure chests drift by.
+     Hear a word and swim into the chest that has it. Jellyfish drift about: a zap costs one of three air tanks. Slow, steady and gentle, a little quicker as the child gets it right ---- */
+  var DEEPKEY = "lef_deep_v1";
+  function readDeep() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(DEEPKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, found: +o.found || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeDeep(o) {
+    try {
+      ls.setItem(DEEPKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startDeep(words) {
+    gameTag = "game";
+    trk("sw_game_start", "deepsea", "", "game");
+    var pool = gamePool(learnedWords(readState()), words, firstLessonsWords(), 4),
+      rounds = roundsFor(words, pool, seeded(Date.now() % 9973), 3),
+      rnd = seeded((Date.now() % 6151) + 23),
+      store = readDeep(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      foundN = 0,
+      tries = 0,
+      lastWrong = false,
+      lives = 3,
+      help = 0,
+      spdNote = "",
+      done = false,
+      items = [],
+      jellies = [],
+      bubbles = [],
+      reef = [],
+      fx = [],
+      texts = [],
+      imgs = {},
+      cur = null,
+      mood = "happy",
+      moved = false,
+      keys = { u: false, d: false },
+      keyH = null,
+      keyU = null,
+      py = 0,
+      ty = 0,
+      vy = 0,
+      hurt = 0,
+      shake = 0,
+      wait = 0.4,
+      last = 0,
+      clock = 0,
+      my = null,
+      raf = null,
+      cv = null,
+      ctx = null,
+      W = 340,
+      H = 420,
+      PX = 68,
+      PR = 24,
+      CH = 56;
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function hud() {
+      var a = document.getElementById("swKsc"),
+        b = document.getElementById("swKcb"),
+        c = document.getElementById("swKlv");
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.innerHTML = '<span style="color:#3D8BF2">' + new Array(lives + 1).join("●") + '</span><span style="color:#B9C4D8">' + new Array(4 - lives).join("●") + "</span> air" + spdNote;
+    }
+    function pace(up) {
+      spdNote = up ? " 🐇" : " 🐢";
+      setTimeout(function () {
+        spdNote = "";
+        if (alive()) hud();
+      }, 1800);
+    }
+    function petImg(m) {
+      if (imgs[m]) return imgs[m];
+      var svg = petArt(m);
+      if (!svg) return null;
+      svg = svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="428" ');
+      var im = new Image();
+      im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      imgs[m] = im;
+      return im;
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+      if (keyH) document.removeEventListener("keydown", keyH);
+      if (keyU) document.removeEventListener("keyup", keyU);
+      keyH = keyU = null;
+    }
+    function finish() {
+      cleanup();
+      var newBest = score > store.best,
+        won = lives > 0;
+      store.best = Math.max(store.best, score);
+      store.found += foundN;
+      store.lvl = lvl;
+      writeDeep(store);
+      var extra = '<div class="sw-fcount">' + (won ? "Treasure hunt complete! " : "The air ran out, but good dive! ") + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Treasures found in all: " + store.found + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (won && newBest ? "sw-dance" : "sw-hop") + '">' + petArt(won ? "excited" : "happy") + "</div></div>";
+      endGame("q", first, "Deep sea treasure", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " on the first try · best combo ×" + bestCombo;
+      }, function () {
+        startDeep(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    function speed() {
+      return W * (0.11 + 0.012 * lvl);
+    }
+    function burst(x, y, cols, n, sp) {
+      var now = Date.now(),
+        q;
+      for (q = 0; q < n; q++) {
+        var a = rnd() * 6.283,
+          s = sp * (0.4 + rnd());
+        fx.push({ x: x, y: y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, t: now, c: cols[q % cols.length], r: 2 + rnd() * 2.6 });
+      }
+    }
+    // a new line of treasure for the word in hand
+    function spawn() {
+      var r = rounds[i],
+        k = wkey(r.w),
+        others = r.opts
+          .filter(function (w) {
+            return wkey(w) !== k;
+          })
+          .slice(0, help > 0 ? 1 : 2),
+        list = shuffle([{ w: r.w, target: true }].concat(
+          others.map(function (w) {
+            return { w: w, target: false };
+          })
+        ), rnd),
+        n = list.length,
+        lanes = shuffle(n === 2 ? [0.3, 0.7] : [0.2, 0.5, 0.8], rnd),
+        j;
+      if (help > 0) help--;
+      items = list.map(function (it, q) {
+        return { w: it.w, target: it.target, x: W + CH * 0.9 + q * W * 0.15, y0: H * lanes[q], y: H * lanes[q], ph: rnd() * 6.283, flash: 0, open: 0, done: false, lock: 0 };
+      });
+      jellies = [];
+      var nj = lvl < 2 ? 1 : lvl < 5 ? 2 : 3;
+      for (j = 0; j < nj; j++)
+        jellies.push({ x: W + CH * 0.9 + W * 0.075 + j * W * 0.13, y0: H * (0.18 + rnd() * 0.64), amp: H * (0.07 + rnd() * 0.06), om: 0.7 + rnd() * 0.5, ph: rnd() * 6.283, y: 0 });
+      cur = { r: r, k: k };
+      setTimeout(function () {
+        if (alive() && cur && cur.r === r) play("w", r.w);
+      }, 350);
+    }
+    function wave(ok) {
+      wait = 1.3;
+      if (ok) {
+        i++;
+        if (i >= rounds.length) {
+          done = true;
+          setTimeout(function () {
+            if (my && run === my) finish();
+          }, 1400);
+        }
+      }
+      cur = null;
+    }
+    function got(it, now) {
+      var k = cur.k;
+      if (first[k] === undefined) first[k] = true;
+      lastWrong = tries > 0;
+      if (tries === 0) {
+        lvl = Math.min(8, lvl + 0.6);
+        pace(true);
+      }
+      combo++;
+      if (combo > bestCombo) bestCombo = combo;
+      foundN++;
+      var pts = 10 + Math.min(combo, 6) * 3;
+      score += pts;
+      it.open = now;
+      it.done = true;
+      texts.push({ x: it.x, y: it.y - CH * 0.9, t: now, s: "+" + pts, c: "#FFE066" });
+      burst(it.x, it.y, ["#FFD23F", "#FFFFFF", "#FFB6D9", "#9EE7FF"], 26, 170);
+      sfx("big");
+      mood = "excited";
+      say((combo >= 3 ? "Combo ×" + combo + "! " : "Treasure! ") + cur.r.w + (tries === 0 && combo >= 2 ? " · Faster!" : ""));
+      try {
+        if (hooks.burst && combo >= 3) {
+          var br = cv.getBoundingClientRect();
+          hooks.burst(br.left + it.x, br.top + it.y);
+        }
+      } catch (e) {}
+      tries = 0;
+      items.forEach(function (o) {
+        if (o !== it) o.sink = now;
+      });
+      wave(true);
+      hud();
+    }
+    function wrong(it, now) {
+      first[cur.k] = false;
+      tries++;
+      combo = 0;
+      lvl = Math.max(0, lvl - 0.8);
+      if (tries >= 2 || lastWrong) help = 2;
+      pace(false);
+      it.flash = now;
+      it.lock = now + 900;
+      sfx("poke");
+      mood = "happy";
+      say("Not that one! Listen again. Slowing down a little.");
+      var rr = cur.r;
+      setTimeout(function () {
+        if (alive() && cur && cur.r === rr) play("w", rr.w);
+      }, 700);
+      hud();
+    }
+    function missed(now) {
+      first[cur.k] = false;
+      tries++;
+      combo = 0;
+      lvl = Math.max(0, lvl - 0.8);
+      help = 2;
+      pace(false);
+      say("It floated by! Listen again and swim to it.");
+      var rr = cur.r;
+      wave(false);
+      setTimeout(function () {
+        if (alive()) play("w", rr.w);
+      }, 700);
+      hud();
+    }
+    function zap(now) {
+      lives--;
+      hurt = now + 1500;
+      shake = now + 400;
+      lvl = Math.max(0, lvl - 0.4);
+      sfx("poke");
+      burst(PX, py, ["#FFB6D9", "#FFFFFF", "#9EE7FF"], 14, 120);
+      texts.push({ x: PX, y: py - PR * 1.4, t: now, s: "Zap!", c: "#FFB6D9" });
+      if (lives <= 0) {
+        say("The air ran out!");
+        cur = null;
+        done = true;
+        setTimeout(function () {
+          if (my && run === my) finish();
+        }, 1300);
+      } else say("Ouch, a jellyfish! You lost some air.");
+      hud();
+    }
+    function drawChest(it, ts) {
+      var x = it.x,
+        y = it.y,
+        hint = tries >= 2 && it.target,
+        blink = Math.sin(ts / 120) > 0,
+        pw = CH * 1.4,
+        ph = CH * 0.46,
+        w = CH * 0.9,
+        h = CH * 0.55,
+        openAmt = it.open ? Math.min(1, (ts - it.open) / 250) : 0,
+        sink = it.sink ? Math.min(1, (ts - it.sink) / 900) : 0;
+      ctx.save();
+      if (sink) {
+        ctx.globalAlpha = 1 - sink;
+        ctx.translate(0, sink * H * 0.15);
+      }
+      if (ts - it.flash < 350) ctx.translate(Math.sin(ts / 25) * 3, 0);
+      if (hint) {
+        var gl = ctx.createRadialGradient(x, y - CH * 0.3, CH * 0.2, x, y - CH * 0.3, CH * 1.4);
+        gl.addColorStop(0, blink ? "rgba(255,240,120,.95)" : "rgba(255,214,64,.55)");
+        gl.addColorStop(1, "rgba(255,214,64,0)");
+        ctx.fillStyle = gl;
+        ctx.beginPath();
+        ctx.arc(x, y - CH * 0.3, CH * 1.4, 0, 6.283);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#B5762C";
+      ctx.strokeStyle = "#6B3F18";
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      ctx.rect(x - w / 2, y - h / 2 + h * 0.15, w, h * 0.85);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#C98F4E";
+      ctx.beginPath();
+      ctx.ellipse(x, y - h * 0.35 - openAmt * h * 0.5, w / 2, h * 0.42, 0, Math.PI, 6.283);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#FFD23F";
+      ctx.fillRect(x - w * 0.07, y - h * 0.05, w * 0.14, h * 0.4);
+      if (openAmt) {
+        ctx.fillStyle = "#FFE066";
+        ctx.beginPath();
+        ctx.ellipse(x, y - h * 0.2, w * 0.4, h * 0.2, 0, 0, 6.283);
+        ctx.fill();
+      }
+      var px = x - pw / 2,
+        pyy = y - h * 0.5 - ph - CH * 0.12;
+      ctx.fillStyle = hint ? (blink ? "#FFF08A" : "#FFC400") : "#FFFFFF";
+      ctx.strokeStyle = "#E5483A";
+      ctx.lineWidth = 2.6;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(px, pyy, pw, ph, 8);
+      else ctx.rect(px, pyy, pw, ph);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#1E2A4A";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      var fs = Math.round(ph * 0.66);
+      ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      while (ctx.measureText(it.w).width > pw * 0.86 && fs > 8) {
+        fs--;
+        ctx.font = "700 " + fs + "px Fredoka, sans-serif";
+      }
+      ctx.fillText(it.w, x, pyy + ph / 2 + 1);
+      ctx.restore();
+    }
+    function drawJelly(j, ts) {
+      var r = CH * 0.36;
+      ctx.save();
+      ctx.translate(j.x, j.y);
+      ctx.strokeStyle = "rgba(255,182,217,.9)";
+      ctx.lineWidth = 2.6;
+      ctx.lineCap = "round";
+      for (var t = -2; t <= 2; t++) {
+        ctx.beginPath();
+        ctx.moveTo(t * r * 0.36, r * 0.2);
+        ctx.quadraticCurveTo(t * r * 0.36 + Math.sin(ts / 200 + t) * 5, r * 1.1, t * r * 0.36 + Math.sin(ts / 170 + t * 2) * 4, r * 1.9);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "rgba(255,160,205,.92)";
+      ctx.strokeStyle = "#E86AA6";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r, r * 0.85, 0, Math.PI, 6.283);
+      ctx.lineTo(r, r * 0.2);
+      ctx.lineTo(-r, r * 0.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.ellipse(-r * 0.35, -r * 0.4, r * 0.25, r * 0.12, -0.5, 0, 6.283);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "#1E2A4A";
+      ctx.beginPath();
+      ctx.arc(-r * 0.3, -r * 0.1, r * 0.09, 0, 6.283);
+      ctx.arc(r * 0.3, -r * 0.1, r * 0.09, 0, 6.283);
+      ctx.fill();
+      ctx.restore();
+    }
+    function drawDiver(ts) {
+      var x = PX,
+        y = py,
+        im = petImg(mood),
+        blinkOut = ts < hurt && Math.sin(ts / 70) > 0;
+      if (blinkOut) return;
+      var tilt = Math.max(-0.4, Math.min(0.4, vy / (H * 2)));
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(tilt);
+      // the air tank and flippers
+      ctx.fillStyle = "#3D8BF2";
+      ctx.strokeStyle = "#1F5FB5";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-PR * 1.55, -PR * 0.5, PR * 0.8, PR * 1.1, 6);
+      else ctx.rect(-PR * 1.55, -PR * 0.5, PR * 0.8, PR * 1.1);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = "#FF8A3D";
+      ctx.beginPath();
+      ctx.ellipse(-PR * 1.1, PR * 0.95 + Math.sin(ts / 120) * 3, PR * 0.7, PR * 0.22, 0.3, 0, 6.283);
+      ctx.fill();
+      // the pet inside the helmet
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(0, 0, PR, 0, 6.283);
+      ctx.fillStyle = "#FFD9A8";
+      ctx.fill();
+      ctx.clip();
+      if (im && im.complete && im.naturalWidth) {
+        var dw = PR * 2 * 1.55,
+          dh = dw * (428 / 288);
+        ctx.drawImage(im, -dw / 2, -dh * 0.325, dw, dh);
+      }
+      ctx.restore();
+      ctx.fillStyle = "rgba(190,235,255,.28)";
+      ctx.beginPath();
+      ctx.arc(0, 0, PR, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = "#CFEFFF";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(0, 0, PR + 1, 0, 6.283);
+      ctx.stroke();
+      ctx.strokeStyle = "rgba(255,255,255,.8)";
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.arc(0, 0, PR * 0.78, 3.6, 4.5);
+      ctx.stroke();
+      ctx.restore();
+    }
+    function draw() {
+      if (!alive() || !ctx) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, (ts - last) / 1000);
+      last = ts;
+      clock += dt;
+      // steering
+      if (keys.u) ty -= H * 0.8 * dt;
+      if (keys.d) ty += H * 0.8 * dt;
+      ty = Math.max(PR * 1.2, Math.min(H - PR * 1.5, ty));
+      var oy = py;
+      py += (ty - py) * Math.min(1, dt * 8);
+      vy = dt > 0 ? (py - oy) / dt : 0;
+      if (!cur && !done) {
+        wait -= dt;
+        if (wait <= 0 && i < rounds.length) spawn();
+      }
+      var sp = speed();
+      if (cur) {
+        items.forEach(function (it) {
+          it.x -= sp * dt;
+          it.y = it.y0 + Math.sin(clock * 1.3 + it.ph) * H * 0.012;
+          if (it.done || it.sink) return;
+          if (it.x < W + CH * 0.2 && Math.abs(it.x - PX) < CH * 0.6 && Math.abs(it.y - py) < CH * 0.6) {
+            if (it.target) got(it, ts);
+            else if (ts > it.lock && Math.abs(vy) < H * 0.45) wrong(it, ts);
+          }
+        });
+        if (cur) {
+          var tg = items.filter(function (o) {
+            return o.target;
+          })[0];
+          if (tg && tg.x < PX - CH * 1.1) missed(ts);
+        }
+        if (cur)
+          jellies.forEach(function (j) {
+            j.x -= sp * dt * 1.0;
+            j.y = j.y0 + Math.sin(clock * j.om + j.ph) * j.amp;
+            var dx = j.x - PX,
+              dy = j.y - py;
+            if (ts > hurt && dx * dx + dy * dy < Math.pow(CH * 0.34 + PR * 0.8, 2)) zap(ts);
+          });
+      }
+      fx.forEach(function (p) {
+        p.vy -= 40 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vx *= 0.98;
+      });
+      fx = fx.filter(function (p) {
+        return ts - p.t < 800;
+      });
+      texts = texts.filter(function (t) {
+        return ts - t.t < 1000;
+      });
+      bubbles.forEach(function (b) {
+        b.y -= b.v * dt;
+        b.x -= sp * 0.2 * dt;
+        if (b.y < -6 || b.x < -6) {
+          b.y = H + 6;
+          b.x = rnd() * W;
+        }
+      });
+      reef.forEach(function (r) {
+        r.x -= sp * 0.5 * dt;
+        if (r.x < -r.w) r.x += W + r.w * 2;
+      });
+      // drawing
+      var bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, "#7FD6F0");
+      bg.addColorStop(0.5, "#2C8FCB");
+      bg.addColorStop(1, "#0B3B73");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "rgba(255,255,255,.07)";
+      for (var rr = 0; rr < 4; rr++) {
+        ctx.beginPath();
+        ctx.moveTo(W * (0.1 + rr * 0.26), 0);
+        ctx.lineTo(W * (0.18 + rr * 0.26), 0);
+        ctx.lineTo(W * (0.05 + rr * 0.26), H);
+        ctx.lineTo(W * (-0.1 + rr * 0.26), H);
+        ctx.fill();
+      }
+      var sh = ts < shake ? Math.sin(ts / 20) * 3 : 0;
+      ctx.save();
+      ctx.translate(sh, 0);
+      reef.forEach(function (r) {
+        ctx.fillStyle = r.c;
+        ctx.beginPath();
+        ctx.moveTo(r.x, H);
+        ctx.quadraticCurveTo(r.x + r.w * 0.2, H - r.h, r.x + r.w * 0.5, H - r.h * 0.6);
+        ctx.quadraticCurveTo(r.x + r.w * 0.8, H - r.h * 1.1, r.x + r.w, H);
+        ctx.fill();
+      });
+      ctx.fillStyle = "#E8C98A";
+      ctx.fillRect(-4, H - H * 0.03, W + 8, H * 0.03);
+      bubbles.forEach(function (b) {
+        ctx.strokeStyle = "rgba(255,255,255,.55)";
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.r, 0, 6.283);
+        ctx.stroke();
+      });
+      items.forEach(function (it) {
+        drawChest(it, ts);
+      });
+      jellies.forEach(function (j) {
+        if (cur) drawJelly(j, ts);
+      });
+      drawDiver(ts);
+      fx.forEach(function (p) {
+        ctx.globalAlpha = Math.max(0, 1 - (ts - p.t) / 800);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, 6.283);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      texts.forEach(function (t) {
+        var age = (ts - t.t) / 1000;
+        ctx.globalAlpha = Math.max(0, 1 - age);
+        ctx.fillStyle = t.c;
+        ctx.strokeStyle = "rgba(11,59,115,.92)";
+        ctx.lineWidth = 4.5;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(W * 0.07) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText(t.s, t.x, t.y - age * 30);
+        ctx.fillText(t.s, t.x, t.y - age * 30);
+        ctx.globalAlpha = 1;
+      });
+      if (!moved) {
+        ctx.fillStyle = "rgba(255,255,255,.9)";
+        ctx.font = "700 " + Math.round(W * 0.042) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Drag up and down to swim · 上下拖动游泳", W / 2, H * 0.94);
+      }
+      ctx.restore();
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Deep sea treasure</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Deep sea treasure</div><div class="sw-sent" style="font-size:22px">Swim to the treasure chest with the word you hear!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
+      '<canvas class="sw-snk" id="swDeepCv"></canvas><div class="sw-msg" id="swMsg">Drag up and down to swim. Keep away from the jellyfish!</div></div>';
+    bindQuit();
+    cv = document.getElementById("swDeepCv");
+    W = Math.max(280, Math.min(460, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 1.1);
+    PX = Math.round(W * 0.2);
+    PR = Math.round(W * 0.068);
+    CH = Math.round(W * 0.15);
+    py = ty = H / 2;
+    var q;
+    for (q = 0; q < 16; q++) bubbles.push({ x: rnd() * W, y: rnd() * H, v: 14 + rnd() * 30, r: 2 + rnd() * 4 });
+    for (q = 0; q < 7; q++) reef.push({ x: (q * (W + 60)) / 6, w: W * (0.18 + rnd() * 0.12), h: H * (0.07 + rnd() * 0.08), c: q % 2 ? "#0F5A8F" : "#0B4777" });
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = W + "px";
+    cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    document.getElementById("swHear").onclick = function () {
+      if (cur) play("w", cur.r.w);
+      else if (rounds[i]) play("w", rounds[i].w);
+    };
+    var dragging = false;
+    function steer(e) {
+      var r = cv.getBoundingClientRect();
+      ty = ((e.clientY - r.top) * H) / r.height;
+      moved = true;
+    }
+    cv.addEventListener("pointerdown", function (e) {
+      dragging = true;
+      steer(e);
+      try {
+        cv.setPointerCapture(e.pointerId);
+      } catch (e2) {}
+    });
+    cv.addEventListener("pointermove", function (e) {
+      if (dragging) steer(e);
+    });
+    cv.addEventListener("pointerup", function () {
+      dragging = false;
+    });
+    cv.addEventListener("pointercancel", function () {
+      dragging = false;
+    });
+    keyH = function (e) {
+      var c = e.keyCode;
+      if (c === 38 || c === 87) keys.u = moved = true;
+      if (c === 40 || c === 83) keys.d = moved = true;
+      if ((c === 38 || c === 40) && e.preventDefault) e.preventDefault();
+    };
+    keyU = function (e) {
+      var c = e.keyCode;
+      if (c === 38 || c === 87) keys.u = false;
+      if (c === 40 || c === 83) keys.d = false;
+    };
+    document.addEventListener("keydown", keyH);
+    document.addEventListener("keyup", keyU);
+    my = run = { mode: "deep", steps: [], i: 0, first: first, rnd: seeded(1) };
     my.stop = function () {
       cleanup();
       my = null;
