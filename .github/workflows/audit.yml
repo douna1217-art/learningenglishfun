@@ -1,0 +1,39 @@
+# The health check of the whole book library (tools/site_audit.py), including the pictures and the audio on the media server.
+# It runs by itself on the 1st of every month and whenever you press "Run workflow" on the Actions page.
+# The report is attached to the run (Artifacts > library-audit) and its top is shown on the run's page.
+# The run turns red when it finds an error, so GitHub sends you an e-mail.
+name: library audit
+
+on:
+  schedule:
+    - cron: "17 3 1 * *"
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check every book, picture and audio file
+        id: audit
+        run: python3 tools/site_audit.py --online --fail-on error
+        continue-on-error: true
+      - name: Keep the report
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-audit
+          path: tools/audit/
+      - name: Show the top of the report
+        run: head -n 60 tools/audit/report.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Fail when there were errors
+        if: steps.audit.outcome == 'failure'
+        run: |
+          echo "The audit found errors: read tools/audit/report.md in the artifact."
+          exit 1

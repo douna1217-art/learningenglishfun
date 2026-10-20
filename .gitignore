@@ -9,3 +9,7 @@
 
 # COS credentials for uploading book photos/audio — never commit
 .cos_credentials
+tools/audit/report.json
+tools/audit/levels.json
+tools/audit/media_cache.json
+__pycache__/

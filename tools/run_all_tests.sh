@@ -13,6 +13,9 @@ run() {
   [ $code -eq 0 ] || fail=1
 }
 for t in sightwords_test badges_test state_sync_test error_report_test festival_test; do run $t; done
+out=$(python3 tools/site_audit_test.py 2>&1); code=$?
+printf "site_audit_test: %s\n" "$(printf "%s" "$out" | tail -1)"
+[ $code -eq 0 ] || fail=1
 if node -e 'require.resolve("jsdom");require.resolve("acorn")' >/dev/null 2>&1; then
   for t in account_test legacy_syntax_check book_load_test; do run $t; done
 else
