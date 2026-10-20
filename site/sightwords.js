@@ -6519,6 +6519,10 @@
         var pts = 10 + Math.max(0, 7 - n) * 3 + Math.min(combo, 6) * 2;
         score += pts;
         say((n === 1 ? "Cracked in one go! " : "Code cracked! ") + rounds[i].w + " · +" + pts);
+        var cw = rounds[i];
+        setTimeout(function () {
+          if (alive()) play("w", cw.w);
+        }, 300);
         try {
           if (hooks.burst && !root.matchMedia("(prefers-reduced-motion: reduce)").matches) {
             var br = document.getElementById("swPcBody").getBoundingClientRect();
@@ -6535,7 +6539,7 @@
             done = true;
             finish();
           } else begin();
-        }, 1500);
+        }, 2000);
       } else if (guesses.length >= MAXG) {
         first[k] = false;
         combo = 0;
@@ -6559,12 +6563,10 @@
       } else {
         say(res.every(function (x) { return x !== "g"; }) ? "No letter in the right place yet. Listen again!" : "Getting closer! Green = right place, yellow = wrong place.");
         busy = false;
-        if (guesses.length === 2) {
-          var rw = rounds[i];
-          setTimeout(function () {
-            if (alive() && rounds[i] === rw) play("w", rw.w);
-          }, 600);
-        }
+        var rw = rounds[i];
+        setTimeout(function () {
+          if (alive() && rounds[i] === rw) play("w", rw.w);
+        }, 700);
         paint();
       }
     }
