@@ -6518,19 +6518,23 @@
     // the child moves on when ready: a "Next" button on the right, beside the pyramid
     function nextIn() {
       var body = document.getElementById("swPcBody"),
-        grid = body && body.querySelector(".sw-pcgrid");
-      if (body && grid && !document.getElementById("swPcNext")) {
+        kb = body && body.querySelector(".sw-pckb");
+      if (body && kb && !document.getElementById("swPcNext")) {
         var b = document.createElement("button");
         b.id = "swPcNext";
         b.className = "sw-go sw-pcnext";
         b.innerHTML = (i >= rounds.length ? "Finish" : "Next") + " ▶<small>" + (i >= rounds.length ? "完成" : "下一个") + "</small>";
         b.onclick = advance;
+        b.style.whiteSpace = "nowrap";
+        b.style.left = "0px";
+        b.style.top = "0px";
         body.appendChild(b);
-        // beside the empty rows, just right of the tiles (over the empty rows if the screen is too narrow for that)
-        var bw = b.offsetWidth || 110,
-          right = grid.offsetLeft + grid.offsetWidth + 14;
-        b.style.top = grid.offsetTop + grid.offsetHeight * 0.55 + "px";
-        b.style.left = (right + bw <= body.offsetWidth ? right : Math.max(0, grid.offsetLeft + grid.offsetWidth - bw - 8)) + "px";
+        // right above the top row of keys (I O P), in a gap made for it
+        var bh = b.offsetHeight || 56,
+          bw = b.offsetWidth || 100;
+        kb.style.marginTop = bh + 10 + "px";
+        b.style.top = kb.offsetTop - bh - 6 + "px";
+        b.style.left = Math.max(0, kb.offsetLeft + kb.offsetWidth - bw) + "px";
       }
     }
     function submit() {
@@ -6538,7 +6542,7 @@
         submit2();
       } catch (e) {
         busy = false;
-        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101h");
+        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101i");
         nextIn(1200);
       }
     }
@@ -6617,7 +6621,7 @@
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Pyramid code</span></div>' +
       '<div class="sw-card"><div class="sw-kind">Pyramid code</div><div class="sw-sent" style="font-size:22px">Crack the secret code! Spell the word you hear.</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
-      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody" style="position:relative"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101h</div></div>';
+      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody" style="position:relative"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101i</div></div>';
     bindQuit();
     document.getElementById("swHear").onclick = function () {
       if (rounds[i]) play("w", rounds[i].w);
