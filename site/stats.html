@@ -45,6 +45,7 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
 <div id="content">Loading…</div>
 <div id="accountContent"></div>
 <div id="swContent"></div>
+<div id="errContent"></div>
 <div id="regionContent"></div>
 <div class="section"><h2>💬 Feedback</h2><div id="fbContent">Loading…</div></div>
 </div>
@@ -98,6 +99,7 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
     loadRegions();
     loadAccounts();
     loadSightWords();
+    loadErrors();
   }
 
   // Real accounts (email sign-ins), from its own database function
@@ -184,6 +186,31 @@ button{border:0;background:var(--green);color:#fff;border-radius:10px;padding:9p
         '<h2 style="font-size:.95rem;margin-top:16px">Screens opened</h2>'+
         table(w.views||[], function(r){return [r.screen, r.n];}, ["Screen","Times"])+
         '<p class="muted" style="font-size:.8rem;margin:10px 0 0">Anonymous: a browser, not a person. "Children" means different browsers. 这里数的是浏览器，不是具体的孩子。</p>'+
+      '</div>';
+  }
+
+  // Page errors and words that could not be played (site/error-report.js), from get_error_stats() (supabase/error_stats.sql); counts only.
+  var errEl = document.getElementById("errContent");
+  async function loadErrors(){
+    var res = await sb.rpc("get_error_stats");
+    if(res.error){
+      errEl.innerHTML = '<div class="section"><h2>🐞 Errors</h2><p class="muted">错误统计还没启用：请先在 Supabase 的 SQL Editor 里运行 supabase/error_stats.sql。<br><span style="font-size:.8rem">'+esc(res.error.message)+'</span></p></div>';
+      return;
+    }
+    var w = res.data || {};
+    errEl.innerHTML =
+      '<div class="section"><h2>🐞 Errors</h2>'+
+        '<div class="grid" style="margin-bottom:14px">'+
+          card(w.errors_7d, "Errors, last 7 days")+
+          card(w.browsers_7d, "Browsers that hit one (7 days)")+
+          card(w.errors_30d, "Errors, last 30 days")+
+        '</div>'+
+        '<h2 style="font-size:.95rem">Errors per day, last 14 days</h2>'+ bars((w.daily||[]).map(function(r){return {date:r.date, visits:r.visits};})) +
+        '<h2 style="font-size:.95rem;margin-top:16px">What went wrong (7 days)</h2>'+
+        table(w.by_message||[], function(r){return [r.kind, r.msg, r.spot, r.n, r.browsers];}, ["Kind","Message","Where · browser","Times","Browsers"])+
+        '<h2 style="font-size:.95rem;margin-top:16px">By browser (7 days)</h2>'+
+        table(w.by_browser||[], function(r){return [r.browser, r.n];}, ["Browser","Errors"])+
+        '<p class="muted" style="font-size:.8rem;margin:10px 0 0">Anonymous: no user-agent string, no IP, nothing about the child. "audio" = a word that could not be played. 匿名记录：出错信息、文件、大致浏览器；"audio" 是单词发不出声。</p>'+
       '</div>';
   }
 

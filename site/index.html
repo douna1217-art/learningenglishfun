@@ -462,6 +462,7 @@ Grades K–6 · Read-aloud stories
 <div id="reviewOverlay"><div class="rev-bar"><button id="reviewBack">← Back</button><span class="ttl">🧠 Smart Review</span><span class="prog" id="revProgress"></span></div><div id="revContent"></div></div>
 <div id="modal" role="dialog" aria-modal="true"></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<script src="error-report.js?v=20261105a"></script>
 <script src="catalog.js"></script>
 <script src="books/fiction/books.js"></script>
 <script src="books/science/books.js"></script>
@@ -518,8 +519,44 @@ var SHELF={},ALL=[];
 <script src="pet-sound.js?v=20261014c"></script>
 <script src="badges.js?v=20261022a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
 <script src="sightwords-data.js?v=20261022a"></script><script src="sightwords-data2.js?v=20261014a"></script><script src="sightwords-data3.js?v=20261016a"></script><script src="sightwords-data4.js?v=20261017a"></script><script src="sightwords-data5.js?v=20261018a"></script><script src="sightwords-data6.js?v=20261019a"></script><script src="sightwords-data7.js?v=20261020a"></script><script src="sightwords-data8.js?v=20261022a"></script>
-<script src="sightwords-art.js?v=20261022e"></script><script src="sightwords-art3.js?v=20261017j"></script><script src="sightwords-art4.js?v=20261017f"></script><script src="sightwords-art5.js?v=20261018j"></script><script src="sightwords-art6.js?v=20261019a"></script><script src="sightwords-art7.js?v=20261021a"></script><script src="sightwords-art8.js?v=20261022s"></script><script src="sightwords-scenery.js?v=20261102a"></script><script src="sightwords-monsters.js?v=20261015a"></script>
-<script src="sightwords.js?v=20261104b"></script>
+<script>
+/* The sight-words code (about 1.2 MB: the pictures, the games, the monsters) is fetched once the page is up, so the book pages open at once;
+   the Sight words button starts the fetch early when it is touched, and opens the lessons as soon as the code is there. */
+(function(){
+  var files=["sightwords-art.js?v=20261022e","sightwords-art3.js?v=20261017j","sightwords-art4.js?v=20261017f","sightwords-art5.js?v=20261018j","sightwords-art6.js?v=20261019a","sightwords-art7.js?v=20261021a","sightwords-art8.js?v=20261022s","sightwords-scenery.js?v=20261102a","sightwords-monsters.js?v=20261015a","sightwords.js?v=20261105a"],
+    pending={init:null,open:false},state=0;
+  function done(){
+    state=2;
+    if(window.SightWords&&window.SightWords.__stub)return;
+    if(pending.init)window.SightWords.init(pending.init);
+    if(pending.open){pending.open=false;window.SightWords.open();}
+  }
+  function load(){
+    if(state)return;
+    state=1;
+    var i=0;
+    (function next(){
+      if(i>=files.length)return done();
+      var s=document.createElement('script');
+      s.src=files[i++];s.async=false;
+      s.onload=next;
+      s.onerror=function(){state=0;pending.open=false;var b=document.getElementById('swBadge');if(b)b.textContent='Tap to retry';};
+      document.head.appendChild(s);
+    })();
+  }
+  window.SightWords={__stub:true,
+    init:function(h){pending.init=h;},
+    open:function(){pending.open=true;var b=document.getElementById('swBadge');if(b)b.textContent='Loading…';load();},
+    refresh:function(){},knownCount:function(){return 0;},dueCount:function(){return 0;},
+    report:function(){load();return null;}};
+  window.__loadSightWords=load;
+  window.addEventListener('load',function(){
+    if(window.requestIdleCallback)requestIdleCallback(load,{timeout:3000});else setTimeout(load,1500);
+  });
+  var btn=document.getElementById('swBtn');
+  ['pointerdown','touchstart','mouseover','focus'].forEach(function(ev){if(btn)btn.addEventListener(ev,load,{passive:true});});
+})();
+</script>
 <script src="pet-life.js?v=20261015a"></script>
 <script>
 /* the pet page needs pet-art.js and pet-life.js; if either did not load, show no pet and never save over the child's saved one */

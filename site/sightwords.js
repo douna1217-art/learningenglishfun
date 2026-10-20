@@ -787,15 +787,18 @@
       audio.pause();
       audio.src = src;
       audio.onerror = function () {
+        if (root.__reportError) root.__reportError("audio", "load failed " + (audio && audio.error ? audio.error.code : "") + " " + (kind === "s" ? "s-" : "w-") + wkey(w));
         speakFallback(text, then);
       };
       if (then) audio.onended = then;
       var p = audio.play();
       if (p && p.catch)
-        p.catch(function () {
+        p.catch(function (err) {
+          if (root.__reportError) root.__reportError("audio", "play refused " + ((err && err.name) || "") + " " + (kind === "s" ? "s-" : "w-") + wkey(w));
           speakFallback(text, then);
         });
     } catch (e) {
+      if (root.__reportError) root.__reportError("audio", "play threw " + ((e && e.name) || ""));
       speakFallback(text, then);
     }
   }

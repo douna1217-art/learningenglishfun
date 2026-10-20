@@ -1031,7 +1031,8 @@ else {
     const dom = new JSD.JSDOM("<!doctype html><body></body>", { url: "https://example.test/", runScripts: "outside-only" }), w = dom.window, played = [], timers = [], awarded = [];
     w.setTimeout = (fn) => { timers.push(fn); return timers.length; };
     w.clearTimeout = (id) => { if (id > 0 && id <= timers.length) timers[id - 1] = null; };
-    w.Audio = function (src) { played.push(src); this.play = () => ({ catch() {} }); this.pause = () => {}; };
+    // (one audio element is reused for every word, so a word is "played" when its src is set)
+    w.Audio = function (src) { let cur = ""; if (src) played.push(src); Object.defineProperty(this, "src", { get: () => cur, set: (v) => { cur = v; played.push(v); } }); this.play = () => ({ catch() {} }); this.pause = () => {}; };
     if (saved) w.localStorage.setItem("lef_words_v1", JSON.stringify(saved));
     SWFILES.forEach((f) => w.eval(fs.readFileSync(path.join(SITE, f), "utf8")));
     w.SightWords.init({ award: (n) => { awarded.push(n); return n; }, toast() {}, burst() {}, pet: () => ({ type: "cat", eq: {}, stars: 0 }) });

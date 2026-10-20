@@ -1,0 +1,42 @@
+# Runs every check on each push and pull request, so a change that breaks something is seen before it goes live.
+# (the Supabase SQL test, tools/parent_sql_test.py, needs a database and is not part of this)
+name: tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install the test tools (jsdom, acorn, Playwright with Chromium)
+        run: |
+          npm init -y >/dev/null
+          npm install --no-save jsdom acorn playwright
+          npx playwright install --with-deps chromium
+      - name: Sight words, rules and data
+        run: node tools/sightwords_test.js
+      - name: Badges
+        run: node tools/badges_test.js
+      - name: Sync between devices
+        run: node tools/state_sync_test.js
+      - name: Error log
+        run: node tools/error_report_test.js
+      - name: Pet festivals
+        run: node tools/festival_test.js
+      - name: Accounts
+        run: node tools/account_test.js
+      - name: Older Android browsers can read every script
+        run: node tools/legacy_syntax_check.js
+      - name: Book pages load
+        run: node tools/book_load_test.js
+      - name: Games inside the stages (in a browser)
+        run: node tools/stage_games_check.js

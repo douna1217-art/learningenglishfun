@@ -28,7 +28,8 @@ const ok = (c, n, x) => (c ? passed++ : (failed++, console.log("  FAIL:", n, x =
     await page.goto(base + "/index.html?swtest=1");
     await page.waitForTimeout(700);
     await page.evaluate(() => { const b = [...document.querySelectorAll("button,a")].find((x) => /sight/i.test(x.textContent) && x.offsetParent); b && b.click(); });
-    await page.waitForTimeout(800);
+    await page.waitForFunction(() => { const o = document.getElementById("swOverlay"); return o && o.innerText.length > 20; }, null, { timeout: 15000 });
+    await page.waitForTimeout(500);
   };
   const stagePage = async (n) => {
     await page.evaluate((i) => { const e = document.querySelectorAll("#swOverlay .sw-isl-go")[i]; e && e.dispatchEvent(new MouseEvent("click", { bubbles: true })); }, n - 1);
@@ -36,6 +37,15 @@ const ok = (c, n, x) => (c ? passed++ : (failed++, console.log("  FAIL:", n, x =
   };
   const count = (sel) => page.evaluate((s) => document.querySelectorAll("#swOverlay " + s).length, sel);
 
+  // loading: the sight-words code comes after the page; tapping the button early still opens it, and without a tap it arrives by itself
+  await page.goto(base + "/index.html?swtest=1", { waitUntil: "domcontentloaded" });
+  ok(await page.evaluate(() => !!(window.SightWords && window.SightWords.__stub) || !!window.SightWords), "the Sight words button exists as soon as the page is up");
+  await page.waitForFunction(() => window.SightWords && !window.SightWords.__stub, null, { timeout: 15000 });
+  ok(true, "the sight-words code arrives by itself");
+  await page.goto(base + "/index.html?swtest=1", { waitUntil: "domcontentloaded" });
+  await page.evaluate(() => { localStorage.setItem("lef_howto_v1", "{}"); const b = document.getElementById("swBtn"); b && b.click(); });
+  await page.waitForFunction(() => { const o = document.getElementById("swOverlay"); return o && o.innerText.length > 20; }, null, { timeout: 15000 });
+  ok(true, "tapping the button before the code has arrived opens it as soon as it has");
   await open();
   ok((await count(".sw-gt")) === 0 && (await count(".sw-ct")) === 0, "home page: no games or challenges listed");
   await stagePage(1);
