@@ -76,6 +76,7 @@ GRADES = {
     "kindergarten": dict(grade="Kindergarten", band="Early Reader", minutes="6 min", fmt="marker"),
     "grade1": dict(grade="Grade 1", band="Beginning Reader", minutes="7 min", fmt="paired"),
     "grade2": dict(grade="Grade 2", band="Growing Reader", minutes="9 min", fmt="paired"),
+    "grade3": dict(grade="Grade 3", band="Growing Reader", minutes="10 min", fmt="marker"),  # one two-line paragraph per page plus a bare number, like Kindergarten
 }
 MODULES = ["Listen", "Read", "Reading", "Vocabulary"]
 FICTION_DIR = os.path.join(REPO, "site", "books", "fiction")
