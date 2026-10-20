@@ -6320,7 +6320,7 @@
       rows = [
         ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
         ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
-        ["enter", "z", "x", "c", "v", "b", "n", "m", "back"],
+        ["z", "x", "c", "v", "b", "n", "m", "back"],
       ];
     function alive() {
       return !!my && run === my && !done;
@@ -6340,6 +6340,7 @@
     function cleanup() {
       done = true;
       if (nextT) clearTimeout(nextT);
+      if (autoT) clearTimeout(autoT);
       if (keyH) document.removeEventListener("keydown", keyH);
       keyH = null;
     }
@@ -6475,6 +6476,8 @@
       if (!alive() || busy) return;
       var need = code.length - (given ? 1 : 0);
       if (k === "back") {
+        if (autoT) clearTimeout(autoT);
+        autoT = null;
         buf = buf.slice(0, -1);
         paint();
       } else if (k === "enter") {
@@ -6486,10 +6489,19 @@
       } else if (/^[a-z]$/.test(k) && buf.length < need) {
         buf += k;
         paint();
+        // all the letters are in: the code is checked by itself a moment later (⌫ in that moment takes a letter back)
+        if (buf.length >= need) {
+          if (autoT) clearTimeout(autoT);
+          autoT = setTimeout(function () {
+            autoT = null;
+            if (alive() && !busy && buf.length >= need) submit();
+          }, 450);
+        }
       }
     }
     // on to the next word by itself, or sooner when the child taps "Next"
-    var nextT = null;
+    var nextT = null,
+      autoT = null;
     function advance() {
       if (nextT) clearTimeout(nextT);
       nextT = null;
@@ -6517,7 +6529,7 @@
         submit2();
       } catch (e) {
         busy = false;
-        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101e");
+        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101f");
         nextIn(1200);
       }
     }
@@ -6596,7 +6608,7 @@
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Pyramid code</span></div>' +
       '<div class="sw-card"><div class="sw-kind">Pyramid code</div><div class="sw-sent" style="font-size:22px">Crack the secret code! Spell the word you hear.</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
-      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101e</div></div>';
+      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101f</div></div>';
     bindQuit();
     document.getElementById("swHear").onclick = function () {
       if (rounds[i]) play("w", rounds[i].w);
