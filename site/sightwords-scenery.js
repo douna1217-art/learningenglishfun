@@ -78,6 +78,13 @@
         '<path d="M50 8 L86 66 H14Z" fill="#E9B949" stroke="#B8862B" stroke-width="2.4" stroke-linejoin="round"/><path d="M50 8 L50 66 H14Z" fill="#F3CE6B"/>' +
         '<rect x="22" y="36" width="15" height="15" rx="3" fill="#35B779"/><rect x="39" y="36" width="15" height="15" rx="3" fill="#FFC93C"/><rect x="56" y="36" width="15" height="15" rx="3" fill="#9AA5BD"/>' +
         '<text x="29.5" y="48" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#fff">g</text><text x="46.5" y="48" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#1E2A4A">o</text><text x="63.5" y="48" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#fff">t</text>';
+    } else if (kind === "sled") {
+      inner = '<rect x="0" y="0" width="100" height="84" fill="#BFE4FF"/><path d="M0 52 L28 24 L56 52Z M40 52 L70 20 L100 52Z" fill="#E4F0FB"/><rect x="0" y="52" width="100" height="32" fill="#fff"/>' +
+        '<path d="M6 76 Q50 64 94 76" fill="none" stroke="#C9D7E8" stroke-width="3"/><path d="M30 44 l6 -16 l6 16 M26 44 h20" fill="#3C8D5A" stroke="#3C8D5A" stroke-width="2"/>' +
+        '<path d="M70 14 V52" stroke="#1E2A4A" stroke-width="3"/><rect x="70" y="14" width="14" height="6" fill="#1E2A4A"/><rect x="77" y="20" width="7" height="6" fill="#1E2A4A"/><rect x="70" y="20" width="7" height="6" fill="#fff"/>' +
+        '<path d="M14 72 H66 Q74 72 72 64" fill="none" stroke="#8A5A2B" stroke-width="3.4" stroke-linecap="round"/><rect x="18" y="62" width="44" height="8" rx="3" fill="#E5483A"/>' +
+        '<circle cx="40" cy="52" r="12" fill="#FFD9A8" stroke="#8A5A2B" stroke-width="2.4"/><path d="M28 50 A12 10 0 0 1 52 50Z" fill="#E5483A"/><circle cx="40" cy="38" r="2.4" fill="#fff"/><circle cx="36" cy="54" r="1.8" fill="#1E2A4A"/><circle cx="44" cy="54" r="1.8" fill="#1E2A4A"/>' +
+        '<path d="M4 58 H14 M2 66 H12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>';
     } else if (kind === "hoop") {
       inner = '<rect x="0" y="0" width="100" height="84" fill="#CFEAFB"/><rect x="0" y="54" width="100" height="30" fill="#E0B070"/>' +
         '<rect x="22" y="8" width="56" height="22" rx="5" fill="#fff" stroke="#E5483A" stroke-width="3"/><text x="50" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="#1E2A4A">go</text>' +

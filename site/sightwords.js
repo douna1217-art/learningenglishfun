@@ -930,6 +930,8 @@
       "#swOverlay .sw-ct .sw-gi{width:62%}" +
       "#swOverlay .sw-c1{background:#D4F3FF;box-shadow:0 6px 0 #8FCBE6}" +
       "#swOverlay .sw-c2{background:#FFE2C9;box-shadow:0 6px 0 #EBA877}" +
+      "#swOverlay .sw-ct.sw-cl{background:#D6EBFF;box-shadow:0 6px 0 #8FBBE6}" +
+      "#swOverlay .sw-sltiles{display:flex;gap:6px;justify-content:center;margin:12px auto 4px}#swOverlay .sw-slcur{animation:swpcpop .5s ease-in-out infinite alternate}" +
       "#swOverlay .sw-ct.sw-cy{background:#FFE3B8;box-shadow:0 6px 0 #E8A96B}" +
       "#swOverlay .sw-pcnext{position:absolute;margin:0;padding:10px 14px;font-size:18px;line-height:1.1;border-radius:20px;animation:swpcnx .9s ease-in-out infinite}#swOverlay .sw-pcnext small{display:block;font-size:12px;opacity:.85;font-weight:700}" +
       "@keyframes swpcnx{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}" +
@@ -1623,6 +1625,7 @@
     swHoop: ["Word basketball", "单词投篮", "Flick the ball up at the hoop that shows the right word.", "把球往上弹，投进有正确单词的篮筐。"],
     swSpell: ["Bubble spell", "泡泡拼词", "Listen, then tap the letter bubbles in the right order to spell the word.", "听单词，按顺序点字母泡泡，把它拼出来。"],
     swBattle: ["Monster battle", "打怪兽", "Answer the word questions to power up your pet and beat the monster.", "回答单词题，给宠物加油，打败怪兽。"],
+    swSled: ["Sled race", "雪橇赛跑", "Listen to the word and type it, one letter at a time. Every right letter pushes your sled down the hill. A wrong key makes it wobble. Beat the bunny and the penguin to the finish line!", "听单词，一个字母一个字母地打出来。每打对一个字母，雪橇就往前冲；按错会晃一下、变慢。和小兔子、小企鹅比赛，第一个冲过终点线！"],
     swPyr: ["Pyramid code", "金字塔密码", "Listen to the word and spell it with the letters. Green = right letter, right place. Yellow = right letter, wrong place. Grey = not in the word. You have 6 tries!", "听单词，用字母拼出来。绿色＝字母和位置都对，黄色＝字母对但位置不对，灰色＝单词里没有这个字母。一共有 6 次机会！"],
     swDeep: ["Deep sea treasure", "深海寻宝", "Drag up and down to swim. Swim into the treasure chest that has the word you hear. Keep away from the jellyfish, they take your air!", "上下拖动小宠物游泳，游进写着你听到的单词的宝箱。躲开水母，被它电到会少一格空气！"],
     swDungeon: ["Word dungeon", "词汇地牢", "Drag to walk through the maze. Find the treasure chest that has the word you hear. A ghost floats around: if it touches you, you go back to the start!", "拖动宠物在迷宫里走路，找到写着你听到的单词的宝箱。小心幽灵，被它碰到会回到起点！"],
@@ -1734,8 +1737,9 @@
         dungeon: { id: "swDungeon", cls: "sw-cd", label: "Word dungeon", sub: "词汇地牢 · best " + readDungeon().best, art: scenery("game", "dungeon") },
         deep: { id: "swDeep", cls: "sw-cp", label: "Deep sea treasure", sub: "深海寻宝 · best " + readDeep().best, art: scenery("game", "deep") },
         pyramid: { id: "swPyr", cls: "sw-cy", label: "Pyramid code", sub: "金字塔密码 · best " + readPyr().best, art: scenery("game", "pyramid") },
+        sled: { id: "swSled", cls: "sw-cl", label: "Sled race", sub: "雪橇赛跑 · best " + readSled().best, art: scenery("game", "sled") },
       },
-      chOrder = ["battle", "spell", "siege", "space", "dungeon", "deep", "pyramid"],
+      chOrder = ["battle", "spell", "siege", "space", "dungeon", "deep", "pyramid", "sled"],
       mainCh = chOrder[Math.min(chOrder.length, (/[?&]stage=(\d)/.exec((root.location && root.location.search) || "") ? +/[?&]stage=(\d)/.exec(root.location.search)[1] : reachedStage(s))) - 1],
       moreCh = chOrder.filter(function (k) {
         return k !== mainCh;
@@ -1833,6 +1837,9 @@
       },
       swPyr: function () {
         startPyramid(gameWords(readState(), 8));
+      },
+      swSled: function () {
+        startSled(gameWords(readState(), 8));
       },
     };
     Object.keys(chStart).forEach(function (id) {
@@ -2735,7 +2742,7 @@
       if (firstTry[k]) right++;
       if (s.words[k] && !(opts && opts.keepMisses && !firstTry[k])) s.words[k] = applyResult(s.words[k], firstTry[k], today); // spelling does not send a word back: it only moves up
     });
-    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : kind === "g" ? "dungeon" : kind === "q" ? "deepsea" : kind === "y" ? "pyramid" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
+    trk("sw_game_done", kind === "f" ? "feed" : kind === "s" ? "spell" : kind === "m" ? "battle" : kind === "h" ? "fishing" : kind === "w" ? "whack" : kind === "n" ? "snake" : kind === "r" ? "runner" : kind === "l" ? "slash" : kind === "d" ? "detective" : kind === "k" ? "basketball" : kind === "c" ? "siege" : kind === "p" ? "space" : kind === "g" ? "dungeon" : kind === "q" ? "deepsea" : kind === "y" ? "pyramid" : kind === "t" ? "sled" : "balloon", right + "/" + total, kind === "b" ? gameTag : "game");
     if (!s.rev[key]) {
       s.rev[key] = Date.now();
       stars = 1;
@@ -6268,6 +6275,479 @@
     };
     last = Date.now();
     hud();
+    draw();
+  }
+
+  /* ---- Sled race (the challenge of stage 8): a downhill race against two rivals. Hear a word and type it letter by letter: every right letter pushes the sled on, a wrong key
+     makes it wobble and lose speed. The rivals go at a steady pace that gets quicker as the child gets it right. A gold, blinking key shows the next letter when the child is stuck ---- */
+  var SLEDKEY = "lef_sled_v1";
+  function readSled() {
+    var o = null;
+    try {
+      o = JSON.parse(ls.getItem(SLEDKEY));
+    } catch (e) {}
+    o = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+    return { best: +o.best || 0, wins: +o.wins || 0, lvl: o.lvl === undefined ? 1 : Math.max(0, Math.min(8, +o.lvl || 0)) };
+  }
+  function writeSled(o) {
+    try {
+      ls.setItem(SLEDKEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function startSled(words) {
+    gameTag = "game";
+    trk("sw_game_start", "sled", "", "game");
+    var longer = words.filter(function (w) {
+      return String(w).replace(/[^a-zA-Z]/g, "").length >= 2;
+    });
+    if (longer.length >= 4) words = longer;
+    var rounds = roundsFor(words, gamePool(learnedWords(readState()), words, firstLessonsWords(), 4), seeded(Date.now() % 9973), 3),
+      store = readSled(),
+      lvl = store.lvl,
+      first = {},
+      i = 0,
+      score = 0,
+      combo = 0,
+      bestCombo = 0,
+      code = "",
+      typed = 0,
+      wrongs = 0,
+      busy = false,
+      done = false,
+      started = false,
+      raceStart = 0,
+      pp = 0,
+      target = 0,
+      stumble = 0,
+      boost = 0,
+      wobble = 0,
+      rivals = [
+        { n: "Bunny", e: "🐰", c: "#FF8FB1", p: 0, v: 1, fin: 0 },
+        { n: "Penguin", e: "🐧", c: "#6AA7FF", p: 0, v: 0.9, fin: 0 },
+      ],
+      snow = [],
+      texts = [],
+      imgs = {},
+      mood = "happy",
+      keyH = null,
+      last = 0,
+      clock = 0,
+      my = null,
+      raf = null,
+      cv = null,
+      ctx = null,
+      W = 340,
+      H = 240,
+      TRACK = 3000,
+      rows = [
+        ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        ["a", "s", "d", "f", "g", "h", "j", "k", "l"],
+        ["z", "x", "c", "v", "b", "n", "m"],
+      ];
+    function alive() {
+      return !!my && run === my && !done;
+    }
+    function say(t) {
+      var m = document.getElementById("swMsg");
+      if (m) m.textContent = t;
+    }
+    function rank() {
+      var r = 1;
+      rivals.forEach(function (o) {
+        if (o.p > pp + 0.0005) r++;
+      });
+      return r;
+    }
+    function ord(n) {
+      return n === 1 ? "1st" : n === 2 ? "2nd" : "3rd";
+    }
+    function hud() {
+      var a = document.getElementById("swKsc"),
+        b = document.getElementById("swKcb"),
+        c = document.getElementById("swKlv");
+      if (a) a.textContent = "Score " + score;
+      if (b) b.textContent = combo >= 2 ? "Combo ×" + combo + " 🔥" : "";
+      if (c) c.textContent = "Place " + ord(rank()) + " · Word " + Math.min(i + 1, rounds.length) + " / " + rounds.length;
+    }
+    function petImg(m) {
+      if (imgs[m]) return imgs[m];
+      var svg = petArt(m);
+      if (!svg) return null;
+      svg = svg.replace("<svg ", '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="428" ');
+      var im = new Image();
+      im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      imgs[m] = im;
+      return im;
+    }
+    function cleanup() {
+      done = true;
+      if (raf && root.cancelAnimationFrame) root.cancelAnimationFrame(raf);
+      if (keyH) document.removeEventListener("keydown", keyH);
+      keyH = null;
+    }
+    function finish(place) {
+      cleanup();
+      var newBest = score > store.best;
+      store.best = Math.max(store.best, score);
+      if (place === 1) store.wins++;
+      store.lvl = lvl;
+      writeSled(store);
+      var medal = place === 1 ? "🥇" : place === 2 ? "🥈" : "🥉",
+        extra = '<div class="sw-fcount">' + medal + " You came " + ord(place) + "! " + (newBest ? "New best score! " : "Best score: " + store.best + ". ") + "Races won: " + store.wins + '</div><div class="sw-stage"><div class="sw-pet sw-pets ' + (place === 1 ? "sw-dance" : "sw-hop") + '">' + petArt(place === 1 ? "excited" : "happy") + "</div></div>";
+      endGame("t", first, "Sled race", function () {
+        return score + " points!";
+      }, function (r, t) {
+        return r + " of " + t + " words with no slips · best combo ×" + bestCombo;
+      }, function () {
+        startSled(gameWords(readState(), 8));
+      }, extra, null);
+    }
+    function paintWord() {
+      var el = document.getElementById("swSlTiles"),
+        h = "",
+        q,
+        s = Math.min(48, Math.floor(((box.clientWidth || 340) - 72) / code.length) - 6);
+      for (q = 0; q < code.length; q++) {
+        var cls = q < typed ? "sw-pct sw-pcg" : q === typed ? "sw-pct sw-pcc sw-slcur" : "sw-pct";
+        h += '<div class="' + cls + '" style="width:' + s + "px;height:" + s + "px;font-size:" + Math.round(s * 0.58) + 'px">' + (q < typed ? esc(code[q]) : "") + "</div>";
+      }
+      if (el) el.innerHTML = h;
+      var kb = document.getElementById("swSlKb");
+      if (kb) {
+        var hk = wrongs >= 2 && typed < code.length ? code[typed] : "",
+          kh = "";
+        rows.forEach(function (row) {
+          kh += "<div>";
+          row.forEach(function (k) {
+            kh += '<button class="sw-pck' + (k === hk ? " sw-pckh" : "") + '" data-k="' + k + '">' + k + "</button>";
+          });
+          kh += "</div>";
+        });
+        kb.innerHTML = kh;
+        Array.prototype.forEach.call(kb.querySelectorAll(".sw-pck"), function (b) {
+          b.onclick = function () {
+            press(b.getAttribute("data-k"));
+          };
+        });
+      }
+    }
+    function begin() {
+      var r = rounds[i];
+      code = String(r.w).toLowerCase().replace(/[^a-z]/g, "") || "a";
+      typed = 0;
+      wrongs = 0;
+      busy = false;
+      paintWord();
+      hud();
+      say("Type the word you hear, letter by letter!");
+      var rr = r;
+      setTimeout(function () {
+        if (alive() && rounds[i] === rr) play("w", rr.w);
+      }, 350);
+    }
+    function press(k) {
+      if (!alive() || busy || !/^[a-z]$/.test(k)) return;
+      if (!started) {
+        started = true;
+        raceStart = Date.now();
+      }
+      var now = Date.now();
+      if (k === code[typed]) {
+        typed++;
+        target = (i + typed / code.length) / rounds.length;
+        boost = now + 350;
+        mood = "happy";
+        sfx("pew");
+        texts.push({ x: W * 0.35, y: H * 0.5, t: now, s: k.toUpperCase(), c: "#FFFFFF" });
+        paintWord();
+        if (typed >= code.length) wordDone(now);
+      } else {
+        wrongs++;
+        combo = 0;
+        lvl = Math.max(0, lvl - 0.3);
+        stumble = now + 900;
+        wobble = now + 600;
+        sfx("poke");
+        say(wrongs >= 2 ? "Not that one! The gold key is the next letter." : "Oops! Listen again and find the next letter.");
+        var rr = rounds[i];
+        if (wrongs === 1)
+          setTimeout(function () {
+            if (alive() && rounds[i] === rr) play("w", rr.w);
+          }, 600);
+        paintWord();
+        hud();
+      }
+    }
+    function wordDone(now) {
+      busy = true;
+      var k = wkey(rounds[i].w);
+      if (first[k] === undefined) first[k] = wrongs === 0;
+      if (wrongs === 0) {
+        combo++;
+        if (combo > bestCombo) bestCombo = combo;
+        lvl = Math.min(8, lvl + 0.6);
+      }
+      var pts = 10 + Math.min(combo, 6) * 3 + (wrongs === 0 ? 5 : 0);
+      score += pts;
+      boost = now + 1100;
+      mood = "excited";
+      sfx("big");
+      texts.push({ x: W * 0.35, y: H * 0.42, t: now, s: "+" + pts, c: "#FFE066" });
+      say((combo >= 3 ? "Combo ×" + combo + "! " : "Whoosh! ") + rounds[i].w);
+      var cw = rounds[i];
+      setTimeout(function () {
+        if (alive()) play("w", cw.w);
+      }, 250);
+      i++;
+      target = i / rounds.length;
+      hud();
+      setTimeout(function () {
+        if (!alive()) return;
+        if (i < rounds.length) begin();
+      }, 1100);
+    }
+    function sled(x, y, face, col, emoji, wob) {
+      var R = Math.round(W * 0.052);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(wob);
+      ctx.fillStyle = "rgba(30,60,100,.18)";
+      ctx.beginPath();
+      ctx.ellipse(0, R * 1.35, R * 1.6, R * 0.3, 0, 0, 6.283);
+      ctx.fill();
+      ctx.strokeStyle = "#8A5A2B";
+      ctx.lineWidth = 3;
+      ctx.lineCap = "round";
+      ctx.beginPath();
+      ctx.moveTo(-R * 1.5, R * 1.1);
+      ctx.lineTo(R * 1.3, R * 1.1);
+      ctx.quadraticCurveTo(R * 1.8, R * 1.1, R * 1.7, R * 0.6);
+      ctx.stroke();
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(-R * 1.4, R * 0.35, R * 2.7, R * 0.6, 6);
+      else ctx.rect(-R * 1.4, R * 0.35, R * 2.7, R * 0.6);
+      ctx.fill();
+      if (face) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(0, -R * 0.35, R, 0, 6.283);
+        ctx.fillStyle = "#FFD9A8";
+        ctx.fill();
+        ctx.clip();
+        var im = petImg(mood);
+        if (im && im.complete && im.naturalWidth) {
+          var dw = R * 2 * 1.55,
+            dh = dw * (428 / 288);
+          ctx.drawImage(im, -dw / 2, -R * 0.35 - dh * 0.325, dw, dh);
+        }
+        ctx.restore();
+        ctx.strokeStyle = "#8A5A2B";
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.arc(0, -R * 0.35, R, 0, 6.283);
+        ctx.stroke();
+        // a woolly hat
+        ctx.fillStyle = "#E5483A";
+        ctx.beginPath();
+        ctx.arc(0, -R * 1.2, R * 0.55, Math.PI, 6.283);
+        ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.beginPath();
+        ctx.arc(0, -R * 1.75, R * 0.16, 0, 6.283);
+        ctx.fill();
+      } else {
+        ctx.font = Math.round(R * 1.7) + "px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(emoji, 0, -R * 0.3);
+      }
+      ctx.restore();
+    }
+    function draw() {
+      if (!alive() || !ctx) return;
+      var ts = Date.now(),
+        dt = Math.min(0.05, (ts - last) / 1000),
+        q;
+      last = ts;
+      clock += dt;
+      // the rivals race on once the child has started (or after a while)
+      var running = started || clock > 8;
+      if (running) {
+        var T = 12.5 - 0.7 * lvl;
+        rivals.forEach(function (o, n) {
+          if (o.p < 1) {
+            o.p = Math.min(1, o.p + dt / (rounds.length * T * (n ? 1.12 : 1)));
+            if (o.p >= 1 && !o.fin) {
+              o.fin = ts;
+              texts.push({ x: W * 0.6, y: H * 0.25, t: ts, s: o.e + " finished!", c: "#FFFFFF" });
+            }
+          }
+        });
+      }
+      var sp = ts < stumble ? 0.5 : ts < boost ? 6 : 3.2;
+      if (pp < target) pp = Math.min(target, pp + (target - pp) * Math.min(1, dt * sp) + dt * 0.0005);
+      if (!done && i >= rounds.length && pp >= 0.995 && !busyEnd) {
+        busyEnd = true;
+        var place = rank();
+        say(place === 1 ? "You won the race!" : "You crossed the line in " + ord(place) + " place!");
+        setTimeout(function () {
+          if (my && run === my) finish(place);
+        }, 1700);
+      }
+      snow.forEach(function (s) {
+          s.y += s.v * dt;
+          s.x -= (ts < boost ? 90 : 30) * dt;
+          if (s.y > H) {
+            s.y = -4;
+            s.x = Math.random() * W;
+          }
+          if (s.x < -4) s.x = W;
+      });
+      texts = texts.filter(function (t) {
+        return ts - t.t < 900;
+      });
+      hudT -= dt;
+      if (hudT <= 0) {
+        hud();
+        hudT = 0.5;
+      }
+      // drawing
+      var cam = pp * TRACK,
+        px = W * 0.34,
+        bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, "#BFE4FF");
+      bg.addColorStop(0.5, "#EAF6FF");
+      bg.addColorStop(0.5, "#FFFFFF");
+      bg.addColorStop(1, "#DDEBFA");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#FFE9A8";
+      ctx.beginPath();
+      ctx.arc(W * 0.86, H * 0.14, W * 0.05, 0, 6.283);
+      ctx.fill();
+      // far mountains (slow) and fir trees (with the track)
+      ctx.fillStyle = "#C5D8EE";
+      for (q = -1; q < 5; q++) {
+        var mx = q * W * 0.55 - ((cam * 0.15) % (W * 0.55));
+        ctx.beginPath();
+        ctx.moveTo(mx, H * 0.5);
+        ctx.lineTo(mx + W * 0.27, H * 0.22);
+        ctx.lineTo(mx + W * 0.55, H * 0.5);
+        ctx.fill();
+      }
+      var lanes = [H * 0.6, H * 0.74, H * 0.9];
+      for (q = -1; q < 12; q++) {
+        var tx = q * 90 - (cam % 90);
+        ctx.fillStyle = "#3C8D5A";
+        ctx.beginPath();
+        ctx.moveTo(tx, H * 0.52);
+        ctx.lineTo(tx - 12, H * 0.52);
+        ctx.lineTo(tx - 3, H * 0.4);
+        ctx.lineTo(tx - 9, H * 0.4);
+        ctx.lineTo(tx, H * 0.28);
+        ctx.lineTo(tx + 9, H * 0.4);
+        ctx.lineTo(tx + 3, H * 0.4);
+        ctx.lineTo(tx + 12, H * 0.52);
+        ctx.fill();
+      }
+      // the finish line
+      var fx = px + (TRACK - cam);
+      if (fx < W + 40) {
+        ctx.fillStyle = "#1E2A4A";
+        ctx.fillRect(fx - 3, H * 0.4, 6, H * 0.6);
+        for (q = 0; q < 6; q++) {
+          ctx.fillStyle = q % 2 ? "#fff" : "#1E2A4A";
+          ctx.fillRect(fx - 30 + q * 10, H * 0.4, 10, 12);
+          ctx.fillStyle = q % 2 ? "#1E2A4A" : "#fff";
+          ctx.fillRect(fx - 30 + q * 10, H * 0.4 + 12, 10, 12);
+        }
+      }
+      // racers: the rivals ahead or behind the pet
+      rivals.forEach(function (o, n) {
+        var rx = px + (o.p - pp) * TRACK,
+          ry = lanes[n];
+        if (rx > -30 && rx < W + 30) sled(rx, ry, false, o.c, o.e, Math.sin(ts / 300 + n) * 0.03);
+        else {
+          ctx.fillStyle = o.c;
+          ctx.font = "700 16px sans-serif";
+          ctx.textAlign = rx < 0 ? "left" : "right";
+          ctx.fillText((rx < 0 ? "◀ " : "") + o.e + (rx < 0 ? "" : " ▶"), rx < 0 ? 6 : W - 6, ry);
+        }
+      });
+      sled(px, lanes[2], true, "#E5483A", "", ts < wobble ? Math.sin(ts / 40) * 0.14 : Math.sin(ts / 260) * 0.02);
+      // snow
+      ctx.fillStyle = "rgba(255,255,255,.9)";
+      snow.forEach(function (s) {
+        ctx.fillRect(s.x, s.y, s.r, s.r);
+      });
+      // speed lines when the sled is pushed on
+      if (ts < boost) {
+        ctx.strokeStyle = "rgba(255,255,255,.9)";
+        ctx.lineWidth = 2;
+        for (q = 0; q < 6; q++) {
+          var ly = H * 0.55 + ((q * 37 + ts / 8) % (H * 0.42)),
+            lx = px - W * 0.12 - ((q * 53 + ts / 4) % 60);
+          ctx.beginPath();
+          ctx.moveTo(lx, ly);
+          ctx.lineTo(lx - 22, ly);
+          ctx.stroke();
+        }
+      }
+      texts.forEach(function (t) {
+        var age = (ts - t.t) / 900;
+        ctx.globalAlpha = Math.max(0, 1 - age);
+        ctx.fillStyle = t.c;
+        ctx.strokeStyle = "rgba(30,42,74,.92)";
+        ctx.lineWidth = 4;
+        ctx.lineJoin = "round";
+        ctx.font = "700 " + Math.round(W * 0.06) + "px Fredoka, sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeText(t.s, t.x, t.y - age * 28);
+        ctx.fillText(t.s, t.x, t.y - age * 28);
+        ctx.globalAlpha = 1;
+      });
+      raf = root.requestAnimationFrame ? root.requestAnimationFrame(draw) : null;
+    }
+    var busyEnd = false,
+      hudT = 0;
+    box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Sled race</span></div>' +
+      '<div class="sw-card"><div class="sw-kind">Sled race</div><div class="sw-sent" style="font-size:22px">Type the word you hear to speed down the hill!</div>' +
+      '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
+      '<canvas class="sw-snk" id="swSledCv"></canvas><div class="sw-pcgrid sw-sltiles" id="swSlTiles" style="display:flex"></div><div class="sw-pckb" id="swSlKb"></div><div class="sw-msg" id="swMsg"></div></div>';
+    bindQuit();
+    cv = document.getElementById("swSledCv");
+    W = Math.max(280, Math.min(460, Math.floor((cv.parentNode.clientWidth || 340) - 56)));
+    H = Math.round(W * 0.62);
+    TRACK = W * 7;
+    var dpr = root.devicePixelRatio || 1;
+    cv.style.width = W + "px";
+    cv.style.height = H + "px";
+    cv.width = Math.round(W * dpr);
+    cv.height = Math.round(H * dpr);
+    ctx = cv.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    for (var z = 0; z < 40; z++) snow.push({ x: Math.random() * W, y: Math.random() * H, v: 20 + Math.random() * 40, r: 1.5 + Math.random() * 1.5 });
+    document.getElementById("swHear").onclick = function () {
+      if (rounds[Math.min(i, rounds.length - 1)]) play("w", rounds[Math.min(i, rounds.length - 1)].w);
+    };
+    keyH = function (e) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      var k = e.key;
+      if (k && k.length === 1 && /[a-zA-Z]/.test(k)) {
+        press(k.toLowerCase());
+        if (e.preventDefault) e.preventDefault();
+      }
+    };
+    document.addEventListener("keydown", keyH);
+    my = run = { mode: "sled", steps: [], i: 0, first: first, rnd: seeded(1) };
+    my.stop = function () {
+      cleanup();
+      my = null;
+    };
+    last = Date.now();
+    begin();
     draw();
   }
 
