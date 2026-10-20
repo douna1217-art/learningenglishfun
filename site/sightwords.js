@@ -6513,6 +6513,15 @@
       }
     }
     function submit() {
+      try {
+        submit2();
+      } catch (e) {
+        busy = false;
+        say("Oops (" + (e && e.message ? e.message : e) + ") · build 20261101e");
+        nextIn(1200);
+      }
+    }
+    function submit2() {
       var g = (given ? code[0] : "") + buf,
         res = rate(g, code),
         k = wkey(rounds[i].w),
@@ -6587,7 +6596,7 @@
     box.innerHTML = '<div class="sw-top"><button class="sw-back" id="swQuit">← Back</button><span class="sw-chip">Pyramid code</span></div>' +
       '<div class="sw-card"><div class="sw-kind">Pyramid code</div><div class="sw-sent" style="font-size:22px">Crack the secret code! Spell the word you hear.</div>' +
       '<button class="sw-say" id="swHear">' + SPEAKER + ' Hear it again</button><div class="sw-mhud"><span class="sw-msc" id="swKsc"></span><span class="sw-mcb" id="swKcb"></span><span class="sw-spd" id="swKlv"></span></div>' +
-      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody"></div><div class="sw-msg" id="swMsg"></div></div>';
+      '<div class="sw-pcpyr" id="swPcPyr"></div><div id="swPcBody"></div><div class="sw-msg" id="swMsg"></div><div style="font-size:10px;color:#9AA5BD;margin-top:8px">build 20261101e</div></div>';
     bindQuit();
     document.getElementById("swHear").onclick = function () {
       if (rounds[i]) play("w", rounds[i].w);
