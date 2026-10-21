@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build, upload and register Kindergarten / Grade 1 Fiction storybooks from
-source .docx files (the K-3 humanities format; docx_storybook_pipeline.py
-covers the Grade 4+ numbered-section format).
+"""Build, upload and register Kindergarten - Grade 6 Fiction storybooks from
+source .docx files (the K-3 humanities formats, plus the Grade 4+ numbered-
+section format that docx_storybook_pipeline.py parses).
 
 Committed, permanent replacement for build_kf_m.py / upload_kf_m.py /
 build_g1.py / upload_g1.py, which only lived in the session scratchpad and
@@ -13,6 +13,9 @@ order.
   kindergarten: each page is ONE paragraph holding two lines joined by a line
                 break, followed by a bare page-number marker ("1".."7").
   grade1:       each page is TWO consecutive narrative paragraphs, no marker.
+  grade4-6:     "numbered" format, 30 non-empty paragraphs: title, subtitle, then 7 x
+                ("N. Section Title", two body paragraphs, a bare-number marker);
+                a page's text is "N. Section Title" + the two paragraphs, one per line.
 
 Per-grade metadata (books.js + page chrome): see GRADES below. All use
 subject "Fiction" and the tab label "Reading".
@@ -77,6 +80,13 @@ GRADES = {
     "grade1": dict(grade="Grade 1", band="Beginning Reader", minutes="7 min", fmt="paired"),
     "grade2": dict(grade="Grade 2", band="Growing Reader", minutes="9 min", fmt="paired"),
     "grade3": dict(grade="Grade 3", band="Growing Reader", minutes="10 min", fmt="marker"),  # one two-line paragraph per page plus a bare number, like Kindergarten
+    # Grade 4-6 use the numbered-section docx and the "Story" tab, like the live shelf
+    "grade4": dict(grade="Grade 4", band="Fluent Reader", minutes="12 min", fmt="numbered", tab="Story",
+                   modules=["Listen", "Read", "Story", "Vocabulary"]),
+    "grade5": dict(grade="Grade 5", band="Fluent Reader", minutes="12 min", fmt="numbered", tab="Story",
+                   modules=["Listen", "Read", "Story", "Vocabulary"]),
+    "grade6": dict(grade="Grade 6", band="Fluent Reader", minutes="12 min", fmt="numbered", tab="Story",
+                   modules=["Listen", "Read", "Story", "Vocabulary"]),
 }
 MODULES = ["Listen", "Read", "Reading", "Vocabulary"]
 FICTION_DIR = os.path.join(REPO, "site", "books", "fiction")
@@ -106,8 +116,19 @@ def slugify(title):
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
 
 
+def read_numbered_docx(path):
+    import docx_storybook_pipeline as pipeline
+    paras, imgs = pipeline.extract(path)
+    name = os.path.basename(path)
+    assert len(imgs) == 8, (name, "expected 8 images, got", len(imgs))
+    title, subtitle, sections = pipeline.parse_book(paras, imgs)
+    return title, subtitle, [f"{sec['head']}\n{sec['p1']}\n{sec['p2']}" for sec in sections], imgs
+
+
 def read_docx(path, fmt):
     """-> (title, subtitle, page_texts[7], image_blobs[8]) for one docx."""
+    if fmt == "numbered":
+        return read_numbered_docx(path)
     import docx
     from docx.oxml.ns import qn
     d = docx.Document(path)
@@ -175,7 +196,9 @@ def book_text(spec, title, subtitle, texts):
 
 
 def docx_path(spec, docx_dir):
-    return os.path.join(os.path.expanduser(docx_dir), f"{spec['docx']}-Storybook.docx")
+    """<docx>-Storybook.docx, or <docx>.docx when the file has no -Storybook suffix."""
+    base = os.path.join(os.path.expanduser(docx_dir), spec["docx"])
+    return base + "-Storybook.docx" if os.path.exists(base + "-Storybook.docx") else base + ".docx"
 
 
 def load_books(path):
@@ -300,7 +323,7 @@ def cmd_build(args, books):
         pages = [{"type": "cover", "title": title, "subtitle": subtitle, "image": f"{base}/cover.jpg"}]
         pages += [{"text": t, "image": f"{base}/page{i}.jpg"} for i, t in enumerate(texts, start=1)]
         html = render(slug, title, subtitle, pages, balanced_quizzes(slug, spec),
-                      spec["focus"], cfg["grade"], "Fiction", tab_label="Reading")
+                      spec["focus"], cfg["grade"], "Fiction", tab_label=cfg.get("tab", "Reading"))
         with open(os.path.join(out, slug + ".html"), "w", encoding="utf-8") as f:
             f.write(html)
         print("wrote", slug, len(html), "|", title, "|", subtitle)
@@ -366,7 +389,7 @@ def cmd_register(args, books):
         title, subtitle, _ = book_text(spec, title, subtitle, texts)
         entries.append(json.dumps({
             "slug": slug, "title": title, "subtitle": subtitle, "grade": cfg["grade"],
-            "readingBand": cfg["band"], "minutes": cfg["minutes"], "modules": MODULES, "status": "ready",
+            "readingBand": cfg["band"], "minutes": cfg["minutes"], "modules": cfg.get("modules", MODULES), "status": "ready",
             "cover": f"books/fiction/{slug}.jpg", "file": f"books/fiction/{slug}.html"},
             ensure_ascii=False, separators=(",", ":")))
     if not entries:
