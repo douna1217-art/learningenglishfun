@@ -508,7 +508,6 @@ def needs_voicing(path):
     return False
 
 def main(site):
-    key = get_key()
     books = collect(site)
     if not books:
         sys.exit("No .html books found there. Drag the 'site' folder, OR a single book .html.")
@@ -516,8 +515,9 @@ def main(site):
     skipped = len(books) - len(todo)
     if not todo:
         print("Nothing to voice: all %d book(s) are already voiced." % len(books))
-        return
-    print("Found %d new book(s) to voice (%d already voiced, skipped)." % (len(todo), skipped))
+        return                                         # nothing to do, so no key is asked for
+    print("Found %d new book(s) to voice (%d already voiced, skipped).\n" % (len(todo), skipped))
+    key = get_key()
     keep_awake()
     done = 0; failed = []
     for i, f in enumerate(todo, 1):
