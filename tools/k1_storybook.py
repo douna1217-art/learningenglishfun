@@ -50,6 +50,10 @@ its example (write ", like <b>word</b>." instead). `audit` also reads each docx
 the page text, focus words that never appear in the story, vocabulary
 questions about a word that is not a focus word, and slugs already shipped.
 
+The batch data files used for the shipped books are kept in tools/batches/
+(g3_batch_*.py, g4_batch_*.py); save every new batch file there too, so a book's
+quizzes and text fixes can be rebuilt or edited later.
+
 Usage (run from anywhere):
   python3 tools/k1_storybook.py audit    --grade grade1 --data batch.py
   python3 tools/k1_storybook.py build    --grade grade1 --data batch.py
