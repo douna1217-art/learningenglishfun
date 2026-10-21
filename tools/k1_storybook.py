@@ -403,6 +403,8 @@ def cmd_register(args, books):
         f.write(new)
     if shutil.which("node"):
         subprocess.run(["node", "--check", path], check=True)
+    import make_sitemap
+    make_sitemap.main()  # keep sitemap.xml / sitemap.txt in step with the shelves
     print(f"registered {len(entries)} book(s) after the last {cfg['grade']} entry;",
           sum(1 for _ in re.finditer(re.escape('"grade":"%s"' % cfg["grade"]), new)), cfg["grade"], "books,",
           len(slugs), "Fiction books total")
