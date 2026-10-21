@@ -130,7 +130,11 @@ def read_numbered_docx(path):
 
 
 def read_docx(path, fmt):
-    """-> (title, subtitle, page_texts[7], image_blobs[8]) for one docx."""
+    """-> (title, subtitle, page_texts[7], image_blobs[8]) for one docx (or, for the numbered
+    format, one .pages file: see pages_storybook.py)."""
+    if path.endswith(".pages"):
+        import pages_storybook
+        return pages_storybook.read_pages(path)
     if fmt == "numbered":
         return read_numbered_docx(path)
     import docx
@@ -200,9 +204,14 @@ def book_text(spec, title, subtitle, texts):
 
 
 def docx_path(spec, docx_dir):
-    """<docx>-Storybook.docx, or <docx>.docx when the file has no -Storybook suffix."""
+    """<docx>-Storybook.docx, or <docx>.docx when the file has no -Storybook suffix, or
+    <docx>.pages when only the Pages file exists (Grade 4+ numbered format)."""
     base = os.path.join(os.path.expanduser(docx_dir), spec["docx"])
-    return base + "-Storybook.docx" if os.path.exists(base + "-Storybook.docx") else base + ".docx"
+    if os.path.exists(base + "-Storybook.docx"):
+        return base + "-Storybook.docx"
+    if not os.path.exists(base + ".docx") and os.path.exists(base + ".pages"):
+        return base + ".pages"
+    return base + ".docx"
 
 
 def load_books(path):
