@@ -13,7 +13,8 @@ it is silent. The stored times are compared with where each word *should* start 
 the words were spoken at a steady rate by character count; the largest miss, in
 seconds of speech, is the page's score. Pages normally score 0.4 to 1.5.
 A page above FLAG (2.2) is suspicious. With --realign it is re-timed with Whisper
-`small.en`, and the new times are used only when they score clearly better (below 1.6
+`small.en` (or --align-model NAME; medium.en for a page small.en keeps missing words
+on), and the new times are used only when they score clearly better (below 1.6
 and below 0.6 x the old score); with --patch they are written into the book (that
 line only, by a JSON round trip; the book is never re-rendered, so no audio is lost).
 Number-heavy math pages score high whichever times they carry (the numbers are spoken
@@ -24,7 +25,8 @@ Usage (from anywhere; ffmpeg must be on PATH, ~/.local/bin is added automaticall
   python3 tools/timing_check.py slug1 slug2 ...                    # score only
   python3 tools/timing_check.py --realign slug1 slug2 ...          # also show the better times
   python3 tools/timing_check.py --realign --patch slug1 slug2 ...  # and write them
-  options: --dir DIR (default site/books/fiction), --all (every book in DIR)
+  options: --dir DIR (default site/books/fiction), --all (every book in DIR),
+           --align-model NAME (Whisper model for --realign, default small.en)
 Exit code 1 if a page is flagged and not fixed.
 """
 import argparse
@@ -104,6 +106,7 @@ def main():
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--realign", action="store_true")
     ap.add_argument("--patch", action="store_true")
+    ap.add_argument("--align-model", default="small.en")
     args = ap.parse_args()
     slugs = args.slugs
     if args.all:
@@ -142,7 +145,7 @@ def main():
                     import voice_all
                     import whisper
                     if model is None:
-                        model = whisper.load_model("small.en")
+                        model = whisper.load_model(args.align_model)
                     voice_all._WHISPER_MODEL = model
                     new = voice_all.align_word_times(text, open(mp3, "rb").read())
                     new_score = score(new, text, segs) if len(new) == len(old) else None
