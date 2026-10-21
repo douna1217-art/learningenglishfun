@@ -1,32 +1,26 @@
 #!/usr/bin/env python3
 # =====================================================================
-#  Readiverse — ONE-CLICK whole-site narration (STABLE v5)
+#  Readiverse — ONE-CLICK whole-site narration (STABLE v4)
 #  - reads every book format (strict JSON + older JS-literal books)
 #  - voices story pages (window.RV_AUDIO) AND grammar "Let's learn"
 #    explanations, English + Chinese (window.RV_TEACH_AUDIO), each in
 #    the SAME voice as that book's own topic (no separate voice picker)
 #  - 60s timeout, auto-retry 4x, continue past failures
-#  - SKIPS whatever is already voiced (safe + fast to re-run; checking
-#    1000+ books takes a fraction of a second)
-#  - v5 (2026-10-21): several TTS requests run at once (--workers, default
-#    4), the next book's requests start while the current book is being
-#    aligned, uploads run in parallel, you can name several books, progress
-#    and time left are printed, and word times are aligned with Whisper
-#    small.en (more accurate than the old base model)
+#  - SKIPS whatever is already voiced (safe + fast to re-run)
+#  - you can name one or more book .html files instead of the whole folder
+#    (only those are voiced); for a folder only the books that get voiced are
+#    listed, the already-voiced ones are just counted
+#  - word times are aligned with Whisper small.en (more accurate than base;
+#    --align-model NAME or env VOICE_ALIGN_MODEL picks another)
 #  Runs on your Mac. Your key stays on your computer.
 #
 #  RUN (Terminal):
 #    python3  (space)  drag voice_all.py  (space)  drag the "site" folder  Return
-#    or drag one or more book .html files instead of the folder (only those
-#    are voiced, nothing else is scanned or printed)
+#    or drag one or more book .html files instead of the folder
 #    then paste your key when asked (hidden while typing).
-#    Options: --workers N (parallel TTS requests, default 4)
-#             --align-model NAME (Whisper model for word times, default small.en)
 # =====================================================================
 import os, sys, json, base64, glob, getpass, re, time, urllib.request, urllib.error
-import difflib, subprocess, tempfile, wave
-import argparse, random, threading
-from concurrent.futures import ThreadPoolExecutor
+import difflib, subprocess, tempfile, wave, argparse
 
 VOICES = {
     "fiction":        "fable",
@@ -44,12 +38,7 @@ INSTRUCTIONS = ("Read as a friendly first-grade teacher. Speak warmly and natura
                 "pronunciation. Sound encouraging and patient.")
 TIMEOUT = 60
 RETRIES = 4
-WORKERS = 4                                   # parallel TTS requests (and uploads)
 ALIGN_MODEL = os.environ.get("VOICE_ALIGN_MODEL", "small.en")   # Whisper model for word times
-
-
-class FatalAPIError(Exception):
-    """A request OpenAI will never accept (bad key, bad input, no quota): stop the whole run."""
 
 def get_key():
     k = os.environ.get("OPENAI_API_KEY")
@@ -75,20 +64,12 @@ def tts(text, key, voice):
         except urllib.error.HTTPError as e:
             msg = e.read().decode("utf-8", "ignore")
             if 400 <= e.code < 500 and e.code != 429:
-                raise FatalAPIError("OpenAI error " + str(e.code) + ": " + msg)
+                sys.exit("OpenAI error " + str(e.code) + ": " + msg)
             last = "HTTP %d" % e.code
-            wait = 3 * attempt
-            if e.code == 429:       # too many requests at once: back off longer, honour Retry-After
-                try:
-                    wait = max(wait, min(30, float(e.headers.get("Retry-After", 0))))
-                except (TypeError, ValueError):
-                    pass
-                wait += 5 * attempt + random.uniform(0, 2)
         except Exception as e:
             last = str(e)
-            wait = 3 * attempt
         print("      (retry %d/%d: %s)" % (attempt, RETRIES, last))
-        time.sleep(wait)
+        time.sleep(3 * attempt)
     raise RuntimeError(str(last))
 
 _ABBREV_RE = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr)\.")
@@ -141,10 +122,7 @@ def tts_multi(text, key, voice):
     sentences = split_sentences(text)
     if len(sentences) <= 1:
         return tts(text, key, voice), None
-    return _combine(sentences, [tts(s, key, voice) for s in sentences])
-
-def _combine(sentences, audios):
-    """Join the per-sentence audio of one page and work out the seam marks (see tts_multi)."""
+    audios = [tts(s, key, voice) for s in sentences]
     combined = b"".join(audios)
     char_lens = [len(s) + 1 for s in sentences]
     byte_lens = [len(a) for a in audios]
@@ -257,7 +235,7 @@ def get_teach_items(html):
     return items
 
 _COS_CREDS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cos_credentials")
-_cos_local = threading.local()      # one COS client per thread (uploads run in parallel)
+_cos_client = None
 _cos_creds = None
 
 def _get_cos_client():
@@ -266,23 +244,20 @@ def _get_cos_client():
     base64-embedded in the HTML (which used to balloon every book's .html
     to multiple MB and eventually broke the site's EdgeOne deploys) or
     written as a local file (which would re-bloat the git repo)."""
-    global _cos_creds
-    if _cos_creds is None:
+    global _cos_client, _cos_creds
+    if _cos_client is None:
+        sys.path.insert(0, "/Users/nadou/Library/Python/3.9/lib/python/site-packages")
+        from qcloud_cos import CosConfig, CosS3Client
         creds = {}
         for line in open(_COS_CREDS_PATH):
             line = line.strip()
             if line and "=" in line:
                 k, v = line.split("=", 1)
                 creds[k] = v
+        config = CosConfig(Region=creds["COS_REGION"], SecretId=creds["COS_SECRET_ID"], SecretKey=creds["COS_SECRET_KEY"])
+        _cos_client = CosS3Client(config)
         _cos_creds = creds
-    client = getattr(_cos_local, "client", None)
-    if client is None:
-        sys.path.insert(0, "/Users/nadou/Library/Python/3.9/lib/python/site-packages")
-        from qcloud_cos import CosConfig, CosS3Client
-        config = CosConfig(Region=_cos_creds["COS_REGION"], SecretId=_cos_creds["COS_SECRET_ID"],
-                           SecretKey=_cos_creds["COS_SECRET_KEY"])
-        client = _cos_local.client = CosS3Client(config)
-    return client, _cos_creds
+    return _cos_client, _cos_creds
 
 def _audio_dir_for(path):
     """COS key prefix for a book's audio, derived from its path, e.g.
@@ -309,15 +284,13 @@ def _write_mp3(audio_prefix, name, raw_bytes):
 # already being made). Added 2026-08-22.
 # ---------------------------------------------------------------------
 _WHISPER_MODEL = None
-_WHISPER_LOCK = threading.Lock()
 
 def _get_whisper_model():
     global _WHISPER_MODEL
-    with _WHISPER_LOCK:
-        if _WHISPER_MODEL is None:
-            import whisper
-            print("Loading local Whisper model '%s' for word-timing alignment (one-time, ~1-2 min)..." % ALIGN_MODEL)
-            _WHISPER_MODEL = whisper.load_model(ALIGN_MODEL)
+    if _WHISPER_MODEL is None:
+        import whisper
+        print("Loading local Whisper model '%s' for word-timing alignment (one-time, ~1-2 min)..." % ALIGN_MODEL)
+        _WHISPER_MODEL = whisper.load_model(ALIGN_MODEL)
     return _WHISPER_MODEL
 
 def _wnorm(w):
@@ -440,123 +413,62 @@ def patch_speak_audio_for_word_times(html):
     new_block = _INTERVAL_RE.sub(lambda _m: new_interval, new_block, count=1)
     return html[:i] + new_block + html[j:], True
 
-# ---------------------------------------------------------------------
-# One book = plan (what is missing) -> queue every TTS request -> collect,
-# upload, align, write. Requests of one book (and of the next book) run in a
-# shared pool, so the waiting is spent on several at once.
-# ---------------------------------------------------------------------
-def _book_plan(path):
-    """-> (html, plan, status). status is None when the book needs voicing,
-    otherwise 'skip' (already voiced), 'notbook' or 'no-body-tag'."""
+def voice_one(path, key, voice):
     html = open(path, encoding="utf-8").read()
+    did = []
+    audio_dir = None
+
     if "</body>" not in html:
         print("      WARNING: no </body> tag found -- audio blocks would silently fail to "
               "insert (this happened before, see gen-book-tpl-reconstruction-checklist). Skipping.")
-        return html, None, "no-body-tag"
-    plan = {"story": None, "teach": None}
+        return "no-body-tag"
+
     if "window.RV_AUDIO=" not in html:
         items = get_narration(html)
         if items:
-            plan["story"] = items
+            if audio_dir is None: audio_dir, slug = _audio_dir_for(path)
+            audio = {}
+            marks_map = {}
+            word_times = {}
+            for k, t in items:
+                raw, marks = tts_multi(t, key, voice)
+                audio[k] = _write_mp3(audio_dir, "page_" + k, raw)
+                if marks: marks_map[k] = marks
+                wt = align_word_times(t, raw)
+                if wt: word_times[k] = wt
+            block = "<script>window.RV_AUDIO=" + json.dumps(audio) + ";</script>"
+            html = html.replace("</body>", block + "\n</body>", 1)
+            if marks_map:
+                blockm = "<script>window.RV_AUDIO_MARKS=" + json.dumps(marks_map) + ";</script>"
+                html = html.replace("</body>", blockm + "\n</body>", 1)
+            if word_times:
+                html, _ = patch_speak_audio_for_word_times(html)
+                blockw = "<script>window.RV_WORD_TIMES=" + json.dumps(word_times) + ";</script>"
+                html = html.replace("</body>", blockw + "\n</body>", 1)
+                did.append("word-times")
+            did.append("story")
+
     if "window.RV_TEACH_AUDIO=" not in html:
         teach_items = get_teach_items(html)
         if teach_items:
-            plan["teach"] = teach_items
-    if not plan["story"] and not plan["teach"]:
-        looks_like_book = "const pages=" in html or "const quizzes=" in html
-        return html, None, ("skip" if looks_like_book else "notbook")
-    return html, plan, None
+            if audio_dir is None: audio_dir, slug = _audio_dir_for(path)
+            teach_audio = {}
+            for k, en, cn in teach_items:
+                entry = {}
+                if en: entry["en"] = _write_mp3(audio_dir, "teach_" + k + "_en", tts_multi(en, key, voice)[0])
+                if cn: entry["cn"] = _write_mp3(audio_dir, "teach_" + k + "_cn", tts(cn, key, voice))
+                if entry: teach_audio[k] = entry
+            if teach_audio:
+                block2 = "<script>window.RV_TEACH_AUDIO=" + json.dumps(teach_audio) + ";</script>"
+                html = html.replace("</body>", block2 + "\n</body>", 1)
+                did.append("teach")
 
-def _submit_book(pool, plan, key, voice):
-    """Queue every TTS request of one book; nothing blocks here."""
-    def queue(text):
-        sents = split_sentences(text)
-        if len(sents) <= 1:
-            return sents, [pool.submit(tts, text, key, voice)]
-        return sents, [pool.submit(tts, s, key, voice) for s in sents]
-    jobs = {"story": [], "teach": []}
-    for k, t in plan["story"] or []:
-        jobs["story"].append((k, t) + queue(t))
-    for k, en, cn in plan["teach"] or []:
-        jobs["teach"].append((k, queue(en) if en else None, pool.submit(tts, cn, key, voice) if cn else None))
-    return jobs
-
-def _count_requests(jobs):
-    n = sum(len(futs) for _k, _t, _s, futs in jobs["story"])
-    for _k, en_job, cn_f in jobs["teach"]:
-        n += (len(en_job[1]) if en_job else 0) + (1 if cn_f else 0)
-    return n
-
-def _audio_of(sents, futs):
-    audios = [f.result() for f in futs]
-    return (audios[0], None) if len(sents) <= 1 else _combine(sents, audios)
-
-def _finish_book(path, html, plan, jobs, workers, say):
-    """Wait for this book's TTS, upload the clips, align word times, write the html.
-    Same result as the old one-request-at-a-time code, just faster."""
-    audio_dir, slug = _audio_dir_for(path)
-    t0 = time.time()
-    story = [(k, t) + _audio_of(sents, futs) for k, t, sents, futs in jobs["story"]]      # (k, text, raw, marks)
-    teach = [(k, _audio_of(*en_job)[0] if en_job else None, cn_f.result() if cn_f else None)
-             for k, en_job, cn_f in jobs["teach"]]
-    say("TTS done (%d requests, waited %.0f s)" % (_count_requests(jobs), time.time() - t0))
-
-    uploads = [("page_" + k, raw) for k, _t, raw, _m in story]
-    for k, en, cn in teach:
-        if en: uploads.append(("teach_%s_en" % k, en))
-        if cn: uploads.append(("teach_%s_cn" % k, cn))
-    t1 = time.time()
-    with ThreadPoolExecutor(workers) as up:
-        urls = dict(zip([n for n, _ in uploads],
-                        up.map(lambda nb: _write_mp3(audio_dir, nb[0], nb[1]), uploads)))
-    say("uploaded %d clips (%.0f s)" % (len(uploads), time.time() - t1))
-
-    did = []
-    if story:
-        audio, marks_map, word_times = {}, {}, {}
-        t2 = time.time()
-        for n, (k, t, raw, marks) in enumerate(story, 1):
-            audio[k] = urls["page_" + k]
-            if marks: marks_map[k] = marks
-            wt = align_word_times(t, raw)
-            if wt: word_times[k] = wt
-            print("      aligning word times: page %d of %d" % (n, len(story)), end="\r", flush=True)
-        say("aligned %d pages (%.0f s)          " % (len(story), time.time() - t2))
-        block = "<script>window.RV_AUDIO=" + json.dumps(audio) + ";</script>"
-        html = html.replace("</body>", block + "\n</body>", 1)
-        if marks_map:
-            blockm = "<script>window.RV_AUDIO_MARKS=" + json.dumps(marks_map) + ";</script>"
-            html = html.replace("</body>", blockm + "\n</body>", 1)
-        if word_times:
-            html, _ = patch_speak_audio_for_word_times(html)
-            blockw = "<script>window.RV_WORD_TIMES=" + json.dumps(word_times) + ";</script>"
-            html = html.replace("</body>", blockw + "\n</body>", 1)
-            did.append("word-times")
-        did.append("story")
-    if teach:
-        teach_audio = {}
-        for k, en, cn in teach:
-            entry = {}
-            if en: entry["en"] = urls["teach_%s_en" % k]
-            if cn: entry["cn"] = urls["teach_%s_cn" % k]
-            if entry: teach_audio[k] = entry
-        if teach_audio:
-            block2 = "<script>window.RV_TEACH_AUDIO=" + json.dumps(teach_audio) + ";</script>"
-            html = html.replace("</body>", block2 + "\n</body>", 1)
-            did.append("teach")
     if not did:
         looks_like_book = "const pages=" in html or "const quizzes=" in html
         return "skip" if looks_like_book else "notbook"
+
     open(path, "w", encoding="utf-8").write(html)
     return "+".join(did)
-
-def voice_one(path, key, voice, workers=WORKERS):
-    """Voice a single book (kept for anything that calls it directly)."""
-    html, plan, status = _book_plan(path)
-    if status:
-        return status
-    with ThreadPoolExecutor(workers) as pool:
-        return _finish_book(path, html, plan, _submit_book(pool, plan, key, voice), workers, lambda m: None)
 
 def collect(target):
     if os.path.isfile(target) and target.endswith(".html"):
@@ -577,87 +489,42 @@ def collect_all(targets):
                 seen.add(r); out.append(f)
     return out
 
-def _fmt(sec):
-    sec = int(round(sec))
-    return "%d min %02d s" % (sec // 60, sec % 60) if sec >= 60 else "%d s" % sec
-
-def main(argv=None):
-    global ALIGN_MODEL
-    ap = argparse.ArgumentParser(description="Voice the books that are not voiced yet.")
-    ap.add_argument("paths", nargs="+", help="the 'site' folder, or one or more book .html files")
-    ap.add_argument("--workers", type=int, default=WORKERS, help="parallel TTS requests (default %d)" % WORKERS)
-    ap.add_argument("--align-model", default=None, help="Whisper model for word times (default %s)" % ALIGN_MODEL)
-    args = ap.parse_args(argv)
-    if args.align_model:
-        ALIGN_MODEL = args.align_model
-    workers = max(1, min(args.workers, 16))
-    books = collect_all(args.paths)
+def main(targets):
+    key = get_key()
+    books = collect_all(targets)
     if not books:
         sys.exit("No .html books found there. Drag the 'site' folder, OR one or more book .html files.")
-    key = get_key()
-
-    plans, skipped, failed = [], 0, []
-    for f in books:
-        html, plan, status = _book_plan(f)
-        if plan:
-            plans.append((f, html, plan))
-        elif status == "skip":
+    print("Found %d book(s). Already-voiced parts are skipped.\n" % len(books))
+    named = all(os.path.isfile(t) for t in targets)     # books named one by one, not a folder
+    done = skipped = 0; failed = []
+    for i, f in enumerate(books, 1):
+        topic = os.path.basename(os.path.dirname(f))
+        voice = VOICES.get(topic, DEFAULT_VOICE)
+        try:
+            r = voice_one(f, key, voice)
+        except Exception as e:
+            print("[%d/%d] %-15s FAILED (%s)" % (i, len(books), topic, e))
+            failed.append(os.path.basename(f)); continue
+        if r in ("skip", "notbook"):
             skipped += 1
-            if len(books) <= 5:
-                print("%-22s %s" % ("already ok", os.path.basename(f)))
-        elif status == "no-body-tag":
-            failed.append(os.path.basename(f))
-    print("Found %d file(s): %d need voicing, %d already voiced (skipped).\n" % (len(books), len(plans), skipped))
-
-    if any(plan["story"] for _f, _h, plan in plans):
-        def preload():
-            try:
-                _get_whisper_model()
-            except Exception as e:
-                print("      (could not load the Whisper model yet: %s)" % e)
-        threading.Thread(target=preload, daemon=True).start()   # load it while the first requests run
-
-    done = 0
-    pool = ThreadPoolExecutor(workers)
-    queued = {}
-    def ensure(i):
-        if i < len(plans) and i not in queued:
-            f, _html, plan = plans[i]
-            queued[i] = _submit_book(pool, plan, key, VOICES.get(os.path.basename(os.path.dirname(f)), DEFAULT_VOICE))
-    started = time.time()
-    try:
-        for i, (f, html, plan) in enumerate(plans):
-            ensure(i); ensure(i + 1)            # the next book's requests start while this one is aligned
-            topic = os.path.basename(os.path.dirname(f))
-            voice = VOICES.get(topic, DEFAULT_VOICE)
-            jobs = queued.pop(i)
-            print("[%d/%d] %-15s %-8s %s  (%d TTS requests, %d at a time)" %
-                  (i + 1, len(plans), topic, voice, os.path.basename(f), _count_requests(jobs), workers))
-            t_book = time.time()
-            try:
-                r = _finish_book(f, html, plan, jobs, workers, lambda m: print("      " + m))
-            except FatalAPIError as e:
-                sys.exit(str(e))
-            except Exception as e:
-                print("      FAILED (%s)" % e)
-                failed.append(os.path.basename(f)); continue
-            done += 1
-            left = len(plans) - i - 1
-            msg = "      done: %s in %s" % (r, _fmt(time.time() - t_book))
-            if left:
-                msg += " | about %s left for %d more book(s)" % (_fmt((time.time() - started) / (i + 1) * left), left)
-            print(msg)
-    finally:
-        pool.shutdown(wait=False, cancel_futures=True)
-    print("\nNewly voiced (story and/or teach audio): %d | already done: %d | failed: %d | total time %s" %
-          (done, skipped, len(failed), _fmt(time.time() - started)))
+            if named:                 # books named one by one: say what happened to each; a folder: just count
+                tag = {"skip": "already ok", "notbook": "(not a book)"}[r]
+                print("[%d/%d] %-15s %-22s %s" % (i, len(books), topic, tag, os.path.basename(f)))
+            continue
+        print("[%d/%d] %-15s %-22s %s" % (i, len(books), topic, "%s (%s)" % (voice, r), os.path.basename(f)))
+        done += 1
+    print("\nNewly voiced (story and/or teach audio): %d | already done: %d | failed: %d" % (done, skipped, len(failed)))
     if failed:
         print("Not finished yet — run again to complete:")
         for x in failed: print("   -", x)
     else:
-        print("Everything is voiced. Next: check it (tools/voicing_check.py, tools/timing_check.py), then push.")
+        print("Everything is voiced! Now deploy the 'site' folder to Netlify.")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit("Drag the 'site' folder (or one or more book .html files) onto this script.")
-    main()
+    ap = argparse.ArgumentParser(description="Voice the books that are not voiced yet.")
+    ap.add_argument("paths", nargs="+", help="the 'site' folder, or one or more book .html files")
+    ap.add_argument("--align-model", default=None, help="Whisper model for word times (default %s)" % ALIGN_MODEL)
+    args = ap.parse_args()
+    if args.align_model:
+        ALIGN_MODEL = args.align_model
+    main(args.paths)
