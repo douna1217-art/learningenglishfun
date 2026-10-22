@@ -27,6 +27,7 @@ that does not match the shelf style):
   text_overrides     {page_number: {old: new}} exact substring replacements
                      applied to the docx page text (e.g. a colon before a
                      list, which the TTS tends to drop)
+  replace_all        {old: new} replaced everywhere in the page text (e.g. British -> American wording)
   quotes="straight"  the docx writes dialogue with straight double quotes ("Hi," she said);
                      turn them into curly ones (the build stops if they do not pair up)
   quotes="double"    the docx writes dialogue with single quotes ('Hi,' she
@@ -220,6 +221,9 @@ def book_text(spec, title, subtitle, texts):
         for k, t in enumerate(texts):
             texts[k], balance = single_to_double_quotes(t)
             assert balance == 0, ("quotes do not pair up on page", k + 1, t)
+    for old, new in (spec.get("replace_all") or {}).items():
+        assert any(old in t for t in texts), ("replace_all word not found", old)
+        texts = [t.replace(old, new) for t in texts]
     if spec.get("quotes") == "straight":
         for k, t in enumerate(texts):
             texts[k], balance = straight_to_curly_double(t)
