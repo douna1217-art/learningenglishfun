@@ -11,6 +11,10 @@
 #  - word times are aligned with Whisper small.en (more accurate than base; the
 #    alignment is a small part of the run, about 30 s per book; env VOICE_ALIGN_MODEL
 #    picks another model)
+#  - checks the length of every English sentence clip as it is made (2026-10-23): the TTS
+#    now and then reads one sentence in a drawn-out way or with noise, which made a page
+#    twice as long as it should be. A clip that is far too long (or far too short) for its
+#    text is voiced again, up to 3 times; one that is still odd is listed at the end
 #  - keeps the Mac from idle-sleeping while it voices (macOS caffeinate, ends
 #    with the script; a sleeping Mac froze runs for tens of minutes)
 #  Runs on your Mac. Your key stays on your computer.
@@ -72,6 +76,76 @@ def tts(text, key, voice):
         time.sleep(3 * attempt)
     raise RuntimeError(str(last))
 
+# ---- clip length check -------------------------------------------------------------
+# Normal English narration runs at about 13 characters per second (pauses included). Bad
+# clips seen so far were 4 to 10 times longer than that, so the limits are generous.
+CHECK_TRIES = 3
+LONG_FACTOR, LONG_EXTRA = 2.2, 2.0       # too long when seconds > expected * 2.2 + 2
+SHORT_FACTOR, SHORT_LESS = 0.4, 0.3      # too short when seconds < expected * 0.4 - 0.3 (25+ characters)
+SUSPECT = []                             # (text, seconds, expected) still odd after the retries
+
+_MP3_BITRATES = {True: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0],
+                 False: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0]}
+_MP3_RATES = {3: [44100, 48000, 32000], 2: [22050, 24000, 16000], 0: [11025, 12000, 8000]}
+
+def mp3_seconds(data):
+    """Length of an MP3 in seconds, by adding up its frames (no ffmpeg needed). None when
+    no valid Layer III frame is found, in which case the length check is simply skipped."""
+    n = len(data); i = 0; total = 0.0; frames = 0
+    if data[:3] == b"ID3" and n >= 10:
+        i = 10 + ((data[6] & 0x7f) << 21 | (data[7] & 0x7f) << 14 | (data[8] & 0x7f) << 7 | (data[9] & 0x7f))
+    while i + 4 <= n:
+        b1, b2 = data[i + 1], data[i + 2]
+        if data[i] == 0xFF and (b1 & 0xE0) == 0xE0:
+            version = (b1 >> 3) & 3; layer = (b1 >> 1) & 3
+            bri = b2 >> 4; sri = (b2 >> 2) & 3; pad = (b2 >> 1) & 1
+            if version != 1 and layer == 1 and 0 < bri < 15 and sri < 3:
+                mpeg1 = version == 3
+                rate = _MP3_RATES[version][sri]
+                length = int((144 if mpeg1 else 72) * _MP3_BITRATES[mpeg1][bri] * 1000 / rate) + pad
+                if length > 4:
+                    total += (1152 if mpeg1 else 576) / float(rate)
+                    frames += 1
+                    i += length
+                    continue
+        i += 1
+    return total if frames else None
+
+def expected_seconds(text):
+    return len(text) / 13.0
+
+def clip_problem(text, data):
+    """'too long', 'too short' or None for one sentence clip. Chinese text and clips whose
+    length cannot be read are not judged."""
+    if re.search(r"[\u3400-\u9fff]", text):
+        return None
+    dur = mp3_seconds(data)
+    if dur is None:
+        return None
+    exp = max(expected_seconds(text), 0.8)
+    if dur > exp * LONG_FACTOR + LONG_EXTRA:
+        return "too long"
+    if len(text) >= 25 and dur < exp * SHORT_FACTOR - SHORT_LESS:
+        return "too short"
+    return None
+
+def tts_checked(text, key, voice):
+    """tts() plus the length check: an odd clip is voiced again (up to CHECK_TRIES times in
+    all); if every try is odd, the one closest to the expected length is kept and noted."""
+    best = None
+    for n in range(1, CHECK_TRIES + 1):
+        data = tts(text, key, voice)
+        problem = clip_problem(text, data)
+        if not problem:
+            return data
+        dur = mp3_seconds(data); exp = expected_seconds(text)
+        if best is None or abs(dur - exp) < abs(best[1] - exp):
+            best = (data, dur)
+        print("      (clip %s: %.1f s for %d characters, expected about %.1f s; %s)" %
+              (problem, dur, len(text), exp, "voicing it again %d/%d" % (n, CHECK_TRIES - 1) if n < CHECK_TRIES else "keeping the closest one"))
+    SUSPECT.append((text, best[1], expected_seconds(text)))
+    return best[0]
+
 _ABBREV_RE = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr)\.")
 # A section/list enumerator at the start of the text or a line ("2. Title ...").
 # Without protecting this, split_sentences() treats the "." after the number as a
@@ -121,8 +195,8 @@ def tts_multi(text, key, voice):
     of assuming one smooth, evenly-paced audio clip for the whole page."""
     sentences = split_sentences(text)
     if len(sentences) <= 1:
-        return tts(text, key, voice), None
-    audios = [tts(s, key, voice) for s in sentences]
+        return tts_checked(text, key, voice), None
+    audios = [tts_checked(s, key, voice) for s in sentences]
     combined = b"".join(audios)
     char_lens = [len(s) + 1 for s in sentences]
     byte_lens = [len(a) for a in audios]
@@ -531,6 +605,9 @@ def main(site):
         print("[%d/%d] %-15s %-22s %s" % (i, len(todo), topic, "%s (%s)" % (voice, r), os.path.basename(f)))
         done += 1
     print("\nNewly voiced (story and/or teach audio): %d | already done: %d | failed: %d" % (done, skipped, len(failed)))
+    if SUSPECT:
+        print("\nThese sentences still sounded odd after %d tries (listen to them, or voice the book again):" % CHECK_TRIES)
+        for t, d, e in SUSPECT: print("   - %.1f s (expected about %.1f s): %s" % (d, e, t[:90]))
     if failed:
         print("Not finished yet — run again to complete:")
         for x in failed: print("   -", x)
