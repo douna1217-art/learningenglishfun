@@ -1,13 +1,18 @@
 // Reading placement quiz — adaptive level-finder.
 //
-// Flow: student picks a starting grade guess -> at each level, reads a short
-// self-contained passage and answers 6 questions (2 comprehension: literal +
-// inferential; 2 vocabulary; 2 grammar) -> 5-6/6 or 0-2/6 decides
-// immediately, 3-4/6 triggers one tie-breaker question at the same level ->
+// Two ways in:
+//  - Lexile: a family that already knows the child's Lexile measure (from school,
+//    SRI, MAP...) types it on the first screen; the grade comes straight from
+//    LEXILE_TO_GRADE below, which is more accurate than any short quiz.
+//  - Quiz: student picks a starting grade guess -> at each level, reads a
+// passage (about 50 words for K up to about 280 for Grade 6, checked and built by
+// tools/placement_build.py) and answers 8 four-choice questions -> 7-8/8 passes
+// and 0-4/8 fails immediately, 5-6/8 triggers one tie-breaker question ->
 // passing moves up a level, failing steps down one level to recheck -> two
 // consecutive fails (in either direction) stops the test -> the highest
 // level fully passed becomes the main recommendation, the next level up
-// becomes a "stretch" suggestion.
+// becomes a "stretch" suggestion. Passing the stretch cap (start + 2) also ends
+// the test, since the result cannot go any higher (at most 3 levels).
 //
 // The final recommendation is capped at the student's own starting-grade
 // guess + 1 (stretch capped at +2), no matter how many levels were
@@ -25,6 +30,34 @@
 (function () {
   var LEVELS = window.PLACEMENT_LEVELS || [];
   var K = "les_placement_v1";
+
+  // Lexile measure -> reading grade. Based on the published typical Lexile ranges
+  // per US grade (Grade 1 about 190-530L, 2: 420-650L, 3: 520-820L, 4: 740-940L,
+  // 5: 830-1010L, 6: 925-1070L). The ranges overlap, so the cut points sit
+  // between their middles: 660L -> Grade 3 (stretch Grade 4).
+  var LEXILE_TO_GRADE = [
+    [200, 0], // below 200L or BR (Beginning Reader) -> Kindergarten
+    [450, 1],
+    [600, 2],
+    [750, 3],
+    [880, 4],
+    [960, 5],
+    [Infinity, 6],
+  ];
+  function parseLexile(text) {
+    var t = String(text || "").trim().toUpperCase().replace(/\s+/g, "");
+    if (!t) return null;
+    if (/^BR(\d+)?L?$/.test(t)) return { value: 0, label: t.replace(/L?$/, "L").replace(/^BRL$/, "BR") };
+    var m = t.match(/^(\d{2,4})L?$/);
+    if (!m) return false;
+    var v = +m[1];
+    if (v < 0 || v > 2000) return false;
+    return { value: v, label: v + "L" };
+  }
+  function gradeIndexForLexile(v) {
+    for (var i = 0; i < LEXILE_TO_GRADE.length; i++) if (v < LEXILE_TO_GRADE[i][0]) return LEXILE_TO_GRADE[i][1];
+    return 6;
+  }
 
   function loadResult() {
     try {
@@ -65,6 +98,11 @@
     setProgress("");
     var html =
       '<div class="rev-card"><h2>What grade are you in, or closest to?</h2>' +
+      '<div style="background:#eef6f0;border-radius:14px;padding:12px 14px;margin:6px 0 14px">' +
+      '<label for="plcLexile" style="font-weight:800">Already know your Lexile measure? Type it here, then tap your grade.' +
+      '<span class="cn">已经知道孩子的蓝思值（Lexile）？在这里填上，再点下面的年级，就不用做测试了。</span></label>' +
+      '<input id="plcLexile" inputmode="text" autocomplete="off" placeholder="e.g. 660L" style="margin-top:8px;width:140px;font-size:1.1rem;padding:8px 10px;border-radius:10px;border:2px solid #cfe3d6">' +
+      '<div id="plcLexileErr" style="color:#b3261e;font-weight:700;margin-top:6px"></div></div>' +
       '<p>Pick one to start — if you\'re not sure, that\'s okay too.<span class="cn">选一个最接近的年级——不确定也没关系。</span></p><div>';
     LEVELS.forEach(function (lvl, i) {
       html += '<button class="rev-opt" data-i="' + i + '">' + lvl.grade + "</button>";
@@ -75,6 +113,17 @@
       .querySelectorAll(".rev-opt")
       .forEach(function (btn) {
         btn.addEventListener("click", function () {
+          var lex = parseLexile((document.getElementById("plcLexile") || {}).value);
+          if (lex === false) {
+            document.getElementById("plcLexileErr").innerHTML =
+              'Please type a Lexile measure like 660L or BR, or leave it empty to take the quiz.<span class="cn">请填写像 660L 或 BR 这样的蓝思值；不知道就留空，直接做测试。</span>';
+            return;
+          }
+          if (lex) {
+            var li = gradeIndexForLexile(lex.value);
+            var reported = btn.dataset.i === "not-sure" ? li : +btn.dataset.i;
+            return showLexileResult(lex, li, reported);
+          }
           var startIndex = btn.dataset.i === "not-sure" ? Math.floor(LEVELS.length / 2) : +btn.dataset.i;
           startQuiz(startIndex);
         });
@@ -125,9 +174,14 @@
       lvl.grade +
       " · " +
       q.kind +
-      '</div><p style="font-size:1.05rem;line-height:1.6;margin:0 0 16px">' +
-      lvl.passage +
-      '</p><h2 style="font-size:1.2rem">' +
+      '</div>' +
+      lvl.passage
+        .split("\n")
+        .map(function (para) {
+          return '<p style="font-size:1.05rem;line-height:1.6;margin:0 0 12px">' + para + "</p>";
+        })
+        .join("") +
+      '<h2 style="font-size:1.2rem;margin-top:16px">' +
       q.q +
       '</h2><div>' +
       opts +
@@ -185,10 +239,11 @@
       renderPassageAndQuestion();
       return;
     }
-    // all base questions done (6 total: 5-6 pass, 0-2 fail, 3-4 -> tie-breaker)
-    if (state.correctCount >= 5) {
+    // all base questions done (8 total: 7-8 pass, 0-4 fail, 5-6 -> tie-breaker)
+    var n = lvl.questions.length;
+    if (state.correctCount >= n - 1) {
       finishLevel(true);
-    } else if (state.correctCount <= 2) {
+    } else if (state.correctCount <= n - 4) {
       finishLevel(false);
     } else {
       // 3 or 4 correct -> tie-breaker decides
@@ -203,7 +258,9 @@
     if (passed) {
       state.passed.push(state.idx);
       state.consecutiveFails = 0;
-      if (state.idx >= LEVELS.length - 1 || state.tested[state.idx + 1]) {
+      // stop at the stretch cap (start + 2): the result can never go higher,
+      // so further levels would only make a strong reader answer more questions
+      if (state.idx >= LEVELS.length - 1 || state.tested[state.idx + 1] || state.idx >= state.startIndex + 2) {
         return showResult();
       }
       state.idx = state.idx + 1;
@@ -265,26 +322,64 @@
       noLevelPassed: primaryIdx === null,
       wasCapped: rawPrimaryIdx !== null && rawPrimaryIdx > capIdx,
     };
+    result.source = "quiz";
     saveResult(result);
+    renderResultCard(result);
+  }
+
+  // A family that knows the child's Lexile measure skips the quiz: the grade
+  // comes from LEXILE_TO_GRADE, with no cap (it is a real measurement).
+  function showLexileResult(lex, gradeIdx, reportedIdx) {
+    var stretchIdx = gradeIdx < LEVELS.length - 1 ? gradeIdx + 1 : null;
+    var result = {
+      takenAt: Date.now(),
+      source: "lexile",
+      lexile: lex.label,
+      reportedGrade: LEVELS[reportedIdx].grade,
+      primaryGrade: LEVELS[gradeIdx].grade,
+      primaryBand: window.PLACEMENT_BAND_FOR_GRADE(LEVELS[gradeIdx].grade),
+      stretchGrade: stretchIdx !== null ? LEVELS[stretchIdx].grade : null,
+      noLevelPassed: false,
+      wasCapped: false,
+    };
+    saveResult(result);
+    renderResultCard(result);
+  }
+
+  // The result is written as a range ("about Grade 3, try Grade 4 for a
+  // challenge"), with a reminder to move down or up a grade by feel: a short
+  // test or a single number is a starting point, not a verdict.
+  function renderResultCard(result) {
     setProgress("Result");
+    var g = result.primaryGrade;
+    var fromLexile = result.source === "lexile";
+    var head = result.noLevelPassed
+      ? "Let's start with the basics" + '<span class="cn">先从基础开始</span>'
+      : "Reading level: about " + g + '<span class="cn">阅读水平：约' + gradeCN(g) + "</span>";
+    var basis = fromLexile
+      ? "Based on your Lexile measure (" + result.lexile + ")." +
+        '<span class="cn">根据你填写的蓝思值（' + result.lexile + "）。</span>"
+      : "Based on the quiz. A short quiz gives an estimate, so if you know your Lexile measure, you can retake it and type the measure in for a more accurate result." +
+        '<span class="cn">根据测试结果。简短的测试只能给出一个大概范围；如果知道蓝思值，可以重新进入，填上蓝思值，结果会更准。</span>';
     contentEl().innerHTML =
-      '<div class="rev-card"><h2>' +
-      (result.noLevelPassed ? "Let's start with the basics" : "Recommended: " + result.primaryGrade) +
-      '</h2><p>' +
+      '<div class="rev-card"><h2>' + head + "</h2>" +
+      "<p>" +
       (result.noLevelPassed
-        ? "We'll suggest some " + primaryLevel.grade + " books to build up from." +
-          '<span class="cn">我们会先推荐一些' + gradeCN(primaryLevel.grade) + "的书，帮助打好基础。</span>"
-        : result.primaryBand + " — books at this level should feel comfortable to read on your own." +
-          '<span class="cn">' + bandCN(result.primaryBand) + "——这个级别的书，应该能比较轻松地自己读下来。</span>") +
+        ? "We'll suggest some " + g + " books to build up from." +
+          '<span class="cn">我们会先推荐一些' + gradeCN(g) + "的书，帮助打好基础。</span>"
+        : "Start with " + g + " books" +
+          (result.stretchGrade ? ". For a challenge, try " + result.stretchGrade + " books." : ".") +
+          '<span class="cn">先读' + gradeCN(g) + "的书" +
+          (result.stretchGrade ? "；想挑战一下，可以试试" + gradeCN(result.stretchGrade) + "的书。" : "。") +
+          "</span>") +
       "</p>" +
-      (result.stretchGrade
-        ? '<p style="color:var(--muted)">Feeling confident? ' + result.stretchGrade + " books are a good next challenge." +
-          '<span class="cn">如果想挑战一下，可以试试' + gradeCN(result.stretchGrade) + "的书。</span></p>"
-        : "") +
+      '<p style="color:var(--muted)">If a book feels hard, go down one grade. If it feels easy, go up one.' +
+      '<span class="cn">读起来吃力就退一个年级，读得很轻松就升一个年级。</span></p>' +
+      '<p style="color:var(--muted);font-size:.92rem">' + basis + "</p>" +
       '<p style="color:var(--muted);font-size:.92rem">Math and Science book picks will match your grade (' +
-      reportedLevel.grade +
+      result.reportedGrade +
       ") instead, since those depend on what's already been taught in class." +
-      '<span class="cn">数学和科学类的书会按照你的实际年级（' + gradeCN(reportedLevel.grade) + '）来推荐，因为这两科需要课堂上教过的知识基础。</span>' +
+      '<span class="cn">数学和科学类的书会按照你的实际年级（' + gradeCN(result.reportedGrade) + "）来推荐，因为这两科需要课堂上教过的知识基础。</span>" +
       '</p><p style="color:var(--muted);font-size:.92rem">This is just a suggestion — you can still read any book, at any grade, any time.' +
       '<span class="cn">这只是一个建议——你随时都可以阅读任何年级的书。</span></p>' +
       '<button class="rev-next" id="plcDone">See recommended books →</button></div>';
@@ -398,7 +493,8 @@
       })
       .join("");
     card.innerHTML =
-      '<div class="section-title"><h2>Recommended for you</h2><p>Based on your placement quiz result: ' +
+      '<div class="section-title"><h2>Recommended for you</h2><p>' +
+      (result.source === "lexile" ? "Based on your Lexile measure (" + result.lexile + "): " : "Based on your placement quiz result: ") +
       gradeNote +
       ' · <a href="#" id="retakePlacement" style="color:var(--green);font-weight:800">retake the quiz</a></p></div><div class="books">' +
       cardsHTML +

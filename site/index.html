@@ -1126,10 +1126,10 @@ save=function(){if(!ART_OK)return;try{localStorage.setItem('lef_pet_v1',JSON.str
 (function(){var _a=$('adoptBtn').onclick;$('adoptBtn').onclick=function(e){_a.call(this,e);if(!loadJ('lef_gift',0)){saveJ('lef_gift',1);st.stars+=3;save();render();toast([[3,'Welcome gift','欢迎礼物']],3,false);}};})();
 /* ---- level test + smart review: explain first, then use the original ones ---- */
 function openLevel(){openModal('<h2>Reading level test <span style="font-size:22px;color:#4A5878">阅读水平测试</span></h2><p style="margin:4px 0 8px;font-weight:700;color:#4A5878">A short test that finds the books that are just right for you.<br>一个简短的测验，帮你找到最适合你的书。</p>'
- +gstep(1,'Pick your grade','选一个年级','Choose the grade you think fits you. The test starts there.','选一个你觉得适合自己的年级，测验会从这里开始。')
+ +gstep(1,'Pick your grade','选一个年级','Choose the grade you think fits you. The test starts there. Already know your Lexile measure? Type it in and skip the test.','选一个你觉得适合自己的年级，测验会从这里开始。已经知道蓝思值？填上就可以跳过测验。')
  +gstep(2,'Read and answer','读短文、答题','Read short passages and answer a few questions.','读几篇短文，回答几道题。')
  +gstep(3,'Harder or easier','变难或变容易','If you do well, the next passage is harder. If it feels tricky, it gets easier.','答得好，下一篇会更难；觉得难，下一篇会更容易。')
- +gstep(4,'See your level','看你的水平','You get your reading level and a list of books that fit you.','你会看到自己的阅读水平，以及适合你的书单。')
+ +gstep(4,'See your level','看你的水平','You get a reading level range and a list of books that fit you.','你会看到自己大概的阅读水平范围，以及适合你的书单。')
  +'<div class="note" style="margin:6px 0 0">This is not a school grade. It only helps us pick the right books. Take your time and read carefully!<small>这不是学校成绩，只是帮我们挑合适的书。慢慢来，认真读！</small></div>'
  +'<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px"><button class="rules-btn" id="lvgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">Start the test 开始测验</button><button class="rules-btn" id="lvlater">Later 以后再说</button></div>');
  $('lvgo').onclick=function(){closeModal();var b=$('startPlacement');if(b)b.click();};$('lvlater').onclick=closeModal;}
