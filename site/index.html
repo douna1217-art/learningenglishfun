@@ -480,10 +480,12 @@ function openBook(file,title,category){
   document.getElementById("readerFrame").src = file;
   document.getElementById("readerOverlay").style.display = "flex";
   document.body.style.overflow = "hidden";
+  try{var _rb=ALL.filter(function(x){return x.file===file;})[0];if(window.ReadingBuddy)ReadingBuddy.open(_rb||null);}catch(e){}
   if(window.__trackEvent)window.__trackEvent("book_open",{book_id:file,book_title:title||"",category:category||""});
 }
 window.__openBook=openBook;
 function closeBook(){
+  try{if(window.ReadingBuddy)ReadingBuddy.stop();}catch(e){}
   try{settleReading();}catch(e){}
   currentFile=null;
   document.getElementById("readerFrame").src = "about:blank"; /* stops any narration */
@@ -517,7 +519,7 @@ var SHELF={},ALL=[];
 <script src="motion-guard.js?v=20261015a"></script><script src="pet-art.js?v=20261015b"></script><script src="pet-rig.js?v=20261015e"></script>
 <script src="pet-fest.js?v=20261015c"></script>
 <script src="pet-sound.js?v=20261014c"></script>
-<script src="badges.js?v=20261022a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
+<script src="badges.js?v=20261022a"></script><script src="reading-buddy.js?v=20261106a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
 <script src="sightwords-data.js?v=20261022a"></script><script src="sightwords-data2.js?v=20261014a"></script><script src="sightwords-data3.js?v=20261016a"></script><script src="sightwords-data4.js?v=20261017a"></script><script src="sightwords-data5.js?v=20261018a"></script><script src="sightwords-data6.js?v=20261019a"></script><script src="sightwords-data7.js?v=20261020a"></script><script src="sightwords-data8.js?v=20261022a"></script>
 <script>
 /* The sight-words code (about 1.2 MB: the pictures, the games, the monsters) is fetched once the page is up, so the book pages open at once;
@@ -1097,16 +1099,18 @@ function settleReading(){
  var snap;try{snap=JSON.parse($('readerFrame').contentWindow.eval('JSON.stringify({q:quizzes,s:selections,a:attempts})'));}catch(e){return;}
  var tabs=['comprehension','grammar','vocabulary'],done=0,first=0,totQ=0;
  tabs.forEach(function(t){var list=snap.q[t]||[],solved=0;list.forEach(function(it,i){var k=t+'-'+i;totQ++;if(snap.s[k]===it.answer){solved++;if((snap.a[k]||0)===1)first++;}});if(list.length&&solved===list.length)done++;});
- var finished=(done===3),acc=totQ?first/totQ:0,bs=bookState(b.slug),D=dayState(),lines=[],n=0,pre=Math.min(2,done);
+ var finished=(done===3),acc=totQ?first/totQ:0,bs=bookState(b.slug),D=dayState(),lines=[],n=0,pre=Math.min(2,done),fresh=false;
  if(pre>(bs.parts||0)){var add=pre-(bs.parts||0);n+=add;lines.push([add,'Practice finished','练习完成']);bs.parts=pre;}
- if(finished&&!bs.fin){bs.fin=1;n+=1;lines.push([1,'Finished the book','读完一本书']);
+ if(finished&&!bs.fin){bs.fin=1;fresh=true;n+=1;lines.push([1,'Finished the book','读完一本书']);
   if(!D.books.length){n+=1;lines.push([1,'First book today','今天的第一本书']);}
   var T=todayBook();if(T.book.file===file){var x=T.stretch?3:2;n+=x;lines.push([x,T.stretch?'Stretch book bonus':'Book of the day bonus',T.stretch?'挑战书奖励':'今日一本奖励']);}
   D.books.push(b.slug);saveJ('lef_day_v1',D);st.hunger=Math.min(100,st.hunger+25);}
  if(finished&&!bs.quiz&&acc>=.8){bs.quiz=1;n+=2;lines.push([2,'80%+ on the first try','一次答对 80% 以上']);}
  setBook(b.slug,bs);
- if(!n){save();return;}
- var got=award(n);save();toast(lines,got,got<n);}
+ if(!n){save();return {got:0,lines:[],fresh:fresh};}
+ var got=award(n);save();toast(lines,got,got<n);return {got:got,lines:lines,fresh:fresh};}
+/* the reading buddy (reading-buddy.js): the pet in the reader bar, and the little ceremony when a book is finished */
+if(window.ReadingBuddy)ReadingBuddy.init({pet:function(){return ART_OK&&st.type?{type:st.type,eq:st.eq,name:st.name}:null;},all:ALL,bookState:bookState,settle:function(){return settleReading();},openReader:function(b){openReader(b);},close:function(){closeBook();},sfx:function(){snd();}});
 function reviewStar(){if(window.Badges)Badges.recordReview();var D=dayState();if(D.reviews>=3)return;D.reviews++;saveJ('lef_day_v1',D);var got=award(1);if(got){toast([[1,'Reviewed a question','复习了一道题']],got,false);try{renderHomePet();}catch(e){}}}
 /* every award also feeds the star total and the learning days, then looks for new badges a moment later */
 (function(){var raw=award;award=function(n){var ok=raw(n);if(window.Badges){if(ok>0)Badges.recordStars(ok);if(n>0)Badges.soon();}return ok;};})();
