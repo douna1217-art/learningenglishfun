@@ -22,6 +22,7 @@
     last = null,
     flips = 0,
     lastLine = -1,
+    maxA = 0,
     celebrated = false;
 
   var LINES = {
@@ -69,7 +70,12 @@
   }
   function readFrame() {
     try {
-      return JSON.parse($("readerFrame").contentWindow.eval("JSON.stringify({p:page,c:completed,n:pages.length})"));
+      return JSON.parse(
+        $("readerFrame").contentWindow.eval(
+          "JSON.stringify({p:page,c:completed,n:pages.length,r:(function(){var k=0,t;for(t in quizzes)quizzes[t].forEach(function(q,i){if(selections[t+'-'+i]===q.answer)k++});return k})()," +
+            "a:(typeof __rvAudio!=='undefined'&&__rvAudio&&__rvAudio.duration>0)?__rvAudio.currentTime/__rvAudio.duration:-1})"
+        )
+      );
     } catch (e) {
       return null;
     }
@@ -143,6 +149,20 @@
     var s = readFrame();
     if (!s || !cur) return;
     if (last) {
+      // the daily goals: answers got right, and a page of narration heard to the end
+      if (cfg.goals) {
+        var fresh = false;
+        if (s.r > last.r) fresh = cfg.goals.note("correct", s.r - last.r).fresh || fresh;
+        if (s.a >= 0) maxA = Math.max(maxA, s.a);
+        else {
+          if (maxA >= 0.9) fresh = cfg.goals.note("listen", 1).fresh || fresh;
+          maxA = 0;
+        }
+        if (fresh) {
+          hop("excited");
+          say("All 3 goals done!");
+        }
+      }
       if (s.p !== last.p && !celebrated) {
         flips++;
         hop("happy");
@@ -206,6 +226,14 @@
     } catch (e) {}
     // only the first time a book is finished gets the ceremony; doing it again just goes quietly on
     if (!res || !res.fresh) return;
+    if (cfg.goals) {
+      // this book may be the third daily goal: its bonus joins the stars in the ceremony
+      var g = cfg.goals.check(true);
+      if (g.fresh) {
+        res.lines = (res.lines || []).concat([[g.got, "Daily goals done", "今日小目标完成"]]);
+        res.goals = true;
+      }
+    }
     show(res);
   }
 
@@ -318,6 +346,7 @@
     cur = book;
     celebrated = false;
     last = null;
+    maxA = 0;
     flips = 0;
     style();
     var bar = $("readerOverlay") && $("readerOverlay").firstElementChild;

@@ -402,6 +402,7 @@ Grades K–6 · Read-aloud stories
 
 <!-- popular -->
 <div class="wrap" id="recWrap" style="padding-top:0;max-width:1260px;margin:0 auto"><div id="recommendedCard"></div></div>
+<section id="dailyGoals"></section>
 <section id="botd" style="padding: 70px 48px 0"></section>
 
 
@@ -519,7 +520,7 @@ var SHELF={},ALL=[];
 <script src="motion-guard.js?v=20261015a"></script><script src="pet-art.js?v=20261015b"></script><script src="pet-rig.js?v=20261015e"></script>
 <script src="pet-fest.js?v=20261015c"></script>
 <script src="pet-sound.js?v=20261014c"></script>
-<script src="badges.js?v=20261022a"></script><script src="reading-buddy.js?v=20261106a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
+<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261107a"></script><script src="reading-buddy.js?v=20261107a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
 <script src="sightwords-data.js?v=20261022a"></script><script src="sightwords-data2.js?v=20261014a"></script><script src="sightwords-data3.js?v=20261016a"></script><script src="sightwords-data4.js?v=20261017a"></script><script src="sightwords-data5.js?v=20261018a"></script><script src="sightwords-data6.js?v=20261019a"></script><script src="sightwords-data7.js?v=20261020a"></script><script src="sightwords-data8.js?v=20261022a"></script>
 <script>
 /* The sight-words code (about 1.2 MB: the pictures, the games, the monsters) is fetched once the page is up, so the book pages open at once;
@@ -740,7 +741,7 @@ function openRules(){openModal('<h2>How do stars work? <span style="font-size:22
  +row('Finish a Reading, Grammar or Vocabulary practice (up to 2 per book)','完成一个阅读、语法或词汇练习（每本书最多 2 个）','+1 each')
  +row('Get 80% or more of the questions right on the first try','一次答对 80% 以上的题目','+2')
  +row('Your first book of the day','今天读的第一本书','+1')
- +row('Finish the Book of the day','读完“今日一本”','+2')
+ +row('Finish the Book of the day','读完“每日一书”','+2')
  +row('Finish a Stretch book (a bit harder, just for you)','读完“挑战书”（稍微难一点）','+3')
  +row('Review a question you missed (up to 3 a day)','复习一道错题（每天最多 3 道）','+1 each')
  +'<div class="note">You can earn up to <b>10 stars a day</b>. Re-reading a book is fine, but it will not give new stars.<small>每天最多能赚 10 颗星。重读一本书可以，但不会再得新的星星。</small></div>'
@@ -1039,7 +1040,7 @@ function levelPick(){var G=[['Kindergarten','K','幼儿园'],['Grade 1','1','一
 function levelResult(i){var band=['Beginning Reader','Early Reader','Growing Reader','Growing Reader','Fluent Reader','Fluent Reader','Fluent Reader'][i];saveJ('lef_demo_band',band);simIdx=-1;
  openModal('<h2>Your reading level <span style="font-size:20px;color:#4A5878">你的阅读水平</span></h2><div style="text-align:center;margin:18px 0 8px"><div style="display:inline-block;background:#FFC93C;border-radius:28px;padding:14px 30px;box-shadow:0 6px 0 #B88A00;transform:rotate(-2deg)"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:34px;line-height:1.1">'+band+'</div><div style="font-weight:800;font-size:18px">'+LEVELCN[band]+'</div></div></div>'
   +'<p style="text-align:center;font-weight:700;font-size:17px;line-height:1.5;margin:14px 0">We picked books that fit you!<br><span style="color:#4A5878">我们为你挑好了合适的书！</span></p>'
-  +'<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"><button class="rules-btn" id="lrgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">See my book of the day 看今日一本</button></div>');
+  +'<div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"><button class="rules-btn" id="lrgo" style="background:#6A48E8;color:#fff;box-shadow:0 5px 0 #4A2FB8">See my book of the day 看每日一书</button></div>');
  $('lrgo').onclick=function(){closeModal();var b=$('botd');if(b)b.scrollIntoView({behavior:'smooth',block:'start'});};}
 renderPicks();renderHomePet();
 </script>
@@ -1082,7 +1083,7 @@ function renderBotd(){
  var who='<div style="font-weight:800;font-size:17px;color:#1E2A4A;line-height:1.35">'+R.en+'<div style="font-weight:700;font-size:15px;color:#4A5878">'+R.cn+'</div>'+(R.en2?'<div style="font-weight:700;font-size:14px;color:#4A5878;margin-top:4px">'+R.en2+'<br>'+R.cn2+'</div>':'')+(t.mode!=='test'?'<div style="margin-top:6px"><a data-level href="#level" class="rules-link">'+(t.mode==='habit'?'Want a more exact match? Take the level test 想要更准？做阅读水平测试':'Take the level test 做阅读水平测试')+'</a></div>':'')+'</div>';
  el.innerHTML='<div style="margin-bottom:26px">'+who+'</div>'
  +'<div style="background:'+(t.stretch?'#D9CCFF':'#FFE9B0')+';border-radius:44px;padding:28px;display:flex;flex-wrap:wrap;align-items:center;gap:36px;box-shadow:0 8px 0 '+(t.stretch?'#A892EA':'#E8B84A')+';position:relative">'
- +'<div style="position:absolute;left:22px;top:-18px;background:'+(t.stretch?'#5238C4':'#D93B1E')+';color:#fff;font-weight:800;font-size:15px;padding:9px 20px;border-radius:999px;transform:rotate(-3deg)">'+(t.stretch?'Stretch book':'Book of the day')+' <span style="font-weight:700">'+(t.stretch?'挑战书':'今日一本')+'</span></div>'
+ +'<div style="position:absolute;left:22px;top:-18px;background:'+(t.stretch?'#5238C4':'#D93B1E')+';color:#fff;font-weight:800;font-size:15px;padding:9px 20px;border-radius:999px;transform:rotate(-3deg)">'+(t.stretch?'Stretch book':'Book of the day')+' <span style="font-weight:700">'+(t.stretch?'挑战书':'每日一书')+'</span></div>'
  +'<img src="'+b.cover+'" alt="'+b.title+' cover" style="flex:0 1 380px;width:380px;max-width:100%;aspect-ratio:700/520;object-fit:cover;border-radius:28px;border:6px solid #fff;box-sizing:border-box;transform:rotate(-2deg);box-shadow:0 8px 0 rgba(0,0,0,.12)">'
  +'<div style="flex:1 1 320px;min-width:0;display:flex;flex-direction:column;gap:14px"><h2 style="margin:0;font-family:Fredoka,sans-serif;font-weight:700;font-size:44px;line-height:1.05">'+b.title+'</h2><p style="margin:0;font-size:20px;font-weight:700;color:#3A3A52">'+(b.subtitle||'')+'</p>'
  +'<div style="display:flex;flex-wrap:wrap;gap:8px"><span class="bp">'+t.subject+' · '+(b.grade||'')+'</span>'+(b.minutes?'<span class="bp">'+b.minutes+'</span>':'')+(b.readingBand?'<span class="bp">'+b.readingBand+'</span>':'')+'</div>'
@@ -1103,14 +1104,22 @@ function settleReading(){
  if(pre>(bs.parts||0)){var add=pre-(bs.parts||0);n+=add;lines.push([add,'Practice finished','练习完成']);bs.parts=pre;}
  if(finished&&!bs.fin){bs.fin=1;fresh=true;n+=1;lines.push([1,'Finished the book','读完一本书']);
   if(!D.books.length){n+=1;lines.push([1,'First book today','今天的第一本书']);}
-  var T=todayBook();if(T.book.file===file){var x=T.stretch?3:2;n+=x;lines.push([x,T.stretch?'Stretch book bonus':'Book of the day bonus',T.stretch?'挑战书奖励':'今日一本奖励']);}
+  var T=todayBook();if(T.book.file===file){var x=T.stretch?3:2;n+=x;lines.push([x,T.stretch?'Stretch book bonus':'Book of the day bonus',T.stretch?'挑战书奖励':'每日一书奖励']);}
   D.books.push(b.slug);saveJ('lef_day_v1',D);st.hunger=Math.min(100,st.hunger+25);}
  if(finished&&!bs.quiz&&acc>=.8){bs.quiz=1;n+=2;lines.push([2,'80%+ on the first try','一次答对 80% 以上']);}
  setBook(b.slug,bs);
  if(!n){save();return {got:0,lines:[],fresh:fresh};}
  var got=award(n);save();toast(lines,got,got<n);return {got:got,lines:lines,fresh:fresh};}
 /* the reading buddy (reading-buddy.js): the pet in the reader bar, and the little ceremony when a book is finished */
-if(window.ReadingBuddy)ReadingBuddy.init({pet:function(){return ART_OK&&st.type?{type:st.type,eq:st.eq,name:st.name}:null;},all:ALL,bookState:bookState,settle:function(){return settleReading();},openReader:function(b){openReader(b);},close:function(){closeBook();},sfx:function(){snd();}});
+if(window.ReadingBuddy)ReadingBuddy.init({pet:function(){return ART_OK&&st.type?{type:st.type,eq:st.eq,name:st.name}:null;},all:ALL,bookState:bookState,settle:function(){return settleReading();},openReader:function(b){openReader(b);},close:function(){closeBook();},sfx:function(){snd();},goals:window.DailyGoals||null});
+/* today's mini goals + the streak saver (daily-goals.js) */
+if(window.DailyGoals){DailyGoals.init({booksToday:function(){return dayState().books.length;},award:function(n){return award(n);},toast:function(l,t,c){toast(l,t,c);},
+ notice:function(en,cn){var t=$('toast');if(!t)return;t.innerHTML='<div class="tt">'+en+' <small>'+cn+'</small></div>';t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on');},5200);},
+ celebrate:function(){snd();if(st.type){homeBubble('All 3 goals done! +2 stars!');clearTimeout(bubbleT);bubbleT=setTimeout(function(){bubbleT=null;renderHomePet();},3500);}},
+ streak:function(){try{return Badges.context().streak||0;}catch(e){return 0;}},
+ petIcon:function(){return ART_OK&&st.type?petSvg(st.type,'happy',st.eq,'icon','width:100%;height:100%'):'<span style="font-size:40px">⭐</span>';}});
+ try{DailyGoals.repair();}catch(e){}
+ (function(){var r=renderBotd;renderBotd=function(){r();try{DailyGoals.render();}catch(e){}};})();}
 function reviewStar(){if(window.Badges)Badges.recordReview();var D=dayState();if(D.reviews>=3)return;D.reviews++;saveJ('lef_day_v1',D);var got=award(1);if(got){toast([[1,'Reviewed a question','复习了一道题']],got,false);try{renderHomePet();}catch(e){}}}
 /* every award also feeds the star total and the learning days, then looks for new badges a moment later */
 (function(){var raw=award;award=function(n){var ok=raw(n);if(window.Badges){if(ok>0)Badges.recordStars(ok);if(n>0)Badges.soon();}return ok;};})();
