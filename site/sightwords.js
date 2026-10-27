@@ -1894,7 +1894,7 @@
       stickers += '<i style="transform:rotate(' + angles[i] + "deg);background:" + (picks[i] ? c.bg : "#F1F5FA") + ";border-color:" + (picks[i] ? c.edge : "#C9D7E8") + ";color:" + (picks[i] ? c.ink : "#8A97AD") + (picks[i] && picks[i].length > 3 ? ";font-size:12px" : "") + '">' + esc(picks[i] || "?") + "</i>";
     }
     var h = '<div class="sw-home"><div class="sw-top"><button class="sw-back" id="swClose">← Back</button>' + (p ? '<span class="sw-starpill">' + scenery("star") + (+p.stars || 0) + "</span>" : "") + "</div>" +
-      '<div class="sw-ttl"><span class="sw-aa">Aa</span><div><h1>Sight words</h1><div class="sw-sub">The words you will see in almost every story · 高频词</div></div></div>' +
+      (root.SignInHint ? root.SignInHint.html("sw") : "") + '<div class="sw-ttl"><span class="sw-aa">Aa</span><div><h1>Sight words</h1><div class="sw-sub">The words you will see in almost every story · 高频词</div></div></div>' +
       '<div class="sw-hero"><div class="sw-herobg">' + scenery("hero") + '</div><span class="sw-tpill">' + esc(pill) + "</span>" +
       '<div class="sw-hrow"><div class="sw-hpet">' + pet("happy") + '</div><div class="sw-hsay"><div class="sw-bub">' + esc(say1) + "<b>" + esc(say2) + '</b></div><div class="sw-wchs">' + chipsHtml(list) + "</div></div></div>" +
       '<button class="sw-start" id="swToday">' + PLAY + esc(btn) + "</button></div>" +
