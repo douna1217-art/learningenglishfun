@@ -269,6 +269,47 @@ def balanced_quizzes(slug, spec):
 
 
 # ---------------------------------------------------------------- commands
+# Answer-length bias: a parent reported (2026-11) that her child found "the longest option is always right" and stopped reading.
+# Measured across the site then: the correct choice was the unique longest in 90% of vocabulary and 77% of comprehension questions (chance is about 33%).
+# Writing rule: all three choices should be about the same length and shape; wrong ones are full, believable sentences that are wrong in meaning, not short or vague.
+MAX_LONGEST = {"comprehension": 2, "grammar": 2, "vocabulary": 1}  # questions per book where the right choice is the unique longest
+MAX_LONGEST_ALL = 5   # of the 11 questions in a book
+MAX_SHORTEST_ALL = 5  # the same trap the other way round
+MAX_OVER = 1.4        # the right choice may not be more than 1.4x the longest wrong one (and the stub rule below)
+MIN_SHORT = 0.5       # the shortest choice must be at least half as long as the longest
+
+
+def choice_len(c):
+    return len(re.sub(r"<[^>]+>", "", c).strip())
+
+
+def length_problems(slug, quizzes):
+    """Give-away check: the right answer must not be recognisable by its length."""
+    found, longest_all, shortest_all = [], 0, 0
+    for cat, items in quizzes.items():
+        longest = 0
+        for it in items:
+            L = [choice_len(c) for c in it["choices"]]
+            a = it["answer"]
+            wrong = [x for i, x in enumerate(L) if i != a]
+            if L[a] == max(L) and L.count(max(L)) == 1:
+                longest += 1
+                if L[a] > MAX_OVER * max(wrong):
+                    found.append((slug, it["q"], f"right choice is {L[a]} chars, the longest wrong one only {max(wrong)}: make the wrong ones as full as the right one"))
+            if L[a] == min(L) and L.count(min(L)) == 1:
+                shortest_all += 1
+            if min(L) < MIN_SHORT * max(L):
+                found.append((slug, it["q"], f"one choice is only {min(L)} chars next to {max(L)}: too lopsided"))
+        longest_all += longest
+        if longest > MAX_LONGEST.get(cat, 2):
+            found.append((slug, cat, f"the right choice is the unique longest in {longest} of {len(items)} questions (max {MAX_LONGEST.get(cat, 2)})"))
+    if longest_all > MAX_LONGEST_ALL:
+        found.append((slug, "length", f"right choice is the unique longest in {longest_all} questions (max {MAX_LONGEST_ALL})"))
+    if shortest_all > MAX_SHORTEST_ALL:
+        found.append((slug, "length", f"right choice is the unique shortest in {shortest_all} questions (max {MAX_SHORTEST_ALL})"))
+    return found
+
+
 def audit_story(args, slug, spec, quizzes):
     """Page-text hazards, focus-word coverage and shipped-slug check for one book."""
     found = []
@@ -330,6 +371,7 @@ def cmd_audit(args, books):
                         problems.append((slug, "teach", f"colon/paren in {en!r}"))
         print(slug, "answer positions:", dict(sorted(counts.items())))
         problems += audit_story(args, slug, spec, quizzes)
+        problems += length_problems(slug, quizzes)
         if max(counts.values()) - min(counts.values()) > 1:
             problems.append((slug, "balance", str(counts)))
         if len(spec["focus"]) != 3:
