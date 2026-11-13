@@ -11273,9 +11273,11 @@
   }
 
   // what a parent sees: how far each stage is, the words that keep going wrong, the best of every game (for the child on this device)
-  function report() {
+  // report() is the child playing on this device; report(rawState) is built from another child's synced words state (no game scores then)
+  function report(raw) {
     if (!D) return null;
-    var s = readState(),
+    var other = arguments.length > 0,
+      s = other ? cleanState(raw) : readState(),
       stages = [];
     D.stages.forEach(function (st) {
       if (!st.ready) return;
@@ -11290,7 +11292,7 @@
     var fish = readFish(),
       det = readDet(),
       sl = readSling(),
-      games = [
+      games = other ? [] : [
         { n: "Whack-a-word 打地鼠", t: "best " + readMole().best + " · golden moles " + readMole().golden },
         { n: "Word fishing 钓单词", t: fishFound(fish) + " / " + SPECIES.length + " fish in the aquarium" },
         { n: "Word snake 词汇蛇", t: "best " + readSnake().best + " · longest " + readSnake().len },
