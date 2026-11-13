@@ -129,7 +129,13 @@
       "#rbDone .rbbtn{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}" +
       "#rbDone button{border:0;border-radius:999px;font-weight:900;font-size:1rem;padding:12px 20px;cursor:pointer}" +
       "#rbDone .rbgo{background:#D93B1E;color:#fff;box-shadow:0 4px 0 #9E2810}" +
-      "#rbDone .rbno{background:#EFEAFB;color:#3A2E6B}";
+      "#rbDone .rbno{background:#EFEAFB;color:#3A2E6B}" +
+      "#rbDone .rbpickh{font-weight:900;font-size:.95rem;margin:10px 0 6px;text-align:left;color:#3A2E6B}" +
+      "#rbDone .rbpick{display:grid;gap:8px;margin-bottom:10px}" +
+      "#rbDone .rbc2{display:flex;gap:12px;align-items:center;width:100%;box-sizing:border-box;text-align:left;background:#fff;border:3px solid #FFC93C;border-radius:18px;padding:8px 12px 8px 8px;cursor:pointer;font:inherit;color:#2D2250;box-shadow:0 4px 0 rgba(255,201,60,.45)}" +
+      "#rbDone .rbc2:hover{background:#FFF9E6}#rbDone .rbc2 img{width:78px;height:58px;object-fit:cover;border-radius:12px;flex:none;background:#F4F0FF}" +
+      "#rbDone .rbc2 span{min-width:0;display:block}#rbDone .rbc2 i{display:block;font-style:normal;font-weight:900;font-size:.78rem;color:#D93B1E;line-height:1.2}" +
+      "#rbDone .rbc2 b{display:block;font-size:.98rem;line-height:1.2;margin-top:2px}#rbDone .rbc2 small{display:block;font-weight:700;opacity:.7;font-size:.78rem;margin-top:2px}";
     document.head.appendChild(s);
   }
 
@@ -237,6 +243,41 @@
     });
     return same.length ? same[0] : pool[0];
   }
+  // up to two choices after a book: more of the same, or a subject the child reads less (next-book.js)
+  function choices() {
+    var N = root.NextBook,
+      list = [];
+    if (N && cfg && cfg.all) {
+      try {
+        var opened = {},
+          O = [];
+        try {
+          O = JSON.parse(root.localStorage.getItem("lef_opens_v1")) || [];
+        } catch (e) {}
+        O.forEach(function (x) {
+          if (x && x.slug) opened[x.slug] = 1;
+        });
+        var r = N.pick(cur, cfg.all, {
+          isFin: function (slug) {
+            return !!(cfg.bookState(slug) || {}).fin;
+          },
+          isOpened: function (slug) {
+            return !!opened[slug];
+          },
+          day: Math.floor(Date.now() / 86400000),
+        });
+        if (r.more) list.push({ b: r.more, tag: r.harder ? "A little harder 再难一点" : "More like this 同类再来一本" });
+        if (r.fresh) list.push({ b: r.fresh, tag: "Something new 换个科目试试" });
+      } catch (e) {
+        list = [];
+      }
+    }
+    if (!list.length) {
+      var nx = nextBook();
+      if (nx) list.push({ b: nx, tag: "Read next 下一本" });
+    }
+    return list;
+  }
   function finish() {
     if (celebrated) return;
     celebrated = true;
@@ -266,7 +307,7 @@
     var toast = $("toast");
     if (toast) toast.classList.remove("on"); // the ceremony lists the same stars itself
     var nb = nextBadge(),
-      nx = nextBook(),
+      ch = choices(),
       n = nb ? nb.books : 0,
       sj = cur.subject || "",
       lines = (res.lines || [])
@@ -321,7 +362,10 @@
       outfit +
       prog +
       '<div class="rbbtn">' +
-      (nx ? '<button class="rbgo" id="rbNext">Read next 下一本</button>' : "") +
+      (ch.length ? '<div class="rbpickh">Read next 接着读</div><div class="rbpick">' + ch.map(function (c, i) {
+        return '<button type="button" class="rbc2" data-i="' + i + '"><img alt="" src="' + esc(c.b.cover || "") + '"><span><i>' + esc(c.tag) + "</i><b>" + esc(c.b.title) + "</b><small>" +
+          esc([c.b.subject, c.b.grade, c.b.minutes].filter(Boolean).join(" · ")) + "</small></span></button>";
+      }).join("") + "</div>" : "") +
       '<button class="rbno" id="rbHome">Back to books 回书架</button>' +
       '<button class="rbno" id="rbStay">Stay here</button></div></div>';
     ov.appendChild(wrap);
@@ -331,12 +375,14 @@
     $("rbStay").onclick = function () {
       hideDone();
     };
-    if (nx)
-      $("rbNext").onclick = function () {
+    Array.prototype.forEach.call(wrap.querySelectorAll(".rbc2"), function (btn) {
+      btn.onclick = function () {
+        var c = ch[+btn.getAttribute("data-i")];
         hideDone();
         cfg.close();
-        cfg.openReader(nx);
+        if (c) cfg.openReader(c.b);
       };
+    });
     bigRig = mount($("rbBig"), 110, { face: "excited", still: reduced(), fps: 30 }, true);
     if (bigRig) {
       var cheer = function () {
