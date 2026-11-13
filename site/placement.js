@@ -496,7 +496,7 @@
       '<div class="section-title"><h2>Recommended for you</h2><p>' +
       (result.source === "lexile" ? "Based on your Lexile measure (" + result.lexile + "): " : "Based on your placement quiz result: ") +
       gradeNote +
-      ' · <a href="#" id="retakePlacement" style="color:var(--green);font-weight:800">retake the quiz</a></p></div><div class="books">' +
+      '<a href="#" id="retakePlacement" style="display:inline-block;margin-top:8px;color:var(--green);font-weight:800">&#8635; Retake the quiz <span style="font-weight:700">重新测试</span></a></p></div><div class="books">' +
       cardsHTML +
       "</div>";
     card.querySelectorAll(".open").forEach(function (btn) {
