@@ -489,8 +489,11 @@
             '<span class="ac-lab">Games 游戏成绩</span>' +
             sw.games.map(function (g) { return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;border-bottom:1px solid #EEF2F7"><b>' + esc(g.n) + "</b><span>" + esc(g.t) + "</span></div>"; }).join("");
       }
-      h += '<button type="button" class="ac-sec" id="acCopy"><b>Copy this week\'s summary</b><s>复制本周小结，可发给家人</s></button><p class="ac-note" id="acCopyMsg"></p>';
+      h += (root.ReportCard ? '<button type="button" class="ac-go" id="acCard"><b>Make a picture to share</b><s>生成可转发的战报图片</s></button>' : "") +
+        '<button type="button" class="ac-sec" id="acCopy"><b>Copy this week\'s summary</b><s>复制本周小结，可发给家人</s></button><p class="ac-note" id="acCopyMsg"></p>';
       box.innerHTML = h;
+      var pic = doc.getElementById("acCard");
+      if (pic) pic.onclick = function () { showCard(id, name, sum); };
       var cb = doc.getElementById("acCopy");
       cb.onclick = function () {
         copyText(root.ParentReport.text(name, sum), function (ok) {
@@ -499,6 +502,42 @@
         });
       };
     });
+    return el;
+  }
+
+  // The weekly report as a picture: shown to press-and-hold (WeChat, iPhone), or to share / download where the browser allows it.
+  function showCard(id, name, sum) {
+    var cv = root.ReportCard && root.ReportCard.render(name, sum);
+    if (!cv) return showReport(id);
+    var url = "";
+    try {
+      url = cv.toDataURL("image/png");
+    } catch (e) {}
+    if (!url) return showReport(id);
+    var el = openModal(
+      '<h2 class="ac-h" id="acT">Weekly picture</h2><p class="ac-hz">本周战报图片</p>' +
+        '<img id="acCardImg" alt="Weekly report picture 本周战报图片" src="' + url + '" style="display:block;width:100%;max-width:340px;margin:8px auto;border-radius:14px;box-shadow:0 4px 14px rgba(30,42,74,.2)">' +
+        '<p class="ac-note">Press and hold the picture to save it, then send it to family.<small>长按图片保存，再发给家人或朋友圈。</small></p>' +
+        '<button type="button" class="ac-go" id="acShare" hidden><b>Share</b><s>分享</s></button>' +
+        '<a class="ac-sec" id="acDown" download="weekly-report.png" href="' + url + '" style="text-decoration:none;text-align:center"><b>Download</b><s>下载图片</s></a>' +
+        '<button type="button" class="ac-sec" id="acBack"><b>Back</b><s>返回</s></button>',
+      true,
+      "acT"
+    );
+    doc.getElementById("acBack").onclick = function () { showReport(id); };
+    var sh = doc.getElementById("acShare");
+    if (sh && root.navigator && root.navigator.share && cv.toBlob && root.File) {
+      cv.toBlob(function (blob) {
+        if (!blob) return;
+        var f = new root.File([blob], "weekly-report.png", { type: "image/png" }),
+          data = { files: [f], title: name + "’s week" };
+        if (root.navigator.canShare && !root.navigator.canShare(data)) return;
+        sh.hidden = false;
+        sh.onclick = function () {
+          root.navigator.share(data).catch(function () {});
+        };
+      }, "image/png");
+    }
     return el;
   }
 
