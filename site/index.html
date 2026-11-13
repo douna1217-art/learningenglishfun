@@ -1085,7 +1085,7 @@ function todayBook(){
 function renderBotd(){
  var el=$('botd');if(!el)return;var t=todayBook(),b=t.book,R=t.reason,bonus=t.stretch?3:2;
  var who='<div style="font-weight:800;font-size:17px;color:#1E2A4A;line-height:1.35">'+R.en+'<div style="font-weight:700;font-size:15px;color:#4A5878">'+R.cn+'</div>'+(R.en2?'<div style="font-weight:700;font-size:14px;color:#4A5878;margin-top:4px">'+R.en2+'<br>'+R.cn2+'</div>':'')+(t.mode!=='test'?'<div style="margin-top:6px"><a data-level href="#level" class="rules-link">'+(t.mode==='habit'?'Want a more exact match? Take the level test 想要更准？做阅读水平测试':'Take the level test 做阅读水平测试')+'</a></div>':'')+'</div>';
- if(t.mode!=='test')who='<div style="font-weight:800;font-size:15px;color:#1E2A4A;line-height:1.5">'+R.en+' <span style="font-weight:700;color:#4A5878">'+R.cn+'</span> <a data-level href="#level" class="rules-link" style="font-size:14px;white-space:nowrap">'+(t.mode==='habit'?'Get a more exact match: take the level test 做水平测试 →':'Take the level test 做水平测试 →')+'</a></div>';
+ if(t.mode!=='test')who=t.stretch?'<div style="font-weight:800;font-size:15px;color:#1E2A4A;line-height:1.5">'+R.en+' <span style="font-weight:700;color:#4A5878">'+R.cn+'</span></div>':'';
  if(t.mode==='test')who=R.en2?'<div style="font-weight:800;font-size:16px;color:#1E2A4A;line-height:1.35">'+R.en2+'<div style="font-weight:700;font-size:15px;color:#4A5878">'+R.cn2+'</div></div>':'';
  el.innerHTML=(who?'<div style="margin-bottom:26px">'+who+'</div>':'')
  +'<div style="background:'+(t.stretch?'#D9CCFF':'#FFE9B0')+';border-radius:44px;padding:28px;display:flex;flex-wrap:wrap;align-items:center;gap:36px;box-shadow:0 8px 0 '+(t.stretch?'#A892EA':'#E8B84A')+';position:relative">'
