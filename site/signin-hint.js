@@ -68,7 +68,7 @@
     var s = root.document.createElement("style");
     s.id = "sihStyle";
     s.textContent =
-      "#signinHint{padding:22px 48px 0}@media(max-width:700px){#signinHint{padding:16px 16px 0}}" +
+      "#signinHint{padding:18px 48px 0}@media(max-width:700px){#signinHint{padding:14px 16px 0}}" +
       ".sih{position:relative;max-width:1264px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#FFF6E0;border:3px solid #FFB636;border-radius:22px;padding:12px 16px;color:#4A3200;font-weight:800;line-height:1.3}" +
       ".sih.setup{background:#EAF3FF;border-color:#6AA7FF;color:#12315F}" +
       ".sih .ic{font-size:1.5rem;flex:none}" +
@@ -76,7 +76,11 @@
       ".sih button.go{position:static;right:auto;bottom:auto;border:0;border-radius:999px;background:#D93B1E;color:#fff;font:inherit;font-weight:900;padding:10px 18px;cursor:pointer;box-shadow:0 3px 0 #9E2810;white-space:nowrap}" +
       ".sih.setup button.go{background:#2F6FD6;box-shadow:0 3px 0 #1C4A99}" +
       ".sih button.x{position:absolute;top:2px;right:6px;border:0;background:none;font-size:1.3rem;line-height:1;color:inherit;opacity:.55;cursor:pointer;padding:4px 8px}" +
-      ".sih.sw{margin:0 0 12px;max-width:none}";
+      ".sih.sw{margin:0 0 12px;max-width:none}" +
+      "#signinHint:empty{display:none}" +
+      ".sih.slim{padding:8px 14px;gap:10px;border-radius:999px}.sih.slim .tx{font-size:.88rem;flex:1 1 260px}.sih.slim .sc{font-weight:700;opacity:.75;white-space:nowrap}" +
+      ".sih.slim button.go{padding:7px 16px;font-size:.9rem}.sih.slim button.x{position:static;order:3}" +
+      "@media(max-width:700px){.sih.slim{border-radius:22px}.sih.slim .sc{white-space:normal}}";
     root.document.head.appendChild(s);
   }
 
@@ -88,8 +92,12 @@
       if (!hasProgress()) return "";
       if (!sw && Date.now() - (+readJ(KEY_OFF, 0) || 0) < DAY) return "";
       return (
-        '<div class="sih out' + (sw ? " sw" : "") + '" role="status"><span class="ic" aria-hidden="true">☁️</span><span class="tx">Want to keep your child’s progress? Please sign up with your email. Once you do, their pet, stars and progress are never lost, even on a new phone or tablet.' +
-        "<small>想保存孩子的学习进度，需要先用邮箱注册。注册后，宠物、星星和进度不会丢，换手机、换平板也能接着玩。</small></span>" +
+        '<div class="sih out' + (sw ? " sw" : " slim") + '" role="status"><span class="ic" aria-hidden="true">☁️</span><span class="tx">' +
+        (sw
+          ? "Want to keep your child’s progress? Please sign up with your email. Once you do, their pet, stars and progress are never lost, even on a new phone or tablet." +
+            "<small>想保存孩子的学习进度，需要先用邮箱注册。注册后，宠物、星星和进度不会丢，换手机、换平板也能接着玩。</small>"
+          : "Keep your child’s pet and progress safe: sign up with your email. <span class=\"sc\">注册邮箱，宠物和进度换设备也不丢。</span>") +
+        "</span>" +
         '<button type="button" class="go" data-sih="signin" data-where="' + (sw ? "sw" : "home") + '">Sign up to save 注册保存</button>' +
         (sw ? "" : '<button type="button" class="x" data-sih="off" aria-label="Hide for a day 今天不再提示">×</button>') +
         "</div>"
