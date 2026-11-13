@@ -16,6 +16,7 @@
 //     lef_hist_v1    recent reading history
 //     lef_stats_v1   learning days (for the streak), stars earned in total, questions reviewed
 //     lef_badges_v1  badges earned (id -> time)
+//     lef_themes_v1  weekly theme stamps (theme id -> time)
 //     lef_words_v1   sight words: each word's box and due day, lessons finished
 //     lef_fish_v1 / lef_fishlist_v1 / lef_mole_v1 / lef_snake_v1 / lef_runner_v1 / lef_slash_v1 / lef_detective_v1 / lef_hoops_v1 /
 //     lef_sling_v1 / lef_space_v1 / lef_dungeon_v1 / lef_deep_v1 / lef_pyramid_v1 / lef_sled_v1
@@ -56,12 +57,13 @@
   var REVIEW = "les_review_v1";
   var PLACEMENT = "les_placement_v1";
   var STATS = "lef_stats_v1";
+  var THEMES = "lef_themes_v1";
   var BADGES = "lef_badges_v1";
   var WORDS = "lef_words_v1";
   // the sight-word games (not on the home page, so a pull never reloads the page)
   var FISHLIST = "lef_fishlist_v1";
   var GAME_KEYS = ["lef_fish_v1", FISHLIST, "lef_mole_v1", "lef_snake_v1", "lef_runner_v1", "lef_slash_v1", "lef_detective_v1", "lef_hoops_v1", "lef_sling_v1", "lef_space_v1", "lef_dungeon_v1", "lef_deep_v1", "lef_pyramid_v1", "lef_sled_v1"];
-  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT, STATS, BADGES, WORDS];
+  var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT, STATS, BADGES, WORDS, THEMES];
   var BOOK_RE = /^les-.+-v1$/;
 
   function isHomeKey(k) {
@@ -356,7 +358,7 @@
     if (key === FISHLIST) return mergeFishList(local, remote);
     if (key === WORDS) return mergeWords(local, remote);
     if (key === STATS) return mergeStats(local, remote);
-    if (key === BADGES) return mergeBadges(local, remote);
+    if (key === BADGES || key === THEMES) return mergeBadges(local, remote);
     if (key === REVIEW) return mergeReview(local, remote);
     if (key === PLACEMENT) return mergePlacement(local, remote);
     if (key === PET) return mergePet(local, remote);

@@ -406,6 +406,7 @@ Grades K–6 · Read-aloud stories
 <div class="wrap" id="recWrap" style="padding-top:0;max-width:1260px;margin:0 auto"><div id="recommendedCard"></div></div>
 <section id="signinHint"></section>
 <section id="dailyGoals"></section>
+<section id="weeklyTheme"></section>
 <section id="botd" style="padding: 70px 48px 0"></section>
 
 
@@ -523,7 +524,7 @@ var SHELF={},ALL=[];
 <script src="motion-guard.js?v=20261015a"></script><script src="pet-art.js?v=20261015b"></script><script src="pet-rig.js?v=20261015e"></script>
 <script src="pet-fest.js?v=20261015c"></script>
 <script src="pet-sound.js?v=20261014c"></script>
-<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261107a"></script><script src="reading-buddy.js?v=20261107a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
+<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261107a"></script><script src="weekly-themes-data.js?v=20261113a"></script><script src="weekly-themes.js?v=20261113a"></script><script src="reading-buddy.js?v=20261107a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
 <script src="sightwords-data.js?v=20261022a"></script><script src="sightwords-data2.js?v=20261014a"></script><script src="sightwords-data3.js?v=20261016a"></script><script src="sightwords-data4.js?v=20261017a"></script><script src="sightwords-data5.js?v=20261018a"></script><script src="sightwords-data6.js?v=20261019a"></script><script src="sightwords-data7.js?v=20261020a"></script><script src="sightwords-data8.js?v=20261022a"></script>
 <script>
 /* The sight-words code (about 1.2 MB: the pictures, the games, the monsters) is fetched once the page is up, so the book pages open at once;
@@ -1123,6 +1124,15 @@ if(window.DailyGoals){DailyGoals.init({booksToday:function(){return dayState().b
  petIcon:function(){return ART_OK&&st.type?petSvg(st.type,'happy',st.eq,'icon','width:100%;height:100%'):'<span style="font-size:40px">⭐</span>';}});
  try{DailyGoals.repair();}catch(e){}
  (function(){var r=renderBotd;renderBotd=function(){r();try{DailyGoals.render();}catch(e){}};})();}
+/* weekly theme collections + stamp passport (weekly-themes.js) */
+if(window.WeeklyThemes){WeeklyThemes.init({all:ALL,
+ grade:function(){var R=placement();if(R&&R.primaryGrade)return R.primaryGrade;var P=habitProfile();return (P&&typeof P.grade==='number')?P.grade:'Grade 2';},
+ finished:function(s){return !!(bookState(s).fin);},
+ award:function(n){return award(n);},
+ toast:function(l,t,c){toast(l,t,c);},
+ openBook:function(b){noteOpen(b);openReader(b);},
+ modal:function(h){openModal(h);}});
+ (function(){var r=renderBotd;renderBotd=function(){r();try{WeeklyThemes.render();}catch(e){}};})();}
 function reviewStar(){if(window.Badges)Badges.recordReview();var D=dayState();if(D.reviews>=3)return;D.reviews++;saveJ('lef_day_v1',D);var got=award(1);if(got){toast([[1,'Reviewed a question','复习了一道题']],got,false);try{renderHomePet();}catch(e){}}}
 /* every award also feeds the star total and the learning days, then looks for new badges a moment later */
 (function(){var raw=award;award=function(n){var ok=raw(n);if(window.Badges){if(ok>0)Badges.recordStars(ok);if(n>0)Badges.soon();}return ok;};})();
