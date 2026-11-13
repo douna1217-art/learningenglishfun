@@ -130,6 +130,9 @@
       "#rbDone button{border:0;border-radius:999px;font-weight:900;font-size:1rem;padding:12px 20px;cursor:pointer}" +
       "#rbDone .rbgo{background:#D93B1E;color:#fff;box-shadow:0 4px 0 #9E2810}" +
       "#rbDone .rbno{background:#EFEAFB;color:#3A2E6B}" +
+      "#rbDone .rbsave{background:#EAF3FF;border:2px solid #6AA7FF;border-radius:16px;padding:10px 12px;margin:10px 0;text-align:left;color:#12315F}" +
+      "#rbDone .rbsave b{display:block;font-size:.95rem}#rbDone .rbsave span{display:block;font-size:.82rem;font-weight:700;margin:3px 0 8px;line-height:1.35}" +
+      "#rbDone .rbsave button{border:0;border-radius:999px;background:#2F6FD6;color:#fff;font:inherit;font-weight:900;font-size:.9rem;padding:8px 16px;cursor:pointer;box-shadow:0 3px 0 #1C4A99}" +
       "#rbDone .rbpickh{font-weight:900;font-size:.95rem;margin:10px 0 6px;text-align:left;color:#3A2E6B}" +
       "#rbDone .rbpick{display:grid;gap:8px;margin-bottom:10px}" +
       "#rbDone .rbc2{display:flex;gap:12px;align-items:center;width:100%;box-sizing:border-box;text-align:left;background:#fff;border:3px solid #FFC93C;border-radius:18px;padding:8px 12px 8px 8px;cursor:pointer;font:inherit;color:#2D2250;box-shadow:0 4px 0 rgba(255,201,60,.45)}" +
@@ -243,6 +246,32 @@
     });
     return same.length ? same[0] : pool[0];
   }
+  // a gentle "save progress" note on the first (and third) finished book, only for a visitor who is not signed in
+  function saveNudge(n) {
+    var A = root.__lesAccount,
+      seen = [],
+      st = null;
+    try {
+      st = A && A.state ? A.state() : null;
+    } catch (e) {}
+    if (!st || st.session) return "";
+    try {
+      seen = JSON.parse(root.localStorage.getItem("lef_save_nudge_v1")) || [];
+    } catch (e) {}
+    var key = n <= 1 ? 1 : n === 3 ? 3 : 0;
+    if (!key || seen.indexOf(key) > -1) return "";
+    seen.push(key);
+    try {
+      root.localStorage.setItem("lef_save_nudge_v1", JSON.stringify(seen));
+    } catch (e) {}
+    var p = petInfo(),
+      who = p && p.name ? esc(p.name) : "your child";
+    return (
+      '<div class="rbsave"><b>Save ' + (p && p.name ? who + "’s" : "your") + " progress 保存进度</b>" +
+      "<span>Sign up with your email so the pet, stars and books are never lost, even on a new phone. 注册邮箱后，宠物、星星和进度换设备也不丢。</span>" +
+      '<button type="button" id="rbSave">Sign up to save 注册保存</button></div>'
+    );
+  }
   // up to two choices after a book: more of the same, or a subject the child reads less (next-book.js)
   function choices() {
     var N = root.NextBook,
@@ -309,6 +338,7 @@
     var nb = nextBadge(),
       ch = choices(),
       n = nb ? nb.books : 0,
+      saveHtml = saveNudge(n),
       sj = cur.subject || "",
       lines = (res.lines || [])
         .map(function (l) {
@@ -361,6 +391,7 @@
       (lines ? '<div class="rbstars">' + lines + "</div>" : "") +
       outfit +
       prog +
+      saveHtml +
       '<div class="rbbtn">' +
       (ch.length ? '<div class="rbpickh">Read next 接着读</div><div class="rbpick">' + ch.map(function (c, i) {
         return '<button type="button" class="rbc2" data-i="' + i + '"><img alt="" src="' + esc(c.b.cover || "") + '"><span><i>' + esc(c.tag) + "</i><b>" + esc(c.b.title) + "</b><small>" +
@@ -375,6 +406,19 @@
     $("rbStay").onclick = function () {
       hideDone();
     };
+    var sv = $("rbSave");
+    if (sv)
+      sv.onclick = function () {
+        hideDone();
+        cfg.close();
+        setTimeout(function () {
+          try {
+            root.scrollTo(0, 0);
+          } catch (e) {}
+          var t = root.document.getElementById("syncToggle");
+          if (t && t.getAttribute("aria-expanded") !== "true") t.click();
+        }, 150);
+      };
     Array.prototype.forEach.call(wrap.querySelectorAll(".rbc2"), function (btn) {
       btn.onclick = function () {
         var c = ch[+btn.getAttribute("data-i")];
