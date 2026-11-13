@@ -57,13 +57,33 @@
     } catch (e) {}
     return p && p.type ? p : null;
   }
-  function mount(host, size, opts) {
+  // finished books of a subject, not counting the book that is open right now
+  function finishedIn(subject, exceptSlug) {
+    var all = (cfg && cfg.all) || [],
+      i,
+      n = 0;
+    for (i = 0; i < all.length; i++) {
+      if (all[i].subject !== subject || all[i].slug === exceptSlug) continue;
+      try {
+        if (cfg.bookState(all[i].slug).fin) n++;
+      } catch (e) {}
+    }
+    return n;
+  }
+  // the subject outfit (subject-outfits.js) once a book of that subject was finished; never saved, only worn while reading
+  function dressed(eq, withCurrent) {
+    var S = root.SubjectOutfits;
+    if (!S || !cur || !cur.subject || !S.forSubject(cur.subject)) return eq;
+    if (!withCurrent && !finishedIn(cur.subject, cur.slug) && !(cfg.bookState(cur.slug) || {}).fin) return eq;
+    return S.eqWith(eq, cur.subject);
+  }
+  function mount(host, size, opts, withCurrent) {
     var p = petInfo();
     if (!p || !root.PetRig || !host) return null;
     host.style.width = size + "px";
     host.style.height = size + "px";
     try {
-      return root.PetRig.mount(host, p.type, p.eq || {}, opts);
+      return root.PetRig.mount(host, p.type, dressed(p.eq || {}, withCurrent), opts);
     } catch (e) {
       return null;
     }
@@ -254,7 +274,12 @@
           return "<span>+" + l[0] + " ★ " + esc(l[1]) + "</span>";
         })
         .join(""),
-      prog = "";
+      prog = "",
+      so = root.SubjectOutfits && root.SubjectOutfits.forSubject(sj),
+      outfit = "";
+    if (so && !finishedIn(sj, cur.slug))
+      outfit =
+        '<div class="rbnext">New outfit unlocked: ' + esc(so.name) + '! 新装扮：「' + esc(so.cn) + "」<br><span style=\"opacity:.7\">Your pet wears it when you read " + esc(sj) + " books. 读" + esc(sj) + "的书时，宠物会穿上它。</span></div>";
     if (nb && nb.def) {
       var left = nb.def.need - nb.books;
       prog =
@@ -293,6 +318,7 @@
       n +
       "</small></div></div>" +
       (lines ? '<div class="rbstars">' + lines + "</div>" : "") +
+      outfit +
       prog +
       '<div class="rbbtn">' +
       (nx ? '<button class="rbgo" id="rbNext">Read next 下一本</button>' : "") +
@@ -311,7 +337,7 @@
         cfg.close();
         cfg.openReader(nx);
       };
-    bigRig = mount($("rbBig"), 110, { face: "excited", still: reduced(), fps: 30 });
+    bigRig = mount($("rbBig"), 110, { face: "excited", still: reduced(), fps: 30 }, true);
     if (bigRig) {
       var cheer = function () {
         try {

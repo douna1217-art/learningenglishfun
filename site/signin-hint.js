@@ -69,11 +69,11 @@
     s.id = "sihStyle";
     s.textContent =
       "#signinHint{padding:22px 48px 0}@media(max-width:700px){#signinHint{padding:16px 16px 0}}" +
-      ".sih{position:relative;max-width:760px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#FFF6E0;border:3px solid #FFB636;border-radius:22px;padding:12px 16px;color:#4A3200;font-weight:800;line-height:1.3}" +
+      ".sih{position:relative;max-width:1264px;margin:0 auto;display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#FFF6E0;border:3px solid #FFB636;border-radius:22px;padding:12px 16px;color:#4A3200;font-weight:800;line-height:1.3}" +
       ".sih.setup{background:#EAF3FF;border-color:#6AA7FF;color:#12315F}" +
       ".sih .ic{font-size:1.5rem;flex:none}" +
       ".sih .tx{flex:1 1 220px;min-width:0;font-size:.95rem}.sih .tx small{display:block;font-weight:700;opacity:.75;font-size:.82rem;margin-top:2px}" +
-      ".sih button.go{border:0;border-radius:999px;background:#D93B1E;color:#fff;font:inherit;font-weight:900;padding:10px 18px;cursor:pointer;box-shadow:0 3px 0 #9E2810;white-space:nowrap}" +
+      ".sih button.go{position:static;right:auto;bottom:auto;border:0;border-radius:999px;background:#D93B1E;color:#fff;font:inherit;font-weight:900;padding:10px 18px;cursor:pointer;box-shadow:0 3px 0 #9E2810;white-space:nowrap}" +
       ".sih.setup button.go{background:#2F6FD6;box-shadow:0 3px 0 #1C4A99}" +
       ".sih button.x{position:absolute;top:2px;right:6px;border:0;background:none;font-size:1.3rem;line-height:1;color:inherit;opacity:.55;cursor:pointer;padding:4px 8px}" +
       ".sih.sw{margin:0 0 12px;max-width:none}";

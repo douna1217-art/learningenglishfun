@@ -157,23 +157,24 @@
     var s = document.createElement("style");
     s.id = "dgStyle";
     s.textContent =
-      "#dailyGoals{padding:34px 48px 0}@media(max-width:700px){#dailyGoals{padding:26px 16px 0}}" +
-      "#dailyGoals .dg{max-width:760px;margin:0 auto;background:#fff;border:3px solid #FFC93C;border-radius:26px;padding:16px 18px 14px;box-shadow:0 6px 0 rgba(255,201,60,.35)}" +
-      "#dailyGoals .dgh{display:flex;align-items:center;gap:12px}" +
-      "#dailyGoals .dgp{width:54px;height:54px;flex:none}" +
+      "#dailyGoals{padding:22px 48px 0}@media(max-width:700px){#dailyGoals{padding:16px 16px 0}}" +
+      "#dailyGoals .dg{max-width:1264px;margin:0 auto;background:#fff;border:3px solid #FFC93C;border-radius:28px;padding:12px 18px;box-shadow:0 5px 0 rgba(255,201,60,.35);display:flex;align-items:center;gap:14px;flex-wrap:wrap}" +
+      "#dailyGoals .dgp{width:48px;height:48px;flex:none}" +
       "#dailyGoals.fin .dgp{animation:dgHop 1.1s ease-in-out 3}" +
       "@keyframes dgHop{0%,100%{transform:none}35%{transform:translateY(-9px) rotate(-5deg)}65%{transform:translateY(0) rotate(4deg)}}" +
       "@media(prefers-reduced-motion:reduce){#dailyGoals.fin .dgp{animation:none}}" +
-      "#dailyGoals h3{margin:0;font-family:Fredoka,ui-rounded,'Trebuchet MS',Arial,sans-serif;font-size:1.3rem;line-height:1.15;color:#2D2250}" +
-      "#dailyGoals h3 small{display:block;font-size:.85rem;font-weight:700;opacity:.6}" +
-      "#dailyGoals .dgs{margin-left:auto;font-weight:900;background:#FFF3C4;border-radius:999px;padding:5px 12px;white-space:nowrap;color:#7A4A00}" +
-      "#dailyGoals ul{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}" +
-      "#dailyGoals li{display:flex;align-items:center;gap:10px;background:#F7F3FF;border-radius:16px;padding:9px 12px;font-weight:800;color:#2D2250}" +
+      "#dailyGoals .dgt{flex:0 1 190px;min-width:0}" +
+      "#dailyGoals h3{margin:0;font-family:Fredoka,ui-rounded,'Trebuchet MS',Arial,sans-serif;font-size:1.15rem;line-height:1.15;color:#2D2250}" +
+      "#dailyGoals h3 small{display:block;font-size:.8rem;font-weight:700;opacity:.6}" +
+      "#dailyGoals .dgb{display:block;margin-top:3px;font-weight:800;font-size:.76rem;line-height:1.25;color:#7A4A00}" +
+      "#dailyGoals .dgs{font-weight:900;background:#FFF3C4;border-radius:999px;padding:5px 12px;white-space:nowrap;color:#7A4A00}" +
+      "#dailyGoals ul{list-style:none;margin:0;padding:0;display:flex;gap:8px;flex:1 1 420px;min-width:0;flex-wrap:wrap}" +
+      "#dailyGoals li{display:flex;align-items:center;gap:8px;flex:1 1 150px;min-width:0;background:#F7F3FF;border-radius:16px;padding:7px 11px;font-weight:800;color:#2D2250}" +
       "#dailyGoals li.ok{background:#E6F7EA;color:#1F6B3A}" +
-      "#dailyGoals li .ic{font-size:1.3rem;width:1.6rem;text-align:center;flex:none}" +
-      "#dailyGoals li .tx{flex:1;min-width:0;line-height:1.2}#dailyGoals li .tx small{display:block;font-weight:700;opacity:.65;font-size:.78rem}" +
+      "#dailyGoals li .ic{font-size:1.2rem;width:1.4rem;text-align:center;flex:none}" +
+      "#dailyGoals li .tx{flex:1;min-width:0;line-height:1.15;font-size:.9rem}#dailyGoals li .tx small{display:block;font-weight:700;opacity:.65;font-size:.74rem}" +
       "#dailyGoals li .pg{font-weight:900;white-space:nowrap}" +
-      "#dailyGoals .dgf{margin-top:10px;font-weight:800;font-size:.9rem;color:#4A3F7A;line-height:1.35}" +
+      "#dailyGoals .dgf{flex:1 1 100%;font-weight:800;font-size:.82rem;color:#4A3F7A;line-height:1.35}" +
       "#dailyGoals .dgf small{display:block;font-weight:700;opacity:.65}";
     document.head.appendChild(s);
   }
@@ -205,8 +206,8 @@
       })
       .join("");
     var foot = done
-      ? "All three done! +" + BONUS + " bonus stars 🎉<small>三个小目标都完成了，奖励 " + BONUS + " 颗星</small>"
-      : "Do all three for " + BONUS + " bonus stars<small>三个都完成，奖励 " + BONUS + " 颗星</small>";
+      ? "All three done! +" + BONUS + " bonus stars 🎉"
+      : "All three = +" + BONUS + " bonus stars 三个都完成奖励 " + BONUS + " 颗星";
     var saver =
       streak >= 2
         ? left === 0
@@ -215,9 +216,10 @@
         : "";
     el.className = done ? "fin" : "";
     el.innerHTML =
-      '<div class="dg"><div class="dgh"><span class="dgp">' + pet + "</span><h3>Today's mini goals<small>今日小目标</small></h3>" +
+      '<div class="dg"><span class="dgp">' + pet + '</span><div class="dgt"><h3>Today\'s mini goals<small>今日小目标</small></h3><span class="dgb">' + foot + "</span></div>" +
+      "<ul>" + rows + "</ul>" +
       (streak > 0 ? '<span class="dgs">🔥 ' + streak + (streak === 1 ? " day" : " days") + "</span>" : "") +
-      "</div><ul>" + rows + '</ul><div class="dgf">' + foot + "</div>" + (saver ? '<div class="dgf">' + saver + "</div>" : "") + "</div>";
+      (saver ? '<div class="dgf">' + saver + "</div>" : "") + "</div>";
     if (done && !g.shown) {
       g.shown = true;
       writeJ(KEY, g);
