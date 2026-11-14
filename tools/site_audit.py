@@ -514,7 +514,7 @@ def check_media(F, books, catalog, workers, cache):
         topic = catalog.get(slug, {}).get("topic", "")
         if isinstance(P, list):
             for i, p in enumerate(P):
-                if p.get("image"):
+                if p.get("image") and not p["image"].startswith("data:"):  # (a picture drawn inside the page is not on the server)
                     jobs.append(("img", slug, topic, i, p["image"], None))
         if isinstance(A, dict):
             for k, u in A.items():

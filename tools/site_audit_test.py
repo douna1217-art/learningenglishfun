@@ -168,13 +168,13 @@ class H(http.server.BaseHTTPRequestHandler):
 srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), H)
 threading.Thread(target=srv.serve_forever, daemon=True).start()
 base = "http://127.0.0.1:%d" % srv.server_address[1]
-pages = [{"type": "cover", "title": "t", "image": base + "/ok.jpg"}, {"text": "x", "image": base + "/tiny.jpg"}, {"text": "x", "image": base + "/gone.jpg"}]
+pages = [{"type": "cover", "title": "t", "image": base + "/ok.jpg"}, {"text": "x", "image": base + "/tiny.jpg"}, {"text": "x", "image": base + "/gone.jpg"}, {"text": "x", "image": "data:image/svg+xml,%3Csvg%3E"}]
 bk = {"pages": pages, "audio": {"0": base + "/ok.mp3", "1": base + "/long.mp3", "2": base + "/short.mp3", "3": base + "/gone.mp3"},
       "times": {"0": [0, 1.0, 1.8], "1": [0, 1.0, 2.0], "2": [0, 1.0, 3.0], "3": [0, 1.0]}}
 F = A.Findings()
 n = A.check_media(F, {"red-kite": bk}, {"red-kite": {"topic": "fiction"}}, 4, {})
 msgs = [x["msg"] for x in F.items]
-ok(n == 7, "online: every picture and audio file was asked about", n)
+ok(n == 7 and not any("svg" in m for m in msgs), "online: every picture and audio file on the server was asked about; a drawn-in picture was not", (n, msgs))
 ok(any("page 2" in m and "does not answer" in m and "picture" in m for m in msgs), "online: a missing picture", msgs)
 ok(any("page 1" in m and "only 102 bytes" in m for m in msgs), "online: a tiny picture", msgs)
 ok(any("audio of page 1" in m and "runaway tail" in m for m in msgs), "online: audio far longer than its last word (a runaway tail)", msgs)
