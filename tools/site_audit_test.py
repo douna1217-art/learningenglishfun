@@ -57,6 +57,10 @@ def has(F, check, sev, frag):
 F, _ = run(book())
 ok(not [x for x in F.items if x["sev"] == "error"], "a clean made-up book has no errors", [x for x in F.items if x["sev"] == "error"])
 
+b = book(); b["audio"]["2"] = b["audio"]["2"] + "?v=2"
+ok(not has(run(b)[0], "narration", "error", "mp3 link"), "narration: a cache-busting ?v=2 after .mp3 is fine")
+b = book(); b["audio"]["2"] = "https://m.test/books/fiction/red-kite-audio/page_2.wav"
+ok(has(run(b)[0], "narration", "error", "mp3 link"), "narration: a link that is not an mp3")
 b = book(); del b["audio"]["3"]
 ok(has(run(b)[0], "narration", "error", "page 3 has no audio"), "narration: a page without audio")
 b = book(); b["times"]["2"] = b["times"]["2"][:-3]

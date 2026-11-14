@@ -255,7 +255,7 @@ def check_book(F, slug, topic, b, entry):
         txt = page_text(p).strip()
         if k not in A:
             F.add(slug, "narration", "error", "page %d has no audio" % i, topic)
-        elif not isinstance(A[k], str) or not A[k].endswith(".mp3"):
+        elif not isinstance(A[k], str) or not A[k].split("?")[0].endswith(".mp3"):
             F.add(slug, "narration", "error", "page %d audio is not an mp3 link: %r" % (i, A[k]), topic)
         elif slug not in A[k]:
             F.add(slug, "narration", "warn", "page %d audio is not in the book's own audio folder" % i, topic)
