@@ -43,13 +43,10 @@ jobs:
           for k, v in kinds.most_common(40):
               print(v, k)
           print()
-          seen = collections.Counter()
+          print("--- every media finding, every narration error, every catalog / pages finding (not notes) ---")
           for x in F:
-              if x["check"] == "media" and x["sev"] == "error":
-                  k = re.sub(r"page \S+", "page N", x["msg"])
-                  seen[k] += 1
-                  if seen[k] <= 3:
-                      print("example:", x["topic"] + "/" + x["slug"], x["msg"])
+              if x["sev"] != "info" and (x["check"] in ("media", "catalog", "pages") or (x["check"] == "narration" and x["sev"] == "error")):
+                  print(x["sev"], x["topic"] + "/" + x["slug"], x["msg"])
           PY
       - name: Keep the report
         uses: actions/upload-artifact@v4
