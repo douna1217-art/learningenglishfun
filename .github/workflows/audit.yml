@@ -25,6 +25,32 @@ jobs:
         id: audit
         run: python3 tools/site_audit.py --online --fail-on error
         continue-on-error: true
+      - name: What the audit found (in the log)
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, re, collections
+          d = json.load(open("tools/audit/report.json"))
+          F = d["findings"]
+          c = collections.Counter((x["check"], x["sev"]) for x in F)
+          for k, v in sorted(c.items()):
+              print(k, v)
+          print()
+          kinds = collections.Counter()
+          for x in F:
+              if x["sev"] != "info":
+                  kinds[(x["check"], x["sev"], re.sub(r"\d+(\.\d+)?", "N", x["msg"])[:90])] += 1
+          for k, v in kinds.most_common(40):
+              print(v, k)
+          print()
+          seen = collections.Counter()
+          for x in F:
+              if x["check"] == "media" and x["sev"] == "error":
+                  k = re.sub(r"page \S+", "page N", x["msg"])
+                  seen[k] += 1
+                  if seen[k] <= 3:
+                      print("example:", x["topic"] + "/" + x["slug"], x["msg"])
+          PY
       - name: Keep the report
         uses: actions/upload-artifact@v4
         with:
