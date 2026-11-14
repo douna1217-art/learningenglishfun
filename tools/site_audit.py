@@ -170,6 +170,14 @@ class Findings:
 
 
 # ---------------------------------------------------------------- the checks
+def known_unlisted():
+    """slugs that are left out of the catalog on purpose (tools/audit/known_unlisted.txt, one a line, # for notes)"""
+    f = os.path.join(AUDIT, "known_unlisted.txt")
+    if not os.path.isfile(f):
+        return set()
+    return {l.split("#")[0].strip() for l in open(f, encoding="utf8") if l.split("#")[0].strip()}
+
+
 def check_catalog(F, catalog, dup, files):
     listed = set(catalog)
     for slug, topic, other in dup:
@@ -205,9 +213,13 @@ def check_catalog(F, catalog, dup, files):
                 F.add(slug, "catalog", "warn", "no %s" % k, topic)
         if on_disk.get(slug) not in (None, topic):
             F.add(slug, "catalog", "error", "listed under %s but the page is in %s" % (topic, on_disk[slug]), topic)
+    known = known_unlisted()
     for slug, topic in on_disk.items():
         if slug not in listed:
-            F.add(slug, "catalog", "warn", "has a page but is not in any books.js, so nobody can find it", topic)
+            if slug in known:
+                F.add(slug, "catalog", "info", "not in any books.js, on purpose (listed in tools/audit/known_unlisted.txt)", topic)
+            else:
+                F.add(slug, "catalog", "warn", "has a page but is not in any books.js, so nobody can find it", topic)
 
 
 def check_book(F, slug, topic, b, entry):

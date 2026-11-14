@@ -112,6 +112,15 @@ ok(has(run(b)[0], "text", "error", "template"), "text: leftover template text")
 b = book(); b["pages"][1]["text"] = "Grandma makes banana bread and nana naan with the other kids in the sunny kitchen."
 ok(not has(run(b)[0], "text", "error", "template"), "text: banana and naan are not NaN")
 
+# a book left out of the catalog on purpose is a note, not a warning
+import tempfile
+_orig = A.known_unlisted
+A.known_unlisted = lambda: {"draft-one"}
+F = A.Findings()
+A.check_catalog(F, {}, [], ["/x/site/books/fiction/draft-one.html", "/x/site/books/fiction/forgotten.html"])
+ok(any(x["slug"] == "draft-one" and x["sev"] == "info" for x in F.items) and any(x["slug"] == "forgotten" and x["sev"] == "warn" for x in F.items), "catalog: an unlisted book on the known list is a note, any other is a warning", F.items)
+A.known_unlisted = _orig
+
 # reading level
 ok(A.syllables("kite") == 1 and A.syllables("computer") == 3 and A.syllables("the") == 1 and A.syllables("elephant") == 3, "syllables of a few words")
 easy = book(); hard = book()

@@ -1,0 +1,8 @@
+# Books that have a page on disk but are left out of the catalog on purpose (early drafts / older versions).
+# The health check does not warn about these. One slug a line.
+inside-a-computer        # older version; the catalog has "What's Inside a Computer"
+my-cardboard-box
+the-big-blue-kite
+the-big-race
+the-picture-needs-more
+the-wobbly-tower
