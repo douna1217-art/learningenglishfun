@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build, upload and register Kindergarten / Grade 1 Fiction storybooks from
-source .docx files (the K-3 humanities format; docx_storybook_pipeline.py
-covers the Grade 4+ numbered-section format).
+"""Build, upload and register Kindergarten - Grade 6 Fiction storybooks from
+source .docx files (the K-3 humanities formats, plus the Grade 4+ numbered-
+section format that docx_storybook_pipeline.py parses).
 
 Committed, permanent replacement for build_kf_m.py / upload_kf_m.py /
 build_g1.py / upload_g1.py, which only lived in the session scratchpad and
@@ -13,6 +13,9 @@ order.
   kindergarten: each page is ONE paragraph holding two lines joined by a line
                 break, followed by a bare page-number marker ("1".."7").
   grade1:       each page is TWO consecutive narrative paragraphs, no marker.
+  grade4-6:     "numbered" format, 30 non-empty paragraphs: title, subtitle, then 7 x
+                ("N. Section Title", two body paragraphs, a bare-number marker);
+                a page's text is "N. Section Title" + the two paragraphs, one per line.
 
 Per-grade metadata (books.js + page chrome): see GRADES below. All use
 subject "Fiction" and the tab label "Reading".
@@ -24,6 +27,9 @@ that does not match the shelf style):
   text_overrides     {page_number: {old: new}} exact substring replacements
                      applied to the docx page text (e.g. a colon before a
                      list, which the TTS tends to drop)
+  replace_all        {old: new} replaced everywhere in the page text (e.g. British -> American wording)
+  quotes="straight"  the docx writes dialogue with straight double quotes ("Hi," she said);
+                     turn them into curly ones (the build stops if they do not pair up)
   quotes="double"    the docx writes dialogue with single quotes ('Hi,' she
                      said); turn them into curly double quotes like the rest
                      of the shelf (apostrophes inside words are left alone;
@@ -46,6 +52,10 @@ its example (write ", like <b>word</b>." instead). `audit` also reads each docx
 (with the overrides applied) and flags the same hazards, colons and dashes in
 the page text, focus words that never appear in the story, vocabulary
 questions about a word that is not a focus word, and slugs already shipped.
+
+The batch data files used for the shipped books are kept in tools/batches/
+(g3_batch_*.py, g4_batch_*.py); save every new batch file there too, so a book's
+quizzes and text fixes can be rebuilt or edited later.
 
 Usage (run from anywhere):
   python3 tools/k1_storybook.py audit    --grade grade1 --data batch.py
@@ -77,6 +87,13 @@ GRADES = {
     "grade1": dict(grade="Grade 1", band="Beginning Reader", minutes="7 min", fmt="paired"),
     "grade2": dict(grade="Grade 2", band="Growing Reader", minutes="9 min", fmt="paired"),
     "grade3": dict(grade="Grade 3", band="Growing Reader", minutes="10 min", fmt="marker"),  # one two-line paragraph per page plus a bare number, like Kindergarten
+    # Grade 4-6 use the numbered-section docx and the "Story" tab, like the live shelf
+    "grade4": dict(grade="Grade 4", band="Fluent Reader", minutes="12 min", fmt="numbered", tab="Story",
+                   modules=["Listen", "Read", "Story", "Vocabulary"]),
+    "grade5": dict(grade="Grade 5", band="Fluent Reader", minutes="12 min", fmt="numbered", tab="Story",
+                   modules=["Listen", "Read", "Story", "Vocabulary"]),
+    "grade6": dict(grade="Grade 6", band="Fluent Reader", minutes="12 min", fmt="numbered", tab="Story",
+                   modules=["Listen", "Read", "Story", "Vocabulary"]),
 }
 MODULES = ["Listen", "Read", "Reading", "Vocabulary"]
 FICTION_DIR = os.path.join(REPO, "site", "books", "fiction")
@@ -106,8 +123,23 @@ def slugify(title):
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
 
 
+def read_numbered_docx(path):
+    import docx_storybook_pipeline as pipeline
+    paras, imgs = pipeline.extract(path)
+    name = os.path.basename(path)
+    assert len(imgs) == 8, (name, "expected 8 images, got", len(imgs))
+    title, subtitle, sections = pipeline.parse_book(paras, imgs)
+    return title, subtitle, [f"{sec['head']}\n{sec['p1']}\n{sec['p2']}" for sec in sections], imgs
+
+
 def read_docx(path, fmt):
-    """-> (title, subtitle, page_texts[7], image_blobs[8]) for one docx."""
+    """-> (title, subtitle, page_texts[7], image_blobs[8]) for one docx (or, for the numbered
+    format, one .pages file: see pages_storybook.py)."""
+    if path.endswith(".pages"):
+        import pages_storybook
+        return pages_storybook.read_pages(path)
+    if fmt == "numbered":
+        return read_numbered_docx(path)
     import docx
     from docx.oxml.ns import qn
     d = docx.Document(path)
@@ -160,6 +192,24 @@ def single_to_double_quotes(text):
     return "".join(out), opened
 
 
+def straight_to_curly_double(text):
+    """"Hi," she said. -> “Hi,” she said.  A straight " that follows a space, a line start or an
+    opening bracket opens a quote; any other one closes it. Returns (text, open count)."""
+    out, opened = [], 0
+    for i, ch in enumerate(text):
+        if ch != '"':
+            out.append(ch)
+            continue
+        prev = text[i - 1] if i else " "
+        if prev.isspace() or prev in "(\u2014":
+            out.append("\u201c")
+            opened += 1
+        else:
+            out.append("\u201d")
+            opened -= 1
+    return "".join(out), opened
+
+
 def book_text(spec, title, subtitle, texts):
     """Apply a book's optional overrides -> (title, subtitle, texts)."""
     texts = list(texts)
@@ -171,11 +221,25 @@ def book_text(spec, title, subtitle, texts):
         for k, t in enumerate(texts):
             texts[k], balance = single_to_double_quotes(t)
             assert balance == 0, ("quotes do not pair up on page", k + 1, t)
+    for old, new in (spec.get("replace_all") or {}).items():
+        assert any(old in t for t in texts), ("replace_all word not found", old)
+        texts = [t.replace(old, new) for t in texts]
+    if spec.get("quotes") == "straight":
+        for k, t in enumerate(texts):
+            texts[k], balance = straight_to_curly_double(t)
+            assert balance == 0, ("quotes do not pair up on page", k + 1, t)
     return spec.get("title", title), spec.get("subtitle", subtitle), texts
 
 
 def docx_path(spec, docx_dir):
-    return os.path.join(os.path.expanduser(docx_dir), f"{spec['docx']}-Storybook.docx")
+    """<docx>-Storybook.docx, or <docx>.docx when the file has no -Storybook suffix, or
+    <docx>.pages when only the Pages file exists (Grade 4+ numbered format)."""
+    base = os.path.join(os.path.expanduser(docx_dir), spec["docx"])
+    if os.path.exists(base + "-Storybook.docx"):
+        return base + "-Storybook.docx"
+    if not os.path.exists(base + ".docx") and os.path.exists(base + ".pages"):
+        return base + ".pages"
+    return base + ".docx"
 
 
 def load_books(path):
@@ -205,6 +269,47 @@ def balanced_quizzes(slug, spec):
 
 
 # ---------------------------------------------------------------- commands
+# Answer-length bias: a parent reported (2026-11) that her child found "the longest option is always right" and stopped reading.
+# Measured across the site then: the correct choice was the unique longest in 90% of vocabulary and 77% of comprehension questions (chance is about 33%).
+# Writing rule: all three choices should be about the same length and shape; wrong ones are full, believable sentences that are wrong in meaning, not short or vague.
+MAX_LONGEST = {"comprehension": 2, "grammar": 2, "vocabulary": 1}  # questions per book where the right choice is the unique longest
+MAX_LONGEST_ALL = 5   # of the 11 questions in a book
+MAX_SHORTEST_ALL = 5  # the same trap the other way round
+MAX_OVER = 1.4        # the right choice may not be more than 1.4x the longest wrong one (and the stub rule below)
+MIN_SHORT = 0.5       # the shortest choice must be at least half as long as the longest
+
+
+def choice_len(c):
+    return len(re.sub(r"<[^>]+>", "", c).strip())
+
+
+def length_problems(slug, quizzes):
+    """Give-away check: the right answer must not be recognisable by its length."""
+    found, longest_all, shortest_all = [], 0, 0
+    for cat, items in quizzes.items():
+        longest = 0
+        for it in items:
+            L = [choice_len(c) for c in it["choices"]]
+            a = it["answer"]
+            wrong = [x for i, x in enumerate(L) if i != a]
+            if L[a] == max(L) and L.count(max(L)) == 1:
+                longest += 1
+                if L[a] > MAX_OVER * max(wrong):
+                    found.append((slug, it["q"], f"right choice is {L[a]} chars, the longest wrong one only {max(wrong)}: make the wrong ones as full as the right one"))
+            if L[a] == min(L) and L.count(min(L)) == 1:
+                shortest_all += 1
+            if min(L) < MIN_SHORT * max(L):
+                found.append((slug, it["q"], f"one choice is only {min(L)} chars next to {max(L)}: too lopsided"))
+        longest_all += longest
+        if longest > MAX_LONGEST.get(cat, 2):
+            found.append((slug, cat, f"the right choice is the unique longest in {longest} of {len(items)} questions (max {MAX_LONGEST.get(cat, 2)})"))
+    if longest_all > MAX_LONGEST_ALL:
+        found.append((slug, "length", f"right choice is the unique longest in {longest_all} questions (max {MAX_LONGEST_ALL})"))
+    if shortest_all > MAX_SHORTEST_ALL:
+        found.append((slug, "length", f"right choice is the unique shortest in {shortest_all} questions (max {MAX_SHORTEST_ALL})"))
+    return found
+
+
 def audit_story(args, slug, spec, quizzes):
     """Page-text hazards, focus-word coverage and shipped-slug check for one book."""
     found = []
@@ -266,6 +371,7 @@ def cmd_audit(args, books):
                         problems.append((slug, "teach", f"colon/paren in {en!r}"))
         print(slug, "answer positions:", dict(sorted(counts.items())))
         problems += audit_story(args, slug, spec, quizzes)
+        problems += length_problems(slug, quizzes)
         if max(counts.values()) - min(counts.values()) > 1:
             problems.append((slug, "balance", str(counts)))
         if len(spec["focus"]) != 3:
@@ -300,7 +406,7 @@ def cmd_build(args, books):
         pages = [{"type": "cover", "title": title, "subtitle": subtitle, "image": f"{base}/cover.jpg"}]
         pages += [{"text": t, "image": f"{base}/page{i}.jpg"} for i, t in enumerate(texts, start=1)]
         html = render(slug, title, subtitle, pages, balanced_quizzes(slug, spec),
-                      spec["focus"], cfg["grade"], "Fiction", tab_label="Reading")
+                      spec["focus"], cfg["grade"], "Fiction", tab_label=cfg.get("tab", "Reading"))
         with open(os.path.join(out, slug + ".html"), "w", encoding="utf-8") as f:
             f.write(html)
         print("wrote", slug, len(html), "|", title, "|", subtitle)
@@ -366,7 +472,7 @@ def cmd_register(args, books):
         title, subtitle, _ = book_text(spec, title, subtitle, texts)
         entries.append(json.dumps({
             "slug": slug, "title": title, "subtitle": subtitle, "grade": cfg["grade"],
-            "readingBand": cfg["band"], "minutes": cfg["minutes"], "modules": MODULES, "status": "ready",
+            "readingBand": cfg["band"], "minutes": cfg["minutes"], "modules": cfg.get("modules", MODULES), "status": "ready",
             "cover": f"books/fiction/{slug}.jpg", "file": f"books/fiction/{slug}.html"},
             ensure_ascii=False, separators=(",", ":")))
     if not entries:
@@ -380,6 +486,8 @@ def cmd_register(args, books):
         f.write(new)
     if shutil.which("node"):
         subprocess.run(["node", "--check", path], check=True)
+    import make_sitemap
+    make_sitemap.main()  # keep sitemap.xml / sitemap.txt in step with the shelves
     print(f"registered {len(entries)} book(s) after the last {cfg['grade']} entry;",
           sum(1 for _ in re.finditer(re.escape('"grade":"%s"' % cfg["grade"]), new)), cfg["grade"], "books,",
           len(slugs), "Fiction books total")

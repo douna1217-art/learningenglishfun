@@ -6,7 +6,17 @@
 #    explanations, English + Chinese (window.RV_TEACH_AUDIO), each in
 #    the SAME voice as that book's own topic (no separate voice picker)
 #  - 60s timeout, auto-retry 4x, continue past failures
-#  - SKIPS whatever is already voiced (safe + fast to re-run)
+#  - SKIPS whatever is already voiced (safe + fast to re-run); the books that
+#    were voiced before are not listed, only the new ones are voiced and shown
+#  - word times are aligned with Whisper small.en (more accurate than base; the
+#    alignment is a small part of the run, about 30 s per book; env VOICE_ALIGN_MODEL
+#    picks another model)
+#  - checks the length of every English sentence clip as it is made (2026-10-23): the TTS
+#    now and then reads one sentence in a drawn-out way or with noise, which made a page
+#    twice as long as it should be. A clip that is far too long (or far too short) for its
+#    text is voiced again, up to 3 times; one that is still odd is listed at the end
+#  - keeps the Mac from idle-sleeping while it voices (macOS caffeinate, ends
+#    with the script; a sleeping Mac froze runs for tens of minutes)
 #  Runs on your Mac. Your key stays on your computer.
 #
 #  RUN (Terminal):
@@ -14,7 +24,7 @@
 #    then paste your key when asked (hidden while typing).
 # =====================================================================
 import os, sys, json, base64, glob, getpass, re, time, urllib.request, urllib.error
-import difflib, subprocess, tempfile, wave
+import difflib, subprocess, tempfile, wave, shutil
 
 VOICES = {
     "fiction":        "fable",
@@ -32,6 +42,7 @@ INSTRUCTIONS = ("Read as a friendly first-grade teacher. Speak warmly and natura
                 "pronunciation. Sound encouraging and patient.")
 TIMEOUT = 60
 RETRIES = 4
+ALIGN_MODEL = os.environ.get("VOICE_ALIGN_MODEL", "small.en")   # Whisper model for word times
 
 def get_key():
     k = os.environ.get("OPENAI_API_KEY")
@@ -64,6 +75,76 @@ def tts(text, key, voice):
         print("      (retry %d/%d: %s)" % (attempt, RETRIES, last))
         time.sleep(3 * attempt)
     raise RuntimeError(str(last))
+
+# ---- clip length check -------------------------------------------------------------
+# Normal English narration runs at about 13 characters per second (pauses included). Bad
+# clips seen so far were 4 to 10 times longer than that, so the limits are generous.
+CHECK_TRIES = 3
+LONG_FACTOR, LONG_EXTRA = 2.2, 2.0       # too long when seconds > expected * 2.2 + 2
+SHORT_FACTOR, SHORT_LESS = 0.4, 0.3      # too short when seconds < expected * 0.4 - 0.3 (25+ characters)
+SUSPECT = []                             # (text, seconds, expected) still odd after the retries
+
+_MP3_BITRATES = {True: [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0],
+                 False: [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0]}
+_MP3_RATES = {3: [44100, 48000, 32000], 2: [22050, 24000, 16000], 0: [11025, 12000, 8000]}
+
+def mp3_seconds(data):
+    """Length of an MP3 in seconds, by adding up its frames (no ffmpeg needed). None when
+    no valid Layer III frame is found, in which case the length check is simply skipped."""
+    n = len(data); i = 0; total = 0.0; frames = 0
+    if data[:3] == b"ID3" and n >= 10:
+        i = 10 + ((data[6] & 0x7f) << 21 | (data[7] & 0x7f) << 14 | (data[8] & 0x7f) << 7 | (data[9] & 0x7f))
+    while i + 4 <= n:
+        b1, b2 = data[i + 1], data[i + 2]
+        if data[i] == 0xFF and (b1 & 0xE0) == 0xE0:
+            version = (b1 >> 3) & 3; layer = (b1 >> 1) & 3
+            bri = b2 >> 4; sri = (b2 >> 2) & 3; pad = (b2 >> 1) & 1
+            if version != 1 and layer == 1 and 0 < bri < 15 and sri < 3:
+                mpeg1 = version == 3
+                rate = _MP3_RATES[version][sri]
+                length = int((144 if mpeg1 else 72) * _MP3_BITRATES[mpeg1][bri] * 1000 / rate) + pad
+                if length > 4:
+                    total += (1152 if mpeg1 else 576) / float(rate)
+                    frames += 1
+                    i += length
+                    continue
+        i += 1
+    return total if frames else None
+
+def expected_seconds(text):
+    return len(text) / 13.0
+
+def clip_problem(text, data):
+    """'too long', 'too short' or None for one sentence clip. Chinese text and clips whose
+    length cannot be read are not judged."""
+    if re.search(r"[\u3400-\u9fff]", text):
+        return None
+    dur = mp3_seconds(data)
+    if dur is None:
+        return None
+    exp = max(expected_seconds(text), 0.8)
+    if dur > exp * LONG_FACTOR + LONG_EXTRA:
+        return "too long"
+    if len(text) >= 25 and dur < exp * SHORT_FACTOR - SHORT_LESS:
+        return "too short"
+    return None
+
+def tts_checked(text, key, voice):
+    """tts() plus the length check: an odd clip is voiced again (up to CHECK_TRIES times in
+    all); if every try is odd, the one closest to the expected length is kept and noted."""
+    best = None
+    for n in range(1, CHECK_TRIES + 1):
+        data = tts(text, key, voice)
+        problem = clip_problem(text, data)
+        if not problem:
+            return data
+        dur = mp3_seconds(data); exp = expected_seconds(text)
+        if best is None or abs(dur - exp) < abs(best[1] - exp):
+            best = (data, dur)
+        print("      (clip %s: %.1f s for %d characters, expected about %.1f s; %s)" %
+              (problem, dur, len(text), exp, "voicing it again %d/%d" % (n, CHECK_TRIES - 1) if n < CHECK_TRIES else "keeping the closest one"))
+    SUSPECT.append((text, best[1], expected_seconds(text)))
+    return best[0]
 
 _ABBREV_RE = re.compile(r"\b(Mr|Mrs|Ms|Dr|St|Jr|Sr)\.")
 # A section/list enumerator at the start of the text or a line ("2. Title ...").
@@ -114,8 +195,8 @@ def tts_multi(text, key, voice):
     of assuming one smooth, evenly-paced audio clip for the whole page."""
     sentences = split_sentences(text)
     if len(sentences) <= 1:
-        return tts(text, key, voice), None
-    audios = [tts(s, key, voice) for s in sentences]
+        return tts_checked(text, key, voice), None
+    audios = [tts_checked(s, key, voice) for s in sentences]
     combined = b"".join(audios)
     char_lens = [len(s) + 1 for s in sentences]
     byte_lens = [len(a) for a in audios]
@@ -282,8 +363,8 @@ def _get_whisper_model():
     global _WHISPER_MODEL
     if _WHISPER_MODEL is None:
         import whisper
-        print("Loading local Whisper model for word-timing alignment (one-time, ~1-2 min)...")
-        _WHISPER_MODEL = whisper.load_model("base")
+        print("Loading local Whisper model '%s' for word-timing alignment (one-time, ~1-2 min)..." % ALIGN_MODEL)
+        _WHISPER_MODEL = whisper.load_model(ALIGN_MODEL)
     return _WHISPER_MODEL
 
 def _wnorm(w):
@@ -473,26 +554,60 @@ def collect(target):
         return sorted(x for x in f if not x.endswith("-voiced.html"))
     return []
 
+def keep_awake():
+    """Ask macOS not to idle-sleep while this script runs. `caffeinate -w` watches our
+    process and lets go when it ends (even on Ctrl-C). Does nothing where caffeinate is missing."""
+    if not shutil.which("caffeinate"):
+        return
+    try:
+        subprocess.Popen(["caffeinate", "-i", "-w", str(os.getpid())],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        print("Keeping this Mac awake while it voices (caffeinate).\n")
+    except Exception:
+        pass
+
+def needs_voicing(path):
+    """True when this book still lacks story audio or grammar-teach audio (a quick
+    look at the file, no network). Anything unreadable is passed on so voice_one reports it."""
+    try:
+        html = open(path, encoding="utf-8").read()
+    except Exception:
+        return True
+    if "const pages=" not in html and "const quizzes=" not in html:
+        return False                                   # not a book page
+    if "window.RV_AUDIO=" not in html and get_narration(html):
+        return True
+    if "window.RV_TEACH_AUDIO=" not in html and get_teach_items(html):
+        return True
+    return False
+
 def main(site):
-    key = get_key()
     books = collect(site)
     if not books:
         sys.exit("No .html books found there. Drag the 'site' folder, OR a single book .html.")
-    print("Found %d book(s). Already-voiced parts are skipped.\n" % len(books))
-    done = skipped = 0; failed = []
-    for i, f in enumerate(books, 1):
+    todo = [f for f in books if needs_voicing(f)]
+    skipped = len(books) - len(todo)
+    if not todo:
+        print("Nothing to voice: all %d book(s) are already voiced." % len(books))
+        return                                         # nothing to do, so no key is asked for
+    print("Found %d new book(s) to voice (%d already voiced, skipped).\n" % (len(todo), skipped))
+    key = get_key()
+    keep_awake()
+    done = 0; failed = []
+    for i, f in enumerate(todo, 1):
         topic = os.path.basename(os.path.dirname(f))
         voice = VOICES.get(topic, DEFAULT_VOICE)
         try:
             r = voice_one(f, key, voice)
         except Exception as e:
-            print("[%d/%d] %-15s FAILED (%s)" % (i, len(books), topic, e))
+            print("[%d/%d] %-15s FAILED (%s)" % (i, len(todo), topic, e))
             failed.append(os.path.basename(f)); continue
-        tag = {"skip": "already ok", "notbook": "(not a book)"}.get(r, "%s (%s)" % (voice, r))
-        print("[%d/%d] %-15s %-22s %s" % (i, len(books), topic, tag, os.path.basename(f)))
-        if r == "skip": skipped += 1
-        else: done += 1
+        print("[%d/%d] %-15s %-22s %s" % (i, len(todo), topic, "%s (%s)" % (voice, r), os.path.basename(f)))
+        done += 1
     print("\nNewly voiced (story and/or teach audio): %d | already done: %d | failed: %d" % (done, skipped, len(failed)))
+    if SUSPECT:
+        print("\nThese sentences still sounded odd after %d tries (listen to them, or voice the book again):" % CHECK_TRIES)
+        for t, d, e in SUSPECT: print("   - %.1f s (expected about %.1f s): %s" % (d, e, t[:90]))
     if failed:
         print("Not finished yet — run again to complete:")
         for x in failed: print("   -", x)

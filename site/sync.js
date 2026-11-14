@@ -195,7 +195,7 @@
       "</button>" +
       '<span id="syncDot" class="sy-dot" aria-hidden="true"></span>' +
       '<div id="syncPanel" class="sy-panel" hidden>' +
-      '<p class="sy-p">Keep your pet, stars and progress on every device.<span>换手机、换电脑，宠物、星星和进度都不会丢。</span></p>' +
+      '<p class="sy-p">To save your child’s progress, please sign up with your email. After that, the pet, stars and progress are never lost, on any device.<span>想保存孩子的进度，需要先用邮箱注册。注册后，宠物、星星和进度不会丢，换手机、换电脑也一样。</span></p>' +
       '<form id="syncForm" class="sy-row">' +
       '<input id="syncEmail" type="email" placeholder="Parent email 家长邮箱" aria-label="Parent email 家长邮箱" autocomplete="email" required>' +
       '<button type="submit" class="sy-go"><b>Send link</b><s>发送登录链接</s></button>' +

@@ -388,53 +388,156 @@
     var add = doc.getElementById("acAdd");
     if (add) add.onclick = function () { showAddChild(true); };
     doc.getElementById("acOut").onclick = signOut;
-    doc.getElementById("acRep").onclick = showReport;
+    doc.getElementById("acRep").onclick = function () { showReport(); };
     el.querySelectorAll("[data-del]").forEach(function (b) {
       b.onclick = function () { showConfirmDelete(b.getAttribute("data-del")); };
     });
   }
 
-  // The learning report for the child who is playing on this device (the progress is kept per child, so the other child's report is seen by switching to them).
-  function showReport() {
-    var r = root.SightWords && root.SightWords.report ? root.SightWords.report() : null,
-      who = st.active && byId(st.active) ? byId(st.active).nickname : "";
-    var body;
-    if (!r) body = '<p class="ac-p">The sight-words report is not ready yet.<small>单词报告还没有准备好。</small></p>';
-    else {
-      var rows = r.stages
-        .map(function (g) {
-          var pct = g.total ? Math.round((100 * g.known) / g.total) : 0;
-          return (
-            '<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800"><span>Stage ' + g.id + " · " + esc(g.title) + "</span><span>" + g.known + " / " + g.total + " known</span></div>" +
-            '<div style="height:8px;border-radius:99px;background:#E6EEF7;overflow:hidden"><i style="display:block;height:100%;width:' + pct + '%;background:#35B779"></i></div>' +
-            '<small style="font-size:12px;color:#4A5878;font-weight:700">' + g.lessons + " of " + g.lessonsTotal + " lessons done · " + g.learning + " words being learned</small></div>"
-          );
-        })
-        .join("");
-      var hard = r.hard.length
-        ? r.hard
-            .map(function (h) {
-              return '<span style="display:inline-block;margin:3px 4px 3px 0;padding:3px 10px;border-radius:99px;background:#FFE3DE;font-weight:800;font-size:13px">' + esc(h.w) + " <small>" + h.ok + "/" + h.n + "</small></span>";
-            })
-            .join("")
-        : '<span style="font-size:13px;color:#4A5878;font-weight:700">None yet. 暂时没有。</span>';
-      var games = r.games
-        .map(function (g) {
-          return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;border-bottom:1px solid #EEF2F7"><b>' + esc(g.n) + "</b><span>" + esc(g.t) + "</span></div>";
-        })
-        .join("");
-      body =
-        '<span class="ac-lab">Progress by stage 各阶段进度</span>' + rows +
-        '<span class="ac-lab">Words that keep going wrong 总是出错的词 <small>(right first time / tries)</small></span><div>' + hard + "</div>" +
-        '<span class="ac-lab">Games 游戏成绩</span>' + games;
+  // One child's numbers for the report. The child playing on this device is read from localStorage (always the freshest);
+  // the other child comes from the synced rows (key "<child id>:<name>").
+  var REPORT_KEYS = ["lef_stats_v1", "lef_books_v1", "lef_hist_v1", "lef_words_v1"];
+  async function reportData(id) {
+    var out = {};
+    if (id === st.active) {
+      REPORT_KEYS.forEach(function (k) {
+        out[k] = readJSON(k);
+      });
+      return { ok: true, data: out, local: true };
     }
+    var r = await sb.from("user_state").select("key,value").eq("user_id", uid()).like("key", id + ":lef_%");
+    if (r.error) return { ok: false };
+    (r.data || []).forEach(function (row) {
+      out[String(row.key).slice(id.length + 1)] = row.value;
+    });
+    return { ok: true, data: out, local: false };
+  }
+
+  function copyText(t, done) {
+    function fallback() {
+      var ta = doc.createElement("textarea");
+      ta.value = t;
+      ta.style.cssText = "position:fixed;left:-999px;top:0";
+      doc.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try {
+        ok = doc.execCommand("copy");
+      } catch (e) {}
+      doc.body.removeChild(ta);
+      done(ok);
+    }
+    if (root.navigator && root.navigator.clipboard && root.navigator.clipboard.writeText) root.navigator.clipboard.writeText(t).then(function () { done(true); }, fallback);
+    else fallback();
+  }
+
+  // The learning report: a tab per child, this week at a glance, then the sight-words detail.
+  function showReport(which) {
+    var id = which && byId(which) ? which : st.active || (st.profiles[0] && st.profiles[0].id),
+      p = byId(id),
+      tabs = st.profiles
+        .map(function (c) {
+          var on = c.id === id;
+          return '<button type="button" data-rep="' + esc(c.id) + '" style="flex:1;border:2px solid ' + (on ? "#35B779" : "#dfe8e1") + ";border-radius:99px;padding:7px 10px;background:" + (on ? "#E8F7EE" : "#fff") + ';font:inherit;font-weight:800;font-size:14px;cursor:pointer">' + esc(c.nickname) + "</button>";
+        })
+        .join("");
     var el = openModal(
-      '<h2 class="ac-h" id="acT">Learning report</h2><p class="ac-hz">学习报告' + (who ? " · " + esc(who) : "") + "</p>" + body +
+      '<h2 class="ac-h" id="acT">Learning report</h2><p class="ac-hz">学习报告</p>' +
+        (st.profiles.length > 1 ? '<div style="display:flex;gap:8px;margin:8px 0">' + tabs + "</div>" : "") +
+        '<div id="acRepBody"><p class="ac-p">Loading… 加载中…</p></div>' +
         '<button type="button" class="ac-sec" id="acBack"><b>Back</b><s>返回</s></button>',
       true,
       "acT"
     );
     doc.getElementById("acBack").onclick = showParent;
+    el.querySelectorAll("[data-rep]").forEach(function (b) {
+      b.onclick = function () { showReport(b.getAttribute("data-rep")); };
+    });
+    if (!p) return el;
+    var name = p.nickname;
+    reportData(id).then(function (r) {
+      var box = doc.getElementById("acRepBody");
+      if (!box || id !== (which && byId(which) ? which : st.active || (st.profiles[0] && st.profiles[0].id))) return;
+      if (!r.ok || !root.ParentReport) {
+        box.innerHTML = '<p class="ac-p">Couldn\'t load this report. Check your connection and try again.<small>报告没加载出来，请检查网络后再试。</small></p>';
+        return;
+      }
+      var titleOf = function (slug) {
+          var all = root.ALL || [],
+            i;
+          for (i = 0; i < all.length; i++) if (all[i].slug === slug) return all[i].title;
+          return "";
+        },
+        sum = root.ParentReport.summarize({ stats: r.data.lef_stats_v1, books: r.data.lef_books_v1, hist: r.data.lef_hist_v1 }, undefined, titleOf),
+        h = root.ParentReport.html(sum),
+        sw = root.SightWords && root.SightWords.report ? (r.local ? root.SightWords.report() : root.SightWords.report(r.data.lef_words_v1)) : null;
+      if (sw && sw.stages && sw.stages.some(function (g) { return g.known || g.lessons || g.learning; })) {
+        h += '<span class="ac-lab">Sight words by stage 单词各阶段进度</span>';
+        sw.stages.forEach(function (g) {
+          var pct = g.total ? Math.round((100 * g.known) / g.total) : 0;
+          h +=
+            '<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800"><span>Stage ' + g.id + " · " + esc(g.title) + "</span><span>" + g.known + " / " + g.total + " known</span></div>" +
+            '<div style="height:8px;border-radius:99px;background:#E6EEF7;overflow:hidden"><i style="display:block;height:100%;width:' + pct + '%;background:#35B779"></i></div>' +
+            '<small style="font-size:12px;color:#4A5878;font-weight:700">' + g.lessons + " of " + g.lessonsTotal + " lessons done · " + g.learning + " words being learned</small></div>";
+        });
+        if (sw.hard && sw.hard.length)
+          h +=
+            '<span class="ac-lab">Words that keep going wrong 总是出错的词 <small>(right first time / tries)</small></span><div>' +
+            sw.hard.map(function (x) { return '<span style="display:inline-block;margin:3px 4px 3px 0;padding:3px 10px;border-radius:99px;background:#FFE3DE;font-weight:800;font-size:13px">' + esc(x.w) + " <small>" + x.ok + "/" + x.n + "</small></span>"; }).join("") + "</div>";
+        if (sw.games && sw.games.length)
+          h +=
+            '<span class="ac-lab">Games 游戏成绩</span>' +
+            sw.games.map(function (g) { return '<div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0;border-bottom:1px solid #EEF2F7"><b>' + esc(g.n) + "</b><span>" + esc(g.t) + "</span></div>"; }).join("");
+      }
+      h += (root.ReportCard ? '<button type="button" class="ac-go" id="acCard"><b>Make a picture to share</b><s>生成可转发的战报图片</s></button>' : "") +
+        '<button type="button" class="ac-sec" id="acCopy"><b>Copy this week\'s summary</b><s>复制本周小结，可发给家人</s></button><p class="ac-note" id="acCopyMsg"></p>';
+      box.innerHTML = h;
+      var pic = doc.getElementById("acCard");
+      if (pic) pic.onclick = function () { showCard(id, name, sum); };
+      var cb = doc.getElementById("acCopy");
+      cb.onclick = function () {
+        copyText(root.ParentReport.text(name, sum), function (ok) {
+          var m = doc.getElementById("acCopyMsg");
+          if (m) m.textContent = ok ? "Copied. 已复制。" : "Couldn't copy. 复制失败。";
+        });
+      };
+    });
+    return el;
+  }
+
+  // The weekly report as a picture: shown to press-and-hold (WeChat, iPhone), or to share / download where the browser allows it.
+  function showCard(id, name, sum) {
+    var cv = root.ReportCard && root.ReportCard.render(name, sum);
+    if (!cv) return showReport(id);
+    var url = "";
+    try {
+      url = cv.toDataURL("image/png");
+    } catch (e) {}
+    if (!url) return showReport(id);
+    var el = openModal(
+      '<h2 class="ac-h" id="acT">Weekly picture</h2><p class="ac-hz">本周战报图片</p>' +
+        '<img id="acCardImg" alt="Weekly report picture 本周战报图片" src="' + url + '" style="display:block;width:100%;max-width:340px;margin:8px auto;border-radius:14px;box-shadow:0 4px 14px rgba(30,42,74,.2)">' +
+        '<p class="ac-note">Press and hold the picture to save it, then send it to family.<small>长按图片保存，再发给家人或朋友圈。</small></p>' +
+        '<button type="button" class="ac-go" id="acShare" hidden><b>Share</b><s>分享</s></button>' +
+        '<a class="ac-sec" id="acDown" download="weekly-report.png" href="' + url + '" style="text-decoration:none;text-align:center"><b>Download</b><s>下载图片</s></a>' +
+        '<button type="button" class="ac-sec" id="acBack"><b>Back</b><s>返回</s></button>',
+      true,
+      "acT"
+    );
+    doc.getElementById("acBack").onclick = function () { showReport(id); };
+    var sh = doc.getElementById("acShare");
+    if (sh && root.navigator && root.navigator.share && cv.toBlob && root.File) {
+      cv.toBlob(function (blob) {
+        if (!blob) return;
+        var f = new root.File([blob], "weekly-report.png", { type: "image/png" }),
+          data = { files: [f], title: name + "’s week" };
+        if (root.navigator.canShare && !root.navigator.canShare(data)) return;
+        sh.hidden = false;
+        sh.onclick = function () {
+          root.navigator.share(data).catch(function () {});
+        };
+      }, "image/png");
+    }
     return el;
   }
 
