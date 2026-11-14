@@ -33,6 +33,7 @@ jobs:
       - name: Library health check (its own tests, and the offline check on the real books)
         run: |
           python3 tools/site_audit_test.py
+          python3 tools/revoice_pages_test.py
           python3 tools/site_audit.py --fail-on none
       - name: Pet festivals
         run: node tools/festival_test.js
