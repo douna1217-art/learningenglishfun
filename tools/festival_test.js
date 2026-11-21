@@ -102,7 +102,7 @@ ok(c1.outfits.length + c1.hats.length + c1.decos.length === 0, "during the festi
 const c2 = load("?festdate=2026-12-01").FEST.collection(["hw-pumpkin", "hw-bat", "hw-d-ghost", "cape"]);
 ok(c2.outfits.join() === "hw-pumpkin" && c2.hats.join() === "hw-bat" && c2.decos.join() === "hw-d-ghost", "after the festival they move to the collection", JSON.stringify(c2));
 ok(load("?festdate=2026-12-01").FEST.isActiveItem("hw-pumpkin") === false && load("?festdate=2026-10-31").FEST.isActiveItem("hw-pumpkin") === true, "isActiveItem follows the window");
-ok(F.greet() === null && load("?festdate=2026-10-31").FEST.greet() === "Happy Halloween!", "greeting only inside the window");
+ok(load("?festdate=2026-08-15").FEST.greet() === null && load("?festdate=2026-10-31").FEST.greet() === "Happy Halloween!", "greeting only inside the window");
 
 // ---- every item draws on every pet and face, and the pictures are well formed
 function wellFormed(s) {

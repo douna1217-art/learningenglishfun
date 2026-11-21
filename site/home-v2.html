@@ -504,7 +504,7 @@ document.addEventListener('click',function(e){var a=e.target.closest('a,[data-go
 
 var BANDS=['Beginning Reader','Early Reader','Growing Reader','Fluent Reader'];
 var SUBJ=['Fiction','Science','SEL','Social Studies','Math','Computer Science'];
-var CAP=10;
+var CAP=20;
 function loadJ(k,d){try{var v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}}
 function saveJ(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
@@ -583,7 +583,7 @@ function openRules(){openModal('<h2>How do stars work? <span style="font-size:22
  +row('Finish the Book of the day','读完“今日一本”','+2')
  +row('Finish a Stretch book (a bit harder, just for you)','读完“挑战书”（稍微难一点）','+3')
  +row('Review a question you missed (up to 3 a day)','复习一道错题（每天最多 3 道）','+1 each')
- +'<div class="note">You can earn up to <b>10 stars a day</b>. Re-reading a book is fine, but it will not give new stars.<small>每天最多能赚 10 颗星。重读一本书可以，但不会再得新的星星。</small></div>'
+ +'<div class="note">You can earn up to <b>'+CAP+' stars a day</b>. Re-reading a book is fine, but it will not give new stars.<small>每天最多能赚 '+CAP+' 颗星。重读一本书可以，但不会再得新的星星。</small></div>'
  +'<h3>Use stars 花星星</h3>'
  +row('Feed your pet what its kind loves: favorite 2, everyday snacks 1, special treat 3','给宠物喘它们爱吃的东西：最爱 2 颗，日常零食 1 颗，特别奖励 3 颗','1–3')
  +row('Clothes and toys: hats 3–6, glasses 4–5, scarves and ties 4–5, toys 5–7','衣服和玩具：帽子 3–6，眼镜 4–5，围巾领结 4–5，玩具 5–7','3–7')
@@ -620,7 +620,7 @@ function openReader(b){
   else if(k==='review'&&D.reviews<3){D.reviews++;saveJ('lef_day_v1',D);n=1;why='Reviewed a question';}
   setBook(b.slug,bs);
   var got=award(n);
-  if(n>0&&got<n)say2(got>0?'+'+got+' '+STAR+' ('+why+'). Daily limit reached! 今天的星星已达上限。':'Daily limit reached (10). Come back tomorrow! 今天的星星已达上限，明天再来！');
+  if(n>0&&got<n)say2(got>0?'+'+got+' '+STAR+' ('+why+'). Daily limit reached! 今天的星星已达上限。':'Daily limit reached ('+CAP+'). Come back tomorrow! 今天的星星已达上限，明天再来！');
   else if(got>0)say2('+'+got+' '+STAR+' '+why);
   if(got>0){snd();burst(e.clientX,e.clientY);if(st.type){homeBubble('Yay! +'+got+' stars!');clearTimeout(bubbleT);bubbleT=setTimeout(function(){bubbleT=null;renderHomePet();},2500);}}
   draw2();}
