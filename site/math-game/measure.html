@@ -235,10 +235,10 @@
   function dragon(ui,happy,fx){
     var r=ui.round(), dots="", got=r.correct+(happy?1:0);   // (the right answer just given is not counted yet)
     for(var i=0;i<r.total;i++) dots+=i<got?"💚":"🤍";
-    var say=happy?(fx?fx.e[2]:"Ahh, much better!"):(P&&P.q?order(P.q):"Hic! Hic!"), pet=myPet();
+    var say=happy?"":(P&&P.q?order(P.q):"Hic! Hic!"), pet=myPet();
     var pic=pet?petPic(pet,happy?"excited":"surprised",64):(happy?"🐲":"🐉");
     return '<div class="dragon"><span class="dr'+(pet?" pet":"")+(happy?" happy fx-"+(fx?fx.e[3]:""):"")+'" style="'+(happy&&fx&&fx.e[3]==="color"?"filter:drop-shadow(0 0 6px "+fx.col+") hue-rotate(140deg)":"")+'">'+pic+
-      (happy&&fx?'<span class="fxe">'+fx.e[1]+'</span>':"")+'</span><span class="bubble">'+(happy?"":"Hic! ")+say+'</span>'+
+      (happy&&fx?'<span class="fxe">'+fx.e[1]+'</span>':"")+'</span><span class="bubble"'+(happy?' style="visibility:hidden"':'')+'>'+(happy?"":"Hic! ")+say+'</span>'+
       (happy?"":'<button type="button" class="say" id="sayBtn" aria-label="Say it again">🔊</button>')+'<div class="cure">'+helper()+' feels better: '+dots+'</div></div>';
   }
 
@@ -344,7 +344,7 @@
     if(q.kind==="unit") return "Use "+(q.h?"kilograms: a "+HEAVY[q.o][1]+" is heavy.":"grams: a "+LIGHT[q.o][1]+" is light.");
     var e=EST[q.i]; return e[1].charAt(0).toUpperCase()+e[1].slice(1)+" is about "+e[2]+" "+(e[3]==="kg"?"kilograms":e[3]==="g"?"grams":"liters")+".";
   }
-  function rightText(q){ return POURING[q.kind]?pickOne(["✨ Perfect potion!","✨ Right on the line!","✨ "+helper()+" stopped hiccuping!","✨ Magic!"]):pickOne(["Great job!","You got it!","Well done!"]); }
+  function rightText(q){ return POURING[q.kind]?"✨ Perfect potion!":pickOne(["Great job!","You got it!","Well done!"]); }
   function wrongText(q,given){
     if(given==="overflow") return "🫧 Too much! The potion bubbled over!";
     if(given.indexOf("phase1")===0) return "💨 The first color was not right…";
@@ -394,7 +394,7 @@
     if(q.kind==="unit") return (q.h?HEAVY[q.o][1]:LIGHT[q.o][1])+": "+right(q);
     var e=EST[q.i]; return e[1]+" ≈ "+e[2]+" "+e[3];
   }
-  M.run({title:"Potion Lab",icon:"🧪",tagline:helper()+" has the hiccups! Brew potions to help.",store:"potionLab.v2",gameId:"potion-lab",hero:heroHtml,
+  M.run({title:"Potion Lab",icon:"🧪",tagline:helper()+" has the hiccups! Brew potions to help.",store:"potionLab.v2",gameId:"potion-lab",cheer:true,hero:heroHtml,
     coin:{e:"💎",n:"crystals"},heart:"💜",leave:"Leave the lab",levelWord:"potion",doneWord:"Potions made",ownedWord:"In your lab",fastMs:15000,
     theme:{brand:"#6a4fc4",dark:"#4a3394",bg:"#f3efff",line:"#e2dafa",ink:"#2c2250",muted:"#6e6394",hero:"linear-gradient(180deg,#6a4fc4,#b38cf0)"},
     css:'.dragon{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0 4px}.dragon .cure{grid-column:1/-1}.dragon .bubble{min-width:0;line-height:1.3}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.pet{width:64px;height:64px}.dragon .dr.pet svg{overflow:hidden}.dragon .dr.happy{animation:none}'+

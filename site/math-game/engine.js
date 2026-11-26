@@ -15,6 +15,7 @@
      hero?: fn -> html                                   // drawn in the map's banner instead of the row of things bought
      shop items may have icon (html) instead of e; isOwned(it)?, onBuy(it)?, useOwned(it)?, ownedText(it)? change what the shop does
      gameId?: "potion-lab"                               // the name in the site's event log (game_level_start, game_level_end)
+     cheer?: true                                       // a short burst of confetti after each right answer
    })
    MathGame.sound() tells a game whether the child has the sound on.
    A question is {kind, key, ...}. render() fills the screen with ui.task(html), ui.stage(html), ui.choices([{html, val}]), ui.words(text),
@@ -281,6 +282,7 @@
         f.ok++; ks.ok++; G.correct++; G.streak++; G.best = Math.max(G.best, G.streak);
         var fast = ms < (C.fastMs || 8000), gain = fast ? 2 : 1; G.coins += gain; $("pCoins").textContent = G.coins;
         if (fast) SFX.fast(); else SFX.ok();
+        if (C.cheer) confetti(60, 1300);
         if (G.streak >= 3) say("🔥 " + G.streak + " right in a row!", "combo");
         else say(C.rightText ? C.rightText(q, fast) : fast ? "⚡ Speedy! Two " + C.coin.n + "!" : pickOne(["Great job!", "You got it!", "Awesome!", "Well done!"]), "good");
       } else {
@@ -318,16 +320,16 @@
       var i = "1234".indexOf(e.key); if (i < 0) return;
       var b = doc.querySelectorAll(".choice")[i]; if (b && !b.disabled) b.click();
     });
-    function confetti() {
+    function confetti(n, ms) {
       if (root.matchMedia && root.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
       var cv = $("confetti"), ctx = cv.getContext("2d"); cv.width = root.innerWidth; cv.height = root.innerHeight;
       var cols = ["#f5b301", "#2f9e5b", "#3a7bd5", "#e86a9c", "#7cc47f"], ps = [];
-      for (var i = 0; i < 150; i++) ps.push({ x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * .5, vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 3, r: Math.random() * 6.28, c: cols[i % 5], s: 6 + Math.random() * 6 });
+      for (var i = 0; i < (n || 150); i++) ps.push({ x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * (n ? .15 : .5), vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 3, r: Math.random() * 6.28, c: cols[i % 5], s: 6 + Math.random() * 6 });
       var t0 = root.performance.now();
       (function loop(t) {
         ctx.clearRect(0, 0, cv.width, cv.height);
         ps.forEach(function (p) { p.x += p.vx; p.y += p.vy; p.r += .1; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore(); });
-        if (t - t0 < 3000) root.requestAnimationFrame(loop); else ctx.clearRect(0, 0, cv.width, cv.height);
+        if (t - t0 < (ms || 3000)) root.requestAnimationFrame(loop); else ctx.clearRect(0, 0, cv.width, cv.height);
       })(t0);
     }
     // inside the site's reader window the reader's own close button takes the child back to the shelf
