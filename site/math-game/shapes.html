@@ -6,7 +6,7 @@
 <meta name="description" content="Shape Sorter: find the quadrilaterals, name squares, rectangles, rhombuses and trapezoids, count right angles and solve shape riddles. Grade 3 math in English.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 </head><body>
-<script src="engine.js"></script>
+<script src="../game-progress.js?v=20261127a"></script><script src="engine.js"></script>
 <script>
 (function(){
   "use strict";
@@ -181,7 +181,7 @@
     if(q.kind==="truth") return '"'+FACTS[q.f][0]+'" '+r;
     return r;
   }
-  M.run({title:"Shape Sorter",icon:"🔷",tagline:"Sort the shapes and solve the shape riddles!",store:"shapeSorter.v1",
+  M.run({title:"Shape Sorter",gameId:"shapes",icon:"🔷",tagline:"Sort the shapes and solve the shape riddles!",store:"shapeSorter.v1",
     coin:{e:"💠",n:"gems"},heart:"💙",leave:"Leave",levelWord:"puzzle",doneWord:"Puzzles done",ownedWord:"Built",
     theme:{brand:"#2f7fc8",dark:"#1f5a92",bg:"#eef5fc",line:"#d6e6f5",ink:"#1f3a5a",muted:"#5a6f88",hero:"linear-gradient(180deg,#3f8fd8,#7cc0f0)",choice:["#e4f1fb","#fff4d1","#e6f6df","#fde6ee"]},
     levels:LEVELS,boss:{n:"Shape Champion",ic:"🏆",desc:"Every kind of shape question. Be the shape champion!"},practice:{n:"Practice Corner",ic:"🧩"},

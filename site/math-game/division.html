@@ -135,7 +135,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 @media(max-width:620px){.days{grid-template-columns:repeat(4,1fr);gap:8px}.day .ic{font-size:1.9rem}.day .tag{font-size:1.05rem}.day .name{font-size:.66rem}
  .counter{height:250px}.cust{font-size:3.4rem}.bubble{left:78px;font-size:.95rem}.choice{font-size:1.9rem;padding:14px 4px}.cell{font-size:.58rem}.deco{font-size:1.6rem}}
-</style></head>
+</style><script src="../game-progress.js?v=20261127a"></script>
+</head>
 <body>
 <div class="top">
   <a class="home" id="homeLink" href="../index.html">← Home</a>
@@ -242,6 +243,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   // ---------- saved progress (this browser only) ----------
   var STORE="divCafe.v1";
+  var GID="division";   // the name in game-progress.js (crowns) and in the site's event log
+  function crown(id){ return window.GameProgress?GameProgress.badge(GID,id):""; }
   var data={facts:{},days:{},coins:0,owned:{},sound:true};
   try{
     var raw=localStorage.getItem(STORE);
@@ -325,14 +328,14 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     DAYS.forEach(function(D){
       var s=starsOf(D.id), b=document.createElement("button");
       b.type="button"; b.className="day"+(s===3?" gold":"");
-      b.innerHTML='<span class="ic">'+D.e+'</span><span class="tag">÷ '+D.d+'</span><span class="name">'+D.n+'</span><div class="stars">'+starText(s)+'</div>';
+      b.innerHTML='<span class="ic">'+D.e+'</span><span class="tag">÷ '+D.d+'</span><span class="name">'+D.n+'</span><div class="stars">'+starText(s)+crown(D.id)+'</div>';
       b.onclick=function(){ startDay(D); };
       box.appendChild(b);
     });
     var bs=starsOf("busy"), open=playedCount()>=BUSY_NEED, bb=document.createElement("button"), left=BUSY_NEED-playedCount();
     bb.type="button"; bb.className="day wide busy"+(open?"":" locked")+(bs===3?" gold":"");
     bb.innerHTML='<span class="ic">'+(open?BUSY.e:"🔒")+'</span><span class="txt"><span class="tag">Busy Day</span><span class="name">'+
-      (open?(bs?"All the days mixed up "+starText(bs):"All the days mixed up. Lots of hungry customers!"):"Finish "+left+" more "+(left===1?"day":"days")+" to unlock")+'</span></span>';
+      (open?(bs?"All the days mixed up "+starText(bs)+crown("busy"):"All the days mixed up. Lots of hungry customers!"):"Finish "+left+" more "+(left===1?"day":"days")+" to unlock")+'</span></span>';
     bb.onclick=function(){ if(open) startDay(BUSY); };
     box.appendChild(bb);
     var n=missList().length, kb=document.createElement("button");
@@ -391,6 +394,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   }
 
   function startDay(D){
+    if(window.GameProgress) GameProgress.start(GID,D.id);
     var pool=buildPool(D); if(!pool.length) return;
     var guests = D===BUSY?12 : D===KITCHEN?Math.max(4,Math.min(10,pool.length*2)) : 8;
     S={D:D,pool:pool,left:guests,total:guests,hearts:D===KITCHEN?Infinity:3,coins:0,streak:0,best:0,correct:0,miss:{},f:null,locked:false,
@@ -521,6 +525,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       }
     }
     data.coins+=S.coins+bonus; save();
+    if(window.GameProgress) GameProgress.report({game:GID,level:S.D.id,name:S.D.n,practice:S.D===KITCHEN,won:!!won,stars:stars,correct:S.correct,total:S.total!=null?S.total-S.left:S.correct+Object.keys(S.miss).length,best:S.best});
     $("rBig").textContent = won?(D===KITCHEN?KITCHEN.e:"☕"):"🌧️";
     $("rTitle").textContent = won ? (D===KITCHEN?"Practice done!":"The café had a great "+(D===BUSY?"Busy Day":D.n)+"!") : "The customers left. Try again!";
     $("rStars").textContent = (won&&D!==KITCHEN) ? starText(stars) : "";

@@ -7,7 +7,7 @@
 <link href="/fonts/fonts.css" rel="stylesheet">
 </head><body>
 <script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261126a"></script>
-<script src="engine.js"></script>
+<script src="../game-progress.js?v=20261127a"></script><script src="engine.js"></script>
 <script>
 (function(){
   "use strict";
@@ -394,7 +394,7 @@
     if(q.kind==="unit") return (q.h?HEAVY[q.o][1]:LIGHT[q.o][1])+": "+right(q);
     var e=EST[q.i]; return e[1]+" ≈ "+e[2]+" "+e[3];
   }
-  M.run({title:"Potion Lab",icon:"🧪",tagline:helper()+" has the hiccups! Brew potions to help.",store:"potionLab.v2",gameId:"potion-lab",cheer:true,hero:heroHtml,
+  M.run({title:"Potion Lab",icon:"🧪",tagline:helper()+" has the hiccups! Brew potions to help.",store:"potionLab.v2",gameId:"measure",cheer:true,hero:heroHtml,
     coin:{e:"💎",n:"crystals"},heart:"💜",leave:"Leave the lab",levelWord:"potion",doneWord:"Potions made",ownedWord:"In your lab",fastMs:15000,
     theme:{brand:"#6a4fc4",dark:"#4a3394",bg:"#f3efff",line:"#e2dafa",ink:"#2c2250",muted:"#6e6394",hero:"linear-gradient(180deg,#6a4fc4,#b38cf0)"},
     css:'.dragon{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0 4px}.dragon .cure{grid-column:1/-1}.dragon .bubble{min-width:0;line-height:1.3}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.pet{width:64px;height:64px}.dragon .dr.pet svg{overflow:hidden}.dragon .dr.happy{animation:none}'+

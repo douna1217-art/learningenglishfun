@@ -6,7 +6,7 @@
 <meta name="description" content="Zoo Reporter: read picture graphs, scaled bar graphs and line plots about the zoo. Grade 3 math in English.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 </head><body>
-<script src="engine.js"></script>
+<script src="../game-progress.js?v=20261127a"></script><script src="engine.js"></script>
 <script>
 (function(){
   "use strict";
@@ -188,7 +188,7 @@
     if(q.kind==="lp") return q.ask<0?"most common: "+qt(+r)+" in":qt(q.p[q.ask])+" in: "+r;
     return q.n+" ÷ "+q.k+" = "+r;
   }
-  M.run({title:"Zoo Reporter",icon:"🦁",tagline:"Read the graphs and write the zoo news!",store:"zooReporter.v1",
+  M.run({title:"Zoo Reporter",gameId:"graphs",icon:"🦁",tagline:"Read the graphs and write the zoo news!",store:"zooReporter.v1",
     coin:{e:"🥜",n:"peanuts"},heart:"💚",leave:"Leave the zoo",levelWord:"report",doneWord:"Reports done",ownedWord:"In your zoo",
     theme:{brand:"#2f8f8a",dark:"#1f6662",bg:"#eef8f7",line:"#d7ecea",ink:"#1f3433",muted:"#5e7a78",hero:"linear-gradient(180deg,#3fa79f,#8fd0a0)"},
     levels:LEVELS,boss:{n:"Big Zoo Report",ic:"📰",desc:"Every kind of graph. Write the big zoo report!"},practice:{n:"Practice Desk",ic:"📝"},

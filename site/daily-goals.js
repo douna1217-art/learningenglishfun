@@ -8,7 +8,13 @@
    the next visit quietly fills that day in and tells the child the pet saved the streak. It can be used once every 7 days.
 
    Local to the device (lef_goal_v1, lef_repair_v1); the repaired day itself is written into lef_stats_v1, which is synced like before.
-   DailyGoals.init({ booksToday: fn, award: fn(n) -> stars given, toast: fn(lines, total, capped), notice: fn(en, cn), celebrate: fn, streak: fn })
+   The bonus game row: once the child has finished a book today that has a practice game (Grade 3 math), a fourth row asks them to win
+   one level of that game, for 1 more star. It is not one of the three, so a child who only reads still finishes the day's goals; it
+   only shows up after the reading, so the game comes after the book. cfg.extra() describes it (or returns null when there is none).
+
+   DailyGoals.init({ booksToday: fn, award: fn(n) -> stars given, toast: fn(lines, total, capped), notice: fn(en, cn), celebrate: fn, streak: fn,
+                     extra: fn -> null | {id, ic, en, cn, ok, open: fn} })
+   DailyGoals.extraCheck() -> {fresh, got}   (called when a game level ends)
    DailyGoals.note("correct" | "listen", n) -> {fresh, got}     DailyGoals.check(quiet) -> {fresh, got}     DailyGoals.render()     DailyGoals.repair()
    Written for old Android WebViews: no optional chaining, no spread, no Object.assign. */
 (function (root) {
@@ -18,6 +24,7 @@
     KEY_REPAIR = "lef_repair_v1",
     KEY_STATS = "lef_stats_v1",
     BONUS = 2,
+    EXTRA_BONUS = 1,
     COOLDOWN = 7,
     GOALS = [
       { id: "book", need: 1, ic: "📖", en: "Finish 1 book", cn: "读完 1 本书" },
@@ -133,6 +140,32 @@
     return r;
   }
 
+  function extra() {
+    try {
+      return cfg && cfg.extra ? cfg.extra() : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function extraCheck() {
+    var x = extra(),
+      g = state();
+    if (!x || !x.ok || g.extra) return { fresh: false, got: 0 };
+    g.extra = x.id || true;
+    writeJ(KEY, g);
+    var got = 0;
+    try {
+      got = cfg.award(EXTRA_BONUS) || 0;
+    } catch (e) {}
+    try {
+      cfg.toast([[EXTRA_BONUS, "Bonus game won", "奖励任务完成"]], got, got < EXTRA_BONUS);
+    } catch (e) {}
+    try {
+      render();
+    } catch (e) {}
+    return { fresh: true, got: got };
+  }
+
   function repair() {
     var s = readJ(KEY_STATS, null),
       today = dayNum();
@@ -171,6 +204,8 @@
       "#dailyGoals ul{list-style:none;margin:0;padding:0;display:flex;gap:8px;flex:1 1 420px;min-width:0;flex-wrap:wrap}" +
       "#dailyGoals li{display:flex;align-items:center;gap:8px;flex:1 1 150px;min-width:0;background:#F7F3FF;border-radius:16px;padding:7px 11px;font-weight:800;color:#2D2250}" +
       "#dailyGoals li.ok{background:#E6F7EA;color:#1F6B3A}" +
+      "#dailyGoals li.dgx{background:#FFF7D6;border:2px dashed #FFC93C;cursor:pointer;flex-basis:100%}#dailyGoals li.dgx.ok{background:#E6F7EA;border-color:#9AD9AE;cursor:default}" +
+      "#dailyGoals li.dgx .pg{background:#FFC93C;border-radius:999px;padding:3px 10px;color:#5A3A00}#dailyGoals li.dgx.ok .pg{background:none;color:#1F6B3A}" +
       "#dailyGoals li .ic{font-size:1.2rem;width:1.4rem;text-align:center;flex:none}" +
       "#dailyGoals li .tx{flex:1;min-width:0;line-height:1.15;font-size:.9rem}#dailyGoals li .tx small{display:block;font-weight:700;opacity:.65;font-size:.74rem}" +
       "#dailyGoals li .pg{font-weight:900;white-space:nowrap}" +
@@ -205,6 +240,13 @@
         );
       })
       .join("");
+    var x = extra();
+    if (x) {
+      var paid = !!g.extra;
+      rows +=
+        '<li class="dgx' + (paid ? " ok" : "") + '" id="dgExtra"' + (paid ? "" : ' role="button" tabindex="0"') + '><span class="ic">' + (paid ? "✓" : x.ic) + '</span><span class="tx">' + x.en +
+        "<small>" + x.cn + '</small></span><span class="pg">' + (paid ? "Done +" + EXTRA_BONUS + " ★" : "Play ▶ +" + EXTRA_BONUS + " ★") + "</span></li>";
+    }
     var foot = done
       ? "All three done! +" + BONUS + " bonus stars 🎉"
       : "All three = +" + BONUS + " bonus stars 三个都完成奖励 " + BONUS + " 颗星";
@@ -220,6 +262,18 @@
       "<ul>" + rows + "</ul>" +
       (streak > 0 ? '<span class="dgs">🔥 ' + streak + (streak === 1 ? " day" : " days") + "</span>" : "") +
       (saver ? '<div class="dgf">' + saver + "</div>" : "") + "</div>";
+    var xe = document.getElementById("dgExtra");
+    if (xe && x && !g.extra && x.open) {
+      xe.onclick = function () {
+        x.open();
+      };
+      xe.onkeydown = function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          x.open();
+        }
+      };
+    }
     if (done && !g.shown) {
       g.shown = true;
       writeJ(KEY, g);
@@ -232,6 +286,8 @@
   root.DailyGoals = {
     GOALS: GOALS,
     BONUS: BONUS,
+    EXTRA_BONUS: EXTRA_BONUS,
+    extraCheck: extraCheck,
     COOLDOWN: COOLDOWN,
     init: function (c) {
       cfg = c;

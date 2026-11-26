@@ -129,7 +129,8 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
 @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:620px){.plats{gap:8px}.plat .tag{font-size:.9rem}.plat .ic{width:44px;height:44px}.choice{font-size:1.6rem}.choice.text{font-size:1rem}.clock{width:170px;height:170px}.clocks.two .clock{width:120px;height:120px}}
-</style></head>
+</style><script src="../game-progress.js?v=20261127a"></script>
+</head>
 <body>
 <div class="top">
   <a class="home" id="homeLink" href="../index.html">← Home</a>
@@ -272,6 +273,8 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
 
   // ---------- saved progress (this browser only) ----------
   var STORE="trainTime.v1";
+  var GID="time";   // the name in game-progress.js (crowns) and in the site's event log
+  function crown(id){ return window.GameProgress?GameProgress.badge(GID,id):""; }
   var data={facts:{},plats:{},kinds:{},coins:0,owned:{},sound:true};
   try{
     var raw=localStorage.getItem(STORE);
@@ -324,14 +327,14 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
     PLATS.forEach(function(P,i){
       var s=starsOf(P.id), b=document.createElement("button");
       b.type="button"; b.className="plat"+(s===3?" gold":"");
-      b.innerHTML='<span class="num">'+(i+1)+'</span>'+clockSvg(P.show[0],P.show[1]).replace('class="clock"','class="ic"')+'<span class="tag">'+P.n+'</span><div class="stars">'+starText(s)+'</div>';
+      b.innerHTML='<span class="num">'+(i+1)+'</span>'+clockSvg(P.show[0],P.show[1]).replace('class="clock"','class="ic"')+'<span class="tag">'+P.n+'</span><div class="stars">'+starText(s)+crown(P.id)+'</div>';
       b.onclick=function(){ start(P); };
       box.appendChild(b);
     });
     var bs=starsOf("boss"), open=playedCount()>=BOSS_NEED, left=BOSS_NEED-playedCount(), bb=document.createElement("button");
     bb.type="button"; bb.className="plat wide boss"+(open?"":" locked")+(bs===3?" gold":"");
     bb.innerHTML='<span class="big">'+(open?"🚄":"🔒")+'</span><span class="txt"><span class="tag">Rush Hour</span><span class="name">'+
-      (open?(bs?"Every kind of question "+starText(bs):"Every kind of question, and the trains are busy!"):"Finish "+left+" more "+(left===1?"platform":"platforms")+" to unlock")+'</span></span>';
+      (open?(bs?"Every kind of question "+starText(bs)+crown("boss"):"Every kind of question, and the trains are busy!"):"Finish "+left+" more "+(left===1?"platform":"platforms")+" to unlock")+'</span></span>';
     bb.onclick=function(){ if(open) start(BOSS); };
     box.appendChild(bb);
     var n=missList().length, pb=document.createElement("button");
@@ -366,6 +369,7 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
   // ---------- playing ----------
   var G=null, pending=0;
   function start(P){
+    if(window.GameProgress) GameProgress.start(GID,P.id);
     var pool=null;
     if(P===PRACTICE){ pool=missList(); if(!pool.length) return; }
     var total = P===BOSS?12 : P===PRACTICE?Math.max(4,Math.min(10,pool.length*2)) : 8;
@@ -558,6 +562,7 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
       else{ stars=G.hearts; if(stars>starsOf(P.id)) data.plats[P.id]={stars:stars}; bonus=stars*5; }
     }
     data.coins+=G.coins+bonus; save();
+    if(window.GameProgress) GameProgress.report({game:GID,level:G.P.id,name:G.P.n,practice:G.P===PRACTICE,won:!!won,stars:stars,correct:G.correct,total:G.total!=null?G.total-G.left:G.correct+Object.keys(G.miss).length,best:G.best});
     $("rBig").textContent=won?(P===PRACTICE?"🛤️":"🚂"):"🕰️";
     $("rTitle").textContent=won?(P===PRACTICE?"Practice done!":"Every train on time: "+P.n+(/[?!]$/.test(P.n)?"":"!")):"The trains were late. Try again!";
     $("rStars").textContent=(won&&P!==PRACTICE)?starText(stars):"";

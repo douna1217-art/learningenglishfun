@@ -530,7 +530,7 @@ var SHELF={},ALL=[];
 <script src="motion-guard.js?v=20261015a"></script><script src="pet-art.js?v=20261015b"></script><script src="subject-outfits.js?v=20261113a"></script><script src="pet-rig.js?v=20261015e"></script>
 <script src="pet-fest.js?v=20261015c"></script>
 <script src="pet-sound.js?v=20261014c"></script>
-<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261113b"></script><script src="weekly-themes-data.js?v=20261113a"></script><script src="weekly-themes.js?v=20261113a"></script><script src="next-book.js?v=20261114a"></script><script src="reading-buddy.js?v=20261126a"></script><script src="sightwords-prizes.js?v=20261104a"></script><script src="game-prizes.js?v=20261126a"></script>
+<script src="badges.js?v=20261022a"></script><script src="game-progress.js?v=20261127a"></script><script src="daily-goals.js?v=20261127a"></script><script src="weekly-themes-data.js?v=20261113a"></script><script src="weekly-themes.js?v=20261113a"></script><script src="next-book.js?v=20261114a"></script><script src="reading-buddy.js?v=20261126a"></script><script src="sightwords-prizes.js?v=20261104a"></script><script src="game-prizes.js?v=20261126a"></script>
 <script src="sightwords-data.js?v=20261022a"></script><script src="sightwords-data2.js?v=20261014a"></script><script src="sightwords-data3.js?v=20261016a"></script><script src="sightwords-data4.js?v=20261017a"></script><script src="sightwords-data5.js?v=20261018a"></script><script src="sightwords-data6.js?v=20261019a"></script><script src="sightwords-data7.js?v=20261020a"></script><script src="sightwords-data8.js?v=20261022a"></script>
 <script>
 /* The sight-words code (about 1.2 MB: the pictures, the games, the monsters) is fetched once the page is up, so the book pages open at once;
@@ -1032,7 +1032,8 @@ var BOOK_GAMES={'meet-multiplication':'times-tables','arrays-and-multiplication'
  'scaled-bar-graphs':'graphs','scaled-picture-graphs':'graphs','line-plots-with-halves-and-fourths':'graphs',
  'measuring-liquid-volume-and-mass':'measure','quadrilaterals-and-their-attributes':'shapes'};
 function gameForBook(b){var id=b&&BOOK_GAMES[b.slug],out=null;if(!id)return null;Object.keys(SHELF_GAMES).forEach(function(k){SHELF_GAMES[k].forEach(function(x){if(x.id===id)out=x;});});return out;}
-function gameCard(c,x,i){return '<button class="bk ttgame" data-game="'+i+'" style="box-shadow:0 7px 0 '+c[1]+'55"><div style="aspect-ratio:700/520;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:'+x.bg+'">'+x.art+'<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:30px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18)">'+x.q+'</div></div><div style="padding:14px 16px 18px;flex:1;display:flex;flex-direction:column"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:22px;line-height:1.1">'+x.title+'</div><div style="font-weight:700;color:#4A5878;margin-top:4px;font-size:15px">'+x.sub+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px"><span style="background:#FFC93C;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">🎮 Game 游戏</span></div></div></button>';}
+function gameCrowns(x){if(!window.GameProgress)return '';var n=GameProgress.total(x.id),r=GameProgress.readyCount(x.id);if(!n)return '';return '<span title="Skill crowns 技能皇冠" style="background:#F3E9FF;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px;color:#4A3394">👑 '+n+'</span>'+(r?'<span style="background:#FFE3EC;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px;color:#B0244E">'+r+' crown'+(r>1?'s':'')+' ready 可以赢皇冠</span>':'');}
+function gameCard(c,x,i){return '<button class="bk ttgame" data-game="'+i+'" style="box-shadow:0 7px 0 '+c[1]+'55"><div style="aspect-ratio:700/520;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:'+x.bg+'">'+x.art+'<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:30px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18)">'+x.q+'</div></div><div style="padding:14px 16px 18px;flex:1;display:flex;flex-direction:column"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:22px;line-height:1.1">'+x.title+'</div><div style="font-weight:700;color:#4A5878;margin-top:4px;font-size:15px">'+x.sub+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px"><span style="background:#FFC93C;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">🎮 Game 游戏</span>'+gameCrowns(x)+'</div></div></button>';}
 function openGame(x){currentFile=null;$('readerTitle').textContent=x.name;$('readerFrame').src=x.file;$('readerOverlay').style.display='flex';document.body.style.overflow='hidden';
  if(window.__trackEvent)window.__trackEvent('game_open',{game:x.id});}
 function renderShelf(){
@@ -1169,7 +1170,9 @@ function settleReading(){
 /* the reading buddy (reading-buddy.js): the pet in the reader bar, and the little ceremony when a book is finished */
 if(window.ReadingBuddy)ReadingBuddy.init({pet:function(){return ART_OK&&st.type?{type:st.type,eq:st.eq,name:st.name}:null;},all:ALL,bookState:bookState,settle:function(){return settleReading();},openReader:function(b){openReader(b);},close:function(){closeBook();},sfx:function(){snd();},goals:window.DailyGoals||null,bonusGame:gameForBook,playGame:function(x){openGame(x);}});
 /* today's mini goals + the streak saver (daily-goals.js) */
-if(window.DailyGoals){DailyGoals.init({booksToday:function(){return dayState().books.length;},award:function(n){return award(n);},toast:function(l,t,c){toast(l,t,c);},
+if(window.DailyGoals){DailyGoals.init({booksToday:function(){return dayState().books.length;},
+ extra:function(){if(!window.GameProgress)return null;var x=null;(dayState().books||[]).forEach(function(sl){ALL.forEach(function(b){if(b.slug===sl){var g=gameForBook(b);if(g)x=g;}});});if(!x)return null;
+  return {id:x.id,ic:x.e,en:'Bonus: win a level in '+x.name,cn:'奖励任务：在「'+x.name+'」里过一关',ok:GameProgress.winsToday(x.id)>0,open:function(){openGame(x);}};},award:function(n){return award(n);},toast:function(l,t,c){toast(l,t,c);},
  notice:function(en,cn){var t=$('toast');if(!t)return;t.innerHTML='<div class="tt">'+en+' <small>'+cn+'</small></div>';t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on');},5200);},
  celebrate:function(){snd();if(st.type){homeBubble('All 3 goals done! +2 stars!');clearTimeout(bubbleT);bubbleT=setTimeout(function(){bubbleT=null;renderHomePet();},3500);}},
  streak:function(){try{return Badges.context().streak||0;}catch(e){return 0;}},
@@ -1197,6 +1200,8 @@ window.addEventListener('load',function(){if(window.Badges)Badges.soon(2500);});
   gift:function(n){st.stars+=n;save();try{render();}catch(e){}try{if(window.Badges){Badges.recordStars(n);Badges.soon();}}catch(e){}return n;},
   wear:function(id){var it=window.ITEMS&&ITEMS[id];if(!ART_OK||!st.type||!it)return false;st.eq[it.slot]=id;save();try{render();renderHomePet();}catch(e){}return true;}});
  var b=$('swBtn');if(b)b.addEventListener('click',function(e){e.preventDefault();snd();SightWords.open();});})();
+/* a practice game finished a level (game-progress.js in the reader's frame): the bonus game row of today's goals, and the crowns on the game cards */
+window.__gameDone=function(r){try{if(window.DailyGoals){DailyGoals.extraCheck();DailyGoals.render();}}catch(e){}try{if($('viewShelf').style.display==='block')renderShelf();}catch(e){}};
 /* the practice games (math-game/*.html, in the reader's frame) show the child's pet, dress it with the prizes won there and feed it a little */
 window.__petBridge={pet:function(){if(!ART_OK||!st.type)return null;return {type:st.type,name:st.name,eq:st.eq,hunger:st.hunger};},
  wear:function(id){var it=window.ITEMS&&ITEMS[id];if(!ART_OK||!st.type||!it)return false;if(st.eq[it.slot]===id)delete st.eq[it.slot];else st.eq[it.slot]=id;save();try{renderHomePet();}catch(e){}return st.eq[it.slot]===id;},
@@ -1305,7 +1310,7 @@ window.addEventListener('resize',layoutBookcase);layoutBookcase();
 <script src="stats.js"></script>
 <script src="feedback.js"></script>
 <script src="placement-data.js"></script>
-<script src="state-sync.js?v=20261126a"></script>
+<script src="state-sync.js?v=20261127a"></script>
 <script src="book-finder.js?v=20261112a"></script><script src="parent-report.js?v=20261112a"></script><script src="report-card.js?v=20261113a"></script><script src="account.js?v=20261113a"></script>
 <script src="signin-hint.js?v=20261113c"></script>
 <script src="placement.js"></script>

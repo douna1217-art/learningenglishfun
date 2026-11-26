@@ -60,9 +60,9 @@
   var THEMES = "lef_themes_v1";
   var BADGES = "lef_badges_v1";
   var WORDS = "lef_words_v1";
-  // the sight-word games (not on the home page, so a pull never reloads the page), and the prizes won in the math games
+  // the sight-word games (not on the home page, so a pull never reloads the page), and the prizes and crowns won in the math games
   var FISHLIST = "lef_fishlist_v1";
-  var GAME_KEYS = ["lef_fish_v1", FISHLIST, "lef_mole_v1", "lef_snake_v1", "lef_runner_v1", "lef_slash_v1", "lef_detective_v1", "lef_hoops_v1", "lef_sling_v1", "lef_space_v1", "lef_dungeon_v1", "lef_deep_v1", "lef_pyramid_v1", "lef_sled_v1", "lef_gameprizes_v1"];
+  var GAME_KEYS = ["lef_fish_v1", FISHLIST, "lef_mole_v1", "lef_snake_v1", "lef_runner_v1", "lef_slash_v1", "lef_detective_v1", "lef_hoops_v1", "lef_sling_v1", "lef_space_v1", "lef_dungeon_v1", "lef_deep_v1", "lef_pyramid_v1", "lef_sled_v1", "lef_gameprizes_v1", "lef_gameprog_v1"];
   var HOME_KEYS = [PET, DAY, BOOKS, HIST, OPENS, GIFT, REVIEW, PLACEMENT, STATS, BADGES, WORDS, THEMES];
   var BOOK_RE = /^les-.+-v1$/;
 

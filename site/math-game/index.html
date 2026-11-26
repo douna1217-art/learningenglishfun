@@ -129,7 +129,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 @media(max-width:620px){.levels{gap:10px}.lv .mon{font-size:2.5rem}.lv .tag{font-size:1.1rem}.lv .name{font-size:.7rem}
  .arena{height:215px}.monster{font-size:5.6rem}.choice{font-size:2rem;padding:15px 4px}.cell{font-size:.6rem}}
-</style></head>
+</style><script src="../game-progress.js?v=20261127a"></script>
+</head>
 <body>
 <div class="top">
   <a class="home" id="homeLink" href="../index.html">← Home</a>
@@ -220,6 +221,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   // ---------- saved progress (this browser only) ----------
   var STORE="ttGame.v2";
+  var GID="times-tables";   // the name in game-progress.js (crowns) and in the site's event log
+  function crown(id){ return window.GameProgress?GameProgress.badge(GID,id):""; }
   var data={facts:{},levels:{},coins:0,sound:true};
   try{
     var raw=localStorage.getItem(STORE)||localStorage.getItem("ttGame.v1");
@@ -287,14 +290,14 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     LEVELS.forEach(function(L){
       var s=starsOf(L.id), b=document.createElement("button");
       b.type="button"; b.className="lv"+(s?"":" unknown")+(s===3?" gold":"");
-      b.innerHTML='<span class="mon">'+L.e+'</span><span class="tag">× '+L.t+'</span><span class="name">'+(s?L.n:"???")+'</span><div class="stars">'+starText(s)+'</div>';
+      b.innerHTML='<span class="mon">'+L.e+'</span><span class="tag">× '+L.t+'</span><span class="name">'+(s?L.n:"???")+'</span><div class="stars">'+starText(s)+crown(L.id)+'</div>';
       b.onclick=function(){ startBattle(L); };
       box.appendChild(b);
     });
     var bs=starsOf("boss"), open=beatenCount()>=BOSS_NEED, bb=document.createElement("button");
     bb.type="button"; bb.className="lv boss"+(open?"":" locked")+(bs===3?" gold":"");
     bb.innerHTML='<span class="mon">'+(open?BOSS.e:"🔒")+'</span><span class="txt"><span class="tag">Boss Battle</span><span class="name">'+
-      (open?(bs?BOSS.n+" "+starText(bs):"All the tables from 2 to 9, mixed up. Are you brave enough?"):"Beat "+(BOSS_NEED-beatenCount())+" more "+(BOSS_NEED-beatenCount()===1?"monster":"monsters")+" to unlock")+'</span></span>';
+      (open?(bs?BOSS.n+" "+starText(bs)+crown("boss"):"All the tables from 2 to 9, mixed up. Are you brave enough?"):"Beat "+(BOSS_NEED-beatenCount())+" more "+(BOSS_NEED-beatenCount()===1?"monster":"monsters")+" to unlock")+'</span></span>';
     bb.onclick=function(){ if(open) startBattle(BOSS); };
     box.appendChild(bb);
     var n=missList().length, tb=document.createElement("button");
@@ -345,6 +348,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   }
 
   function startBattle(L){
+    if(window.GameProgress) GameProgress.start(GID,L.id);
     var pool=buildPool(L); if(!pool.length) return;
     var hp = L===BOSS?15 : L===TRAIN?Math.max(5,Math.min(12,pool.length*2)) : 8;
     B={L:L,pool:pool,hp:hp,maxHp:hp,hearts:L===TRAIN?Infinity:3,coins:0,streak:0,best:0,correct:0,miss:{},q:null,locked:false,
@@ -461,6 +465,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       }
     }
     data.coins+=B.coins+bonus; save();
+    if(window.GameProgress) GameProgress.report({game:GID,level:B.L.id,name:B.L.n,practice:B.L===TRAIN,won:!!won,stars:stars,correct:B.correct,total:B.total!=null?B.total-B.left:B.correct+Object.keys(B.miss).length,best:B.best});
     $("rBig").textContent = won?L.e:"💫";
     $("rTitle").textContent = won ? (L===TRAIN?"Training done!":"You caught "+L.n+"!") : "So close! Try again!";
     $("rStars").textContent = (won&&L!==TRAIN) ? starText(stars) : "";

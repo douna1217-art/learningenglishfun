@@ -6,7 +6,7 @@
 <meta name="description" content="Number Park: round on the roller coaster, add and subtract tickets within 1,000, estimate and solve two-step problems. Grade 3 math in English.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 </head><body>
-<script src="engine.js"></script>
+<script src="../game-progress.js?v=20261127a"></script><script src="engine.js"></script>
 <script>
 (function(){
   "use strict";
@@ -162,7 +162,7 @@
     if(q.kind==="est") return q.a+" + "+q.b+" ≈ "+right(q);
     return q.a+" − "+q.b+" − "+q.c+" = "+right(q);
   }
-  M.run({title:"Number Park",icon:"🎢",tagline:"Ride the coaster, count the tickets, have fun with big numbers!",store:"numberPark.v1",
+  M.run({title:"Number Park",gameId:"numbers",icon:"🎢",tagline:"Ride the coaster, count the tickets, have fun with big numbers!",store:"numberPark.v1",
     coin:{e:"🎟️",n:"tickets"},heart:"❤️",leave:"Leave the park",levelWord:"ride",doneWord:"Rides done",ownedWord:"In your park",
     theme:{brand:"#d1477a",dark:"#9c2f59",bg:"#fdf0f5",line:"#f3d9e4",ink:"#3a2030",muted:"#86687a",hero:"linear-gradient(180deg,#ff8fb8,#ffc6a8)"},
     levels:LEVELS,boss:{n:"Busy Park Day",ic:"🎆",desc:"Everything mixed up. The park is full!"},practice:{n:"Practice Booth",ic:"🎪"},

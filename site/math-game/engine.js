@@ -14,7 +14,7 @@
      panel?: {title, cn, html: fn -> html}               // one more panel on the map (above the shop), e.g. a collection
      hero?: fn -> html                                   // drawn in the map's banner instead of the row of things bought
      shop items may have icon (html) instead of e; isOwned(it)?, onBuy(it)?, useOwned(it)?, ownedText(it)? change what the shop does
-     gameId?: "potion-lab"                               // the name in the site's event log (game_level_start, game_level_end)
+     gameId?: "measure"                                  // the name in the site's event log (game_level_start, game_level_end)
      cheer?: true                                       // a short burst of confetti after each right answer
    })
    MathGame.sound() tells a game whether the child has the sound on.
@@ -151,6 +151,7 @@
 
     // ---------- map ----------
     function starText(n) { return "⭐".repeat(n) + "☆".repeat(3 - n); }
+    function crown(id) { return root.GameProgress && C.gameId ? root.GameProgress.badge(C.gameId, id) : ""; }
     function renderMap() {
       $("coinTotal").textContent = data.coins;
       if (C.hero) { $("owned").innerHTML = C.hero(); $("owned").style.letterSpacing = "normal"; $("owned").style.fontSize = "1rem"; }
@@ -160,14 +161,14 @@
       C.levels.forEach(function (L, i) {
         var s = starsOf(L.id), b = doc.createElement("button");
         b.type = "button"; b.className = "lv" + (s === 3 ? " gold" : "");
-        b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="ic">' + L.ic + '</span><span class="tag">' + L.n + '</span><div class="stars">' + starText(s) + "</div>";
+        b.innerHTML = '<span class="num">' + (i + 1) + '</span><span class="ic">' + L.ic + '</span><span class="tag">' + L.n + '</span><div class="stars">' + starText(s) + crown(L.id) + "</div>";
         b.onclick = function () { start(L); };
         box.appendChild(b);
       });
       var bs = starsOf("boss"), open = playedCount() >= BOSS_NEED, left = BOSS_NEED - playedCount(), bb = doc.createElement("button");
       bb.type = "button"; bb.className = "lv wide boss" + (open ? "" : " locked") + (bs === 3 ? " gold" : "");
       bb.innerHTML = '<span class="ic">' + (open ? BOSS.ic : "🔒") + '</span><span class="txt"><span class="tag">' + BOSS.n + '</span><span class="name">' +
-        (open ? (bs ? "Everything mixed up " + starText(bs) : C.boss.desc) : "Finish " + left + " more " + (left === 1 ? LW : LW + "s") + " to unlock") + "</span></span>";
+        (open ? (bs ? "Everything mixed up " + starText(bs) + crown("boss") : C.boss.desc) : "Finish " + left + " more " + (left === 1 ? LW : LW + "s") + " to unlock") + "</span></span>";
       bb.onclick = function () { if (open) start(BOSS); };
       box.appendChild(bb);
       var n = missList().length, pb = doc.createElement("button");
@@ -299,7 +300,9 @@
       var P = G.P, stars = 0, bonus = 0;
       if (won) { if (P === PRACTICE) bonus = 5; else { stars = G.hearts; if (stars > starsOf(P.id)) data.lv[P.id] = { stars: stars }; bonus = stars * 5; } }
       data.coins += G.coins + bonus; save();
-      track("game_level_end", { game: C.gameId, level: P.id, won: !!won, stars: stars, correct: G.correct, total: G.total - G.left, best: G.best });
+      var end = { game: C.gameId, level: P.id, name: P.n, practice: P === PRACTICE, won: !!won, stars: stars, correct: G.correct, total: G.total - G.left, best: G.best };
+      if (root.GameProgress && C.gameId) root.GameProgress.report(end);   // crowns, today's wins, the event log, the home page's goals
+      else track("game_level_end", end);
       $("rBig").textContent = won ? (P === PRACTICE ? PRACTICE.ic : C.icon) : "💫";
       $("rTitle").textContent = won ? (P === PRACTICE ? "Practice done!" : "You did it: " + P.n + (/[?!]$/.test(P.n) ? "" : "!")) : "So close! Try again!";
       $("rStars").textContent = (won && P !== PRACTICE) ? starText(stars) : "";

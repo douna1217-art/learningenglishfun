@@ -149,7 +149,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:620px){.ponds{gap:8px}.pond .tag{font-size:.92rem}.pond .name{font-size:.66rem}.choice{font-size:1.6rem;min-height:76px}.nl{margin:4px 8px 0}.tick{width:28px;height:30px;margin-left:-14px}}
-</style></head>
+</style><script src="../game-progress.js?v=20261127a"></script>
+</head>
 <body>
 <div class="top">
   <a class="home" id="homeLink" href="../index.html">← Home</a>
@@ -281,6 +282,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   // ---------- saved progress (this browser only) ----------
   var STORE="fracFrog.v1";
+  var GID="fractions";   // the name in game-progress.js (crowns) and in the site's event log
+  function crown(id){ return window.GameProgress?GameProgress.badge(GID,id):""; }
   var data={facts:{},ponds:{},kinds:{},coins:0,owned:{},hat:"",sound:true};
   try{
     var raw=localStorage.getItem(STORE);
@@ -333,14 +336,14 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     PONDS.forEach(function(P){
       var s=starsOf(P.id), b=document.createElement("button");
       b.type="button"; b.className="pond"+(s===3?" gold":"");
-      b.innerHTML='<span class="ic">'+P.e+'</span><span class="tag">'+P.n+'</span><div class="stars">'+starText(s)+'</div>';
+      b.innerHTML='<span class="ic">'+P.e+'</span><span class="tag">'+P.n+'</span><div class="stars">'+starText(s)+crown(P.id)+'</div>';
       b.onclick=function(){ start(P); };
       box.appendChild(b);
     });
     var bs=starsOf("boss"), open=playedCount()>=BOSS_NEED, left=BOSS_NEED-playedCount(), bb=document.createElement("button");
     bb.type="button"; bb.className="pond wide boss"+(open?"":" locked")+(bs===3?" gold":"");
     bb.innerHTML='<span class="ic" style="font-size:2.4rem">'+(open?BOSS.e:"🔒")+'</span><span class="txt"><span class="tag">Big Pond</span><span class="name">'+
-      (open?(bs?"Everything mixed up "+starText(bs):"Everything mixed up. Can you cross the big pond?"):"Finish "+left+" more "+(left===1?"pond":"ponds")+" to unlock")+'</span></span>';
+      (open?(bs?"Everything mixed up "+starText(bs)+crown("boss"):"Everything mixed up. Can you cross the big pond?"):"Finish "+left+" more "+(left===1?"pond":"ponds")+" to unlock")+'</span></span>';
     bb.onclick=function(){ if(open) start(BOSS); };
     box.appendChild(bb);
     var n=missList().length, pb=document.createElement("button");
@@ -400,6 +403,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   // ---------- playing ----------
   var G=null, pending=0;
   function start(P){
+    if(window.GameProgress) GameProgress.start(GID,P.id);
     var pool=null;
     if(P===PRACTICE){ pool=missList(); if(!pool.length) return; }
     var total = P===BOSS?12 : P===PRACTICE?Math.max(4,Math.min(10,pool.length*2)) : 8;
@@ -598,6 +602,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       else{ stars=G.hearts; if(stars>starsOf(P.id)) data.ponds[P.id]={stars:stars}; bonus=stars*5; }
     }
     data.coins+=G.coins+bonus; save();
+    if(window.GameProgress) GameProgress.report({game:GID,level:G.P.id,name:G.P.n,practice:G.P===PRACTICE,won:!!won,stars:stars,correct:G.correct,total:G.total!=null?G.total-G.left:G.correct+Object.keys(G.miss).length,best:G.best});
     $("rBig").textContent=won?(P===PRACTICE?"🪷":"🐸"):"💦";
     $("rTitle").textContent=won?(P===PRACTICE?"Practice done!":"You crossed "+(P===BOSS?"the Big Pond":P.n)+"!"):"Splash! Try again!";
     $("rStars").textContent=(won&&P!==PRACTICE)?starText(stars):"";
