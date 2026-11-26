@@ -118,27 +118,7 @@
     return '<div style="display:flex;justify-content:center">'+petPic(p,"happy",110)+'</div><div style="font-size:.95rem;font-weight:900;color:#fff">'+p.name+' is your lab helper! Win prizes for '+p.name+' in the shop.</div>';
   }
 
-  // ---------- Sparky says the order (the browser's English voice) ----------
-  var voice=null;
-  function pickVoice(){
-    try{ var vs=speechSynthesis.getVoices().filter(function(v){ return /^en(-|_|$)/i.test(v.lang); });
-      voice=vs.filter(function(v){ return /en-US/i.test(v.lang)&&/female|samantha|google us|aria|jenny/i.test(v.name); })[0]||vs.filter(function(v){ return /en-US/i.test(v.lang); })[0]||vs[0]||null; }catch(e){}
-  }
-  try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
-  function speak(text){
-    if(!M.sound||!M.sound()) return;
-    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(text); u.lang="en-US"; if(voice) u.voice=voice; u.rate=.92; u.pitch=1.25; speechSynthesis.speak(u); }catch(e){}
-  }
-  function order(q){
-    var L=function(n){ return n+" "+(n===1?"liter":"liters"); };
-    if(q.kind==="pour") return "Please make me "+L(q.t)+" of "+POTIONS[q.c][1]+" potion!";
-    if(q.kind==="add") return "First "+L(q.a)+" of "+POTIONS[q.c][1]+", then "+L(q.b)+" of "+POTIONS[q.d][1]+", please!";
-    if(q.kind==="sub") return "The beaker has "+L(q.s)+". Please pour out "+L(q.b)+"!";
-    if(q.kind==="scale") return "Please put "+q.t+" "+(q.u==="g"?"grams":(q.t===1?"kilogram":"kilograms"))+" of "+SANDS[q.i][1]+" on the scale!";
-    if(q.kind==="batch") return "One spell needs "+q.p+" kilograms of "+SANDS[q.i][1]+". Please make "+q.n+" spells!";
-    if(q.kind==="unit") return "Grams or kilograms? How would you measure a "+(q.h?HEAVY[q.o][1]:LIGHT[q.o][1])+"?";
-    return "About how "+(EST[q.i][3]==="L"?"much water does "+EST[q.i][1]+" hold":"heavy is "+EST[q.i][1])+"?";
-  }
+
 
   // ---------- what a good potion does to Sparky, and the potion book ----------
   var EFFECTS=[["Flying","🪽","I can fly!","fly"],["Fire-Sneeze","🔥","Ah… ah… ACHOO! 🔥","sneeze"],["Bubble","🫧","Bubbles everywhere!","bubbles"],["Sparkle","✨","I'm all sparkly!","sparkle"],
@@ -235,11 +215,11 @@
   function dragon(ui,happy,fx){
     var r=ui.round(), dots="", got=r.correct+(happy?1:0);   // (the right answer just given is not counted yet)
     for(var i=0;i<r.total;i++) dots+=i<got?"💚":"🤍";
-    var say=happy?"":(P&&P.q?order(P.q):"Hic! Hic!"), pet=myPet();
+    var say=happy?"":"Hic! Hic!", pet=myPet();   // the order itself is the question above: read, not said
     var pic=pet?petPic(pet,happy?"excited":"surprised",64):(happy?"🐲":"🐉");
     return '<div class="dragon"><span class="dr'+(pet?" pet":"")+(happy?" happy fx-"+(fx?fx.e[3]:""):"")+'" style="'+(happy&&fx&&fx.e[3]==="color"?"filter:drop-shadow(0 0 6px "+fx.col+") hue-rotate(140deg)":"")+'">'+pic+
-      (happy&&fx?'<span class="fxe">'+fx.e[1]+'</span>':"")+'</span><span class="bubble"'+(happy?' style="visibility:hidden"':'')+'>'+(happy?"":"Hic! ")+say+'</span>'+
-      (happy?"":'<button type="button" class="say" id="sayBtn" aria-label="Say it again">🔊</button>')+'<div class="cure">'+helper()+' feels better: '+dots+'</div></div>';
+      (happy&&fx?'<span class="fxe">'+fx.e[1]+'</span>':"")+'</span><span class="bubble"'+(happy?' style="visibility:hidden"':'')+'>'+say+'</span>'+
+      '<div class="cure">'+helper()+' feels better: '+dots+'</div></div>';
   }
 
   // ---------- one question on the screen ----------
@@ -260,8 +240,6 @@
         '<button type="button" class="rk plus" id="plusBtn" aria-label="more">+<small>'+(q.kind==="scale"||q.kind==="batch"?"add":"pour in")+'</small></button></div>'+
         '<button type="button" class="serve" id="serveBtn"'+(q.kind==="sub"?"":" disabled")+'>'+(q.kind==="add"?"✓ Next color":"✓ Serve")+'</button></div>');
       draw();
-      var sb=document.getElementById("sayBtn"); if(sb) sb.onclick=function(){ speak(order(q)); };
-      setTimeout(function(){ speak(order(q)); },250);
       ["minusBtn","plusBtn"].forEach(function(id){
         var hb=document.getElementById(id), dir=id==="plusBtn"?1:-1;
         hb.addEventListener("pointerdown",function(e){ e.preventDefault(); if(hb.disabled) return; try{ hb.setPointerCapture(e.pointerId); }catch(x){} startPour(dir); });
@@ -269,7 +247,7 @@
         hb.addEventListener("contextmenu",function(e){ e.preventDefault(); });
       });
       document.getElementById("serveBtn").onclick=serve;
-      ui.hint("Listen to "+helper()+" (🔊), find the right line, hold + for more and − for less. Then Serve.");
+      ui.hint("Find the right line, hold + for more and − for less. Then Serve.");
       if(q.kind==="add") ui.words("First stop at "+q.a+" liters.");
       if(q.kind==="batch") ui.words(q.n+" spells × "+q.p+" kilograms = ?");
       return;
@@ -280,7 +258,6 @@
       ui.stage('<div style="text-align:center;font-size:4.2rem;margin:12px 0">'+ob[0]+'</div>');
       ui.choices([{html:"grams<small>g</small>",val:"g"},{html:"kilograms<small>kg</small>",val:"kg"}]);
       ui.hint("Is it light or heavy?");
-      setTimeout(function(){ speak(order(q)); },250);
       return;
     }
     var e=EST[q.i];
@@ -291,7 +268,6 @@
     opts.forEach(function(o){ var k=o[0]+o[1]; if(!seen[k]){ seen[k]=1; list.push({html:o[0]+" "+o[1],val:k,cls:"text"}); } });
     ui.choices(M.shuffle(list));
     ui.hint("Think of things you know.");
-    setTimeout(function(){ speak(order(q)); },250);
   }
   function right(q){
     if(POURING[q.kind]) return "ok";
@@ -308,14 +284,12 @@
   function after(q,ok,given){
     if(!POURING[q.kind]) return;
     stopPour();
-    try{ speechSynthesis.cancel(); }catch(e){}
     var d=document.querySelector(".dragon");
     if(d&&ok){
       var pot=potionOf(q), isNew=!book[pot.id];
       d.outerHTML=dragon(P.ui,true,{e:pot.e,col:pot.col});
       blip(660,.12,"triangle",.1); setTimeout(function(){ blip(990,.16,"triangle",.1); },120);
       feedPet(4);
-      speak(pot.e[2].replace(/[^A-Za-z ,.!'?…]/g,""));
       if(isNew){ book[pot.id]={name:pot.name,col:pot.col,e:pot.e[1],recipe:pot.recipe}; try{ localStorage.setItem(BOOK,JSON.stringify(book)); }catch(e){}
         var lab=document.querySelector(".lab"); if(lab) lab.insertAdjacentHTML("afterend",'<div class="newcard"><span style="background:'+pot.col+'">'+pot.e[1]+'</span><div><i>🆕 New card for your Potion Book!</i><b>'+pot.name+'</b><small>'+pot.recipe+'</small></div></div>'); }
     }
@@ -410,7 +384,6 @@
       '.rk:active{background:#ffe88a}.rk:disabled{opacity:.35}'+
       '.mid{align-self:center;margin:0 10px;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)}'+
       '.serve{border:0;border-radius:18px;padding:14px 8px;font-weight:900;font-size:1.1rem;background:var(--good);color:#fff;box-shadow:0 6px 0 #1f7041}'+
-      '.say{border:0;background:#ece6ff;border-radius:999px;width:40px;height:40px;font-size:1.2rem;box-shadow:0 3px 0 #c9bdf0}'+
       '.dr{position:relative;display:inline-block}.fxe{position:absolute;right:-18px;top:-10px;font-size:1.4rem}'+
       '.fx-fly{animation:fly 1.4s ease-in-out 2}.fx-sneeze .fxe{animation:shoot .8s ease-out 2}.fx-bubbles .fxe{animation:rise 1.2s ease-out 2}.fx-sparkle{animation:glow 1s ease-in-out 3}'+
       '.fx-tiny{animation:tiny 1.6s ease-in-out}.fx-sing{animation:sway .5s ease-in-out 4}.fx-giant{animation:giant 1.6s ease-in-out}.fx-color{transition:filter .6s}'+
