@@ -1,6 +1,14 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>乘法怪兽岛 Times Tables</title>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>乘法怪兽岛</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#3f8fd8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="乘法怪兽岛">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="乘法口诀闯关小游戏：打怪兽、收集星星和金币。Times tables monster game for kids.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 <style>
@@ -13,6 +21,12 @@ h1,h2,h3{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
 button{font:inherit;cursor:pointer;color:inherit}
 button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 [hidden]{display:none!important}
+.install{margin-top:14px;background:rgba(255,255,255,.95);color:var(--green);border:0;border-radius:999px;padding:10px 18px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.howto{margin-top:16px;background:#fff;border-radius:20px;padding:16px 18px;box-shadow:var(--shadow);font-weight:800;line-height:1.7}
+.howto h3{margin:0 0 6px;font-size:1.15rem}
+.howto ol{margin:0;padding-left:1.3em}
+.howto .note{color:var(--muted);font-size:.85rem;margin-top:8px}
+@media (display-mode:standalone){.home{visibility:hidden}.install,.howto{display:none!important}}
 .top{max-width:920px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}
 .wallet{display:flex;gap:8px;align-items:center}
@@ -130,7 +144,9 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     <h1>🏝️ 乘法怪兽岛</h1>
     <p>答对乘法题打败怪兽，把它们都收服！</p>
     <div class="progress" id="progress"></div>
+    <div><button class="install" type="button" id="installBtn">📲 装到手机桌面，像 App 一样玩</button></div>
   </div>
+  <div class="howto" id="howto" hidden></div>
   <div class="levels" id="levels"></div>
   <details class="parent">
     <summary>📋 给家长看：口诀掌握表</summary>
@@ -444,6 +460,29 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       ps.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); });
       if(t-t0<3000) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
     })(t0);
+  }
+
+  // ---------- install as an app (free: no app store needed) ----------
+  var deferredPrompt=null, ua=navigator.userAgent||"";
+  var isWeChat=/MicroMessenger/i.test(ua), isIOS=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); deferredPrompt=e; });
+  window.addEventListener("appinstalled",function(){ $("installBtn").hidden=true; $("howto").hidden=true; });
+  $("installBtn").onclick=function(){
+    if(deferredPrompt&&!isWeChat){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(function(){ deferredPrompt=null; }); return; }
+    var h=$("howto"), steps;
+    if(isWeChat){
+      steps=["点右上角的 <b>···</b>","选 <b>在浏览器打开</b>（iPhone 选 Safari 打开）","在浏览器里再点一次「📲 装到手机桌面」"];
+    }else if(isIOS){
+      steps=["用 <b>Safari</b> 打开这个页面","点屏幕下方的 <b>分享按钮</b>（方框加向上箭头）","往下滑，点 <b>添加到主屏幕</b>，再点 <b>添加</b>"];
+    }else{
+      steps=["点浏览器右上角或右下角的 <b>菜单</b>（⋮ 或 ☰）","选 <b>添加到主屏幕</b> 或 <b>安装应用</b>","回到手机桌面，点 🏝️ 乘法怪兽岛 图标就能玩"];
+    }
+    h.innerHTML="<h3>"+(isWeChat?"微信里不能直接安装，先换到浏览器：":"三步装到桌面：")+"</h3><ol><li>"+steps.join("</li><li>")+
+      '</li></ol><div class="note">完全免费。装好后从桌面图标打开，没网也能玩。</div>';
+    h.hidden=!h.hidden;
+  };
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
   }
 
   renderSound(); renderMap();
