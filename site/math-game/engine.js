@@ -12,6 +12,9 @@
      teach(q, given) -> {steps: [html], cn, pic}, after(q, ok, given, ui)?, miss(q) -> string, fastMs?,
      wrongText(q, given)?, rightText(q)?                // the line under the question after an answer, if the game has its own
      panel?: {title, cn, html: fn -> html}               // one more panel on the map (above the shop), e.g. a collection
+     hero?: fn -> html                                   // drawn in the map's banner instead of the row of things bought
+     shop items may have icon (html) instead of e; isOwned(it)?, onBuy(it)?, useOwned(it)?, ownedText(it)? change what the shop does
+     gameId?: "potion-lab"                               // the name in the site's event log (game_level_start, game_level_end)
    })
    MathGame.sound() tells a game whether the child has the sound on.
    A question is {kind, key, ...}. render() fills the screen with ui.task(html), ui.stage(html), ui.choices([{html, val}]), ui.words(text),
@@ -149,7 +152,8 @@
     function starText(n) { return "⭐".repeat(n) + "☆".repeat(3 - n); }
     function renderMap() {
       $("coinTotal").textContent = data.coins;
-      $("owned").textContent = C.shop.filter(function (it) { return data.owned[it.id]; }).map(function (it) { return it.e; }).join("") || (C.emptyOwned || "");
+      if (C.hero) { $("owned").innerHTML = C.hero(); $("owned").style.letterSpacing = "normal"; $("owned").style.fontSize = "1rem"; }
+      else $("owned").textContent = C.shop.filter(function (it) { return owns(it); }).map(function (it) { return it.e; }).join("") || (C.emptyOwned || "");
       $("progress").textContent = (C.doneWord || "Done") + ": " + (playedCount() + (starsOf("boss") ? 1 : 0)) + " / " + (C.levels.length + 1);
       var box = $("lvls"); box.innerHTML = "";
       C.levels.forEach(function (L, i) {
@@ -174,13 +178,20 @@
       if (C.panel) { $("xPanel").hidden = false; $("xTitle").innerHTML = C.panel.title + " <small>" + C.panel.cn + "</small>"; $("xBody").innerHTML = C.panel.html(); }
       renderShop(); renderSkills();
     }
+    function owns(it) { return !!data.owned[it.id] || !!(C.isOwned && C.isOwned(it)); }
     function renderShop() {
       var box = $("shop"); box.innerHTML = "";
       C.shop.forEach(function (it) {
-        var own = !!data.owned[it.id], b = doc.createElement("button");
-        b.type = "button"; b.className = "item" + (own ? " own" : ""); b.disabled = own || data.coins < it.p;
-        b.innerHTML = '<span class="e">' + it.e + '</span><span class="n">' + it.n + '</span><span class="p">' + (own ? "✓ " + (C.ownedWord || "Yours") : C.coin.e + " " + it.p) + "</span>";
-        b.onclick = function () { if (own || data.coins < it.p) return; data.coins -= it.p; data.owned[it.id] = 1; save(); SFX.buy(); renderMap(); };
+        var own = owns(it), b = doc.createElement("button");
+        b.type = "button"; b.className = "item" + (own ? " own" : ""); b.disabled = own ? !C.useOwned : data.coins < it.p;
+        b.innerHTML = '<span class="e">' + (it.icon || it.e) + '</span><span class="n">' + it.n + '</span><span class="p">' + (own ? (C.ownedText ? C.ownedText(it) : "✓ " + (C.ownedWord || "Yours")) : C.coin.e + " " + it.p) + "</span>";
+        b.onclick = function () {
+          if (own) { if (C.useOwned) { C.useOwned(it); renderMap(); } return; }
+          if (data.coins < it.p) return;
+          data.coins -= it.p; data.owned[it.id] = 1; save(); SFX.buy();
+          if (C.onBuy) { try { C.onBuy(it); } catch (e) {} }
+          renderMap();
+        };
         box.appendChild(b);
       });
     }
@@ -197,12 +208,17 @@
 
     // ---------- playing ----------
     var G = null, pending = 0;
+    function track(name, payload) {
+      if (!C.gameId) return;
+      try { var w = root.parent && root.parent !== root && root.parent.__trackEvent ? root.parent : root; if (w.__trackEvent) w.__trackEvent(name, payload); } catch (e) {}
+    }
     function start(P) {
       var pool = null;
       if (P === PRACTICE) { pool = missList(); if (!pool.length) return; }
       var total = P === BOSS ? 12 : P === PRACTICE ? Math.max(4, Math.min(10, pool.length * 2)) : 8;
       G = { P: P, pool: pool, left: total, total: total, hearts: P === PRACTICE ? Infinity : 3, coins: 0, streak: 0, best: 0, correct: 0, miss: {}, q: null, locked: false, lastKey: "", again: [] };
       $("pCoins").textContent = "0"; renderHearts(); show("play"); next();
+      track("game_level_start", { game: C.gameId, level: P.id });
     }
     function renderHearts() {
       if (G.hearts === Infinity) { $("hearts").textContent = "💪 Practice"; return; }
@@ -281,6 +297,7 @@
       var P = G.P, stars = 0, bonus = 0;
       if (won) { if (P === PRACTICE) bonus = 5; else { stars = G.hearts; if (stars > starsOf(P.id)) data.lv[P.id] = { stars: stars }; bonus = stars * 5; } }
       data.coins += G.coins + bonus; save();
+      track("game_level_end", { game: C.gameId, level: P.id, won: !!won, stars: stars, correct: G.correct, total: G.total - G.left, best: G.best });
       $("rBig").textContent = won ? (P === PRACTICE ? PRACTICE.ic : C.icon) : "💫";
       $("rTitle").textContent = won ? (P === PRACTICE ? "Practice done!" : "You did it: " + P.n + (/[?!]$/.test(P.n) ? "" : "!")) : "So close! Try again!";
       $("rStars").textContent = (won && P !== PRACTICE) ? starText(stars) : "";

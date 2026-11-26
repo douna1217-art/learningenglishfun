@@ -3,9 +3,10 @@
 <title>Potion Lab</title>
 <meta name="theme-color" content="#6a4fc4">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<meta name="description" content="Potion Lab: hold to pour, stop right on the line! Brew potions in liters, grams and kilograms to cure Sparky the little dragon. Grade 3 measuring in English.">
+<meta name="description" content="Potion Lab: hold to pour, stop right on the line! Brew potions in liters, grams and kilograms to help your pet (or Sparky the little dragon). Grade 3 measuring in English.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 </head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261126a"></script>
 <script src="engine.js"></script>
 <script>
 (function(){
@@ -85,6 +86,37 @@
   }
   function glug(frac,dir){ var now=performance.now(); if(now-lastGlug<110) return; lastGlug=now; blip((dir>0?260:420)+520*Math.max(0,Math.min(1,frac))+Math.random()*40,.09,"sine",.09); }
   function ding(){ blip(1320,.12,"triangle",.1); try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }
+
+  // ---------- the child's own pet (from the home page); Sparky the dragon when there is none ----------
+  function bridge(){ try{ if(window.parent&&window.parent!==window&&window.parent.__petBridge) return window.parent.__petBridge; }catch(e){} return null; }
+  function myPet(){
+    var b=bridge(), p=null;
+    if(b){ try{ p=b.pet(); }catch(e){} }
+    else{ try{ var s0=JSON.parse(localStorage.getItem("lef_pet_v1")); if(s0&&s0.type){ if(s0.type==="lizard") s0.type="dino"; p={type:s0.type,name:s0.name,eq:s0.eq||{},hunger:s0.hunger}; } }catch(e){} }
+    if(!p||!p.type||typeof window.petSvg!=="function"||!window.PETS||!window.PETS[p.type]) return null;
+    p.name=p.name||"Your pet"; p.eq=p.eq||{}; return p;
+  }
+  function helper(){ var p=myPet(); return p?p.name:"Sparky"; }
+  function petPic(p,mood,size){ try{ return window.petSvg(p.type,mood,p.eq,"icon","width:"+size+"px;height:"+size+"px;display:block"); }catch(e){ return "🐉"; } }
+  function wearPrize(id){
+    // the bridge updates the home page's pet; opened on its own, the saved pet is changed directly
+    var b=bridge();
+    if(b){ try{ return b.wear(id); }catch(e){ return false; } }
+    try{ var s0=JSON.parse(localStorage.getItem("lef_pet_v1")), it=window.ITEMS&&window.ITEMS[id]; if(!s0||!s0.type||!it) return false;
+      s0.eq=s0.eq||{}; if(s0.eq[it.slot]===id) delete s0.eq[it.slot]; else s0.eq[it.slot]=id; localStorage.setItem("lef_pet_v1",JSON.stringify(s0)); return s0.eq[it.slot]===id; }catch(e){ return false; }
+  }
+  function feedPet(n){
+    var b=bridge();
+    if(b){ try{ b.feed(n); }catch(e){} return; }
+    try{ var s0=JSON.parse(localStorage.getItem("lef_pet_v1")); if(s0&&s0.type){ s0.hunger=Math.min(100,(+s0.hunger||0)+n); localStorage.setItem("lef_pet_v1",JSON.stringify(s0)); } }catch(e){}
+  }
+  var PRIZES=(window.GamePrizes?GamePrizes.forGame("potion"):[]).filter(function(p){ return window.ITEMS&&window.ITEMS[p.id]; });
+  function wearing(id){ var p=myPet(), it=window.ITEMS&&window.ITEMS[id]; return !!(p&&it&&p.eq[it.slot]===id); }
+  function heroHtml(){
+    var p=myPet();
+    if(!p) return '<div style="font-size:3.2rem;line-height:1">🐉</div><div style="font-size:.9rem;font-weight:900;margin-top:4px;text-shadow:none;color:#fff">Adopt a pet on the home page and it will come to the lab!<br>在首页领养宠物，它就会来实验室帮忙！</div>';
+    return '<div style="display:flex;justify-content:center">'+petPic(p,"happy",110)+'</div><div style="font-size:.95rem;font-weight:900;color:#fff">'+p.name+' is your lab helper! Win prizes for '+p.name+' in the shop.</div>';
+  }
 
   // ---------- Sparky says the order (the browser's English voice) ----------
   var voice=null;
@@ -203,10 +235,11 @@
   function dragon(ui,happy,fx){
     var r=ui.round(), dots="", got=r.correct+(happy?1:0);   // (the right answer just given is not counted yet)
     for(var i=0;i<r.total;i++) dots+=i<got?"💚":"🤍";
-    var say=happy?(fx?fx.e[2]:"Ahh, much better!"):(P&&P.q?order(P.q):"Hic! Hic!");
-    return '<div class="dragon"><span class="dr'+(happy?" happy fx-"+(fx?fx.e[3]:""):"")+'" style="'+(happy&&fx&&fx.e[3]==="color"?"filter:drop-shadow(0 0 6px "+fx.col+") hue-rotate(140deg)":"")+'">'+(happy?"🐲":"🐉")+
+    var say=happy?(fx?fx.e[2]:"Ahh, much better!"):(P&&P.q?order(P.q):"Hic! Hic!"), pet=myPet();
+    var pic=pet?petPic(pet,happy?"excited":"surprised",64):(happy?"🐲":"🐉");
+    return '<div class="dragon"><span class="dr'+(pet?" pet":"")+(happy?" happy fx-"+(fx?fx.e[3]:""):"")+'" style="'+(happy&&fx&&fx.e[3]==="color"?"filter:drop-shadow(0 0 6px "+fx.col+") hue-rotate(140deg)":"")+'">'+pic+
       (happy&&fx?'<span class="fxe">'+fx.e[1]+'</span>':"")+'</span><span class="bubble">'+(happy?"":"Hic! ")+say+'</span>'+
-      (happy?"":'<button type="button" class="say" id="sayBtn" aria-label="Say it again">🔊</button>')+'<div class="cure">Sparky feels better: '+dots+'</div></div>';
+      (happy?"":'<button type="button" class="say" id="sayBtn" aria-label="Say it again">🔊</button>')+'<div class="cure">'+helper()+' feels better: '+dots+'</div></div>';
   }
 
   // ---------- one question on the screen ----------
@@ -236,7 +269,7 @@
         hb.addEventListener("contextmenu",function(e){ e.preventDefault(); });
       });
       document.getElementById("serveBtn").onclick=serve;
-      ui.hint("Listen to Sparky (🔊), find the right line, hold + for more and − for less. Then Serve.");
+      ui.hint("Listen to "+helper()+" (🔊), find the right line, hold + for more and − for less. Then Serve.");
       if(q.kind==="add") ui.words("First stop at "+q.a+" liters.");
       if(q.kind==="batch") ui.words(q.n+" spells × "+q.p+" kilograms = ?");
       return;
@@ -281,6 +314,7 @@
       var pot=potionOf(q), isNew=!book[pot.id];
       d.outerHTML=dragon(P.ui,true,{e:pot.e,col:pot.col});
       blip(660,.12,"triangle",.1); setTimeout(function(){ blip(990,.16,"triangle",.1); },120);
+      feedPet(4);
       speak(pot.e[2].replace(/[^A-Za-z ,.!'?…]/g,""));
       if(isNew){ book[pot.id]={name:pot.name,col:pot.col,e:pot.e[1],recipe:pot.recipe}; try{ localStorage.setItem(BOOK,JSON.stringify(book)); }catch(e){}
         var lab=document.querySelector(".lab"); if(lab) lab.insertAdjacentHTML("afterend",'<div class="newcard"><span style="background:'+pot.col+'">'+pot.e[1]+'</span><div><i>🆕 New card for your Potion Book!</i><b>'+pot.name+'</b><small>'+pot.recipe+'</small></div></div>'); }
@@ -310,7 +344,7 @@
     if(q.kind==="unit") return "Use "+(q.h?"kilograms: a "+HEAVY[q.o][1]+" is heavy.":"grams: a "+LIGHT[q.o][1]+" is light.");
     var e=EST[q.i]; return e[1].charAt(0).toUpperCase()+e[1].slice(1)+" is about "+e[2]+" "+(e[3]==="kg"?"kilograms":e[3]==="g"?"grams":"liters")+".";
   }
-  function rightText(q){ return POURING[q.kind]?pickOne(["✨ Perfect potion!","✨ Right on the line!","✨ Sparky stopped hiccuping!","✨ Magic!"]):pickOne(["Great job!","You got it!","Well done!"]); }
+  function rightText(q){ return POURING[q.kind]?pickOne(["✨ Perfect potion!","✨ Right on the line!","✨ "+helper()+" stopped hiccuping!","✨ Magic!"]):pickOne(["Great job!","You got it!","Well done!"]); }
   function wrongText(q,given){
     if(given==="overflow") return "🫧 Too much! The potion bubbled over!";
     if(given.indexOf("phase1")===0) return "💨 The first color was not right…";
@@ -360,10 +394,10 @@
     if(q.kind==="unit") return (q.h?HEAVY[q.o][1]:LIGHT[q.o][1])+": "+right(q);
     var e=EST[q.i]; return e[1]+" ≈ "+e[2]+" "+e[3];
   }
-  M.run({title:"Potion Lab",icon:"🧪",tagline:"Sparky the little dragon has the hiccups! Brew potions to make him better.",store:"potionLab.v2",
+  M.run({title:"Potion Lab",icon:"🧪",tagline:helper()+" has the hiccups! Brew potions to help.",store:"potionLab.v2",gameId:"potion-lab",hero:heroHtml,
     coin:{e:"💎",n:"crystals"},heart:"💜",leave:"Leave the lab",levelWord:"potion",doneWord:"Potions made",ownedWord:"In your lab",fastMs:15000,
     theme:{brand:"#6a4fc4",dark:"#4a3394",bg:"#f3efff",line:"#e2dafa",ink:"#2c2250",muted:"#6e6394",hero:"linear-gradient(180deg,#6a4fc4,#b38cf0)"},
-    css:'.dragon{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0 4px}.dragon .cure{grid-column:1/-1}.dragon .bubble{min-width:0;line-height:1.3}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.happy{animation:none}'+
+    css:'.dragon{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0 4px}.dragon .cure{grid-column:1/-1}.dragon .bubble{min-width:0;line-height:1.3}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.pet{width:64px;height:64px}.dragon .dr.pet svg{overflow:hidden}.dragon .dr.happy{animation:none}'+
       '.dragon .bubble{background:var(--bg);border-radius:14px;padding:4px 10px;font-weight:900;font-size:.95rem}.dragon .cure{width:100%;font-weight:800;font-size:.82rem;color:var(--muted);letter-spacing:1px}'+
       '.lab{position:relative;margin-top:2px;padding-top:30px}.bottle{position:absolute;left:50%;top:-4px;transform:translateX(-50%) rotate(140deg);font-size:2.1rem;z-index:2}'+
       '.stream{position:absolute;left:calc(50% - 4px);top:24px;width:8px;height:70px;border-radius:4px;opacity:0;transition:opacity .1s;z-index:1}'+
@@ -387,11 +421,13 @@
       '@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-30px);opacity:0}}@keyframes glow{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px #ffd84a) brightness(1.3)}}'+
       '@keyframes tiny{0%,100%{transform:none}40%,60%{transform:scale(.45)}}@keyframes giant{0%,100%{transform:none}40%,60%{transform:scale(1.7)}}@keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}'+
       '.serve:disabled{opacity:.45}@keyframes hic{0%,80%,100%{transform:none}88%{transform:translateY(-8px) rotate(-6deg)}}',
-    levels:LEVELS,boss:{n:"Cure Sparky",ic:"🐲",desc:"Every kind of potion. Make Sparky well again!"},practice:{n:"Practice Table",ic:"📜"},
-    shop:[{id:"flask",e:"⚗️",n:"Flask",p:10},{id:"tube",e:"🧪",n:"Test tube",p:10},{id:"candle",e:"🕯️",n:"Candle",p:15},{id:"book",e:"📖",n:"Spell book",p:20},
-          {id:"owl",e:"🦉",n:"Owl",p:30},{id:"frog",e:"🐸",n:"Frog",p:30},{id:"crystal",e:"🔮",n:"Crystal ball",p:45},{id:"moon",e:"🌙",n:"Moon lamp",p:50},
-          {id:"hat",e:"🎩",n:"Magic hat",p:60},{id:"wand",e:"🪄",n:"Magic wand",p:80}],
-    shopTitle:"Lab shop: crystals buy magic things",shopCn:"用水晶买魔法道具",emptyOwned:"🐉",
+    levels:LEVELS,boss:{n:"Cure "+helper(),ic:"🐲",desc:"Every kind of potion. Make "+helper()+" well again!"},practice:{n:"Practice Table",ic:"📜"},
+    shop:PRIZES.map(function(p){ return {id:p.id,n:p.name,p:p.price,e:"🎁",icon:'<span style="display:block;width:64px;height:44px;margin:0 auto">'+GamePrizes.thumb(p.id)+'</span>'}; }),
+    isOwned:function(it){ return window.GamePrizes&&GamePrizes.won(it.id); },
+    onBuy:function(it){ GamePrizes.win(it.id); if(myPet()) wearPrize(it.id); },
+    useOwned:function(it){ if(!myPet()){ alert("Adopt a pet on the home page first, then it can wear this! 先在首页领养宠物，它才能穿戴。"); return; } wearPrize(it.id); },
+    ownedText:function(it){ return wearing(it.id)?"✓ Wearing":"Tap to wear"; },
+    shopTitle:"Prizes for your pet: crystals buy things to wear",shopCn:"用水晶给宠物买穿戴的奖励（首页宠物也能穿）",
     kinds:{pour:"Pour to a line (read liters)",add:"Two-part recipes (+ on a scale)",sub:"Pour out (− on a scale)",scale:"Weigh in grams and kilograms",batch:"Big batches (× with kilograms)",unit:"Grams or kilograms?",est:"Estimate mass and volume"},
     panel:{title:"📖 Potion Book",cn:"药水图鉴：做出完美的药水来收集卡片",html:bookHtml},
     fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss,rightText:rightText,wrongText:wrongText});

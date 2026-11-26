@@ -530,7 +530,7 @@ var SHELF={},ALL=[];
 <script src="motion-guard.js?v=20261015a"></script><script src="pet-art.js?v=20261015b"></script><script src="subject-outfits.js?v=20261113a"></script><script src="pet-rig.js?v=20261015e"></script>
 <script src="pet-fest.js?v=20261015c"></script>
 <script src="pet-sound.js?v=20261014c"></script>
-<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261113b"></script><script src="weekly-themes-data.js?v=20261113a"></script><script src="weekly-themes.js?v=20261113a"></script><script src="next-book.js?v=20261114a"></script><script src="reading-buddy.js?v=20261126a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
+<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261113b"></script><script src="weekly-themes-data.js?v=20261113a"></script><script src="weekly-themes.js?v=20261113a"></script><script src="next-book.js?v=20261114a"></script><script src="reading-buddy.js?v=20261126a"></script><script src="sightwords-prizes.js?v=20261104a"></script><script src="game-prizes.js?v=20261126a"></script>
 <script src="sightwords-data.js?v=20261022a"></script><script src="sightwords-data2.js?v=20261014a"></script><script src="sightwords-data3.js?v=20261016a"></script><script src="sightwords-data4.js?v=20261017a"></script><script src="sightwords-data5.js?v=20261018a"></script><script src="sightwords-data6.js?v=20261019a"></script><script src="sightwords-data7.js?v=20261020a"></script><script src="sightwords-data8.js?v=20261022a"></script>
 <script>
 /* The sight-words code (about 1.2 MB: the pictures, the games, the monsters) is fetched once the page is up, so the book pages open at once;
@@ -815,6 +815,9 @@ function rewardCard(id){var it=ITEMS[id],un=Badges.unlocked(id),on=st.eq[it.slot
  return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">Badge: '+Badges.badgeName(it.badge)+'</span>',on,!un);}
 function prizeCard(id){var it=ITEMS[id],P=SWPrizes.get(id),un=SWPrizes.unlocked(id),on=st.eq[it.slot]===id;
  return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">'+(P.label||'Chest: '+P.world)+'</span>',on,!un);}
+/* prizes of the math practice games: locked until won in the game, then worn like any other accessory */
+function gamePrizeCard(id){var it=ITEMS[id],P=GamePrizes.get(id),un=GamePrizes.won(id),on=st.eq[it.slot]===id;
+ return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,un?(on?'<span class="st" style="color:#2E6B43">Wearing ✓</span>':'<span class="st">Unlocked 已解锁</span>'):'<span class="st" style="color:#6A48E8">Potion Lab: 💎 '+P.price+'</span>',on,!un);}
 function festDecoCard(id){var d=FEST.deco(id),own=have(id),on=(st.home.fest||[]).indexOf(id)>=0;
  return shopCard('data-fdeco="'+id+'"','<svg viewBox="0 0 60 60" aria-hidden="true">'+softSvg(d.icon)+'</svg>',d.name,d.cn,priceTag(own,on,d.price,'In the home','Owned · tap to place'),on,!own&&st.stars<d.price);}
 function renderShop(){
@@ -833,6 +836,7 @@ function renderShop(){
     return shopCard('data-id="'+id+'"',thumb(id),it.name,it.cn,priceTag(own,on,it.price,'Wearing'),on,dis);}).join('');});
   if(window.Badges&&Badges.rewardIds().length)h+='<h4 class="shsec">Badge rewards 徽章奖励</h4>'+Badges.rewardIds().map(rewardCard).join('');
   if(window.SWPrizes&&SWPrizes.ids().length)h+='<h4 class="shsec">Chest and monster prizes 宝箱和怪兽奖励</h4>'+SWPrizes.ids().map(prizeCard).join('');
+  if(window.GamePrizes&&GamePrizes.ids().length)h+='<h4 class="shsec">Math game prizes 数学游戏奖励</h4>'+GamePrizes.ids().filter(function(id){return ITEMS[id];}).map(gamePrizeCard).join('');
   if(col.outfits.length+col.hats.length)h+='<h4 class="shsec">Festival collection 节日收藏</h4>'+col.outfits.concat(col.hats).map(clothCard).join('');
  }else if(st.tab==='toys'){nt.textContent=noCn('Toys sit in the home. Tap a toy in the picture to play! 点一下画面里的玩具，宠物会跳起来。');
   h=TOYS.map(function(id){var it=ITEMS[id],own=have(id),on=st.toys.indexOf(id)>=0,dis=!own&&st.stars<it.price;
@@ -845,7 +849,8 @@ function renderShop(){
   if(col2.decos.length)h+='<h4 class="shsec">Festival collection 节日收藏</h4>'+col2.decos.map(festDecoCard).join('');}
  el.innerHTML=noCn(h);Array.prototype.forEach.call(el.querySelectorAll('.food'),function(b){b.onclick=function(e){if(b.dataset.deco)buyDeco(b.dataset.deco,e);else if(b.dataset.fdeco)buyFestDeco(b.dataset.fdeco,e);else buyItem(b.dataset.id,e);};});}
 /* clothes, hats, glasses, scarves, toys: ITEMS holds the accessories and toys, OUTFITS the clothes (slot 'body') */
-function buyItem(id,e){var it=ITEMS[id]||OUTFITS[id],own=have(id)||!!(window.Badges&&Badges.unlocked(id))||!!(window.SWPrizes&&SWPrizes.unlocked(id));
+function buyItem(id,e){var it=ITEMS[id]||OUTFITS[id],own=have(id)||!!(window.Badges&&Badges.unlocked(id))||!!(window.SWPrizes&&SWPrizes.unlocked(id))||!!(window.GamePrizes&&GamePrizes.won(id));
+ if(window.GamePrizes&&GamePrizes.isPrize(id)&&!own)return;   /* game prizes are won in the games, not bought */
  if(window.Badges&&Badges.isReward(id)&&!own)return;   /* badge rewards cannot be bought */
  if(window.SWPrizes&&SWPrizes.isPrize(id)&&!own)return;   /* chest prizes cannot be bought either */
  if(!own){if(FEST.festOf(id)&&!FEST.isActiveItem(id))return;   /* festival things can be bought only while their festival is on */if(st.stars<it.price){say('You need '+(it.price-st.stars)+' more stars. Read a book!');return;}st.stars-=it.price;st.owned.push(id);burst(e.clientX,e.clientY);snd();
@@ -1192,6 +1197,10 @@ window.addEventListener('load',function(){if(window.Badges)Badges.soon(2500);});
   gift:function(n){st.stars+=n;save();try{render();}catch(e){}try{if(window.Badges){Badges.recordStars(n);Badges.soon();}}catch(e){}return n;},
   wear:function(id){var it=window.ITEMS&&ITEMS[id];if(!ART_OK||!st.type||!it)return false;st.eq[it.slot]=id;save();try{render();renderHomePet();}catch(e){}return true;}});
  var b=$('swBtn');if(b)b.addEventListener('click',function(e){e.preventDefault();snd();SightWords.open();});})();
+/* the practice games (math-game/*.html, in the reader's frame) show the child's pet, dress it with the prizes won there and feed it a little */
+window.__petBridge={pet:function(){if(!ART_OK||!st.type)return null;return {type:st.type,name:st.name,eq:st.eq,hunger:st.hunger};},
+ wear:function(id){var it=window.ITEMS&&ITEMS[id];if(!ART_OK||!st.type||!it)return false;if(st.eq[it.slot]===id)delete st.eq[it.slot];else st.eq[it.slot]=id;save();try{renderHomePet();}catch(e){}return st.eq[it.slot]===id;},
+ feed:function(n){if(!ART_OK||!st.type)return;st.hunger=Math.min(100,(+st.hunger||0)+n);save();try{renderHomePet();}catch(e){}}};
 window.addEventListener('load',function(){var prev=window.__trackEvent;window.__trackEvent=function(n,p){if(n==='review_correct'){try{reviewStar();}catch(e){}}if(prev){try{return prev.apply(this,arguments);}catch(e){}}};});
 /* ---- pet: gets sleepy over time, saved with a timestamp ---- */
 save=function(){if(!ART_OK)return;try{localStorage.setItem('lef_pet_v1',JSON.stringify({type:st.type,ci:0,name:st.name,hunger:st.hunger,stars:st.stars,owned:st.owned,eq:st.eq,toys:st.toys,home:st.home,last:Date.now()}));}catch(e){}};
@@ -1296,7 +1305,7 @@ window.addEventListener('resize',layoutBookcase);layoutBookcase();
 <script src="stats.js"></script>
 <script src="feedback.js"></script>
 <script src="placement-data.js"></script>
-<script src="state-sync.js?v=20261102a"></script>
+<script src="state-sync.js?v=20261126a"></script>
 <script src="book-finder.js?v=20261112a"></script><script src="parent-report.js?v=20261112a"></script><script src="report-card.js?v=20261113a"></script><script src="account.js?v=20261113a"></script>
 <script src="signin-hint.js?v=20261113c"></script>
 <script src="placement.js"></script>
