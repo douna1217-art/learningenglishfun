@@ -1006,15 +1006,26 @@ var SHELF_GAMES={'Math|Grade 3':[
  {id:'time',e:'🚂',file:'math-game/time.html',name:'Train Time',title:'Telling Time Practice',sub:'Read the clocks and keep the trains on time! 认识时间',
   art:'<div style="font-size:64px;line-height:1">🕰️</div><div style="font-size:30px;letter-spacing:2px">🚂🚃🚃</div>',q:'7:15 = ?',bg:'linear-gradient(180deg,#4f74d6 0 66%,#8a6a4a 66% 68%,#b7c3d9 68% 72%,#7d8aa8 72%)'},
  {id:'area',e:'🌻',file:'math-game/area.html',name:'Garden Builder',title:'Area & Perimeter Practice',sub:'Plant the beds and build the fences! 面积和周长',
-  art:'<div style="font-size:64px;line-height:1">🌻</div><div style="font-size:30px;letter-spacing:4px">🟩🟩🟩🚧</div>',q:'4 × 3 = ?',bg:'linear-gradient(180deg,#8fd0f2 0 38%,#7bc35a 38%)'}
+  art:'<div style="font-size:64px;line-height:1">🌻</div><div style="font-size:30px;letter-spacing:4px">🟩🟩🟩🚧</div>',q:'4 × 3 = ?',bg:'linear-gradient(180deg,#8fd0f2 0 38%,#7bc35a 38%)'},
+ {id:'numbers',e:'🎢',file:'math-game/coaster.html',name:'Number Park',title:'Rounding, Adding & Subtracting',sub:'Ride the coaster and count the tickets! 四舍五入和加减法',
+  art:'<div style="font-size:64px;line-height:1">🎢</div><div style="font-size:30px;letter-spacing:4px">🎟️🎡🍿</div>',q:'46 → 50',bg:'linear-gradient(180deg,#ff8fb8,#ffc6a8)'},
+ {id:'graphs',e:'🦁',file:'math-game/graphs.html',name:'Zoo Reporter',title:'Graphs Practice',sub:'Read the zoo graphs and write the news! 统计图',
+  art:'<div style="font-size:64px;line-height:1">📊</div><div style="font-size:30px;letter-spacing:4px">🦁🐘🦒🐧</div>',q:'🐾 = 5',bg:'linear-gradient(180deg,#3fa79f,#8fd0a0)'},
+ {id:'measure',e:'🧪',file:'math-game/measure.html',name:'Potion Lab',title:'Liters & Kilograms Practice',sub:'Measure and mix magic potions! 容量和质量',
+  art:'<div style="font-size:64px;line-height:1">🧪</div><div style="font-size:30px;letter-spacing:4px">⚖️🔮🧙</div>',q:'5 L · 2 kg',bg:'linear-gradient(180deg,#6a4fc4,#b38cf0)'},
+ {id:'shapes',e:'🔷',file:'math-game/shapes.html',name:'Shape Sorter',title:'Quadrilaterals Practice',sub:'Sort the shapes and solve shape riddles! 四边形',
+  art:'<div style="font-size:64px;line-height:1">🔷</div><div style="font-size:30px;letter-spacing:4px">🟦🔶🟨🪁</div>',q:'4 sides?',bg:'linear-gradient(180deg,#3f8fd8,#7cc0f0)'}
 ]};
 function shelfGames(sj,g){return SHELF_GAMES[sj+'|'+g]||[];}
 /* the reward game of a book: offered in the "Book finished!" window (reading-buddy.js) the first time the book is finished */
 var BOOK_GAMES={'meet-multiplication':'times-tables','arrays-and-multiplication':'times-tables','multiplying-by-multiples-of-ten':'times-tables','patterns-in-the-multiplication-table':'times-tables','the-distributive-property':'times-tables',
  'division-as-sharing':'division','multiplication-division-fact-families':'division','finding-the-unknown-number':'division',
- 'comparing-fractions':'fractions','equivalent-fractions-and-whole-numbers':'fractions','fractions-on-a-number-line':'fractions','partitioning-shapes-into-equal-areas':'fractions','line-plots-with-halves-and-fourths':'fractions',
+ 'comparing-fractions':'fractions','equivalent-fractions-and-whole-numbers':'fractions','fractions-on-a-number-line':'fractions','partitioning-shapes-into-equal-areas':'fractions',
  'telling-time-to-the-minute':'time','elapsed-time':'time',
- 'understanding-area':'area','relating-area-to-multiplication':'area','perimeter-around-a-shape':'area'};
+ 'understanding-area':'area','relating-area-to-multiplication':'area','perimeter-around-a-shape':'area',
+ 'adding-and-subtracting-within-1000':'numbers','rounding-to-ten-and-hundred':'numbers','two-step-problems-bigger-numbers':'numbers',
+ 'scaled-bar-graphs':'graphs','scaled-picture-graphs':'graphs','line-plots-with-halves-and-fourths':'graphs',
+ 'measuring-liquid-volume-and-mass':'measure','quadrilaterals-and-their-attributes':'shapes'};
 function gameForBook(b){var id=b&&BOOK_GAMES[b.slug],out=null;if(!id)return null;Object.keys(SHELF_GAMES).forEach(function(k){SHELF_GAMES[k].forEach(function(x){if(x.id===id)out=x;});});return out;}
 function gameCard(c,x,i){return '<button class="bk ttgame" data-game="'+i+'" style="box-shadow:0 7px 0 '+c[1]+'55"><div style="aspect-ratio:700/520;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:'+x.bg+'">'+x.art+'<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:30px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18)">'+x.q+'</div></div><div style="padding:14px 16px 18px;flex:1;display:flex;flex-direction:column"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:22px;line-height:1.1">'+x.title+'</div><div style="font-weight:700;color:#4A5878;margin-top:4px;font-size:15px">'+x.sub+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px"><span style="background:#FFC93C;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">🎮 Game 游戏</span></div></div></button>';}
 function openGame(x){currentFile=null;$('readerTitle').textContent=x.name;$('readerFrame').src=x.file;$('readerOverlay').style.display='flex';document.body.style.overflow='hidden';

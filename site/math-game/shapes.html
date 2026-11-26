@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shape Sorter</title>
+<meta name="theme-color" content="#2f7fc8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Shape Sorter: find the quadrilaterals, name squares, rectangles, rhombuses and trapezoids, count right angles and solve shape riddles. Grade 3 math in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+</head><body>
+<script src="engine.js"></script>
+<script>
+(function(){
+  "use strict";
+  var M=MathGame, pickOne=M.pickOne, rnd=M.rnd;
+  function Q(kind,d){ d.kind=kind; d.key=kind+"|"+JSON.stringify(d); return d; }
+  function fromKey(k){ var i=k.indexOf("|"); var d=JSON.parse(k.slice(i+1)); d.key=k; return d; }
+
+  // ---------- the shapes ----------
+  // corners in a 120 x 120 box; rt: the corners that are right angles
+  var SH={
+    square:{n:"square",sides:4,pts:[[22,22],[98,22],[98,98],[22,98]],rt:[0,1,2,3],eq:true},
+    rectangle:{n:"rectangle",sides:4,pts:[[8,32],[112,32],[112,88],[8,88]],rt:[0,1,2,3],eq:false},
+    rhombus:{n:"rhombus",sides:4,pts:[[60,8],[104,60],[60,112],[16,60]],rt:[],eq:true},
+    parallelogram:{n:"parallelogram",sides:4,pts:[[36,30],[112,30],[84,92],[8,92]],rt:[],eq:false},
+    trapezoid:{n:"trapezoid",sides:4,pts:[[38,30],[82,30],[112,92],[8,92]],rt:[],eq:false},
+    righttrap:{n:"trapezoid",sides:4,pts:[[18,28],[78,28],[110,92],[18,92]],rt:[0,3],eq:false},
+    quad:{n:"quadrilateral",sides:4,pts:[[14,26],[96,14],[110,92],[30,106]],rt:[],eq:false},
+    triangle:{n:"triangle",sides:3,pts:[[60,12],[110,102],[10,102]],rt:[],eq:false},
+    pentagon:{n:"pentagon",sides:5,pts:poly(5),rt:[],eq:true},
+    hexagon:{n:"hexagon",sides:6,pts:poly(6),rt:[],eq:true},
+    circle:{n:"circle",sides:0,pts:[],rt:[],eq:false}
+  };
+  function poly(n){ var a=[]; for(var i=0;i<n;i++){ var t=-Math.PI/2+i*2*Math.PI/n; a.push([60+50*Math.cos(t),62+50*Math.sin(t)]); } return a; }
+  var QUADS=["square","rectangle","rhombus","parallelogram","trapezoid","righttrap","quad"], NOTQ=["triangle","pentagon","hexagon","circle"];
+  var COLS=["#5fb7d4","#f5b301","#7cc47f","#e8916d","#a493d6","#ff8fb1"];
+  function shapeSvg(id,size,col,marks){
+    var s=SH[id], c=col||COLS[0], h='<svg viewBox="0 0 120 120" width="'+size+'" height="'+size+'" style="display:block;margin:auto">';
+    if(id==="circle") h+='<circle cx="60" cy="60" r="48" fill="'+c+'" stroke="#1f3a5a" stroke-width="4"/>';
+    else h+='<polygon points="'+s.pts.map(function(p){ return p[0].toFixed(1)+","+p[1].toFixed(1); }).join(" ")+'" fill="'+c+'" stroke="#1f3a5a" stroke-width="4" stroke-linejoin="round"/>';
+    if(marks) s.rt.forEach(function(i){ var p=s.pts[i], a=s.pts[(i+1)%s.pts.length], b=s.pts[(i+s.pts.length-1)%s.pts.length];
+      var u=[(a[0]-p[0]),(a[1]-p[1])], v=[(b[0]-p[0]),(b[1]-p[1])], lu=Math.hypot(u[0],u[1]), lv=Math.hypot(v[0],v[1]); u=[u[0]/lu*11,u[1]/lu*11]; v=[v[0]/lv*11,v[1]/lv*11];
+      h+='<path d="M'+(p[0]+u[0])+" "+(p[1]+u[1])+" L"+(p[0]+u[0]+v[0])+" "+(p[1]+u[1]+v[1])+" L"+(p[0]+v[0])+" "+(p[1]+v[1])+'" fill="none" stroke="#c0392b" stroke-width="3"/>'; });
+    return h+'</svg>';
+  }
+
+  // ---------- the questions ----------
+  var NAMES=["square","rectangle","rhombus","trapezoid","parallelogram"];
+  function quadQ(){ var not=Math.random()<.4, pick; if(not){ pick=M.shuffle(QUADS.slice()).slice(0,3).concat([pickOne(NOTQ)]); } else { pick=M.shuffle(NOTQ.slice()).slice(0,3).concat([pickOne(QUADS)]); }
+    return Q("quad",{s:M.shuffle(pick),not:not?1:0,c:rnd(6)}); }
+  function nameQ(){ return Q("name",{s:pickOne(["square","rectangle","rhombus","trapezoid","righttrap","parallelogram"]),c:rnd(6)}); }
+  function rightQ(){ return Q("right",{s:pickOne(["square","rectangle","rhombus","trapezoid","righttrap","parallelogram","triangle"]),c:rnd(6)}); }
+  function equalQ(){ return Q("equal",{s:pickOne(["square","rectangle","rhombus","trapezoid","parallelogram","rectangle","square","rhombus"]),c:rnd(6)}); }
+  var FACTS=[["A square is a rectangle.",1,"A rectangle has 4 right angles. A square has 4 right angles too, so a square is a special rectangle."],
+    ["Every rectangle is a square.",0,"A square needs 4 equal sides. Many rectangles have 2 long sides and 2 short sides, so they are not squares."],
+    ["A square is a rhombus.",1,"A rhombus has 4 equal sides. A square has 4 equal sides too, so a square is a special rhombus."],
+    ["A rhombus always has 4 right angles.",0,"A rhombus has 4 equal sides, but its corners are usually not square corners. Only a square is both."],
+    ["A rectangle has 4 right angles.",1,"Yes: every corner of a rectangle is a square corner (a right angle)."],
+    ["A trapezoid has 4 right angles.",0,"A trapezoid has one pair of sides that go the same way. It cannot have 4 right angles."],
+    ["All quadrilaterals have 4 sides.",1,"Quad means four: every quadrilateral has 4 sides and 4 corners."],
+    ["A triangle is a quadrilateral.",0,"A triangle has only 3 sides. A quadrilateral needs 4."],
+    ["A rhombus has 4 equal sides.",1,"Yes: all 4 sides of a rhombus are the same length."],
+    ["Some rectangles are squares.",1,"A rectangle with 4 equal sides is a square, so some rectangles are squares."],
+    ["A pentagon is a quadrilateral.",0,"A pentagon has 5 sides. A quadrilateral has exactly 4."],
+    ["A square has 4 equal sides and 4 right angles.",1,"Yes: that is exactly what makes a square."]];
+  function truthQ(){ return Q("truth",{f:rnd(FACTS.length)}); }
+  var RIDDLES=[["I have 4 sides. All my sides are the same length. All my corners are right angles.","square"],
+    ["I have 4 sides. All my sides are the same length, but I have no right angles.","rhombus"],
+    ["I have 4 right angles. Two of my sides are long and two are short.","rectangle"],
+    ["I have 4 sides. Only one pair of my sides goes the same way.","trapezoid"],
+    ["I have 4 sides. My opposite sides go the same way and are the same length, but I have no right angles and my sides are not all equal.","parallelogram"],
+    ["I have only 3 sides and 3 corners. I am not a quadrilateral.","triangle"],
+    ["I am a quadrilateral that is also a rectangle and also a rhombus.","square"]];
+  function riddleQ(){ return Q("riddle",{r:rnd(RIDDLES.length)}); }
+  var LEVELS=[
+    {id:"s1",n:"Four Sides?",ic:"4️⃣",gen:quadQ},
+    {id:"s2",n:"Name That Shape",ic:"🔷",gen:nameQ},
+    {id:"s3",n:"Right Angles",ic:"📐",gen:rightQ},
+    {id:"s4",n:"Equal Sides",ic:"📏",gen:equalQ},
+    {id:"s5",n:"True or False?",ic:"✅",gen:truthQ},
+    {id:"s6",n:"Shape Riddles",ic:"🕵️",gen:riddleQ}
+  ];
+
+  // ---------- answers ----------
+  function right(q){
+    if(q.kind==="quad"){ for(var i=0;i<4;i++){ var isQ=SH[q.s[i]].sides===4; if(q.not?!isQ:isQ) return String(i); } }
+    if(q.kind==="name") return SH[q.s].n;
+    if(q.kind==="right") return String(SH[q.s].rt.length);
+    if(q.kind==="equal") return SH[q.s].eq?"yes":"no";
+    if(q.kind==="truth") return FACTS[q.f][1]?"true":"false";
+    return RIDDLES[q.r][1];
+  }
+  var DEF={square:"4 equal sides and 4 right angles.",rectangle:"4 right angles. The sides across from each other are equal: 2 long and 2 short.",
+    rhombus:"4 equal sides, but no right angles. It looks like a pushed-over square.",parallelogram:"the sides across from each other are equal and go the same way, but there are no right angles.",
+    trapezoid:"only one pair of sides that go the same way (the top and the bottom).",triangle:"3 sides and 3 corners.",quadrilateral:"4 sides and 4 corners."};
+  function render(q,ui){
+    var c=COLS[q.c||0];
+    if(q.kind==="quad"){
+      ui.task("Which shape is "+(q.not?"<b>NOT</b> a quadrilateral":"a <b>quadrilateral</b>")+"?");
+      ui.stage('<div style="text-align:center;font-weight:800;color:#5a6f88;margin:6px 0">A quadrilateral has 4 sides.</div>');
+      ui.choices(q.s.map(function(id,i){ return {html:shapeSvg(id,82,COLS[(i+q.c)%6]),val:i}; }));
+    }else if(q.kind==="name"){
+      ui.task("What is the name of this shape?");
+      ui.stage('<div style="margin:6px 0">'+shapeSvg(q.s,170,c)+'</div>');
+      // a square is also a rectangle, a rhombus and a parallelogram (and so on): those names are not offered as wrong answers
+      var ALSO={square:["rectangle","rhombus","parallelogram"],rectangle:["parallelogram"],rhombus:["parallelogram"]};
+      var right1=SH[q.s].n, also=ALSO[right1]||[], pool=NAMES.concat(["triangle","pentagon"]).filter(function(n){ return n!==right1&&also.indexOf(n)<0; });
+      var opts=[right1].concat(M.shuffle(pool).slice(0,3));
+      ui.choices(M.shuffle(opts).map(function(n){ return {html:n,val:n,cls:"text"}; }));
+    }else if(q.kind==="right"){
+      ui.task("How many <b>right angles</b> (square corners) does this shape have?");
+      ui.stage('<div style="margin:6px 0">'+shapeSvg(q.s,170,c)+'</div>');
+      ui.choices([0,1,2,4].map(function(v){ return {html:String(v),val:v}; }));
+      ui.hint("A right angle is a square corner, like the corner of a book.");
+    }else if(q.kind==="equal"){
+      ui.task("Are <b>all 4 sides</b> of this "+SH[q.s].n+" the same length?");
+      ui.stage('<div style="margin:6px 0">'+shapeSvg(q.s,170,c)+'</div>');
+      ui.choices([{html:"Yes",val:"yes"},{html:"No",val:"no"}]);
+    }else if(q.kind==="truth"){
+      ui.task("True or false?");
+      ui.stage('<div style="text-align:center;font-weight:900;font-size:1.35rem;line-height:1.45;margin:16px 8px">"'+FACTS[q.f][0]+'"</div>');
+      ui.choices([{html:"True ✓",val:"true"},{html:"False ✗",val:"false"}]);
+    }else{
+      ui.task("Shape riddle: <b>What am I?</b>");
+      ui.stage('<div style="text-align:center;font-weight:900;font-size:1.2rem;line-height:1.5;margin:14px 8px">🕵️ "'+RIDDLES[q.r][0]+'"</div>');
+      var r=RIDDLES[q.r][1], also2={square:["rectangle","rhombus","parallelogram"],rectangle:["parallelogram"],rhombus:["parallelogram"]}[r]||[],
+        pool=["square","rectangle","rhombus","trapezoid","parallelogram","triangle","pentagon"], opts2=[r].concat(M.shuffle(pool.filter(function(n){ return n!==r&&(also2.indexOf(n)<0||r!=="square"); })).slice(0,3));
+      var idOf={square:"square",rectangle:"rectangle",rhombus:"rhombus",trapezoid:"trapezoid",parallelogram:"parallelogram",triangle:"triangle",pentagon:"pentagon"};
+      ui.choices(M.shuffle(opts2).map(function(n,i){ return {html:shapeSvg(idOf[n],54,COLS[i])+"<small>"+n+"</small>",val:n}; }));
+    }
+  }
+  function after(q){
+    if(q.kind==="right"||q.kind==="name"){ document.getElementById("field").innerHTML='<div style="margin:6px 0">'+shapeSvg(q.s,170,COLS[q.c||0],true)+'</div>'; }
+  }
+  function explain(q){
+    var r=right(q);
+    if(q.kind==="quad"){ var id=q.s[+r]; return "The "+SH[id].n+" has "+SH[id].sides+" sides"+(q.not?", so it is not a quadrilateral.":": it is a quadrilateral."); }
+    if(q.kind==="name") return "It is a "+r+": "+DEF[r];
+    if(q.kind==="right") return "It has "+r+" right "+(r==="1"?"angle":"angles")+".";
+    if(q.kind==="equal") return r==="yes"?"Yes: all 4 sides are equal.":"No: not all the sides are equal.";
+    if(q.kind==="truth") return (FACTS[q.f][1]?"True. ":"False. ")+FACTS[q.f][2];
+    return "I am a "+r+"!";
+  }
+  function teach(q,given){
+    var r=right(q), steps, cn, pic="";
+    if(q.kind==="quad"){
+      steps=["A <b>quadrilateral</b> has <b>4 sides</b> and <b>4 corners</b>. (\"Quad\" means four.)"];
+      q.s.forEach(function(id){ steps.push("The "+SH[id].n+" has "+(SH[id].sides||"no straight")+" sides"+(SH[id].sides===4?" ✓":"")+"."); });
+      steps.push("So the answer is the <b>"+SH[q.s[+r]].n+"</b>.");
+      cn="四边形：有 4 条边、4 个角。三角形、五边形、六边形和圆都不是四边形。";
+    }else if(q.kind==="name"){
+      pic='<div class="pic">'+shapeSvg(q.s,110,COLS[q.c||0],true)+'</div>';
+      steps=["A <b>"+r+"</b> has "+DEF[r]];
+      if(given&&given!==r&&DEF[given]) steps.push("A "+given+" has "+DEF[given]);
+      steps.push("Look at this shape's sides and corners: it is a <b>"+r+"</b>.");
+      cn="正方形：4 边相等、4 个直角；长方形：4 个直角；菱形：4 边相等、没有直角；梯形：只有一组对边平行。";
+    }else if(q.kind==="right"){
+      var n=SH[q.s].rt.length;
+      pic='<div class="pic">'+shapeSvg(q.s,110,COLS[q.c||0],true)+'</div>';
+      steps=["A <b>right angle</b> is a square corner, like the corner of a book or a piece of paper.","Check every corner of the "+SH[q.s].n+". The square corners are marked in red.",
+             n?"There "+(n===1?"is ":"are ")+"<b>"+n+"</b> right "+(n===1?"angle":"angles")+".":"None of the corners is a square corner: <b>0</b> right angles."];
+      cn="直角就是“方方正正”的角，像书本的角。可以用一张纸的角去比一比。";
+    }else if(q.kind==="equal"){
+      steps=["A <b>"+SH[q.s].n+"</b> has "+DEF[SH[q.s].n],SH[q.s].eq?"So <b>yes</b>: all 4 sides are the same length.":"So <b>no</b>: its sides are not all the same length."];
+      cn="正方形和菱形的 4 条边都相等；长方形、梯形和平行四边形不是。";
+    }else if(q.kind==="truth"){
+      var f=FACTS[q.f]; steps=["The sentence: \""+f[0]+"\"","It is <b>"+(f[1]?"true":"false")+"</b>. "+f[2]];
+      cn="正方形是特殊的长方形，也是特殊的菱形；但不是每个长方形都是正方形。";
+    }else{
+      var rd=RIDDLES[q.r];
+      steps=["Read every clue: \""+rd[0]+"\"","A <b>"+rd[1]+"</b> has "+(DEF[rd[1]]||"")+" It matches every clue.","So I am a <b>"+rd[1]+"</b>!"];
+      if(given&&given!==rd[1]&&DEF[given]) steps.splice(2,0,"A "+given+" has "+DEF[given]+" That does not match every clue.");
+      cn="一条一条读线索，找出每一条都符合的图形。";
+    }
+    return {steps:steps,cn:cn,pic:pic};
+  }
+  function miss(q){
+    var r=right(q);
+    if(q.kind==="quad") return SH[q.s[+r]].n+(q.not?" is not a quadrilateral":" is a quadrilateral");
+    if(q.kind==="name") return r;
+    if(q.kind==="right") return SH[q.s].n+": "+r+" right angles";
+    if(q.kind==="equal") return SH[q.s].n+": "+(r==="yes"?"4 equal sides":"not all equal");
+    if(q.kind==="truth") return '"'+FACTS[q.f][0]+'" '+r;
+    return r;
+  }
+  M.run({title:"Shape Sorter",icon:"🔷",tagline:"Sort the shapes and solve the shape riddles!",store:"shapeSorter.v1",
+    coin:{e:"💠",n:"gems"},heart:"💙",leave:"Leave",levelWord:"puzzle",doneWord:"Puzzles done",ownedWord:"Built",
+    theme:{brand:"#2f7fc8",dark:"#1f5a92",bg:"#eef5fc",line:"#d6e6f5",ink:"#1f3a5a",muted:"#5a6f88",hero:"linear-gradient(180deg,#3f8fd8,#7cc0f0)",choice:["#e4f1fb","#fff4d1","#e6f6df","#fde6ee"]},
+    levels:LEVELS,boss:{n:"Shape Champion",ic:"🏆",desc:"Every kind of shape question. Be the shape champion!"},practice:{n:"Practice Corner",ic:"🧩"},
+    shop:[{id:"kite",e:"🪁",n:"Kite",p:10},{id:"frame",e:"🖼️",n:"Picture frame",p:15},{id:"window",e:"🪟",n:"Window",p:20},{id:"door",e:"🚪",n:"Door",p:20},
+          {id:"gift",e:"🎁",n:"Gift box",p:25},{id:"house",e:"🏠",n:"House",p:35},{id:"puzzle",e:"🧩",n:"Puzzle",p:40},{id:"robot",e:"🤖",n:"Robot",p:50},
+          {id:"rocket",e:"🚀",n:"Rocket",p:60},{id:"castle",e:"🏰",n:"Castle",p:90}],
+    shopTitle:"Shape shop: gems build things from shapes",shopCn:"用宝石搭出各种东西",emptyOwned:"🔺🟦",
+    kinds:{quad:"What is a quadrilateral",name:"Name the shape",right:"Count right angles",equal:"Equal sides",truth:"Shape families (true or false)",riddle:"Shape riddles (reading)"},
+    fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss});
+})();
+</script>
+</body></html>

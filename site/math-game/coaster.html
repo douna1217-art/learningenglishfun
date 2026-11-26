@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Number Park</title>
+<meta name="theme-color" content="#d1477a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Number Park: round on the roller coaster, add and subtract tickets within 1,000, estimate and solve two-step problems. Grade 3 math in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+</head><body>
+<script src="engine.js"></script>
+<script>
+(function(){
+  "use strict";
+  var M=MathGame, between=M.between, pickOne=M.pickOne, W=M.inWords;
+  function Q(kind,a,b,c){ return {kind:kind,a:a,b:b||0,c:c||0,key:[kind,a,b||0,c||0].join("|")}; }
+  function fromKey(k){ var s=k.split("|"); return Q(s[0],+s[1],+s[2],+s[3]); }
+  function digits(n){ return [Math.floor(n/100),Math.floor(n/10)%10,n%10]; }
+
+  // ---------- the questions ----------
+  function r10(){ var n; do{ n=between(11,989); }while(n%10===0); return Q("r10",n); }
+  function r100(){ var n; do{ n=between(101,989); }while(n%100===0); return Q("r100",n); }
+  function add(){ var a=between(105,599), b=between(105,Math.min(399,990-a)); return Q("add",a,b); }
+  function sub(){ var a=between(310,999), b=between(105,a-60); return Q("sub",a,b); }
+  function est(){ var a=between(110,480), b=between(110,480); return Q("est",a,b); }
+  var TWO=[
+    function(){ var s=between(4,9)*100, x=between(3,20)*10, y=between(3,15)*10; return Q("two",s,x,y); }   // have s, spend x and y
+  ];
+  function two(){ return TWO[0](); }
+  var LEVELS=[
+    {id:"c1",n:"Round to Tens",ic:"🎢",gen:r10},
+    {id:"c2",n:"Round to Hundreds",ic:"🎡",gen:r100},
+    {id:"c3",n:"Add Tickets",ic:"➕",gen:add},
+    {id:"c4",n:"Spend Tickets",ic:"➖",gen:sub},
+    {id:"c5",n:"Estimate First",ic:"🤔",gen:est},
+    {id:"c6",n:"Two-Step Problems",ic:"🧩",gen:two}
+  ];
+
+  // ---------- answers ----------
+  function round(n,to){ return Math.floor((n+to/2)/to)*to; }
+  function right(q){
+    if(q.kind==="r10") return String(round(q.a,10));
+    if(q.kind==="r100") return String(round(q.a,100));
+    if(q.kind==="add") return String(q.a+q.b);
+    if(q.kind==="sub") return String(q.a-q.b);
+    if(q.kind==="est") return String(round(q.a,100)+round(q.b,100));
+    return String(q.a-q.b-q.c);
+  }
+  function noCarry(a,b){ var x=digits(a),y=digits(b); return ((x[0]+y[0])%10)*100+((x[1]+y[1])%10)*10+(x[2]+y[2])%10; }
+  function flipSub(a,b){ var x=digits(a),y=digits(b); return Math.abs(x[0]-y[0])*100+Math.abs(x[1]-y[1])*10+Math.abs(x[2]-y[2]); }
+
+  // ---------- pictures ----------
+  // the coaster: a hill between two round numbers; the car sits at the number and rolls down to the nearer one
+  function track(lo,step,pos){   // pos: 0..10 along the hill
+    var pts=[], i, x, y;
+    for(i=0;i<=40;i++){ x=30+i*7.5; y=140-90*Math.sin(Math.PI*i/40); pts.push(x.toFixed(1)+","+y.toFixed(1)); }
+    var s='<svg viewBox="0 0 360 175" style="width:100%;display:block"><polyline points="'+pts.join(" ")+'" fill="none" stroke="#d1477a" stroke-width="6" stroke-linecap="round"/>';
+    for(i=0;i<=10;i++){ x=30+i*30; y=140-90*Math.sin(Math.PI*i/10);
+      s+='<line x1="'+x+'" y1="'+(y+4)+'" x2="'+x+'" y2="160" stroke="#c9a3b6" stroke-width="2"/>';
+      if(i===0||i===10||i===5) s+='<text x="'+x+'" y="173" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="'+(i===5?12:16)+'" fill="'+(i===5?"#9a6a80":"#3a2030")+'">'+(lo+i*step)+'</text>'; }
+    s+='<text x="180" y="40" text-anchor="middle" font-size="12" font-weight="800" fill="#9a6a80">halfway</text></svg>';
+    var cx=(30+pos*30)/360*100, cy=(140-90*Math.sin(Math.PI*pos/10))/175*100;
+    return '<div style="position:relative;max-width:460px;margin:8px auto 0">'+s+'<span id="car" style="position:absolute;left:'+cx+'%;top:'+cy+'%;transform:translate(-50%,-92%);font-size:2rem;transition:left 1s ease-in,top 1s ease-in">🚃</span></div>';
+  }
+  function moveCar(pos){ var c=document.getElementById("car"); if(!c) return; c.style.left=((30+pos*30)/360*100)+"%"; c.style.top=((140-90*Math.sin(Math.PI*pos/10))/175*100)+"%"; }
+  function column(a,b,op,ans){
+    var row=function(sign,n,cls){ return '<div style="display:flex;justify-content:flex-end;gap:10px'+(cls||"")+'"><span style="width:1.1em;text-align:left">'+sign+'</span><span style="letter-spacing:.35em">'+n+'</span></div>'; };
+    return '<div style="display:inline-block;margin:10px auto 2px;font-family:\'Courier New\',monospace;font-weight:900;font-size:2rem;line-height:1.2">'+row("",a)+row(op,b)+
+      '<div style="border-top:4px solid #3a2030;margin-top:4px;text-align:right;letter-spacing:.35em;min-height:1.2em">'+(ans==null?"?":ans)+'</div></div>';
+  }
+
+  // ---------- one question on the screen ----------
+  function render(q,ui){
+    var r=+right(q);
+    if(q.kind==="r10"||q.kind==="r100"){
+      var step=q.kind==="r10"?1:10, to=step*10, lo=Math.floor(q.a/to)*to, pos=(q.a-lo)/step;
+      ui.task("Round <b>"+q.a+"</b> to the nearest <b>"+(to===10?"ten":"hundred")+"</b>. Where does the car roll?");
+      ui.stage(track(lo,step,pos));
+      var cand=q.kind==="r10"?[lo,lo+10,lo-10,lo+20]:[lo,lo+100,round(q.a,10),lo+200];
+      ui.choices(M.numChoices(r,cand,0).map(function(v){ return {html:String(v),val:v}; }));
+      ui.words(W(q.a));
+    }else if(q.kind==="add"){
+      ui.task("A ride costs <b>"+q.a+"</b> tickets and a snack costs <b>"+q.b+"</b> tickets. How many tickets <b>in all</b>?");
+      ui.stage('<div style="text-align:center">🎠 + 🍿<br>'+column(q.a,q.b,"+")+'</div>');
+      ui.choices(M.numChoices(r,[noCarry(q.a,q.b),r+10,r-10,r+100,r-100],1).map(function(v){ return {html:String(v),val:v}; }));
+      ui.hint("Add the ones, then the tens, then the hundreds.");
+    }else if(q.kind==="sub"){
+      ui.task("You have <b>"+q.a+"</b> tickets. You spend <b>"+q.b+"</b>. How many tickets are <b>left</b>?");
+      ui.stage('<div style="text-align:center">🎟️ − 🎢<br>'+column(q.a,q.b,"−")+'</div>');
+      ui.choices(M.numChoices(r,[flipSub(q.a,q.b),r+10,r-10,r+100,r-100],1).map(function(v){ return {html:String(v),val:v}; }));
+      ui.hint("Subtract the ones, then the tens, then the hundreds.");
+    }else if(q.kind==="est"){
+      ui.task("<b>About</b> how much is "+q.a+" + "+q.b+"? Round each number to the nearest hundred first.");
+      ui.stage('<div style="text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:2.2rem;margin:14px 0">'+q.a+' + '+q.b+' ≈ ?</div>');
+      ui.choices(M.numChoices(r,[q.a+q.b,r+100,r-100,r+200],1).map(function(v){ return {html:String(v),val:v}; }));
+      ui.hint("≈ means about.");
+    }else{
+      ui.task("You have <b>"+q.a+"</b> tickets. You spend <b>"+q.b+"</b> on rides and <b>"+q.c+"</b> on snacks. How many tickets are left?");
+      ui.stage('<div style="text-align:center;font-size:2.4rem;margin:10px 0">🎟️ → 🎢 → 🍿</div>');
+      ui.choices(M.numChoices(r,[q.a-q.b,q.a-q.c,q.a-q.b+q.c,r+10,r-10],1).map(function(v){ return {html:String(v),val:v}; }));
+      ui.hint("Two steps: first the rides, then the snacks.");
+    }
+  }
+  function after(q){
+    if(q.kind==="r10"||q.kind==="r100"){ var step=q.kind==="r10"?1:10, lo=Math.floor(q.a/(step*10))*step*10; setTimeout(function(){ moveCar((+right(q)-lo)/step); },150); }
+    if(q.kind==="add"||q.kind==="sub"){ var f=document.getElementById("field"); f.innerHTML='<div style="text-align:center">'+(q.kind==="add"?"🎠 + 🍿":"🎟️ − 🎢")+'<br>'+column(q.a,q.b,q.kind==="add"?"+":"−",right(q))+'</div>'; }
+  }
+  function explain(q){
+    var r=right(q);
+    if(q.kind==="r10"||q.kind==="r100") return q.a+" rounded to the nearest "+(q.kind==="r10"?"ten":"hundred")+" is "+r+".";
+    if(q.kind==="add") return q.a+" + "+q.b+" = "+r+".";
+    if(q.kind==="sub") return q.a+" − "+q.b+" = "+r+".";
+    if(q.kind==="est") return Math.round(q.a/100)*100+" + "+Math.round(q.b/100)*100+" = "+r+", so about "+r+".";
+    return q.a+" − "+q.b+" − "+q.c+" = "+r+".";
+  }
+  function teach(q,given){
+    var r=+right(q), x=digits(q.a), y=digits(q.b), steps, cn, pic="";
+    if(q.kind==="r10"||q.kind==="r100"){
+      var to=q.kind==="r10"?10:100, lo=Math.floor(q.a/to)*to, d=q.kind==="r10"?x[2]:x[1], place=q.kind==="r10"?"ones":"tens";
+      steps=[q.a+" is between <b>"+lo+"</b> and <b>"+(lo+to)+"</b>. Halfway is "+(lo+to/2)+".",
+             "Look at the <b>"+place+" digit</b>: "+d+".",
+             d>=5?d+" is 5 or more, so the car goes over the hill and rolls to <b>"+(lo+to)+"</b>.":d+" is less than 5, so the car rolls back to <b>"+lo+"</b>.",
+             q.a+" rounded to the nearest "+(to===10?"ten":"hundred")+" is <b>"+r+"</b>."];
+      if(q.kind==="r100"&&+given===round(q.a,10)) steps.push("Careful: "+given+" is the nearest <i>ten</i>. This question asks for the nearest <i>hundred</i>.");
+      cn=q.kind==="r10"?"看个位：5 或以上，往上进到下一个整十；比 5 小，退回到这个整十。":"看十位：5 或以上，往上进到下一个整百；比 5 小，退回到这个整百。";
+    }else if(q.kind==="add"){
+      var c1=x[2]+y[2]>=10?1:0, c2=x[1]+y[1]+c1>=10?1:0;
+      steps=["<b>Ones:</b> "+x[2]+" + "+y[2]+" = "+(x[2]+y[2])+(c1?". Write "+((x[2]+y[2])%10)+" and carry 1 ten.":"."),
+             "<b>Tens:</b> "+x[1]+" + "+y[1]+(c1?" + 1":"")+" = "+(x[1]+y[1]+c1)+(c2?". Write "+((x[1]+y[1]+c1)%10)+" and carry 1 hundred.":"."),
+             "<b>Hundreds:</b> "+x[0]+" + "+y[0]+(c2?" + 1":"")+" = "+(x[0]+y[0]+c2)+".",
+             "So "+q.a+" + "+q.b+" = <b>"+r+"</b> tickets."];
+      if(+given===noCarry(q.a,q.b)) steps.push("Your answer forgot to carry. When a column makes 10 or more, carry 1 to the next column.");
+      pic='<div class="pic">'+column(q.a,q.b,"+",r)+'</div>';
+      cn="竖式加法：从个位加起，满十向前一位进 1。";
+    }else if(q.kind==="sub"){
+      var o=x[2], t=x[1], h=x[0], s1=[], b1=o<y[2], b2;
+      if(b1){ s1.push("<b>Ones:</b> "+o+" − "+y[2]+" is too small, so borrow 1 ten: "+(o+10)+" − "+y[2]+" = "+(o+10-y[2])+"."); t-=1; }
+      else s1.push("<b>Ones:</b> "+o+" − "+y[2]+" = "+(o-y[2])+".");
+      b2=t<y[1];
+      if(b2){ s1.push("<b>Tens:</b> "+t+" − "+y[1]+" is too small, so borrow 1 hundred: "+(t+10)+" − "+y[1]+" = "+(t+10-y[1])+"."); h-=1; }
+      else s1.push("<b>Tens:</b> "+t+" − "+y[1]+" = "+(t-y[1])+".");
+      s1.push("<b>Hundreds:</b> "+h+" − "+y[0]+" = "+(h-y[0])+".");
+      s1.push("So "+q.a+" − "+q.b+" = <b>"+r+"</b> tickets left.");
+      if(+given===flipSub(q.a,q.b)) s1.push("Your answer took the small digit from the big one in each column. Borrow instead when the top digit is too small.");
+      s1.push("Check: "+r+" + "+q.b+" = "+q.a+". ✓");
+      steps=s1; pic='<div class="pic">'+column(q.a,q.b,"−",r)+'</div>';
+      cn="竖式减法：从个位减起，不够减就向前一位借 1 当 10。最后用加法检查。";
+    }else if(q.kind==="est"){
+      var ra=round(q.a,100), rb=round(q.b,100);
+      steps=[q.a+" rounds to <b>"+ra+"</b>.",q.b+" rounds to <b>"+rb+"</b>.",ra+" + "+rb+" = <b>"+r+"</b>. So the answer is <b>about "+r+"</b>.",
+             "(The exact answer is "+(q.a+q.b)+", close to "+r+". Estimating is quick and helps you check.)"];
+      cn="估算：先把每个数四舍五入到整百，再相加。";
+    }else{
+      steps=["<b>Step 1:</b> after the rides: "+q.a+" − "+q.b+" = "+(q.a-q.b)+".","<b>Step 2:</b> after the snacks: "+(q.a-q.b)+" − "+q.c+" = "+r+".",
+             "So <b>"+r+"</b> tickets are left.","(You could also add the spending first: "+q.b+" + "+q.c+" = "+(q.b+q.c)+", and "+q.a+" − "+(q.b+q.c)+" = "+r+".)"];
+      cn="两步题：先算第一步，再用第一步的结果算第二步。";
+    }
+    return {steps:steps,cn:cn,pic:pic};
+  }
+  function miss(q){
+    if(q.kind==="r10"||q.kind==="r100") return q.a+" → "+right(q);
+    if(q.kind==="add") return q.a+" + "+q.b+" = "+right(q);
+    if(q.kind==="sub") return q.a+" − "+q.b+" = "+right(q);
+    if(q.kind==="est") return q.a+" + "+q.b+" ≈ "+right(q);
+    return q.a+" − "+q.b+" − "+q.c+" = "+right(q);
+  }
+  M.run({title:"Number Park",icon:"🎢",tagline:"Ride the coaster, count the tickets, have fun with big numbers!",store:"numberPark.v1",
+    coin:{e:"🎟️",n:"tickets"},heart:"❤️",leave:"Leave the park",levelWord:"ride",doneWord:"Rides done",ownedWord:"In your park",
+    theme:{brand:"#d1477a",dark:"#9c2f59",bg:"#fdf0f5",line:"#f3d9e4",ink:"#3a2030",muted:"#86687a",hero:"linear-gradient(180deg,#ff8fb8,#ffc6a8)"},
+    levels:LEVELS,boss:{n:"Busy Park Day",ic:"🎆",desc:"Everything mixed up. The park is full!"},practice:{n:"Practice Booth",ic:"🎪"},
+    shop:[{id:"carousel",e:"🎠",n:"Carousel",p:10},{id:"wheel",e:"🎡",n:"Big wheel",p:15},{id:"coaster",e:"🎢",n:"Roller coaster",p:20},{id:"popcorn",e:"🍿",n:"Popcorn stand",p:20},
+          {id:"candy",e:"🍭",n:"Candy shop",p:25},{id:"balloons",e:"🎈",n:"Balloons",p:30},{id:"tent",e:"🎪",n:"Circus tent",p:40},{id:"train",e:"🚂",n:"Park train",p:50},
+          {id:"slide",e:"🛝",n:"Big slide",p:60},{id:"fireworks",e:"🎆",n:"Fireworks",p:90}],
+    shopTitle:"Park shop: tickets build your own park",shopCn:"用票建造你的游乐园",emptyOwned:"🌳",
+    kinds:{r10:"Round to the nearest ten",r100:"Round to the nearest hundred",add:"Add within 1,000",sub:"Subtract within 1,000",est:"Estimate by rounding",two:"Two-step problems"},
+    fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss});
+})();
+</script>
+</body></html>

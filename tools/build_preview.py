@@ -66,7 +66,15 @@ def inline_scripts(html):
 
 def game_files(html):
     files = sorted(set(re.findall(r"file:'(math-game/[^']+\.html)'", html)))
-    return {f: with_fonts(read(f)) for f in files if os.path.isfile(os.path.join(SITE, f))}
+
+    def one(f):
+        g = read(f)
+        base = os.path.dirname(f)
+        # a game's own scripts (math-game/engine.js) go inside it too
+        g = re.sub(r'<script src="([^":/?]+\.js)"></script>',
+                   lambda m: "<script>" + script_safe(read(os.path.join(base, m.group(1)))) + "</script>" if os.path.isfile(os.path.join(SITE, base, m.group(1))) else m.group(0), g)
+        return with_fonts(g)
+    return {f: one(f) for f in files if os.path.isfile(os.path.join(SITE, f))}
 
 
 def build():
