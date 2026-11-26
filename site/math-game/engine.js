@@ -11,7 +11,9 @@
      fromKey(key) -> question, render(q, ui), right(q) -> string, explain(q) -> string,
      teach(q, given) -> {steps: [html], cn, pic}, after(q, ok, given, ui)?, miss(q) -> string, fastMs?,
      wrongText(q, given)?, rightText(q)?                // the line under the question after an answer, if the game has its own
+     panel?: {title, cn, html: fn -> html}               // one more panel on the map (above the shop), e.g. a collection
    })
+   MathGame.sound() tells a game whether the child has the sound on.
    A question is {kind, key, ...}. render() fills the screen with ui.task(html), ui.stage(html), ui.choices([{html, val}]), ui.words(text),
    ui.hint(text); an interactive question calls ui.answer(val) itself; ui.round() -> {done, total} (questions done in this level). Written for old Android WebViews: no arrow functions, no spread. */
 (function (root) {
@@ -80,6 +82,7 @@
     '<button class="tbtn" type="button" id="soundBtn">🔔 Sound on</button></div></div><div class="wrap">' +
     '<section id="map"><div class="hero" id="hero"><h1 id="gTitle"></h1><p id="gTag"></p><div class="owned" id="owned"></div><div class="progress" id="progress"></div></div>' +
     '<div class="lvls" id="lvls"></div>' +
+    '<details class="panel" id="xPanel" hidden open><summary id="xTitle"></summary><div id="xBody" style="padding-bottom:14px"></div></details>' +
     '<details class="panel" open><summary id="shopTitle"></summary><div class="shop" id="shop"></div></details>' +
     '<details class="panel"><summary>📋 For parents: what is going well <small>给家长看：掌握情况</small></summary><table class="skills" id="skills"></table></details></section>' +
     '<section id="play" hidden><div class="bar-top"><button class="tbtn" type="button" id="quitBtn">✕ Leave</button><span class="hearts" id="hearts"></span><span class="chip"><span id="coinE2"></span> +<span id="pCoins">0</span></span></div>' +
@@ -114,6 +117,7 @@
         if (typeof d0.coins === "number") data.coins = d0.coins; if (typeof d0.sound === "boolean") data.sound = d0.sound; } }
     } catch (e) {}
     function save() { try { root.localStorage.setItem(C.store, JSON.stringify(data)); } catch (e) {} }
+    root.MathGame.sound = function () { return data.sound; };
     function fact(k) { return data.facts[k] || (data.facts[k] = { ok: 0, miss: 0 }); }
     function mastered(k) { var f = data.facts[k]; return f && f.ok >= 2 && f.ok - f.miss * 2 >= 1; }
     function missList() { return Object.keys(data.facts).filter(function (k) { return data.facts[k].miss > 0 && !mastered(k); }); }
@@ -167,6 +171,7 @@
         (n ? ("You missed " + n + " " + (n === 1 ? "question" : "questions") + ". Let's practice! No hearts lost here.") : "Nothing to practice. Great job!") + "</span></span>";
       pb.onclick = function () { if (n) start(PRACTICE); };
       box.appendChild(pb);
+      if (C.panel) { $("xPanel").hidden = false; $("xTitle").innerHTML = C.panel.title + " <small>" + C.panel.cn + "</small>"; $("xBody").innerHTML = C.panel.html(); }
       renderShop(); renderSkills();
     }
     function renderShop() {

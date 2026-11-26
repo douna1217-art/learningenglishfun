@@ -75,6 +75,63 @@
     return h+svg;
   }
 
+  // ---------- sounds: glugs that rise with the level, a ding (and a buzz on a phone) at every line passed ----------
+  var actx=null, lastGlug=0;
+  function ac(){ if(!M.sound||!M.sound()) return null; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){ actx=null; } return actx; }
+  function blip(f,len,type,vol){
+    var a=ac(); if(!a) return;
+    try{ var o=a.createOscillator(), g=a.createGain(), t=a.currentTime; o.type=type||"sine"; o.frequency.setValueAtTime(f,t); o.frequency.exponentialRampToValueAtTime(f*1.35,t+len);
+      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(vol||.12,t+.015); g.gain.exponentialRampToValueAtTime(.0001,t+len); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+len+.02); }catch(e){}
+  }
+  function glug(frac,dir){ var now=performance.now(); if(now-lastGlug<110) return; lastGlug=now; blip((dir>0?260:420)+520*Math.max(0,Math.min(1,frac))+Math.random()*40,.09,"sine",.09); }
+  function ding(){ blip(1320,.12,"triangle",.1); try{ if(navigator.vibrate) navigator.vibrate(12); }catch(e){} }
+
+  // ---------- Sparky says the order (the browser's English voice) ----------
+  var voice=null;
+  function pickVoice(){
+    try{ var vs=speechSynthesis.getVoices().filter(function(v){ return /^en(-|_|$)/i.test(v.lang); });
+      voice=vs.filter(function(v){ return /en-US/i.test(v.lang)&&/female|samantha|google us|aria|jenny/i.test(v.name); })[0]||vs.filter(function(v){ return /en-US/i.test(v.lang); })[0]||vs[0]||null; }catch(e){}
+  }
+  try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+  function speak(text){
+    if(!M.sound||!M.sound()) return;
+    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(text); u.lang="en-US"; if(voice) u.voice=voice; u.rate=.92; u.pitch=1.25; speechSynthesis.speak(u); }catch(e){}
+  }
+  function order(q){
+    var L=function(n){ return n+" "+(n===1?"liter":"liters"); };
+    if(q.kind==="pour") return "Please make me "+L(q.t)+" of "+POTIONS[q.c][1]+" potion!";
+    if(q.kind==="add") return "First "+L(q.a)+" of "+POTIONS[q.c][1]+", then "+L(q.b)+" of "+POTIONS[q.d][1]+", please!";
+    if(q.kind==="sub") return "The beaker has "+L(q.s)+". Please pour out "+L(q.b)+"!";
+    if(q.kind==="scale") return "Please put "+q.t+" "+(q.u==="g"?"grams":(q.t===1?"kilogram":"kilograms"))+" of "+SANDS[q.i][1]+" on the scale!";
+    if(q.kind==="batch") return "One spell needs "+q.p+" kilograms of "+SANDS[q.i][1]+". Please make "+q.n+" spells!";
+    if(q.kind==="unit") return "Grams or kilograms? How would you measure a "+(q.h?HEAVY[q.o][1]:LIGHT[q.o][1])+"?";
+    return "About how "+(EST[q.i][3]==="L"?"much water does "+EST[q.i][1]+" hold":"heavy is "+EST[q.i][1])+"?";
+  }
+
+  // ---------- what a good potion does to Sparky, and the potion book ----------
+  var EFFECTS=[["Flying","🪽","I can fly!","fly"],["Fire-Sneeze","🔥","Ah… ah… ACHOO! 🔥","sneeze"],["Bubble","🫧","Bubbles everywhere!","bubbles"],["Sparkle","✨","I'm all sparkly!","sparkle"],
+               ["Tiny","🔍","Whoa, I'm tiny!","tiny"],["Color","🎨","I changed color!","color"],["Singing","🎵","La la laaa! 🎵","sing"],["Giant","🦖","I'm a BIG dragon!","giant"]];
+  var NAMED=[["Lime",[150,215,80]],["Mint",[120,220,170]],["Teal",[60,170,170]],["Sky",[110,180,255]],["Lavender",[170,150,230]],["Violet",[160,100,230]],["Rose",[255,120,170]],
+             ["Coral",[255,140,110]],["Peach",[255,180,120]],["Gold",[240,190,60]],["Leaf",[90,200,90]],["Ocean",[70,150,255]],["Grape",[180,110,255]],["Bubblegum",[255,130,175]],["Tangerine",[255,165,60]]];
+  var BOOK="potionBook.v1", book={};
+  try{ book=JSON.parse(localStorage.getItem(BOOK))||{}; }catch(e){ book={}; }
+  function rgbOf(c){ if(c.charAt(0)==="#") return [parseInt(c.substr(1,2),16),parseInt(c.substr(3,2),16),parseInt(c.substr(5,2),16)]; var m=c.match(/\d+/g); return [+m[0],+m[1],+m[2]]; }
+  function colorName(c){ var x=rgbOf(c), best=null, bd=1e9; NAMED.forEach(function(n){ var d=Math.pow(n[1][0]-x[0],2)+Math.pow(n[1][1]-x[1],2)+Math.pow(n[1][2]-x[2],2); if(d<bd){ bd=d; best=n[0]; } }); return best; }
+  function potionOf(q){
+    // the same recipe always makes the same potion, so the book can be filled
+    var col=q.kind==="add"?mix(POTIONS[q.c][0],POTIONS[q.d][0]):q.kind==="scale"||q.kind==="batch"?SANDS[q.i][2]:POTIONS[q.c][0];
+    var seed=q.kind==="add"?q.c*5+q.d:q.kind==="scale"||q.kind==="batch"?20+q.i:q.c;
+    var e=EFFECTS[(seed*3+(q.kind==="sub"?5:0)+(q.kind==="batch"?2:0))%EFFECTS.length], name=colorName(col)+" "+e[0]+" Potion";
+    var recipe=q.kind==="pour"?q.t+" L "+POTIONS[q.c][1]:q.kind==="add"?q.a+" L "+POTIONS[q.c][1]+" + "+q.b+" L "+POTIONS[q.d][1]:q.kind==="sub"?q.s+" L − "+q.b+" L "+POTIONS[q.c][1]:q.kind==="scale"?q.t+" "+q.u+" "+SANDS[q.i][1]:q.n+" × "+q.p+" kg "+SANDS[q.i][1];
+    return {id:name,name:name,col:col,e:e,recipe:recipe};
+  }
+  function bookHtml(){
+    var ids=Object.keys(book);
+    if(!ids.length) return '<div style="color:var(--muted);font-weight:800">No potions yet. Make a perfect potion to add its card! 还没有药水，做出一瓶完美的药水就能收集它的卡片。</div>';
+    return '<div style="font-weight:900;margin-bottom:8px">'+ids.length+' potions collected 已收集 '+ids.length+' 种药水</div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">'+
+      ids.map(function(id){ var b=book[id]; return '<div style="border:2px solid var(--line);border-radius:14px;padding:8px;text-align:center"><div style="width:44px;height:44px;margin:0 auto 4px;border-radius:50% 50% 40% 40%;background:'+b.col+';display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:inset 0 -5px 0 rgba(0,0,0,.12)">'+b.e+'</div><b style="font-size:.85rem;display:block;line-height:1.2">'+b.name+'</b><small style="color:var(--muted);font-weight:800;font-size:.75rem">'+b.recipe+'</small></div>'; }).join("")+"</div>";
+  }
+
   // ---------- the pouring ----------
   var P=null, raf=0;
   function tol(q){ return q.kind==="scale"&&q.u==="g"?25:0.25; }
@@ -106,7 +163,11 @@
       if(!P||!P.holding) return;
       var dt=Math.min(.05,(t-last)/1000); last=t; P.held+=dt;
       // slow at first, so a quick tap adds only a drop
+      var before=P.v;
       P.v=Math.min(highest(),Math.max(lowest(),P.v+dir*rate*dt*Math.min(1,.45+P.held/.8)));
+      var mark=q.kind==="scale"&&q.u==="g"?100:1;
+      if(Math.floor(before/mark+1e-9)!==Math.floor(P.v/mark+1e-9)) ding();
+      if(P.v!==before) glug(P.v/q.cap,dir);
       draw();
       var cap=q.cap;
       if(dir>0&&P.v>cap*1.02){ P.v=cap*1.03; stopPour(); overflow(); return; }
@@ -139,10 +200,13 @@
   document.addEventListener("keydown",function(e){ var d=keyDir(e); if(d&&P&&!P.done&&document.getElementById("plusBtn")){ e.preventDefault(); if(!e.repeat) startPour(d); } });
   document.addEventListener("keyup",function(e){ if(keyDir(e)&&P) stopPour(); });
 
-  function dragon(ui,happy){
+  function dragon(ui,happy,fx){
     var r=ui.round(), dots="", got=r.correct+(happy?1:0);   // (the right answer just given is not counted yet)
     for(var i=0;i<r.total;i++) dots+=i<got?"💚":"🤍";
-    return '<div class="dragon"><span class="dr'+(happy?" happy":"")+'">'+(happy?"🐲":"🐉")+'</span><span class="bubble">'+(happy?"Ahh, much better!":"Hic! Hic!")+'</span><div class="cure">Sparky feels better: '+dots+'</div></div>';
+    var say=happy?(fx?fx.e[2]:"Ahh, much better!"):(P&&P.q?order(P.q):"Hic! Hic!");
+    return '<div class="dragon"><span class="dr'+(happy?" happy fx-"+(fx?fx.e[3]:""):"")+'" style="'+(happy&&fx&&fx.e[3]==="color"?"filter:drop-shadow(0 0 6px "+fx.col+") hue-rotate(140deg)":"")+'">'+(happy?"🐲":"🐉")+
+      (happy&&fx?'<span class="fxe">'+fx.e[1]+'</span>':"")+'</span><span class="bubble">'+(happy?"":"Hic! ")+say+'</span>'+
+      (happy?"":'<button type="button" class="say" id="sayBtn" aria-label="Say it again">🔊</button>')+'<div class="cure">Sparky feels better: '+dots+'</div></div>';
   }
 
   // ---------- one question on the screen ----------
@@ -163,6 +227,8 @@
         '<button type="button" class="rk plus" id="plusBtn" aria-label="more">+<small>'+(q.kind==="scale"||q.kind==="batch"?"add":"pour in")+'</small></button></div>'+
         '<button type="button" class="serve" id="serveBtn"'+(q.kind==="sub"?"":" disabled")+'>'+(q.kind==="add"?"✓ Next color":"✓ Serve")+'</button></div>');
       draw();
+      var sb=document.getElementById("sayBtn"); if(sb) sb.onclick=function(){ speak(order(q)); };
+      setTimeout(function(){ speak(order(q)); },250);
       ["minusBtn","plusBtn"].forEach(function(id){
         var hb=document.getElementById(id), dir=id==="plusBtn"?1:-1;
         hb.addEventListener("pointerdown",function(e){ e.preventDefault(); if(hb.disabled) return; try{ hb.setPointerCapture(e.pointerId); }catch(x){} startPour(dir); });
@@ -170,7 +236,7 @@
         hb.addEventListener("contextmenu",function(e){ e.preventDefault(); });
       });
       document.getElementById("serveBtn").onclick=serve;
-      ui.hint("Find the right line first. Hold + for more, hold − for less, let go to stop. Then Serve.");
+      ui.hint("Listen to Sparky (🔊), find the right line, hold + for more and − for less. Then Serve.");
       if(q.kind==="add") ui.words("First stop at "+q.a+" liters.");
       if(q.kind==="batch") ui.words(q.n+" spells × "+q.p+" kilograms = ?");
       return;
@@ -181,6 +247,7 @@
       ui.stage('<div style="text-align:center;font-size:4.2rem;margin:12px 0">'+ob[0]+'</div>');
       ui.choices([{html:"grams<small>g</small>",val:"g"},{html:"kilograms<small>kg</small>",val:"kg"}]);
       ui.hint("Is it light or heavy?");
+      setTimeout(function(){ speak(order(q)); },250);
       return;
     }
     var e=EST[q.i];
@@ -191,6 +258,7 @@
     opts.forEach(function(o){ var k=o[0]+o[1]; if(!seen[k]){ seen[k]=1; list.push({html:o[0]+" "+o[1],val:k,cls:"text"}); } });
     ui.choices(M.shuffle(list));
     ui.hint("Think of things you know.");
+    setTimeout(function(){ speak(order(q)); },250);
   }
   function right(q){
     if(POURING[q.kind]) return "ok";
@@ -207,7 +275,16 @@
   function after(q,ok,given){
     if(!POURING[q.kind]) return;
     stopPour();
-    var d=document.querySelector(".dragon"); if(d&&ok){ d.outerHTML=dragon(P.ui,true); }
+    try{ speechSynthesis.cancel(); }catch(e){}
+    var d=document.querySelector(".dragon");
+    if(d&&ok){
+      var pot=potionOf(q), isNew=!book[pot.id];
+      d.outerHTML=dragon(P.ui,true,{e:pot.e,col:pot.col});
+      blip(660,.12,"triangle",.1); setTimeout(function(){ blip(990,.16,"triangle",.1); },120);
+      speak(pot.e[2].replace(/[^A-Za-z ,.!'?…]/g,""));
+      if(isNew){ book[pot.id]={name:pot.name,col:pot.col,e:pot.e[1],recipe:pot.recipe}; try{ localStorage.setItem(BOOK,JSON.stringify(book)); }catch(e){}
+        var lab=document.querySelector(".lab"); if(lab) lab.insertAdjacentHTML("afterend",'<div class="newcard"><span style="background:'+pot.col+'">'+pot.e[1]+'</span><div><i>🆕 New card for your Potion Book!</i><b>'+pot.name+'</b><small>'+pot.recipe+'</small></div></div>'); }
+    }
     var box=document.getElementById("vessel"), g=goal(q);
     if(!box) return;
     if(q.kind==="scale"||q.kind==="batch"){ box.innerHTML=scaleSvg(q,P.v,true); }
@@ -286,7 +363,7 @@
   M.run({title:"Potion Lab",icon:"🧪",tagline:"Sparky the little dragon has the hiccups! Brew potions to make him better.",store:"potionLab.v2",
     coin:{e:"💎",n:"crystals"},heart:"💜",leave:"Leave the lab",levelWord:"potion",doneWord:"Potions made",ownedWord:"In your lab",fastMs:15000,
     theme:{brand:"#6a4fc4",dark:"#4a3394",bg:"#f3efff",line:"#e2dafa",ink:"#2c2250",muted:"#6e6394",hero:"linear-gradient(180deg,#6a4fc4,#b38cf0)"},
-    css:'.dragon{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 4px}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.happy{animation:none}'+
+    css:'.dragon{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0 4px}.dragon .cure{grid-column:1/-1}.dragon .bubble{min-width:0;line-height:1.3}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.happy{animation:none}'+
       '.dragon .bubble{background:var(--bg);border-radius:14px;padding:4px 10px;font-weight:900;font-size:.95rem}.dragon .cure{width:100%;font-weight:800;font-size:.82rem;color:var(--muted);letter-spacing:1px}'+
       '.lab{position:relative;margin-top:2px;padding-top:30px}.bottle{position:absolute;left:50%;top:-4px;transform:translateX(-50%) rotate(140deg);font-size:2.1rem;z-index:2}'+
       '.stream{position:absolute;left:calc(50% - 4px);top:24px;width:8px;height:70px;border-radius:4px;opacity:0;transition:opacity .1s;z-index:1}'+
@@ -299,6 +376,16 @@
       '.rk:active{background:#ffe88a}.rk:disabled{opacity:.35}'+
       '.mid{align-self:center;margin:0 10px;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)}'+
       '.serve{border:0;border-radius:18px;padding:14px 8px;font-weight:900;font-size:1.1rem;background:var(--good);color:#fff;box-shadow:0 6px 0 #1f7041}'+
+      '.say{border:0;background:#ece6ff;border-radius:999px;width:40px;height:40px;font-size:1.2rem;box-shadow:0 3px 0 #c9bdf0}'+
+      '.dr{position:relative;display:inline-block}.fxe{position:absolute;right:-18px;top:-10px;font-size:1.4rem}'+
+      '.fx-fly{animation:fly 1.4s ease-in-out 2}.fx-sneeze .fxe{animation:shoot .8s ease-out 2}.fx-bubbles .fxe{animation:rise 1.2s ease-out 2}.fx-sparkle{animation:glow 1s ease-in-out 3}'+
+      '.fx-tiny{animation:tiny 1.6s ease-in-out}.fx-sing{animation:sway .5s ease-in-out 4}.fx-giant{animation:giant 1.6s ease-in-out}.fx-color{transition:filter .6s}'+
+      '.newcard{display:flex;gap:12px;align-items:center;margin-top:12px;padding:10px 12px;border-radius:16px;background:linear-gradient(135deg,#fff7d6,#f3e9ff);border:3px solid #ffd166;animation:pop .5s}'+
+      '.newcard span{flex:none;width:46px;height:46px;border-radius:50% 50% 40% 40%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:inset 0 -5px 0 rgba(0,0,0,.12)}'+
+      '.newcard i{display:block;font-style:normal;font-weight:900;font-size:.8rem;color:#b86b00}.newcard b{display:block}.newcard small{color:var(--muted);font-weight:800}'+
+      '@keyframes fly{0%,100%{transform:none}50%{transform:translateY(-26px) rotate(-8deg)}}@keyframes shoot{from{transform:translateX(0);opacity:1}to{transform:translateX(34px);opacity:0}}'+
+      '@keyframes rise{from{transform:translateY(0);opacity:1}to{transform:translateY(-30px);opacity:0}}@keyframes glow{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px #ffd84a) brightness(1.3)}}'+
+      '@keyframes tiny{0%,100%{transform:none}40%,60%{transform:scale(.45)}}@keyframes giant{0%,100%{transform:none}40%,60%{transform:scale(1.7)}}@keyframes sway{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}'+
       '.serve:disabled{opacity:.45}@keyframes hic{0%,80%,100%{transform:none}88%{transform:translateY(-8px) rotate(-6deg)}}',
     levels:LEVELS,boss:{n:"Cure Sparky",ic:"🐲",desc:"Every kind of potion. Make Sparky well again!"},practice:{n:"Practice Table",ic:"📜"},
     shop:[{id:"flask",e:"⚗️",n:"Flask",p:10},{id:"tube",e:"🧪",n:"Test tube",p:10},{id:"candle",e:"🕯️",n:"Candle",p:15},{id:"book",e:"📖",n:"Spell book",p:20},
@@ -306,6 +393,7 @@
           {id:"hat",e:"🎩",n:"Magic hat",p:60},{id:"wand",e:"🪄",n:"Magic wand",p:80}],
     shopTitle:"Lab shop: crystals buy magic things",shopCn:"用水晶买魔法道具",emptyOwned:"🐉",
     kinds:{pour:"Pour to a line (read liters)",add:"Two-part recipes (+ on a scale)",sub:"Pour out (− on a scale)",scale:"Weigh in grams and kilograms",batch:"Big batches (× with kilograms)",unit:"Grams or kilograms?",est:"Estimate mass and volume"},
+    panel:{title:"📖 Potion Book",cn:"药水图鉴：做出完美的药水来收集卡片",html:bookHtml},
     fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss,rightText:rightText,wrongText:wrongText});
   // for the tests: pour an exact amount without holding the button
   window.__pour={set:function(v){ if(P){ P.v=v; draw(); var s=document.getElementById("serveBtn"); if(s) s.disabled=false; } },serve:function(){ serve(); },state:function(){ return P&&{v:P.v,phase:P.phase,done:P.done}; },hold:startPour,release:stopPour};
