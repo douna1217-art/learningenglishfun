@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Division Café</title>
+<meta name="theme-color" content="#d9785b">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Division Café: share the treats fairly, serve the customers and decorate your café. Division facts in English for Grade 3.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* Layout: café map (days to play, shop) -> serving screen (customer, plates, 2x2 answer pad) -> end of the day */
+:root{--ink:#3a2a22;--muted:#7d6a5f;--line:#efdfd2;--brand:#c8613f;--brand-dark:#93432a;--bg:#fbf3ea;--card:#fff;
+--good:#2f9e5b;--bad:#e0554f;--gold:#f5b301;--shadow:0 14px 34px rgba(58,42,34,.13)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
+[hidden]{display:none!important}
+.top{max-width:920px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}
+.wallet{display:flex;gap:8px;align-items:center}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:900;white-space:nowrap}
+.wrap{max-width:920px;margin:auto;padding:0 16px 48px}
+
+/* ===== the café (shown on the map and while serving) ===== */
+.cafe{position:relative;border-radius:28px;overflow:hidden;box-shadow:var(--shadow);
+  background:linear-gradient(180deg,#ffe3c9 0 62%,#c98b5e 62% 64%,#e7b98f 64%)}
+.cafe .sign{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--brand);color:#fff;border-radius:14px;padding:6px 16px;
+  font-family:Fredoka,sans-serif;font-weight:700;white-space:nowrap;box-shadow:0 4px 0 var(--brand-dark)}
+.cafe .sign.gold{background:linear-gradient(180deg,#ffd64a,#f5b301);color:#5a3b00;box-shadow:0 4px 0 #b88a00}
+.deco{position:absolute;font-size:2rem;line-height:1;user-select:none}
+.hero{height:210px;background:linear-gradient(180deg,#d9785b 0 70%,#a9583c 70% 72%,#c98b5e 72%)}
+.hero .title{position:absolute;left:0;right:0;bottom:16px;text-align:center}
+.hero h1{margin:0;font-size:clamp(1.9rem,7vw,3rem);color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.22)}
+.hero p{margin:4px 0 0;font-weight:900;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.progress{display:inline-block;margin-top:8px;background:rgba(255,255,255,.9);border-radius:999px;padding:6px 14px;font-weight:900;color:var(--ink)}
+
+/* ===== map ===== */
+.days{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+.day{position:relative;border:0;border-radius:22px;padding:12px 6px 10px;background:#fff;box-shadow:0 6px 0 #ead7c6,var(--shadow);text-align:center;transition:transform .15s}
+.day:hover{transform:translateY(-4px)}
+.day:active{transform:translateY(2px)}
+.day .ic{font-size:2.4rem;line-height:1.15;display:block}
+.day .tag{font-family:Fredoka,sans-serif;font-weight:700;font-size:1.3rem;display:block}
+.day .name{display:block;font-size:.78rem;font-weight:800;color:var(--muted)}
+.day .stars{font-size:.95rem;letter-spacing:.05em;min-height:1.3em}
+.day.gold{box-shadow:0 6px 0 #e0b200,0 0 0 3px var(--gold),var(--shadow)}
+.day.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px}
+.day.wide .txt{text-align:left}
+.day.busy{background:linear-gradient(135deg,#a8452a,#e0794f);color:#fff;box-shadow:0 6px 0 #7a2f1a,var(--shadow)}
+.day.busy .name{color:#ffe6d8}
+.day.busy.locked{filter:grayscale(.85);opacity:.75;cursor:not-allowed}
+.day.kitchen{background:#fff7e3}
+.day.kitchen:disabled{opacity:.6;cursor:default;transform:none}
+.panel{margin-top:22px;background:#fff;border-radius:20px;padding:4px 18px;box-shadow:var(--shadow)}
+.panel summary{cursor:pointer;font-weight:900;padding:12px 0}
+.panel summary small{color:var(--muted);font-weight:800}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;padding-bottom:16px}
+.item{border:2px solid var(--line);border-radius:16px;background:#fff;padding:10px 6px;text-align:center;font-weight:900}
+.item .e{font-size:2rem;display:block}
+.item .n{display:block;font-size:.85rem}
+.item .p{display:block;font-size:.85rem;color:var(--muted);margin-top:2px}
+.item.own{border-color:var(--good);background:#effaf2}
+.item.own .p{color:var(--good)}
+.item:disabled{opacity:.55;cursor:default}
+.chart{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:12px}
+.cell{border-radius:8px;padding:7px 1px;text-align:center;font-weight:800;font-size:.7rem;background:#f4efea;color:#a89a90;font-variant-numeric:tabular-nums}
+.cell.l1{background:#fff1c4;color:#7a5d00}.cell.l2{background:#cdeed6;color:#1f6138}.cell.l3{background:#315f47;color:#fff}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-weight:800;font-size:.8rem;color:var(--muted);padding-bottom:14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+
+/* ===== serving ===== */
+.bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hearts{font-size:1.45rem;letter-spacing:.06em;font-weight:900}
+.hearts .lost{filter:grayscale(1);opacity:.3}
+.counter{height:270px;margin-top:12px}
+.cust{position:absolute;left:16px;top:52px;font-size:4.2rem;line-height:1;animation:bob 1.6s ease-in-out infinite}
+.cust.in{animation:walkin .5s ease-out}
+.cust.happy{animation:hop .5s 2}
+.cust.sad{animation:shake .4s}
+.bubble{position:absolute;left:96px;right:14px;top:50px;background:#fff;border-radius:18px;padding:10px 14px;font-weight:900;font-size:1.05rem;line-height:1.35;box-shadow:0 4px 0 rgba(0,0,0,.08)}
+.bubble:before{content:"";position:absolute;left:-10px;top:20px;border:8px solid transparent;border-right-color:#fff}
+.pile{position:absolute;left:14px;right:14px;top:142px;text-align:center;line-height:1.05;letter-spacing:1px}
+.plates{position:absolute;left:8px;right:8px;bottom:10px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.plate{background:#fff;border-radius:50%/40%;min-width:54px;padding:6px 7px 9px;box-shadow:0 3px 0 rgba(0,0,0,.12),inset 0 0 0 3px #f2e6dc;text-align:center;line-height:1}
+.plate .t{display:grid;gap:1px;justify-content:center}
+.plate.fill{animation:pop .35s both}
+.patience{height:8px;border-radius:99px;background:#efdfd2;overflow:hidden;margin-top:14px}
+.patience i{display:block;height:100%;width:100%;background:var(--good)}
+.patience i.warn{background:var(--bad)}
+.qbox{text-align:center;margin:10px 0 2px}
+.q{font-family:Fredoka,sans-serif;font-weight:700;font-size:clamp(2.6rem,12vw,4.3rem);line-height:1.1}
+.q .ans{display:inline-block;min-width:1.3em;color:var(--brand);border-bottom:5px solid var(--line)}
+.words{font-weight:900;color:var(--muted);font-size:1.15rem;min-height:1.5em;margin-top:2px}
+.msg{text-align:center;font-weight:900;min-height:1.6em;font-size:1.1rem}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}.msg.combo{color:#e07b00}
+.msg.pop{animation:pop .35s}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.choice{border:0;border-radius:22px;padding:16px 6px;font-family:Fredoka,sans-serif;font-size:2.2rem;font-weight:700;color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.13);transition:transform .06s}
+.choice:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.13)}
+.choice:nth-child(1){background:#ffe7a8}.choice:nth-child(2){background:#ffd8c7}.choice:nth-child(3){background:#ffd1e3}.choice:nth-child(4){background:#d6efc4}
+.choice.right{background:var(--good)!important;color:#fff}
+.choice.wrong{background:var(--bad)!important;color:#fff;animation:shake .35s}
+.choice:disabled{cursor:default}
+
+/* ===== end of the day ===== */
+.result{background:#fff;border-radius:28px;padding:26px 18px;text-align:center;box-shadow:var(--shadow);margin-top:8px}
+.result .big{font-size:5.5rem;line-height:1.1;display:inline-block;animation:pop .6s}
+.result h2{margin:6px 0;font-size:1.8rem}
+.result .stars{font-size:2.6rem;letter-spacing:.1em}
+.result p{color:var(--muted);font-weight:800;margin:6px 0}
+.reward{display:inline-block;background:#fff6d6;border-radius:999px;padding:8px 16px;font-weight:900;margin:8px 0}
+.mistakes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.mistakes span{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:7px 11px;font-weight:900;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:16px;padding:14px 22px;font-weight:900;font-size:1.05rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--brand-dark)}
+.btn.light{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes walkin{from{transform:translateX(-120px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@media(max-width:620px){.days{grid-template-columns:repeat(4,1fr);gap:8px}.day .ic{font-size:1.9rem}.day .tag{font-size:1.05rem}.day .name{font-size:.66rem}
+ .counter{height:250px}.cust{font-size:3.4rem}.bubble{left:78px;font-size:.95rem}.choice{font-size:1.9rem;padding:14px 4px}.cell{font-size:.58rem}.deco{font-size:1.6rem}}
+</style></head>
+<body>
+<div class="top">
+  <a class="home" id="homeLink" href="../index.html">← Home</a>
+  <div class="wallet">
+    <span class="chip" id="coinChip">🪙 <span id="coinTotal">0</span></span>
+    <button class="tbtn" type="button" id="soundBtn">🔔 Sound on</button>
+  </div>
+</div>
+<div class="wrap">
+
+<!-- ===== MAP ===== -->
+<section id="map">
+  <div class="cafe hero" id="heroCafe">
+    <div class="title">
+      <h1>☕ Division Café</h1>
+      <p>Share the treats fairly and make every customer happy!</p>
+      <div class="progress" id="progress"></div>
+    </div>
+  </div>
+  <div class="days" id="days"></div>
+  <details class="panel" id="shopPanel" open>
+    <summary>🛍️ Café shop: decorate your café <small>用金币装饰你的咖啡馆</small></summary>
+    <div class="shop" id="shop"></div>
+  </details>
+  <details class="panel">
+    <summary>📋 For parents: division chart <small>给家长看：除法掌握表</small></summary>
+    <div class="chart" id="chart"></div>
+    <div class="legend">
+      <span><i style="background:#f4efea"></i>Not tried 还没练</span>
+      <span><i style="background:#fff1c4"></i>Tried 练过</span>
+      <span><i style="background:#cdeed6"></i>Almost 快会了</span>
+      <span><i style="background:#315f47"></i>Got it! 掌握啦</span>
+    </div>
+  </details>
+</section>
+
+<!-- ===== SERVING ===== -->
+<section id="serve" hidden>
+  <div class="bar-top">
+    <button class="tbtn" type="button" id="quitBtn">✕ Close the café</button>
+    <span class="hearts" id="hearts"></span>
+    <span class="chip">🪙 +<span id="sCoins">0</span></span>
+  </div>
+  <div class="cafe counter" id="counter">
+    <div class="sign" id="daySign"></div>
+    <div class="cust" id="cust"></div>
+    <div class="bubble" id="bubble"></div>
+    <div class="pile" id="pile"></div>
+    <div class="plates" id="plates"></div>
+  </div>
+  <div class="patience"><i id="patFill"></i></div>
+  <div class="qbox"><div class="q" id="question"></div><div class="words" id="qWords"></div></div>
+  <div class="msg" id="msg"></div>
+  <div class="choices" id="choices"></div>
+</section>
+
+<!-- ===== END OF THE DAY ===== -->
+<section id="result" hidden>
+  <div class="result">
+    <div class="big" id="rBig"></div>
+    <h2 id="rTitle"></h2>
+    <div class="stars" id="rStars"></div>
+    <div class="reward" id="rReward"></div>
+    <p id="rSub"></p>
+    <div id="rMissBox">
+      <p>Practice these again:</p>
+      <div class="mistakes" id="rMiss"></div>
+    </div>
+    <div class="row">
+      <button class="btn" type="button" id="againBtn">Play again</button>
+      <button class="btn light" type="button" id="mapBtn">Back to the café</button>
+    </div>
+  </div>
+</section>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  "use strict";
+  // one day for each divisor; Busy Day mixes them all; the Practice Kitchen repeats the facts that were missed
+  var DAYS=[2,3,4,5,6,7,8,9].map(function(d,i){
+    return {id:"d"+d,d:d,n:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday","Funday"][i],e:["🍪","🧁","🍩","🍓","🥐","🍰","🍬","🍒"][i]};
+  });
+  var BUSY={id:"busy",e:"🎉",n:"Busy Day"};
+  var KITCHEN={id:"kitchen",e:"👩‍🍳",n:"Practice Kitchen"};
+  var BUSY_NEED=3;
+  var TREATS=[["🍪","cookie","cookies"],["🧁","cupcake","cupcakes"],["🍩","donut","donuts"],["🍓","strawberry","strawberries"],["🥐","croissant","croissants"],["🍬","candy","candies"],["🍒","cherry","cherries"],["🥨","pretzel","pretzels"]];
+  var GUESTS=["🐻","🐰","🐼","🦊","🐨","🐯","🐷","🐸","🐵","🐶","🐱","🦁","🐮","🐹","🐧","🦄"];
+  var THANKS=["Thank you!","Yummy!","Perfect!","Just right!","Wonderful!","So fair!"];
+  var SHOP=[
+    {id:"plant",e:"🪴",n:"Plant",p:10,x:"6%",y:"40%"},
+    {id:"lamp",e:"💡",n:"Lights",p:15,x:"22%",y:"6%"},
+    {id:"flowers",e:"💐",n:"Flowers",p:20,x:"86%",y:"40%"},
+    {id:"picture",e:"🖼️",n:"Picture",p:25,x:"72%",y:"8%"},
+    {id:"clock",e:"🕰️",n:"Clock",p:30,x:"8%",y:"8%"},
+    {id:"radio",e:"📻",n:"Music",p:35,x:"90%",y:"10%"},
+    {id:"cat",e:"🐈",n:"Café cat",p:45,x:"78%",y:"70%"},
+    {id:"balloons",e:"🎈",n:"Balloons",p:55,x:"36%",y:"4%"},
+    {id:"cake",e:"🎂",n:"Big cake",p:70,x:"14%",y:"72%"},
+    {id:"sign",e:"⭐",n:"Golden sign",p:100,x:"0",y:"0"}
+  ];
+
+  // ---------- saved progress (this browser only) ----------
+  var STORE="divCafe.v1";
+  var data={facts:{},days:{},coins:0,owned:{},sound:true};
+  try{
+    var raw=localStorage.getItem(STORE);
+    if(raw){ var d0=JSON.parse(raw);
+      if(d0&&typeof d0==="object"){
+        if(d0.facts) data.facts=d0.facts;
+        if(d0.days) data.days=d0.days;
+        if(d0.owned) data.owned=d0.owned;
+        if(typeof d0.coins==="number") data.coins=d0.coins;
+        if(typeof d0.sound==="boolean") data.sound=d0.sound;
+      } }
+  }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(data)); }catch(e){} }
+
+  // a fact is "dividend/divisor", e.g. "12/3"
+  function key(a,b){ return a+"/"+b; }
+  function fact(k){ return data.facts[k]||(data.facts[k]={ok:0,miss:0}); }
+  function level(k){
+    var f=data.facts[k]; if(!f||(f.ok+f.miss)===0) return 0;
+    var net=f.ok-f.miss*2;
+    if(f.ok>=5&&net>=4) return 3;
+    if(f.ok>=2&&net>=1) return 2;
+    return 1;
+  }
+  function missList(){ return Object.keys(data.facts).filter(function(k){ return data.facts[k].miss>0&&level(k)<3; }); }
+  function starsOf(id){ return (data.days[id]&&data.days[id].stars)||0; }
+  function playedCount(){ return DAYS.filter(function(D){ return starsOf(D.id)>0; }).length; }
+
+  // ---------- numbers in words: "twelve divided by three is four" ----------
+  var ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+  var TENS=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+  function inWords(n){ if(n<20) return ONES[n]; var t=TENS[Math.floor(n/10)], o=n%10; return o?t+"-"+ONES[o]:t; }
+  function sayFact(a,b,q){ return inWords(a)+" divided by "+inWords(b)+(q==null?"":" is "+inWords(q)); }
+
+  // ---------- sound effects (no voice) ----------
+  var actx=null;
+  function tone(notes,type,len){
+    if(!data.sound) return;
+    try{
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      notes.forEach(function(f,i){
+        var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+i*(len*.6);
+        o.type=type; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.14,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+len);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02);
+      });
+    }catch(e){}
+  }
+  var SFX={
+    ding:function(){tone([880,1320],"triangle",.13);},
+    tip:function(){tone([880,1175,1568],"square",.09);},
+    oops:function(){tone([300,220],"sawtooth",.16);},
+    buy:function(){tone([659,880,1047],"triangle",.12);},
+    win:function(){tone([523,659,784,1047],"triangle",.18);},
+    lose:function(){tone([392,330,262],"sine",.25);}
+  };
+
+  var $=function(id){return document.getElementById(id);};
+  function show(id){ ["map","serve","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); window.scrollTo(0,0); }
+
+  // ---------- the café's decorations ----------
+  function decorate(box){
+    [].slice.call(box.querySelectorAll(".deco")).forEach(function(x){ x.remove(); });
+    var sign=box.querySelector(".sign"); if(sign) sign.classList.toggle("gold",!!data.owned.sign);
+    SHOP.forEach(function(it){
+      if(!data.owned[it.id]||it.id==="sign") return;
+      var s=document.createElement("span"); s.className="deco"; s.textContent=it.e; s.style.left=it.x; s.style.top=it.y;
+      box.appendChild(s);
+    });
+  }
+
+  // ---------- map ----------
+  function starText(n){ return "⭐".repeat(n)+"☆".repeat(3-n); }
+  function renderMap(){
+    $("coinTotal").textContent=data.coins;
+    var hero=$("heroCafe");
+    if(!hero.querySelector(".sign")){ var sg=document.createElement("div"); sg.className="sign"; sg.textContent="OPEN"; hero.appendChild(sg); }
+    decorate(hero);
+    $("progress").textContent="Days done: "+(playedCount()+(starsOf("busy")?1:0))+" / 9";
+    var box=$("days"); box.innerHTML="";
+    DAYS.forEach(function(D){
+      var s=starsOf(D.id), b=document.createElement("button");
+      b.type="button"; b.className="day"+(s===3?" gold":"");
+      b.innerHTML='<span class="ic">'+D.e+'</span><span class="tag">÷ '+D.d+'</span><span class="name">'+D.n+'</span><div class="stars">'+starText(s)+'</div>';
+      b.onclick=function(){ startDay(D); };
+      box.appendChild(b);
+    });
+    var bs=starsOf("busy"), open=playedCount()>=BUSY_NEED, bb=document.createElement("button"), left=BUSY_NEED-playedCount();
+    bb.type="button"; bb.className="day wide busy"+(open?"":" locked")+(bs===3?" gold":"");
+    bb.innerHTML='<span class="ic">'+(open?BUSY.e:"🔒")+'</span><span class="txt"><span class="tag">Busy Day</span><span class="name">'+
+      (open?(bs?"All the days mixed up "+starText(bs):"All the days mixed up. Lots of hungry customers!"):"Finish "+left+" more "+(left===1?"day":"days")+" to unlock")+'</span></span>';
+    bb.onclick=function(){ if(open) startDay(BUSY); };
+    box.appendChild(bb);
+    var n=missList().length, kb=document.createElement("button");
+    kb.type="button"; kb.className="day wide kitchen"; kb.disabled=!n;
+    kb.innerHTML='<span class="ic">'+KITCHEN.e+'</span><span class="txt"><span class="tag">Practice Kitchen</span><span class="name">'+
+      (n?("You missed "+n+" "+(n===1?"fact":"facts")+". Let's practice! No hearts lost here."):"No missed facts. Great job!")+'</span></span>';
+    kb.onclick=function(){ if(n) startDay(KITCHEN); };
+    box.appendChild(kb);
+    renderShop(); renderChart();
+  }
+  function renderShop(){
+    var box=$("shop"); box.innerHTML="";
+    SHOP.forEach(function(it){
+      var own=!!data.owned[it.id], b=document.createElement("button");
+      b.type="button"; b.className="item"+(own?" own":""); b.disabled=own||data.coins<it.p;
+      b.innerHTML='<span class="e">'+it.e+'</span><span class="n">'+it.n+'</span><span class="p">'+(own?"✓ In your café":"🪙 "+it.p)+'</span>';
+      b.onclick=function(){ if(own||data.coins<it.p) return; data.coins-=it.p; data.owned[it.id]=1; save(); SFX.buy(); renderMap(); };
+      box.appendChild(b);
+    });
+  }
+  function renderChart(){
+    var box=$("chart"); box.innerHTML="";
+    for(var q=1;q<=9;q++) for(var d=2;d<=9;d++){
+      var el=document.createElement("div"), a=d*q;
+      el.className="cell l"+level(key(a,d)); el.textContent=a+"÷"+d; el.title=a+"÷"+d+"="+q;
+      box.appendChild(el);
+    }
+  }
+  $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
+  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 Sound on":"🔕 Sound off"; }
+
+  // ---------- serving ----------
+  var S=null, raf=0, pending=0;
+  function buildPool(D){
+    var pool=[];
+    if(D===KITCHEN){ missList().forEach(function(k){ var p=k.split("/"); pool.push([+p[0],+p[1]]); }); }
+    else if(D===BUSY){ for(var d=2;d<=9;d++) for(var q=2;q<=9;q++) pool.push([d*q,d]); }
+    else{ for(var i=1;i<=9;i++) pool.push([D.d*i,D.d]); }
+    return pool;
+  }
+  function weight(f){ var x=data.facts[key(f[0],f[1])]; return 1+(x?x.miss*2:0)+(level(key(f[0],f[1]))<2?1:0); }
+  function pick(){
+    var pool=S.pool, last=S.f, tot=0;
+    var ws=pool.map(function(f){ var w=weight(f); if(last&&f[0]===last[0]&&f[1]===last[1]&&pool.length>1) w=0; tot+=w; return w; });
+    var r=Math.random()*tot, i=0;
+    for(;i<pool.length;i++){ r-=ws[i]; if(r<=0) break; }
+    return pool[Math.min(i,pool.length-1)].slice();
+  }
+  function choicesFor(a,b){
+    var q=a/b, seen={}, out=[q]; seen[q]=1;
+    var cand=[q+1,q-1,q+2,q-2,b,a-b,Math.round(a/(b+1)),Math.round(a/Math.max(1,b-1)),q*2];
+    cand.sort(function(){return Math.random()-.5;});
+    cand.forEach(function(v){ if(out.length<4&&v>0&&v<=81&&!seen[v]){ seen[v]=1; out.push(v); } });
+    while(out.length<4){ var v=1+Math.floor(Math.random()*12); if(!seen[v]){ seen[v]=1; out.push(v); } }
+    return out.sort(function(){return Math.random()-.5;});
+  }
+
+  function startDay(D){
+    var pool=buildPool(D); if(!pool.length) return;
+    var guests = D===BUSY?12 : D===KITCHEN?Math.max(4,Math.min(10,pool.length*2)) : 8;
+    S={D:D,pool:pool,left:guests,total:guests,hearts:D===KITCHEN?Infinity:3,coins:0,streak:0,best:0,correct:0,miss:{},f:null,locked:false,
+       limit:D===BUSY?12000:15000};
+    $("daySign").textContent=D===BUSY?"🎉 Busy Day":D===KITCHEN?"👩‍🍳 Practice Kitchen":D.e+" "+D.n+" · ÷ "+D.d;
+    decorate($("counter"));
+    $("sCoins").textContent="0"; $("msg").textContent=""; $("msg").className="msg";
+    renderHearts(); show("serve"); nextGuest();
+  }
+  function renderHearts(){
+    if(S.hearts===Infinity){ $("hearts").textContent="💪 Practice"; return; }
+    var h=""; for(var i=0;i<3;i++) h+= i<S.hearts ? "😊" : '<span class="lost">😊</span>';
+    $("hearts").innerHTML=h+' <span style="font-size:1rem">👥 '+S.left+'</span>';
+  }
+  function treatGrid(icon,n,per){
+    // a little block of n treats, per to a row
+    var size=n>36?".95rem":n>20?"1.15rem":"1.4rem", h='<div style="font-size:'+size+'">';
+    for(var i=0;i<n;i++){ h+=icon; if((i+1)%per===0&&i<n-1) h+="<br>"; }
+    return h+"</div>";
+  }
+  function nextGuest(){
+    S.locked=false; S.f=pick();
+    var a=S.f[0], b=S.f[1], tr=TREATS[Math.floor(Math.random()*TREATS.length)];
+    S.tr=tr;
+    var c=$("cust"); c.textContent=GUESTS[Math.floor(Math.random()*GUESTS.length)]; c.className="cust"; void c.offsetWidth; c.className="cust in";
+    $("bubble").innerHTML="Please share <b>"+a+" "+(a===1?tr[1]:tr[2])+"</b> on <b>"+b+" plates</b>. The same on each plate!";
+    $("pile").innerHTML=treatGrid(tr[0],a,a>40?12:a>20?10:9);
+    var pl=""; for(var i=0;i<b;i++) pl+='<div class="plate"><div class="t">&nbsp;</div></div>';
+    $("plates").innerHTML=pl;
+    $("question").innerHTML=a+" ÷ "+b+' = <span class="ans">?</span>';
+    $("qWords").textContent=sayFact(a,b);
+    var box=$("choices"); box.innerHTML="";
+    choicesFor(a,b).forEach(function(v){
+      var bt=document.createElement("button"); bt.type="button"; bt.className="choice"; bt.textContent=v; bt.dataset.v=v;
+      bt.onclick=function(){ answer(bt); }; box.appendChild(bt);
+    });
+    S.t0=performance.now(); tick();
+  }
+  function tick(){
+    cancelAnimationFrame(raf);
+    (function loop(){
+      if(!S||S.locked) return;
+      var left=1-(performance.now()-S.t0)/S.limit;
+      var pf=$("patFill"); pf.style.width=Math.max(0,left*100)+"%"; pf.className=left<.3?"warn":"";
+      if(left<=0){ answer(null); return; }
+      raf=requestAnimationFrame(loop);
+    })();
+  }
+  function share(){
+    // the treats move from the pile onto the plates, the same number on each
+    var a=S.f[0], b=S.f[1], q=a/b, per=q>4?Math.ceil(q/2):q;
+    $("pile").innerHTML="";
+    var pl=""; for(var i=0;i<b;i++) pl+='<div class="plate fill" style="animation-delay:'+(i*60)+'ms"><div class="t" style="font-size:'+(q>6?".85rem":"1.05rem")+'">'+treatGrid(S.tr[0],q,per)+'</div></div>';
+    $("plates").innerHTML=pl;
+  }
+  function say(text,cls){ var m=$("msg"); m.className="msg "+cls; void m.offsetWidth; m.textContent=text; m.classList.add("pop"); }
+  function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
+
+  function answer(btn){
+    if(!S||S.locked) return; S.locked=true; cancelAnimationFrame(raf);
+    var a=S.f[0], b=S.f[1], q=a/b, k=key(a,b), f=fact(k), ms=performance.now()-S.t0;
+    [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(+x.dataset.v===q) x.classList.add("right"); });
+    $("question").innerHTML=a+" ÷ "+b+' = <span class="ans">'+q+'</span>';
+    $("qWords").textContent=sayFact(a,b,q);
+    share();
+    var c=$("cust");
+    S.left--;
+    if(btn&&+btn.dataset.v===q){
+      f.ok++; S.correct++; S.streak++; S.best=Math.max(S.best,S.streak);
+      var fast=ms<4000, gain=fast?2:1;
+      S.coins+=gain; $("sCoins").textContent=S.coins;
+      c.className="cust happy";
+      $("bubble").innerHTML=THANKS[Math.floor(Math.random()*THANKS.length)]+" "+q+" on each plate. "+(fast?"Here is a tip! 🪙🪙":"🪙");
+      if(fast) SFX.tip(); else SFX.ding();
+      if(S.streak>=3) say("🔥 "+S.streak+" happy customers in a row!","combo");
+      else say(fast?"⚡ Super fast! You got a tip!":["Great job!","Nice sharing!","You got it!","Awesome!"][Math.floor(Math.random()*4)],"good");
+    }else{
+      if(btn) btn.classList.add("wrong");
+      f.miss++; S.streak=0; S.miss[k]=1;
+      S.pool.push([a,b],[a,b]);   // a missed fact comes back soon
+      c.className="cust sad";
+      $("bubble").innerHTML="Hmm… "+a+" shared on "+b+" plates is <b>"+q+"</b> on each plate.";
+      SFX.oops();
+      if(S.hearts!==Infinity) S.hearts--;
+      say((btn?"Oops! ":"Too slow! ")+a+" ÷ "+b+" = "+q,"bad");
+    }
+    save(); renderHearts();
+    var wait=(btn&&+btn.dataset.v===q)?1500:2600;
+    if(S.hearts<=0) later(function(){ finish(false); },wait);
+    else if(S.left<=0) later(function(){ SFX.win(); finish(true); },wait);
+    else later(nextGuest,wait);
+  }
+
+  function finish(won){
+    cancelAnimationFrame(raf); clearTimeout(pending);
+    var D=S.D, stars=0, bonus=0;
+    if(won){
+      if(D===KITCHEN){ bonus=5; }
+      else{
+        stars=S.hearts;
+        if(stars>starsOf(D.id)) data.days[D.id]={stars:stars};
+        bonus=stars*5;
+      }
+    }
+    data.coins+=S.coins+bonus; save();
+    $("rBig").textContent = won?(D===KITCHEN?KITCHEN.e:"☕"):"🌧️";
+    $("rTitle").textContent = won ? (D===KITCHEN?"Practice done!":"The café had a great "+(D===BUSY?"Busy Day":D.n)+"!") : "The customers left. Try again!";
+    $("rStars").textContent = (won&&D!==KITCHEN) ? starText(stars) : "";
+    $("rReward").textContent = "🪙 +"+(S.coins+bonus)+(bonus?" (bonus +"+bonus+")":"");
+    $("rSub").textContent = S.correct+" happy customers · best streak "+S.best+(won&&D!==KITCHEN&&stars<3?" · Keep every customer happy to get 3 stars":"");
+    var miss=Object.keys(S.miss);
+    $("rMissBox").hidden=!miss.length;
+    $("rMiss").innerHTML=miss.map(function(k){ var p=k.split("/"); return "<span>"+p[0]+" ÷ "+p[1]+" = "+(p[0]/p[1])+"</span>"; }).join("");
+    show("result");
+    if(won) confetti(); else SFX.lose();
+  }
+  function quit(){ cancelAnimationFrame(raf); clearTimeout(pending); renderMap(); show("map"); }
+  $("quitBtn").onclick=function(){ S=null; quit(); };
+  $("mapBtn").onclick=quit;
+  $("againBtn").onclick=function(){ var D=S.D; if(D===KITCHEN&&!missList().length){ quit(); return; } startDay(D); };
+  document.addEventListener("keydown",function(e){
+    if($("serve").hidden) return;
+    var i="1234".indexOf(e.key); if(i<0) return;
+    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+  });
+
+  // ---------- confetti ----------
+  function confetti(){
+    if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cv=$("confetti"),ctx=cv.getContext("2d"); cv.width=innerWidth; cv.height=innerHeight;
+    var cols=["#f5b301","#2f9e5b","#c8613f","#e86a9c","#3aa3c4"],ps=[];
+    for(var i=0;i<150;i++) ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.28,c:cols[i%5],s:6+Math.random()*6});
+    var t0=performance.now();
+    (function loop(t){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); });
+      if(t-t0<3000) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+    })(t0);
+  }
+
+  // inside the site's reader window the reader's own close button takes the child back to the shelf
+  var framed=true; try{ framed=window.self!==window.top; }catch(e){}
+  if(framed) $("homeLink").style.visibility="hidden";
+
+  renderSound(); renderMap();
+})();
+</script>
+</body></html>
