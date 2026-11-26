@@ -34,6 +34,7 @@ import site_audit as A  # noqa: E402  (silences)
 LONG = 2.0   # a silence this long or longer (in the middle of the clip) is shortened
 KEEP = 1.0   # ... to this
 EDGE = 0.3   # silence at the very start or end of the clip is left alone
+EARLY = 2.0  # a word time this close before the voice comes back (inside the cut) is Whisper starting the word early: it is moved to the cut
 
 
 def download(url):
@@ -120,12 +121,20 @@ def fix_page(html, k, dry_run=False, upload=None, audio_dir=None, slug=""):
     cuts = cuts_for(sil, dur)
     if not cuts:
         return html, "page %s: no silence of %.0f s or more in the middle of the audio, nothing to cut" % (k, LONG)
-    new_times = [shift(x, cuts) for x in times]
-    if any(x is None for x in new_times):
-        return html, "page %s: a word time falls inside a silence, so the word times do not match this audio: NOT changed (voice the page again)" % k
+    new_times, moved = [], 0
+    for x in times:
+        y = shift(x, cuts)
+        if y is None:
+            end = [b for a2, b in cuts if a2 < x < b][0]
+            if end + KEEP / 2 - x > EARLY:  # deep inside the silence: the word times do not belong to this audio
+                return html, "page %s: a word time (%.1f s) is deep inside a silence, so the word times do not match this audio: NOT changed (voice the page again)" % (k, x)
+            y = shift(x, cuts, clamp=True)
+            moved += 1
+        new_times.append(y)
     removed = sum(b - a2 for a2, b in cuts)
-    plan = "page %s: %s -> %.1f s shorter (%.1f s -> %.1f s)" % (
-        k, ", ".join("%.1f s silence at %.1f s cut to %.1f s" % (b - a2 + KEEP, a2 - KEEP / 2, KEEP) for a2, b in cuts), removed, dur, dur - removed)
+    plan = "page %s: %s -> %.1f s shorter (%.1f s -> %.1f s)%s" % (
+        k, ", ".join("%.1f s silence at %.1f s cut to %.1f s" % (b - a2 + KEEP, a2 - KEEP / 2, KEEP) for a2, b in cuts), removed, dur, dur - removed,
+        "" if not moved else "; %d word time%s that started a little early moved to the cut" % (moved, "" if moved == 1 else "s"))
     if dry_run:
         return html, "would cut " + plan
     new = cut_audio(raw, cuts, dur)

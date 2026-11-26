@@ -71,10 +71,17 @@ ok(abs(t["3"][3] - (2.0 + FP.KEEP)) < 0.3, "the voice comes back about 1 s after
 ok(m["3"][1]["cf"] == 1.0 and m["3"][0]["cs"] == 0.5 and 0 < m["3"][0]["cf"] < 1, "the sentence marks are moved too, the end stays the end", m["3"])
 ok(json.loads(json.dumps(m)) == m, "the marks are still plain JSON")
 
-# a page whose word times do not fit the audio (a word inside the silence) is left alone
-bad = html.replace("[0.0, 0.8, 1.6, 6.5, 7.3]", "[0.0, 0.8, 4.0, 6.5, 7.3]")
+# a page whose word times do not fit the audio (a word deep inside the silence) is left alone
+bad = html.replace("[0.0, 0.8, 1.6, 6.5, 7.3]", "[0.0, 0.8, 3.0, 6.5, 7.3]")
 same, msg = FP.fix_page(bad, "3", upload=upload, audio_dir="x")
 ok(same == bad and "NOT changed" in msg and len(uploads) == 1, "word times that do not match the audio: nothing is cut or uploaded", msg)
+
+# Whisper often starts the word after a pause a little early (inside the silence): that word time is moved to the cut
+early = html.replace("[0.0, 0.8, 1.6, 6.5, 7.3]", "[0.0, 0.8, 1.6, 5.6, 7.3]")
+new, msg = FP.fix_page(early, "3", upload=upload, audio_dir="x")
+t2 = R.window_value(new, "RV_WORD_TIMES")[2]["3"]
+ok(new != early and "1 word time that started a little early moved to the cut" in msg and len(uploads) == 2, "an early word time inside the silence: the page is fixed", msg)
+ok(t2[:3] == [0.0, 0.8, 1.6] and t2[2] < t2[3] < t2[4] and abs(t2[3] - (2.0 + FP.KEEP / 2)) < 0.3, "... and that word now starts at the cut, about half a second before the voice", t2)
 
 # a page with no long silence
 FP.download = lambda url: mp3("sine=f=300:d=4")
