@@ -3,7 +3,7 @@
 <title>Potion Lab</title>
 <meta name="theme-color" content="#6a4fc4">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<meta name="description" content="Potion Lab: read beakers in liters and scales in grams and kilograms, pick the right unit, solve measuring problems. Grade 3 math in English.">
+<meta name="description" content="Potion Lab: hold to pour, stop right on the line! Brew potions in liters, grams and kilograms to cure Sparky the little dragon. Grade 3 measuring in English.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 </head><body>
 <script src="engine.js"></script>
@@ -13,188 +13,283 @@
   var M=MathGame, between=M.between, pickOne=M.pickOne, rnd=M.rnd;
   function Q(kind,d){ d.kind=kind; d.key=kind+"|"+JSON.stringify(d); return d; }
   function fromKey(k){ var i=k.indexOf("|"); var d=JSON.parse(k.slice(i+1)); d.key=k; return d; }
-  var COLORS=[["#7cd67c","green"],["#6ab8ff","blue"],["#c88cff","purple"],["#ff8fb1","pink"],["#ffb347","orange"]];
+  var POTIONS=[["#58c858","green"],["#4aa8ff","blue"],["#b678ff","purple"],["#ff7fa8","pink"],["#ffa83c","orange"]];
+  var SANDS=[["⭐","star sugar","#ffd84a"],["🌙","moon sand","#c9c3ff"],["🌸","flower dust","#ffb3cf"],["❄️","snow salt","#d8f0ff"]];
   var LIGHT=[["📎","paper clip"],["🍇","grape"],["✏️","pencil"],["🪙","coin"],["🪶","feather"],["🖍️","crayon"],["🍓","strawberry"],["🔑","key"],["🧷","safety pin"],["🍬","candy"]];
   var HEAVY=[["🐕","dog"],["🚲","bicycle"],["🍉","watermelon"],["🧒","child"],["🎃","pumpkin"],["🪑","chair"],["📺","TV"],["🧳","suitcase"],["🐑","sheep"],["🛢️","barrel of oil"]];
-  // things that are weighed on the scales: a few hundred grams, or a few kilograms
-  var ON_G=[["🍞","loaf of bread"],["🍍","pineapple"],["🍯","jar of honey"],["📚","book"],["🥫","can of soup"],["🍌","bunch of bananas"],["🧸","teddy bear"],["🧀","piece of cheese"],["🍊","bag of oranges"]];
-  var ON_KG=[["🍉","watermelon"],["🎃","pumpkin"],["🐕","puppy"],["🧳","suitcase"],["🎒","backpack"],["🍚","bag of rice"],["🥔","bag of potatoes"],["🐈","cat"],["🪴","big plant"]];
-  // [emoji, name, the real amount, unit] for "about how much?"
   var EST=[["🐈","a cat",4,"kg"],["🍎","an apple",200,"g"],["📎","a paper clip",1,"g"],["📕","a big dictionary",1,"kg"],["🐕","a big dog",30,"kg"],["🚲","a bike",15,"kg"],
            ["✏️","a pencil",5,"g"],["🍉","a watermelon",5,"kg"],["🧴","a big water bottle",1,"L"],["🪣","a bucket of water",10,"L"],["🛁","a full bathtub",200,"L"],["🐠","a small fish tank",20,"L"]];
 
   // ---------- the questions ----------
-  function beaker(){ var max=pickOne([6,8,10]), v=between(1,max); return Q("beaker",{m:max,v:v,c:rnd(5)}); }
-  function scale(){
-    if(Math.random()<.5){ var m=pickOne([10,20]), st=m===10?1:2; return Q("scale",{u:"kg",m:m,st:st,v:st*between(1,m/st-1),o:rnd(ON_KG.length)}); }
-    return Q("scale",{u:"g",m:1000,st:100,v:100*between(1,9),o:rnd(ON_G.length)});
-  }
-  function unit(){ var heavy=Math.random()<.5; return Q("unit",{h:heavy?1:0,o:rnd(10)}); }
-  function word1(){
-    if(Math.random()<.5){ var a=between(2,9), b=between(2,9); return Q("word",{op:"+",a:a,b:b,c:rnd(5),d:rnd(5)}); }
-    var x=between(6,15), y=between(2,x-2); return Q("word",{op:"-",a:x,b:y,c:rnd(5)});
-  }
-  function word2(){
-    if(Math.random()<.5){ var a=between(2,9), n=between(2,5); return Q("word",{op:"x",a:a,b:n,o:rnd(HEAVY.length)}); }
-    var per=between(2,9), k=between(2,5); return Q("word",{op:"/",a:per*k,b:k,c:rnd(5)});
-  }
+  // pour: fill the beaker to t liters (gold: the line is shown)   add: a liters of one colour, then b of another (stop at a+b)
+  // sub: the beaker has s liters, pour out b                       scale: pour onto the scale until t g / kg     batch: n spells of p kg each
+  function pour1(){ return Q("pour",{cap:6,lab:1,t:between(1,5),c:rnd(5),gold:1}); }
+  function pour2(){ var t; do{ t=between(1,9); }while(t%2===0&&Math.random()<.75); return Q("pour",{cap:10,lab:2,t:t,c:rnd(5),gold:0}); }
+  function add(){ var a=between(1,5), b=between(1,9-a); var c=rnd(5), d; do{ d=rnd(5); }while(d===c); return Q("add",{cap:10,lab:2,a:a,b:b,c:c,d:d}); }
+  function sub(){ var s=between(5,10), b=between(1,s-1); return Q("sub",{cap:10,lab:2,s:s,b:b,c:rnd(5)}); }
+  function scale(){ if(Math.random()<.5) return Q("scale",{u:"g",cap:1000,st:100,t:100*between(1,9),i:rnd(4)}); return Q("scale",{u:"kg",cap:10,st:1,t:between(1,9),i:rnd(4)}); }
+  function batch(){ var p=between(2,5), n=between(2,Math.min(4,Math.floor(18/p))); return Q("batch",{u:"kg",cap:20,st:1,p:p,n:n,t:p*n,i:rnd(4)}); }
+  function unit(){ return Q("unit",{h:Math.random()<.5?1:0,o:rnd(10)}); }
   function est(){ return Q("est",{i:rnd(EST.length)}); }
   var LEVELS=[
-    {id:"m1",n:"Read the Beaker",ic:"🧪",gen:beaker},
-    {id:"m2",n:"Read the Scale",ic:"⚖️",gen:scale},
-    {id:"m3",n:"Grams or Kilograms?",ic:"🪶",gen:unit},
-    {id:"m4",n:"Mix and Pour",ic:"🫗",gen:word1},
-    {id:"m5",n:"Big Batches",ic:"🍯",gen:word2},
-    {id:"m6",n:"Good Guess",ic:"🤔",gen:est}
+    {id:"p1",n:"First Drops",ic:"💧",gen:pour1},
+    {id:"p2",n:"Hidden Lines",ic:"🧪",gen:pour2},
+    {id:"p3",n:"Two-Part Recipes",ic:"🌈",gen:add},
+    {id:"p4",n:"Pour It Out",ic:"🫗",gen:sub},
+    {id:"p5",n:"Weigh It",ic:"⚖️",gen:scale},
+    {id:"p6",n:"Big Batches",ic:"🍯",gen:batch},
+    {id:"p7",n:"Grams or Kilograms?",ic:"🪶",gen:unit},
+    {id:"p8",n:"Good Guess",ic:"🤔",gen:est}
   ];
+  var POURING={pour:1,add:1,sub:1,scale:1,batch:1};
 
-  // ---------- pictures ----------
-  function beakerSvg(d){
-    var H=200, top=24, bot=top+H, step=d.m<=6?1:2, col=COLORS[d.c][0], lv=bot-d.v/d.m*H;
-    var s='<svg viewBox="0 0 220 250" style="width:100%;max-width:260px;display:block;margin:6px auto 0">';
-    s+='<path d="M60 '+lv+' L60 '+(bot-8)+' Q60 '+bot+' 68 '+bot+' L152 '+bot+' Q160 '+bot+' 160 '+(bot-8)+' L160 '+lv+' Z" fill="'+col+'" opacity=".85"/>';
-    s+='<path d="M60 '+(top-14)+' L60 '+(bot-8)+' Q60 '+bot+' 68 '+bot+' L152 '+bot+' Q160 '+bot+' 160 '+(bot-8)+' L160 '+(top-14)+'" fill="none" stroke="#3a2c6b" stroke-width="5" stroke-linejoin="round"/>';
-    for(var v=1;v<=d.m;v++){ var y=bot-v/d.m*H, lab=v%step===0;
-      s+='<line x1="'+(lab?118:132)+'" y1="'+y+'" x2="160" y2="'+y+'" stroke="#3a2c6b" stroke-width="'+(lab?3:2)+'"/>';
-      if(lab) s+='<text x="170" y="'+(y+6)+'" font-family="Fredoka,sans-serif" font-weight="700" font-size="17" fill="#3a2c6b">'+v+'</text>'; }
-    s+='<text x="172" y="'+(bot+18)+'" font-size="13" font-weight="800" fill="#6a5a9a">liters</text>';
-    s+='<text x="40" y="'+(lv+5)+'" text-anchor="end" font-size="16">✨</text></svg>';
+  // ---------- drawing ----------
+  function beakerSvg(cap,lab,layers,gold,marks){
+    // layers: [[liters, colour]] from the bottom; gold: a line to aim at (shown on the first level, and after an answer)
+    var H=210, top=30, bot=top+H, s='<svg viewBox="0 0 230 260" style="width:100%;max-width:250px;display:block;margin:0 auto">', y=bot;
+    layers.forEach(function(L){ if(L[0]<=0) return; var h=L[0]/cap*H, y2=Math.max(top-16,y-h);
+      s+='<rect x="62" y="'+y2.toFixed(1)+'" width="96" height="'+(y-y2).toFixed(1)+'" fill="'+L[1]+'" opacity=".9"/>'; y=y2; });
+    if(y<bot) s+='<ellipse cx="110" cy="'+y.toFixed(1)+'" rx="48" ry="4" fill="#fff" opacity=".45"/>';
+    s+='<path d="M60 '+(top-18)+' L60 '+(bot-8)+' Q60 '+bot+' 68 '+bot+' L152 '+bot+' Q160 '+bot+' 160 '+(bot-8)+' L160 '+(top-18)+'" fill="none" stroke="#3a2c6b" stroke-width="5" stroke-linejoin="round"/>';
+    for(var v=1;v<=cap;v++){ var yy=bot-v/cap*H, l=v%lab===0;
+      s+='<line x1="'+(l?120:134)+'" y1="'+yy+'" x2="160" y2="'+yy+'" stroke="#3a2c6b" stroke-width="'+(l?3:2)+'"/>';
+      if(l) s+='<text x="168" y="'+(yy+6)+'" font-family="Fredoka,sans-serif" font-weight="700" font-size="17" fill="#3a2c6b">'+v+'</text>'; }
+    if(gold!=null){ var gy=bot-gold/cap*H; s+='<line x1="40" y1="'+gy+'" x2="160" y2="'+gy+'" stroke="#f5b301" stroke-width="3" stroke-dasharray="7 5"/><text x="36" y="'+(gy+5)+'" text-anchor="end" font-size="15">🎯</text>'; }
+    (marks||[]).forEach(function(m){ var my=bot-m[0]/cap*H; s+='<text x="'+m[2]+'" y="'+(my+5)+'" text-anchor="end" font-weight="900" font-size="13" fill="'+m[3]+'">'+m[1]+'</text>'; });
+    s+='<text x="168" y="'+(bot+20)+'" font-size="13" font-weight="800" fill="#6a5a9a">liters</text></svg>';
     return s;
   }
-  function scaleSvg(d,obj){
-    // a long scale with a pointer: small marks every step, numbers every 2 steps
-    var W=300, x0=30, n=d.m/d.st, s='<div style="text-align:center;font-size:2.6rem;margin-top:4px">'+obj+'</div><svg viewBox="0 0 360 110" style="width:100%;max-width:440px;display:block;margin:0 auto">';
-    s+='<rect x="'+(x0-10)+'" y="20" width="'+(W+20)+'" height="54" rx="10" fill="#f4efff" stroke="#3a2c6b" stroke-width="3"/>';
-    for(var i=0;i<=n;i++){ var x=x0+i*W/n, lab=i%2===0;
-      s+='<line x1="'+x+'" y1="22" x2="'+x+'" y2="'+(lab?48:38)+'" stroke="#3a2c6b" stroke-width="'+(lab?3:2)+'"/>';
-      if(lab) s+='<text x="'+x+'" y="66" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="'+(d.m>=1000?12:14)+'" fill="#3a2c6b">'+(i*d.st)+'</text>'; }
-    var px=x0+d.v/d.m*W;
-    s+='<path d="M'+px+' 22 L'+(px-9)+' 6 L'+(px+9)+' 6 Z" fill="#e0554f"/><line x1="'+px+'" y1="20" x2="'+px+'" y2="52" stroke="#e0554f" stroke-width="3"/>';
-    s+='<text x="180" y="98" text-anchor="middle" font-size="14" font-weight="800" fill="#6a5a9a">'+(d.u==="kg"?"kilograms (kg)":"grams (g)")+'</text></svg>';
-    return s;
+  function scaleSvg(q,v,showTarget){
+    var W=300, x0=30, n=q.cap/q.st, lab=2, s=1, sand=SANDS[q.i];   // a number on every second mark
+    var pile=Math.min(1,v/q.cap), h='<div style="text-align:center;height:74px;display:flex;align-items:flex-end;justify-content:center">'+
+      '<div style="width:'+(40+120*pile)+'px;height:'+(8+56*pile)+'px;border-radius:50% 50% 8px 8px;background:'+sand[2]+';box-shadow:inset 0 -6px 0 rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;font-size:'+(14+20*pile)+'px">'+(v>0?sand[0]:"")+'</div></div>'+
+      '<div style="height:10px;max-width:220px;margin:0 auto;background:#8a7ac4;border-radius:6px"></div>';
+    var svg='<svg viewBox="0 0 360 100" style="width:100%;max-width:440px;display:block;margin:6px auto 0"><rect x="'+(x0-10)+'" y="16" width="'+(W+20)+'" height="54" rx="10" fill="#f4efff" stroke="#3a2c6b" stroke-width="3"/>';
+    for(var i=0;i<=n;i++){ var x=x0+i*W/n, l=i%(lab*s)===0;
+      svg+='<line x1="'+x+'" y1="18" x2="'+x+'" y2="'+(l?44:34)+'" stroke="#3a2c6b" stroke-width="'+(l?3:2)+'"/>';
+      if(l) svg+='<text x="'+x+'" y="62" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="'+(q.cap>=1000?12:13)+'" fill="#3a2c6b">'+(i*q.st)+'</text>'; }
+    if(showTarget){ var tx=x0+q.t/q.cap*W; svg+='<line x1="'+tx+'" y1="10" x2="'+tx+'" y2="76" stroke="#2f9e5b" stroke-width="3" stroke-dasharray="5 4"/>'; }
+    var px=x0+Math.min(v,q.cap*1.04)/q.cap*W;
+    svg+='<path d="M'+px+' 18 L'+(px-9)+' 3 L'+(px+9)+' 3 Z" fill="#e0554f"/><line x1="'+px+'" y1="16" x2="'+px+'" y2="50" stroke="#e0554f" stroke-width="3"/>';
+    svg+='<text x="180" y="92" text-anchor="middle" font-size="13" font-weight="800" fill="#6a5a9a">'+(q.u==="kg"?"kilograms (kg)":"grams (g)")+'</text></svg>';
+    return h+svg;
   }
 
-  // ---------- answers ----------
-  function right(q){
-    if(q.kind==="beaker") return String(q.v);
-    if(q.kind==="scale") return String(q.v);
-    if(q.kind==="unit") return q.h?"kg":"g";
-    if(q.kind==="word") return String(q.op==="+"?q.a+q.b:q.op==="-"?q.a-q.b:q.op==="x"?q.a*q.b:q.a/q.b);
-    var e=EST[q.i]; return e[2]+e[3];
+  // ---------- the pouring ----------
+  var P=null, raf=0;
+  function tol(q){ return q.kind==="scale"&&q.u==="g"?25:0.25; }
+  function goal(q){ return q.kind==="pour"?q.t:q.kind==="add"?(P&&P.phase===1?q.a:q.a+q.b):q.kind==="sub"?q.s-q.b:q.t; }
+  function draw(){
+    var q=P.q, box=document.getElementById("vessel"); if(!box) return;
+    if(q.kind==="scale"||q.kind==="batch") box.innerHTML=scaleSvg(q,P.v,false);
+    else{
+      var layers=q.kind==="add"?[[Math.min(P.v,P.v1==null?P.v:P.v1),POTIONS[q.c][0]],[P.v1==null?0:P.v-P.v1,POTIONS[q.d][0]]]:[[P.v,POTIONS[q.c][0]]];
+      box.innerHTML=beakerSvg(q.cap,q.lab,layers,q.gold?goal(q):null);
+    }
+    var st=document.getElementById("stream"); if(st) st.style.opacity=P.holding?1:0;
   }
-  function obj(q){ return q.h?HEAVY[q.o]:LIGHT[q.o]; }
-  function wordText(q){
-    var c1=COLORS[q.c==null?0:q.c][1], c2=COLORS[q.d==null?1:q.d][1];
-    if(q.op==="+") return "Pour <b>"+q.a+" L</b> of "+c1+" potion and <b>"+q.b+" L</b> of "+c2+" potion into the pot. How many liters are in the pot?";
-    if(q.op==="-") return "The pot has <b>"+q.a+" L</b> of "+c1+" potion. You pour out <b>"+q.b+" L</b>. How many liters are <b>left</b>?";
-    if(q.op==="x"){ var o=HEAVY[q.o]; return "One bag of magic sand is <b>"+q.a+" kg</b>. How much do <b>"+q.b+" bags</b> weigh?"; }
-    return "You have <b>"+q.a+" L</b> of "+c1+" potion. You pour it <b>equally</b> into <b>"+q.b+" bottles</b>. How many liters go in each bottle?";
+  function stopPour(){ if(P) P.holding=false; cancelAnimationFrame(raf); var st=document.getElementById("stream"); if(st) st.style.opacity=0; }
+  function startPour(){
+    if(!P||P.done||P.holding) return;
+    P.holding=true; P.held=0; var last=performance.now(), q=P.q, dir=q.kind==="sub"?-1:1;
+    var rate=q.kind==="scale"&&q.u==="g"?240:q.cap>=20?2.6:q.cap>=10?1.5:1.1;
+    (function loop(t){
+      if(!P||!P.holding) return;
+      var dt=Math.min(.05,(t-last)/1000); last=t; P.held+=dt;
+      // slow at first, so a quick tap adds only a drop
+      P.v=Math.max(0,P.v+dir*rate*dt*Math.min(1,.45+P.held/.8));
+      draw();
+      var cap=q.cap;
+      if(P.v>cap*1.02){ P.v=cap*1.03; stopPour(); overflow(); return; }
+      document.getElementById("serveBtn").disabled=false;
+      raf=requestAnimationFrame(loop);
+    })(last);
   }
-  function wordUnit(q){ return q.op==="x"?"kg":"L"; }
+  function overflow(){
+    var b=document.getElementById("vessel"); P.done=true;
+    b.insertAdjacentHTML("beforeend",'<div class="foam">🫧🫧🫧<br>🫧🫧🫧🫧</div>');
+    P.ui.answer("overflow");
+  }
+  function serve(){
+    if(!P||P.done) return; stopPour(); var q=P.q;
+    if(q.kind==="add"&&P.phase===1){
+      if(Math.abs(P.v-q.a)>tol(q)){ P.done=true; P.ui.answer("phase1:"+P.v.toFixed(2)); return; }
+      P.phase=2; P.v1=P.v; P.v=P.v1;
+      document.getElementById("holdBtn").innerHTML="🫗 Hold to pour <b style=\"color:"+POTIONS[q.d][0]+"\">"+POTIONS[q.d][1]+"</b>";
+      document.getElementById("serveBtn").textContent="✓ Serve";
+      document.getElementById("stream").style.background=POTIONS[q.d][0];
+      P.ui.hint("Now add the "+POTIONS[q.d][1]+" potion. Stop at the line for "+(q.a+q.b)+" liters!");
+      P.ui.words("Good! Now "+q.a+" + "+q.b+": stop at "+(q.a+q.b)+" liters.");
+      draw(); return;
+    }
+    P.done=true;
+    P.ui.answer(Math.abs(P.v-goal(q))<=tol(q)?"ok":"v:"+P.v.toFixed(2));
+  }
+  document.addEventListener("keydown",function(e){ if(e.code==="Space"&&P&&!P.done&&document.getElementById("holdBtn")){ e.preventDefault(); if(!e.repeat) startPour(); } });
+  document.addEventListener("keyup",function(e){ if(e.code==="Space"&&P) stopPour(); });
+
+  function dragon(ui,happy){
+    var r=ui.round(), dots="", got=r.correct+(happy?1:0);   // (the right answer just given is not counted yet)
+    for(var i=0;i<r.total;i++) dots+=i<got?"💚":"🤍";
+    return '<div class="dragon"><span class="dr'+(happy?" happy":"")+'">'+(happy?"🐲":"🐉")+'</span><span class="bubble">'+(happy?"Ahh, much better!":"Hic! Hic!")+'</span><div class="cure">Sparky feels better: '+dots+'</div></div>';
+  }
+
+  // ---------- one question on the screen ----------
   function render(q,ui){
-    var r=right(q);
-    if(q.kind==="beaker"){
-      ui.task("How many <b>liters</b> of potion are in the beaker?");
-      ui.stage(beakerSvg(q));
-      ui.choices(M.numChoices(q.v,[q.v+1,q.v-1,q.v+2,q.v-2],1).map(function(v){ return {html:v+"<small>liters</small>",val:v}; }));
-      ui.hint("Look across from the top of the potion.");
-    }else if(q.kind==="scale"){
-      var o=q.u==="kg"?ON_KG[q.o]:ON_G[q.o];
-      ui.task("How heavy is the <b>"+o[1]+"</b>?");
-      ui.stage(scaleSvg(q,o[0]));
-      ui.choices(M.numChoices(q.v,[q.v+q.st,q.v-q.st,q.v+2*q.st,q.v-2*q.st],q.st).map(function(v){ return {html:v+"<small>"+(q.u==="kg"?"kilograms":"grams")+"</small>",val:v}; }));
-      ui.hint("Each small mark is "+q.st+" "+(q.u==="kg"?(q.st===1?"kilogram":"kilograms"):"grams")+".");
-    }else if(q.kind==="unit"){
-      var ob=obj(q);
+    stopPour(); P=null;
+    if(POURING[q.kind]){
+      P={q:q,ui:ui,v:q.kind==="sub"?q.s:0,phase:q.kind==="add"?1:0,v1:null,done:false,holding:false};
+      var col=q.kind==="scale"||q.kind==="batch"?SANDS[q.i][2]:POTIONS[q.c][0], what;
+      if(q.kind==="pour") what="Pour exactly <b>"+q.t+" "+(q.t===1?"liter":"liters")+"</b> of "+POTIONS[q.c][1]+" potion into the beaker.";
+      else if(q.kind==="add") what="Recipe: <b>"+q.a+" L</b> of "+POTIONS[q.c][1]+", then <b>"+q.b+" L</b> of "+POTIONS[q.d][1]+".";
+      else if(q.kind==="sub") what="The beaker has <b>"+q.s+" liters</b>. Pour out exactly <b>"+q.b+" "+(q.b===1?"liter":"liters")+"</b>.";
+      else if(q.kind==="scale") what="Put exactly <b>"+q.t+" "+(q.u==="g"?"grams":(q.t===1?"kilogram":"kilograms"))+"</b> of "+SANDS[q.i][1]+" on the scale.";
+      else what="One spell needs <b>"+q.p+" kg</b> of "+SANDS[q.i][1]+". Make <b>"+q.n+" spells</b>: put it all on the scale.";
+      ui.task(what);
+      ui.stage(dragon(ui,false)+'<div class="lab"><div class="bottle">'+(q.kind==="scale"||q.kind==="batch"?"🥄":"⚗️")+'</div><div class="stream" id="stream" style="background:'+col+'"></div><div class="vessel" id="vessel"></div></div>'+
+        '<div class="pourbar"><button type="button" class="hold" id="holdBtn">'+(q.kind==="sub"?"🫗 Hold to pour out":q.kind==="add"?"🫗 Hold to pour <b style=\"color:"+POTIONS[q.c][0]+"\">"+POTIONS[q.c][1]+"</b>":"🫗 Hold to pour")+'</button>'+
+        '<button type="button" class="serve" id="serveBtn"'+(q.kind==="sub"?"":" disabled")+'>'+(q.kind==="add"?"✓ Next color":"✓ Serve")+'</button></div>');
+      draw();
+      var hb=document.getElementById("holdBtn");
+      hb.addEventListener("pointerdown",function(e){ e.preventDefault(); try{ hb.setPointerCapture(e.pointerId); }catch(x){} startPour(); });
+      ["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){ hb.addEventListener(ev,stopPour); });
+      hb.addEventListener("contextmenu",function(e){ e.preventDefault(); });
+      document.getElementById("serveBtn").onclick=serve;
+      ui.hint(q.kind==="pour"&&q.gold?"Hold the button, let go at the gold line 🎯. A quick tap adds just a drop.":"Hold to pour, let go to stop. A quick tap adds just a drop.");
+      if(q.kind==="add") ui.words("First stop at "+q.a+" liters.");
+      if(q.kind==="batch") ui.words(q.n+" spells × "+q.p+" kilograms = ?");
+      return;
+    }
+    if(q.kind==="unit"){
+      var ob=q.h?HEAVY[q.o]:LIGHT[q.o];
       ui.task("Which unit would you use to measure the mass of a <b>"+ob[1]+"</b>?");
       ui.stage('<div style="text-align:center;font-size:4.2rem;margin:12px 0">'+ob[0]+'</div>');
       ui.choices([{html:"grams<small>g</small>",val:"g"},{html:"kilograms<small>kg</small>",val:"kg"}]);
       ui.hint("Is it light or heavy?");
-    }else if(q.kind==="word"){
-      ui.task(wordText(q));
-      var pics={"+":"🧪 + 🧪 → 🍲","-":"🍲 → 🫗","x":"👝 👝 👝 → ⚖️","/":"🍲 → 🧴 🧴 🧴"}[q.op];
-      ui.stage('<div style="text-align:center;font-size:2.4rem;margin:12px 0">'+pics+'</div>');
-      var v=+r, u=wordUnit(q);
-      var wrong=q.op==="+"?[q.a-q.b,v+1,v-1]:q.op==="-"?[q.a+q.b,v+1,v-1]:q.op==="x"?[q.a+q.b,v+q.a,v-q.a]:[q.a-q.b,v+1,v*q.b];
-      ui.choices(M.numChoices(v,wrong,1).map(function(x){ return {html:x+"<small>"+(u==="kg"?"kilograms":"liters")+"</small>",val:x}; }));
-    }else{
-      var e=EST[q.i];
-      ui.task("About how "+(e[3]==="L"?"much water does <b>"+e[1]+"</b> hold":"heavy is <b>"+e[1]+"</b>")+"?");
-      ui.stage('<div style="text-align:center;font-size:4.2rem;margin:12px 0">'+e[0]+'</div>');
-      var opts;
-      if(e[3]==="L") opts=[[e[2],"L"],[e[2]*10,"L"],[Math.max(1,e[2]/10)===e[2]?e[2]*100:Math.max(1,e[2]/10),"L"],[e[2]*1000,"L"]];
-      else opts=[[e[2],e[3]],[e[2],e[3]==="kg"?"g":"kg"],[e[2]*10,e[3]],[e[2]*100,e[3]==="kg"?"kg":"g"]];
-      var seen={}, list=[];
-      opts.forEach(function(o){ var k=o[0]+o[1]; if(!seen[k]){ seen[k]=1; list.push({html:o[0]+" "+o[1],val:k,cls:"text"}); } });
-      ui.choices(M.shuffle(list));
-      ui.hint("Think of things you know.");
+      return;
     }
+    var e=EST[q.i];
+    ui.task("About how "+(e[3]==="L"?"much water does <b>"+e[1]+"</b> hold":"heavy is <b>"+e[1]+"</b>")+"?");
+    ui.stage('<div style="text-align:center;font-size:4.2rem;margin:12px 0">'+e[0]+'</div>');
+    var opts=e[3]==="L"?[[e[2],"L"],[e[2]*10,"L"],[e[2]>=10?e[2]/10:e[2]*100,"L"],[e[2]*1000,"L"]]:[[e[2],e[3]],[e[2],e[3]==="kg"?"g":"kg"],[e[2]*10,e[3]],[e[2]*100,e[3]]];
+    var seen={}, list=[];
+    opts.forEach(function(o){ var k=o[0]+o[1]; if(!seen[k]){ seen[k]=1; list.push({html:o[0]+" "+o[1],val:k,cls:"text"}); } });
+    ui.choices(M.shuffle(list));
+    ui.hint("Think of things you know.");
   }
-  function after(q){
-    if(q.kind==="beaker"){ var f=document.getElementById("field"); f.innerHTML=beakerSvg(q)+'<div style="text-align:center;font-weight:900;font-size:1.2rem;color:#6a4fc4">'+q.v+' liters</div>'; }
+  function right(q){
+    if(POURING[q.kind]) return "ok";
+    if(q.kind==="unit") return q.h?"kg":"g";
+    var e=EST[q.i]; return e[2]+e[3];
   }
-  function unitName(u,n){ return u==="kg"?(n===1?"kilogram":"kilograms"):u==="g"?(n===1?"gram":"grams"):(n===1?"liter":"liters"); }
+  function unitWord(q,n){ var u=q.kind==="scale"||q.kind==="batch"?q.u:"L"; return u==="kg"?(n===1?"kilogram":"kilograms"):u==="g"?"grams":(n===1?"liter":"liters"); }
+  function amount(q,v){
+    // what was poured, said kindly: "about 4 liters", "between 4 and 5 liters"
+    var step=q.kind==="scale"&&q.u==="g"?100:1, n=Math.round(v/step)*step;
+    if(Math.abs(v-n)<=tol(q)) return "at about "+n+" "+unitWord(q,n);
+    return "between "+Math.floor(v/step)*step+" and "+Math.ceil(v/step)*step+" "+unitWord(q,2);
+  }
+  function after(q,ok,given){
+    if(!POURING[q.kind]) return;
+    stopPour();
+    var d=document.querySelector(".dragon"); if(d&&ok){ d.outerHTML=dragon(P.ui,true); }
+    var box=document.getElementById("vessel"), g=goal(q);
+    if(!box) return;
+    if(q.kind==="scale"||q.kind==="batch"){ box.innerHTML=scaleSvg(q,P.v,true); }
+    else{
+      var layers=q.kind==="add"?[[P.v1==null?P.v:P.v1,POTIONS[q.c][0]],[P.v1==null?0:P.v-P.v1,POTIONS[q.d][0]]]:[[Math.min(P.v,q.cap*1.03),POTIONS[q.c][0]]];
+      if(ok&&q.kind==="add") layers=[[P.v,mix(POTIONS[q.c][0],POTIONS[q.d][0])]];
+      box.innerHTML=beakerSvg(q.cap,q.lab,layers,q.kind==="add"&&given.indexOf("phase1")===0?q.a:g);
+    }
+    // the sparkles sit on the potion's surface (the beaker picture is 260 high, its bottom at 240, 210 tall)
+    var topPct=(q.kind==="scale"||q.kind==="batch")?30:Math.max(4,((240-Math.min(P.v,q.cap)/q.cap*210)/260*100)-9);
+    if(ok) box.insertAdjacentHTML("beforeend",'<div class="sparkle" style="top:'+topPct.toFixed(0)+'%">✨✨✨</div>');
+    else if(given==="overflow") box.insertAdjacentHTML("beforeend",'<div class="foam">🫧🫧🫧<br>🫧🫧🫧🫧</div>');
+    else if(given!=="overflow") box.insertAdjacentHTML("beforeend",'<div class="fizzle">💨 pfff…</div>');
+    ["holdBtn","serveBtn"].forEach(function(id){ var b=document.getElementById(id); if(b) b.disabled=true; });
+  }
+  function mix(a,b){ function h(x){ return [parseInt(x.substr(1,2),16),parseInt(x.substr(3,2),16),parseInt(x.substr(5,2),16)]; } var p=h(a),r=h(b); return "rgb("+Math.round((p[0]+r[0])/2)+","+Math.round((p[1]+r[1])/2)+","+Math.round((p[2]+r[2])/2)+")"; }
   function explain(q){
-    var r=right(q);
-    if(q.kind==="beaker") return "The beaker has "+r+" "+unitName("L",+r)+".";
-    if(q.kind==="scale") return "It is "+r+" "+unitName(q.u,+r)+".";
-    if(q.kind==="unit") return "Use "+(q.h?"kilograms: a "+obj(q)[1]+" is heavy.":"grams: a "+obj(q)[1]+" is light.");
-    if(q.kind==="word"){ var sym={"+":"+","-":"−","x":"×","/":"÷"}[q.op]; return q.a+" "+sym+" "+q.b+" = "+r+" "+wordUnit(q)+"."; }
-    var e=EST[q.i]; return e[1].charAt(0).toUpperCase()+e[1].slice(1)+" is about "+e[2]+" "+unitName(e[3],e[2])+".";
+    if(q.kind==="pour") return "The potion needed "+q.t+" "+unitWord(q,q.t)+".";
+    if(q.kind==="add") return q.a+" + "+q.b+" = "+(q.a+q.b)+" liters in the beaker.";
+    if(q.kind==="sub") return q.s+" − "+q.b+" = "+(q.s-q.b)+" liters left.";
+    if(q.kind==="scale") return "The scale needed to show "+q.t+" "+unitWord(q,q.t)+".";
+    if(q.kind==="batch") return q.n+" × "+q.p+" = "+q.t+" kilograms.";
+    if(q.kind==="unit") return "Use "+(q.h?"kilograms: a "+HEAVY[q.o][1]+" is heavy.":"grams: a "+LIGHT[q.o][1]+" is light.");
+    var e=EST[q.i]; return e[1].charAt(0).toUpperCase()+e[1].slice(1)+" is about "+e[2]+" "+(e[3]==="kg"?"kilograms":e[3]==="g"?"grams":"liters")+".";
+  }
+  function rightText(q){ return POURING[q.kind]?pickOne(["✨ Perfect potion!","✨ Right on the line!","✨ Sparky stopped hiccuping!","✨ Magic!"]):pickOne(["Great job!","You got it!","Well done!"]); }
+  function wrongText(q,given){
+    if(given==="overflow") return "🫧 Too much! The potion bubbled over!";
+    if(given.indexOf("phase1")===0) return "💨 The first color was not right…";
+    if(POURING[q.kind]) return "💨 Pfff… not quite the right amount.";
+    return "Oops! The right answer is green.";
   }
   function teach(q,given){
-    var r=right(q), steps, cn;
-    if(q.kind==="beaker"){
-      var step=q.m<=6?1:2;
-      steps=["Find the <b>top of the potion</b> and look straight across to the lines.",
-             step===1?"Every line is <b>1 liter</b>, and every line has a number.":"Every line is <b>1 liter</b>, but only every <b>2</b> liters has a number: 2, 4, 6 …",
-             step===2&&q.v%2?"The top is on the line between "+(q.v-1)+" and "+(q.v+1)+": that is <b>"+q.v+"</b>.":"The top is on the line for <b>"+q.v+"</b>.",
-             "So there are <b>"+q.v+" liters</b>."];
-      cn="读量杯：看液面对齐哪条刻度线；没有数字的线，就看它前后的数字来数。";
-    }else if(q.kind==="scale"){
-      var lab=Math.floor(q.v/(2*q.st))*2*q.st, un=q.u==="kg"?"kilograms":"grams";
-      steps=["The numbers go up by "+(2*q.st)+": 0, "+(2*q.st)+", "+(4*q.st)+" … Each <b>small mark</b> is <b>"+q.st+"</b> "+(q.st===1&&q.u==="kg"?"kilogram":un)+".",
-             q.v===lab?"The pointer is right on <b>"+lab+"</b>.":"The pointer is one small mark after "+lab+": "+lab+" + "+q.st+" = <b>"+q.v+"</b>.",
-             "So it weighs <b>"+q.v+" "+un+"</b>."];
-      cn="读秤：先看每一小格代表多少，再从指针前面最近的数字往后数。";
-    }else if(q.kind==="unit"){
-      var ob=obj(q);
-      steps=["<b>Grams (g)</b> are for light things. A paper clip is about 1 gram.","<b>Kilograms (kg)</b> are for heavy things. A big dictionary is about 1 kilogram. 1 kilogram = 1,000 grams.",
-             "A "+ob[1]+" is <b>"+(q.h?"heavy":"light")+"</b>, so use <b>"+(q.h?"kilograms":"grams")+"</b>."];
-      cn="克（g）量轻的东西，比如回形针约 1 克；千克（kg）量重的东西，比如一本大词典约 1 千克。1 千克 = 1000 克。";
-    }else if(q.kind==="word"){
-      var sym={"+":"+","-":"−","x":"×","/":"÷"}[q.op], why={"+":"Pouring two potions together: <b>add</b>.","-":"Pouring some out: <b>subtract</b>.","x":"Many bags that weigh the same: <b>multiply</b>.","/":"Sharing equally into bottles: <b>divide</b>."}[q.op];
-      steps=[why,q.a+" "+sym+" "+q.b+" = <b>"+r+" "+wordUnit(q)+"</b>."];
-      if(q.op==="/") steps.push("Check: "+q.b+" bottles × "+r+" L = "+q.a+" L. ✓");
-      if(q.op==="x") steps.push("Count by "+q.a+"s: "+(function(){ var a=[]; for(var i=1;i<=q.b;i++) a.push(i*q.a); return a.join(", "); })()+".");
-      cn="合在一起用加法，倒出去用减法，几个一样重用乘法，平均分用除法。";
-    }else{
-      var e=EST[q.i];
-      steps=["Use things you know: a paper clip ≈ 1 g, an apple ≈ 200 g, a big dictionary ≈ 1 kg, a third grader ≈ 30 kg.",
-             "For water: a big water bottle ≈ 1 L, a bucket ≈ 10 L, a bathtub ≈ 200 L.",
-             e[1].charAt(0).toUpperCase()+e[1].slice(1)+" is about <b>"+e[2]+" "+unitName(e[3],e[2])+"</b>."];
-      cn="估一估：用熟悉的东西作比较。回形针约 1 克，苹果约 200 克，大词典约 1 千克；大水瓶约 1 升，水桶约 10 升。";
+    var steps=[], cn;
+    if(POURING[q.kind]){
+      var g=goal(q), v=given.indexOf(":")>0?+given.split(":")[1]:null, isScale=q.kind==="scale"||q.kind==="batch";
+      if(q.kind==="add"&&given.indexOf("phase1")===0){ g=q.a; }
+      if(q.kind==="pour") steps.push("The recipe needs <b>"+q.t+" "+unitWord(q,q.t)+"</b>.");
+      if(q.kind==="add") steps.push("First "+q.a+" L, then "+q.b+" L more: "+q.a+" + "+q.b+" = <b>"+(q.a+q.b)+"</b>. So the potion must stop at the line for "+q.a+", then at the line for <b>"+(q.a+q.b)+"</b>.");
+      if(q.kind==="sub") steps.push("It starts at "+q.s+". Pouring out "+q.b+": "+q.s+" − "+q.b+" = <b>"+(q.s-q.b)+"</b>. So stop when the top goes down to the line for <b>"+(q.s-q.b)+"</b>.");
+      if(q.kind==="batch") steps.push(q.n+" spells × "+q.p+" kg each: "+q.n+" × "+q.p+" = <b>"+q.t+" kg</b>. So stop when the pointer is at <b>"+q.t+"</b>.");
+      if(q.kind==="scale") steps.push("The scale must show <b>"+q.t+" "+unitWord(q,q.t)+"</b>.");
+      if(isScale){
+        var big=q.u==="g"?200:2, step=q.u==="g"?100:1, lab=Math.floor(g/big)*big;
+        steps.push("The numbers go up by "+big+": each small mark is <b>"+step+"</b>. "+(g===lab?"The line for "+g+" has a number on it.":g+" is the small mark right after "+lab+"."));
+      }else{
+        var labl=Math.floor(g/q.lab)*q.lab;
+        steps.push(q.lab===1?"Every line has a number. Find the line for <b>"+g+"</b>.":"Only every 2 liters has a number. "+(g%2?g+" is the line <b>between</b> "+labl+" and "+(labl+2)+".":"The line for "+g+" has a number on it."));
+      }
+      if(given==="overflow") steps.push("You kept pouring until it spilled over the top. Let go of the button sooner!");
+      else if(v!=null) steps.push("You stopped "+amount(q,v)+". "+(v<g?"That is not enough: pour a little more.":"That is too much: let go a little sooner."));
+      steps.push("Tip: when you are close, use quick taps to add just a little at a time.");
+      cn=isScale?"读秤：先看每一小格代表多少，指针停在目标刻度上再停手。快到的时候轻轻点，一点一点加。":"看准目标刻度线；快到的时候轻轻点按钮，一点一点加，液面碰到线就停。";
+      return {steps:steps,cn:cn};
     }
-    return {steps:steps,cn:cn};
+    if(q.kind==="unit"){
+      var ob=q.h?HEAVY[q.o]:LIGHT[q.o];
+      return {steps:["<b>Grams (g)</b> are for light things. A paper clip is about 1 gram.","<b>Kilograms (kg)</b> are for heavy things. A big dictionary is about 1 kilogram. 1 kilogram = 1,000 grams.",
+                     "A "+ob[1]+" is <b>"+(q.h?"heavy":"light")+"</b>, so use <b>"+(q.h?"kilograms":"grams")+"</b>."],
+              cn:"克（g）量轻的东西，比如回形针约 1 克；千克（kg）量重的东西，比如一本大词典约 1 千克。1 千克 = 1000 克。"};
+    }
+    var e=EST[q.i];
+    return {steps:["Use things you know: a paper clip ≈ 1 g, an apple ≈ 200 g, a big dictionary ≈ 1 kg, a third grader ≈ 30 kg.","For water: a big water bottle ≈ 1 L, a bucket ≈ 10 L, a bathtub ≈ 200 L.",
+                   e[1].charAt(0).toUpperCase()+e[1].slice(1)+" is about <b>"+e[2]+" "+(e[3]==="kg"?"kilograms":e[3]==="g"?"grams":"liters")+"</b>."],
+            cn:"估一估：用熟悉的东西作比较。回形针约 1 克，苹果约 200 克，大词典约 1 千克；大水瓶约 1 升，水桶约 10 升。"};
   }
   function miss(q){
-    var r=right(q);
-    if(q.kind==="beaker") return r+" L";
-    if(q.kind==="scale") return r+" "+q.u;
-    if(q.kind==="unit") return obj(q)[1]+": "+r;
-    if(q.kind==="word") return q.a+" "+{"+":"+","-":"−","x":"×","/":"÷"}[q.op]+" "+q.b+" = "+r+" "+wordUnit(q);
+    if(q.kind==="pour") return "pour "+q.t+" L";
+    if(q.kind==="add") return q.a+" L + "+q.b+" L = "+(q.a+q.b)+" L";
+    if(q.kind==="sub") return q.s+" L − "+q.b+" L = "+(q.s-q.b)+" L";
+    if(q.kind==="scale") return q.t+" "+q.u;
+    if(q.kind==="batch") return q.n+" × "+q.p+" kg = "+q.t+" kg";
+    if(q.kind==="unit") return (q.h?HEAVY[q.o][1]:LIGHT[q.o][1])+": "+right(q);
     var e=EST[q.i]; return e[1]+" ≈ "+e[2]+" "+e[3];
   }
-  M.run({title:"Potion Lab",icon:"🧪",tagline:"Measure liters, grams and kilograms to make magic potions!",store:"potionLab.v1",
-    coin:{e:"💎",n:"crystals"},heart:"💜",leave:"Leave the lab",levelWord:"potion",doneWord:"Potions made",ownedWord:"In your lab",
+  M.run({title:"Potion Lab",icon:"🧪",tagline:"Sparky the little dragon has the hiccups! Brew potions to make him better.",store:"potionLab.v2",
+    coin:{e:"💎",n:"crystals"},heart:"💜",leave:"Leave the lab",levelWord:"potion",doneWord:"Potions made",ownedWord:"In your lab",fastMs:15000,
     theme:{brand:"#6a4fc4",dark:"#4a3394",bg:"#f3efff",line:"#e2dafa",ink:"#2c2250",muted:"#6e6394",hero:"linear-gradient(180deg,#6a4fc4,#b38cf0)"},
-    levels:LEVELS,boss:{n:"Grand Potion",ic:"🔮",desc:"Everything mixed up. Make the grand potion!"},practice:{n:"Practice Table",ic:"📜"},
+    css:'.dragon{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 4px}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.happy{animation:none}'+
+      '.dragon .bubble{background:var(--bg);border-radius:14px;padding:4px 10px;font-weight:900;font-size:.95rem}.dragon .cure{width:100%;font-weight:800;font-size:.82rem;color:var(--muted);letter-spacing:1px}'+
+      '.lab{position:relative;margin-top:2px;padding-top:30px}.bottle{position:absolute;left:50%;top:-4px;transform:translateX(-50%) rotate(140deg);font-size:2.1rem;z-index:2}'+
+      '.stream{position:absolute;left:calc(50% - 4px);top:24px;width:8px;height:70px;border-radius:4px;opacity:0;transition:opacity .1s;z-index:1}'+
+      '.vessel{position:relative}.foam{position:absolute;left:0;right:0;top:0;text-align:center;font-size:2rem;line-height:1.1;animation:pop .4s}'+
+      '.sparkle{position:absolute;left:0;right:0;top:30%;text-align:center;font-size:2.2rem;animation:pop .5s}.fizzle{position:absolute;left:0;right:0;top:30%;text-align:center;font-weight:900;font-size:1.4rem;color:#8a7ab0;animation:pop .5s}'+
+      '.pourbar{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:10px}'+
+      '.hold{border:0;border-radius:18px;padding:18px 8px;font-weight:900;font-size:1.2rem;background:#fff3c4;box-shadow:0 6px 0 #e0b200;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}'+
+      '.hold:active{transform:translateY(4px);box-shadow:0 2px 0 #e0b200}.serve{border:0;border-radius:18px;padding:18px 8px;font-weight:900;font-size:1.1rem;background:var(--good);color:#fff;box-shadow:0 6px 0 #1f7041}'+
+      '.hold:disabled,.serve:disabled{opacity:.45}@keyframes hic{0%,80%,100%{transform:none}88%{transform:translateY(-8px) rotate(-6deg)}}',
+    levels:LEVELS,boss:{n:"Cure Sparky",ic:"🐲",desc:"Every kind of potion. Make Sparky well again!"},practice:{n:"Practice Table",ic:"📜"},
     shop:[{id:"flask",e:"⚗️",n:"Flask",p:10},{id:"tube",e:"🧪",n:"Test tube",p:10},{id:"candle",e:"🕯️",n:"Candle",p:15},{id:"book",e:"📖",n:"Spell book",p:20},
           {id:"owl",e:"🦉",n:"Owl",p:30},{id:"frog",e:"🐸",n:"Frog",p:30},{id:"crystal",e:"🔮",n:"Crystal ball",p:45},{id:"moon",e:"🌙",n:"Moon lamp",p:50},
           {id:"hat",e:"🎩",n:"Magic hat",p:60},{id:"wand",e:"🪄",n:"Magic wand",p:80}],
-    shopTitle:"Lab shop: crystals buy magic things",shopCn:"用水晶买魔法道具",emptyOwned:"🫙",
-    kinds:{beaker:"Read liquid volume (liters)",scale:"Read mass on a scale (g, kg)",unit:"Grams or kilograms?",word:"Measurement word problems (+ − × ÷)",est:"Estimate mass and volume"},
-    fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss});
+    shopTitle:"Lab shop: crystals buy magic things",shopCn:"用水晶买魔法道具",emptyOwned:"🐉",
+    kinds:{pour:"Pour to a line (read liters)",add:"Two-part recipes (+ on a scale)",sub:"Pour out (− on a scale)",scale:"Weigh in grams and kilograms",batch:"Big batches (× with kilograms)",unit:"Grams or kilograms?",est:"Estimate mass and volume"},
+    fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss,rightText:rightText,wrongText:wrongText});
+  // for the tests: pour an exact amount without holding the button
+  window.__pour={set:function(v){ if(P){ P.v=v; draw(); var s=document.getElementById("serveBtn"); if(s) s.disabled=false; } },serve:function(){ serve(); },state:function(){ return P&&{v:P.v,phase:P.phase,done:P.done}; },hold:startPour,release:stopPour};
 })();
 </script>
 </body></html>

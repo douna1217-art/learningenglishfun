@@ -9,10 +9,11 @@
      levels: [{id, n, ic, gen}], boss: {n, ic, gen?, desc}, practice: {n, ic}, levelWord: "ride"|"report"…,
      shop: [{id, e, n, p}], shopTitle, shopCn, kinds: {kind: "what it practises"},
      fromKey(key) -> question, render(q, ui), right(q) -> string, explain(q) -> string,
-     teach(q, given) -> {steps: [html], cn, pic}, after(q, ok, given, ui)?, miss(q) -> string, fastMs?
+     teach(q, given) -> {steps: [html], cn, pic}, after(q, ok, given, ui)?, miss(q) -> string, fastMs?,
+     wrongText(q, given)?, rightText(q)?                // the line under the question after an answer, if the game has its own
    })
    A question is {kind, key, ...}. render() fills the screen with ui.task(html), ui.stage(html), ui.choices([{html, val}]), ui.words(text),
-   ui.hint(text); an interactive question calls ui.answer(val) itself. Written for old Android WebViews: no arrow functions, no spread. */
+   ui.hint(text); an interactive question calls ui.answer(val) itself; ui.round() -> {done, total} (questions done in this level). Written for old Android WebViews: no arrow functions, no spread. */
 (function (root) {
   "use strict";
   var doc = root.document;
@@ -195,7 +196,7 @@
       var pool = null;
       if (P === PRACTICE) { pool = missList(); if (!pool.length) return; }
       var total = P === BOSS ? 12 : P === PRACTICE ? Math.max(4, Math.min(10, pool.length * 2)) : 8;
-      G = { P: P, pool: pool, left: total, hearts: P === PRACTICE ? Infinity : 3, coins: 0, streak: 0, best: 0, correct: 0, miss: {}, q: null, locked: false, lastKey: "", again: [] };
+      G = { P: P, pool: pool, left: total, total: total, hearts: P === PRACTICE ? Infinity : 3, coins: 0, streak: 0, best: 0, correct: 0, miss: {}, q: null, locked: false, lastKey: "", again: [] };
       $("pCoins").textContent = "0"; renderHearts(); show("play"); next();
     }
     function renderHearts() {
@@ -227,6 +228,7 @@
         });
       },
       answer: function (v) { answer(String(v), null); },
+      round: function () { return { done: G ? G.total - G.left : 0, total: G ? G.total : 0, correct: G ? G.correct : 0 }; },
       locked: function () { return !G || G.locked; }
     };
     function next() {
@@ -259,11 +261,11 @@
         var fast = ms < (C.fastMs || 8000), gain = fast ? 2 : 1; G.coins += gain; $("pCoins").textContent = G.coins;
         if (fast) SFX.fast(); else SFX.ok();
         if (G.streak >= 3) say("🔥 " + G.streak + " right in a row!", "combo");
-        else say(fast ? "⚡ Speedy! Two " + C.coin.n + "!" : pickOne(["Great job!", "You got it!", "Awesome!", "Well done!"]), "good");
+        else say(C.rightText ? C.rightText(q, fast) : fast ? "⚡ Speedy! Two " + C.coin.n + "!" : pickOne(["Great job!", "You got it!", "Awesome!", "Well done!"]), "good");
       } else {
         f.miss++; ks.miss++; G.streak = 0; G.miss[q.key] = q; G.again.push(q.key);
         SFX.oops(); if (G.hearts !== Infinity) G.hearts--;
-        say("Oops! The right answer is green.", "bad");
+        say(C.wrongText ? C.wrongText(q, val) : "Oops! The right answer is green.", "bad");
       }
       save(); renderHearts();
       var cont = G.hearts <= 0 ? function () { finish(false); } : G.left <= 0 ? function () { SFX.win(); finish(true); } : next;
