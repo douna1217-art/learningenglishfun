@@ -32,8 +32,10 @@ jobs:
         run: node tools/error_report_test.js
       - name: Library health check (its own tests, and the offline check on the real books)
         run: |
+          command -v ffmpeg || (sudo apt-get update -q && sudo apt-get install -y -q ffmpeg)
           python3 tools/site_audit_test.py
           python3 tools/revoice_pages_test.py
+          python3 tools/fix_pauses_test.py
           python3 tools/site_audit.py --fail-on none
       - name: Pet festivals
         run: node tools/festival_test.js

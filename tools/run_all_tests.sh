@@ -19,6 +19,9 @@ printf "site_audit_test: %s\n" "$(printf "%s" "$out" | tail -1)"
 out=$(python3 tools/revoice_pages_test.py 2>&1); code=$?
 printf "revoice_pages_test: %s\n" "$(printf "%s" "$out" | tail -1)"
 [ $code -eq 0 ] || fail=1
+out=$(python3 tools/fix_pauses_test.py 2>&1); code=$?
+printf "fix_pauses_test: %s\n" "$(printf "%s" "$out" | tail -1)"
+[ $code -eq 0 ] || fail=1
 if node -e 'require.resolve("jsdom");require.resolve("acorn")' >/dev/null 2>&1; then
   for t in account_test legacy_syntax_check book_load_test; do run $t; done
 else
