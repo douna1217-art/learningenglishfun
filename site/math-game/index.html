@@ -1,17 +1,10 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>乘法怪兽岛</title>
-<meta name="robots" content="noindex, nofollow">
-<meta name="Baiduspider" content="noindex, nofollow">
-<link rel="manifest" href="manifest.webmanifest">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Times Table Monster Island</title>
 <meta name="theme-color" content="#3f8fd8">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="乘法怪兽岛">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="description" content="乘法口诀闯关小游戏：打怪兽、收集星星和金币。Times tables monster game for kids.">
+<meta name="description" content="Times Table Monster Island: answer multiplication facts in English to beat and catch monsters.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 <style>
 /* Layout: island map of monster cards -> full-width battle arena with a 2x2 answer pad */
@@ -23,12 +16,6 @@ h1,h2,h3{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
 button{font:inherit;cursor:pointer;color:inherit}
 button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 [hidden]{display:none!important}
-.install{margin-top:14px;background:rgba(255,255,255,.95);color:var(--green);border:0;border-radius:999px;padding:10px 18px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.12)}
-.howto{margin-top:16px;background:#fff;border-radius:20px;padding:16px 18px;box-shadow:var(--shadow);font-weight:800;line-height:1.7}
-.howto h3{margin:0 0 6px;font-size:1.15rem}
-.howto ol{margin:0;padding-left:1.3em}
-.howto .note{color:var(--muted);font-size:.85rem;margin-top:8px}
-@media (display-mode:standalone){.home{visibility:hidden}.install,.howto{display:none!important}}
 .top{max-width:920px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}
 .wallet{display:flex;gap:8px;align-items:center}
@@ -61,6 +48,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .lv .txt{text-align:left}
 .parent{margin-top:22px;background:#fff;border-radius:20px;padding:4px 18px;box-shadow:var(--shadow)}
 .parent summary{cursor:pointer;font-weight:900;padding:12px 0}
+.parent summary small{color:var(--muted);font-weight:800}
 .chart{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:12px}
 .cell{border-radius:8px;padding:7px 1px;text-align:center;font-weight:800;font-size:.72rem;background:#f1f4f1;color:#9aa69f;font-variant-numeric:tabular-nums}
 .cell.blank{background:transparent}
@@ -92,6 +80,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .timer i.warn{background:var(--bad)}
 .qbox{text-align:center;margin:12px 0 2px}
 .q{font-family:Fredoka,sans-serif;font-weight:700;font-size:clamp(2.8rem,13vw,4.6rem);line-height:1.1}
+.words{font-weight:900;color:var(--muted);font-size:1.15rem;min-height:1.5em;margin-top:2px}
 .q .ans{display:inline-block;min-width:1.3em;color:#7254b8;border-bottom:5px solid var(--line)}
 .msg{text-align:center;font-weight:900;min-height:1.6em;font-size:1.1rem}
 .msg.good{color:var(--good)}.msg.bad{color:var(--bad)}.msg.combo{color:#e07b00}
@@ -132,10 +121,10 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 </style></head>
 <body>
 <div class="top">
-  <span></span>
+  <a class="home" id="homeLink" href="../index.html">← Home</a>
   <div class="wallet">
     <span class="chip" id="coinChip">🪙 <span id="coinTotal">0</span></span>
-    <button class="tbtn" type="button" id="soundBtn">🔔 音效开</button>
+    <button class="tbtn" type="button" id="soundBtn">🔔 Sound on</button>
   </div>
 </div>
 <div class="wrap">
@@ -143,21 +132,19 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 <!-- ===== MAP ===== -->
 <section id="map">
   <div class="hero">
-    <h1>🏝️ 乘法怪兽岛</h1>
-    <p>答对乘法题打败怪兽，把它们都收服！</p>
+    <h1>🏝️ Times Table Monster Island</h1>
+    <p>Answer the times tables to beat the monsters and catch them all!</p>
     <div class="progress" id="progress"></div>
-    <div><button class="install" type="button" id="installBtn">📲 装到手机桌面，像 App 一样玩</button></div>
   </div>
-  <div class="howto" id="howto" hidden></div>
   <div class="levels" id="levels"></div>
   <details class="parent">
-    <summary>📋 给家长看：口诀掌握表</summary>
+    <summary>📋 For parents: times table chart <small>给家长看：乘法掌握表</small></summary>
     <div class="chart" id="chart"></div>
     <div class="legend">
-      <span><i style="background:#f1f4f1"></i>还没练</span>
-      <span><i style="background:#fff1c4"></i>练过</span>
-      <span><i style="background:#cdeed6"></i>快会了</span>
-      <span><i style="background:#315f47"></i>掌握啦</span>
+      <span><i style="background:#f1f4f1"></i>Not tried 还没练</span>
+      <span><i style="background:#fff1c4"></i>Tried 练过</span>
+      <span><i style="background:#cdeed6"></i>Almost 快会了</span>
+      <span><i style="background:#315f47"></i>Got it! 掌握啦</span>
     </div>
   </details>
 </section>
@@ -165,7 +152,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 <!-- ===== BATTLE ===== -->
 <section id="battle" hidden>
   <div class="bar-top">
-    <button class="tbtn" type="button" id="quitBtn">✕ 逃跑</button>
+    <button class="tbtn" type="button" id="quitBtn">✕ Run away</button>
     <span class="hearts" id="hearts"></span>
     <span class="chip">🪙 +<span id="bCoins">0</span></span>
   </div>
@@ -175,7 +162,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     <div class="monster" id="monster"></div>
   </div>
   <div class="timer"><i id="timerFill"></i></div>
-  <div class="qbox"><div class="q" id="question"></div></div>
+  <div class="qbox"><div class="q" id="question"></div><div class="words" id="qWords"></div></div>
   <div class="msg" id="msg"></div>
   <div class="choices" id="choices"></div>
 </section>
@@ -189,12 +176,12 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     <div class="reward" id="rReward"></div>
     <p id="rSub"></p>
     <div id="rMissBox">
-      <p>这些题再记一记：</p>
+      <p>Practice these again:</p>
       <div class="mistakes" id="rMiss"></div>
     </div>
     <div class="row">
-      <button class="btn" type="button" id="againBtn">再打一次</button>
-      <button class="btn light" type="button" id="mapBtn">回到地图</button>
+      <button class="btn" type="button" id="againBtn">Play again</button>
+      <button class="btn light" type="button" id="mapBtn">Back to the map</button>
     </div>
   </div>
 </section>
@@ -205,18 +192,18 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 (function(){
   "use strict";
   var LEVELS=[
-    {id:"1",t:1,e:"🐛",n:"毛毛虫",  a:["#d9f7b0","#f4ffe6","#b9e08f"]},
-    {id:"2",t:2,e:"🐸",n:"呱呱蛙",  a:["#c4f0d0","#effff3","#8fd19e"]},
-    {id:"3",t:3,e:"🦀",n:"钳钳蟹",  a:["#ffe1c4","#fff6ec","#f3cf9b"]},
-    {id:"4",t:4,e:"🐙",n:"墨墨章鱼",a:["#c9e4ff","#eef7ff","#7fb3e6"]},
-    {id:"5",t:5,e:"🦇",n:"夜夜蝙蝠",a:["#d7cdf5","#f2eeff","#a493d6"]},
-    {id:"6",t:6,e:"🦂",n:"沙漠蝎王",a:["#ffe9a8","#fff8de","#e7c56b"]},
-    {id:"7",t:7,e:"🦈",n:"大白鲨",  a:["#a9dcf2","#e4f6ff","#5aa9d6"]},
-    {id:"8",t:8,e:"🦖",n:"霸王龙",  a:["#d5efb9","#f3fbe8","#9cc86a"]},
-    {id:"9",t:9,e:"🐲",n:"火焰龙",  a:["#ffc9b8","#fff0ea","#f08f74"]}
+    {id:"1",t:1,e:"🐛",n:"Wiggly Worm",a:["#d9f7b0","#f4ffe6","#b9e08f"]},
+    {id:"2",t:2,e:"🐸",n:"Hoppy Frog", a:["#c4f0d0","#effff3","#8fd19e"]},
+    {id:"3",t:3,e:"🦀",n:"Snappy Crab", a:["#ffe1c4","#fff6ec","#f3cf9b"]},
+    {id:"4",t:4,e:"🐙",n:"Inky Octopus",a:["#c9e4ff","#eef7ff","#7fb3e6"]},
+    {id:"5",t:5,e:"🦇",n:"Night Bat",a:["#d7cdf5","#f2eeff","#a493d6"]},
+    {id:"6",t:6,e:"🦂",n:"Sand Scorpion",a:["#ffe9a8","#fff8de","#e7c56b"]},
+    {id:"7",t:7,e:"🦈",n:"Chompy Shark",a:["#a9dcf2","#e4f6ff","#5aa9d6"]},
+    {id:"8",t:8,e:"🦖",n:"Rex the Dino",a:["#d5efb9","#f3fbe8","#9cc86a"]},
+    {id:"9",t:9,e:"🐲",n:"Blaze the Dragon",a:["#ffc9b8","#fff0ea","#f08f74"]}
   ];
-  var BOSS={id:"boss",e:"👾",n:"外星大魔王",a:["#cbb8f5","#f1ebff","#8b6fd1"]};
-  var TRAIN={id:"train",e:"🥊",n:"训练沙袋",a:["#ffe8c2","#fff9ee","#f2cf8f"]};
+  var BOSS={id:"boss",e:"👾",n:"Alien King",a:["#cbb8f5","#f1ebff","#8b6fd1"]};
+  var TRAIN={id:"train",e:"🥊",n:"Punching Bag",a:["#ffe8c2","#fff9ee","#f2cf8f"]};
   var BOSS_NEED=3;
 
   // ---------- saved progress (this browser only) ----------
@@ -269,6 +256,12 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     lose:function(){tone([392,330,262],"sine",.25);}
   };
 
+  // ---------- numbers in words: "three times four is twelve" ----------
+  var ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+  var TENS=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+  function inWords(n){ if(n<20) return ONES[n]; var t=TENS[Math.floor(n/10)], o=n%10; return o?t+"-"+ONES[o]:t; }
+  function sayFact(a,b,p){ return inWords(a)+" times "+inWords(b)+(p==null?"":" is "+inWords(p)); }
+
   var $=function(id){return document.getElementById(id);};
   function show(id){ ["map","battle","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); window.scrollTo(0,0); }
 
@@ -277,7 +270,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   function renderMap(){
     $("coinTotal").textContent=data.coins;
     var beat=beatenCount()+(starsOf("boss")?1:0);
-    $("progress").textContent="已收服 "+beat+" / 10 只怪兽";
+    $("progress").textContent="Caught "+beat+" / 10 monsters";
     var box=$("levels"); box.innerHTML="";
     LEVELS.forEach(function(L){
       var s=starsOf(L.id), b=document.createElement("button");
@@ -288,14 +281,14 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     });
     var bs=starsOf("boss"), open=beatenCount()>=BOSS_NEED, bb=document.createElement("button");
     bb.type="button"; bb.className="lv boss"+(open?"":" locked")+(bs===3?" gold":"");
-    bb.innerHTML='<span class="mon">'+(open?BOSS.e:"🔒")+'</span><span class="txt"><span class="tag">Boss 大混战</span><span class="name">'+
-      (open?(bs?BOSS.n+" "+starText(bs):"2 到 9 全部混在一起，敢来挑战吗？"):"再打败 "+(BOSS_NEED-beatenCount())+" 只怪兽就能解锁")+'</span></span>';
+    bb.innerHTML='<span class="mon">'+(open?BOSS.e:"🔒")+'</span><span class="txt"><span class="tag">Boss Battle</span><span class="name">'+
+      (open?(bs?BOSS.n+" "+starText(bs):"All the tables from 2 to 9, mixed up. Are you brave enough?"):"Beat "+(BOSS_NEED-beatenCount())+" more "+(BOSS_NEED-beatenCount()===1?"monster":"monsters")+" to unlock")+'</span></span>';
     bb.onclick=function(){ if(open) startBattle(BOSS); };
     box.appendChild(bb);
     var n=missList().length, tb=document.createElement("button");
     tb.type="button"; tb.className="lv train"; tb.disabled=!n;
-    tb.innerHTML='<span class="mon">'+TRAIN.e+'</span><span class="txt"><span class="tag">训练营</span><span class="name">'+
-      (n?("有 "+n+" 道答错过的题，来练练！不会扣心"):"没有错题，太棒了！")+'</span></span>';
+    tb.innerHTML='<span class="mon">'+TRAIN.e+'</span><span class="txt"><span class="tag">Training Camp</span><span class="name">'+
+      (n?("You missed "+n+" "+(n===1?"fact":"facts")+". Let's practice! You can't lose hearts here."):"No missed facts. Great job!")+'</span></span>';
     tb.onclick=function(){ if(n) startBattle(TRAIN); };
     box.appendChild(tb);
     renderChart();
@@ -310,7 +303,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     }
   }
   $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
-  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 音效开":"🔕 音效关"; }
+  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 Sound on":"🔕 Sound off"; }
 
   // ---------- battle ----------
   var B=null, raf=0, pending=0;
@@ -351,7 +344,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     renderHearts(); renderHp(); show("battle"); nextQ();
   }
   function renderHearts(){
-    if(B.hearts===Infinity){ $("hearts").textContent="💪 练习中"; return; }
+    if(B.hearts===Infinity){ $("hearts").textContent="💪 Practice"; return; }
     var h=""; for(var i=0;i<3;i++) h+= i<B.hearts ? "❤️" : '<span class="lost">❤️</span>';
     $("hearts").innerHTML=h;
   }
@@ -360,6 +353,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     B.locked=false; B.q=pick();
     var a=B.q[0], b=B.q[1];
     $("question").innerHTML=a+" × "+b+' = <span class="ans">?</span>';
+    $("qWords").textContent=sayFact(a,b);
     var box=$("choices"); box.innerHTML="";
     choicesFor(a,b).forEach(function(v){
       var bt=document.createElement("button"); bt.type="button"; bt.className="choice"; bt.textContent=v; bt.dataset.v=v;
@@ -390,27 +384,28 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     var a=B.q[0], b=B.q[1], p=a*b, k=key(a,b), f=fact(k), ms=performance.now()-B.t0;
     [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(+x.dataset.v===p) x.classList.add("right"); });
     $("question").innerHTML=a+" × "+b+' = <span class="ans">'+p+'</span>';
+    $("qWords").textContent=sayFact(a,b,p);
     var mon=$("monster");
     if(btn&&+btn.dataset.v===p){
       f.ok++; B.correct++; B.streak++; B.best=Math.max(B.best,B.streak);
       var crit=ms<3000, dmg=crit?2:1, gain=crit?2:1;
       B.hp-=dmg; B.coins+=gain; $("bCoins").textContent=B.coins;
       var shot=document.createElement("span"); shot.className="shot"; shot.textContent=crit?"💥":"⭐"; $("arena").appendChild(shot);
-      setTimeout(function(){ shot.remove(); anim(mon,"hit"); floatText(crit?"暴击 -2!":"-1",crit); renderHp(); },260);
+      setTimeout(function(){ shot.remove(); anim(mon,"hit"); floatText(crit?"Critical! -2":"-1",crit); renderHp(); },260);
       if(crit) SFX.crit(); else SFX.hit();
-      if(B.streak>=3) say("🔥 "+B.streak+" 连击！","combo");
-      else say(crit?"⚡ 好快！暴击！":["答对了！","漂亮！","打中了！","厉害！"][Math.floor(Math.random()*4)],"good");
+      if(B.streak>=3) say("🔥 "+B.streak+" in a row!","combo");
+      else say(crit?"⚡ Super fast! Critical hit!":["Great job!","Nice!","You got it!","Awesome!"][Math.floor(Math.random()*4)],"good");
       save();
       if(B.hp<=0){ later(function(){ mon.className="monster dead"; SFX.win(); later(function(){ finish(true); },750); },500); }
       else later(nextQ,850);
     }else{
       if(btn) btn.classList.add("wrong");
       f.miss++; B.streak=0; B.miss[k]=1;
-      B.pool.push([a,b],[a,b]);   // 答错的题等一下会再出
+      B.pool.push([a,b],[a,b]);   // a missed fact comes back soon
       anim(mon,"attack"); var ar=$("arena"); ar.classList.remove("shake"); void ar.offsetWidth; ar.classList.add("shake");
       SFX.hurt();
       if(B.hearts!==Infinity){ B.hearts--; renderHearts(); }
-      say(btn?"哎呀！答案是 "+p:"时间到！答案是 "+p,"bad");
+      say((btn?"Oops! ":"Time's up! ")+a+" × "+b+" = "+p,"bad");
       save();
       if(B.hearts<=0) later(function(){ finish(false); },1600);
       else later(nextQ,1800);
@@ -430,10 +425,10 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     }
     data.coins+=B.coins+bonus; save();
     $("rBig").textContent = won?L.e:"💫";
-    $("rTitle").textContent = won ? (L===TRAIN?"训练完成！":"收服了"+L.n+"！") : "差一点点！再来一次吧";
+    $("rTitle").textContent = won ? (L===TRAIN?"Training done!":"You caught "+L.n+"!") : "So close! Try again!";
     $("rStars").textContent = (won&&L!==TRAIN) ? starText(stars) : "";
-    $("rReward").textContent = "🪙 +"+(B.coins+bonus)+(bonus?"（过关奖励 +"+bonus+"）":"");
-    $("rSub").textContent = "答对 "+B.correct+" 题 · 最高 "+B.best+" 连击"+(won&&L!==TRAIN&&stars<3?" · 一颗心都不丢就能拿 3 颗星":"");
+    $("rReward").textContent = "🪙 +"+(B.coins+bonus)+(bonus?" (bonus +"+bonus+")":"");
+    $("rSub").textContent = B.correct+" right · best streak "+B.best+(won&&L!==TRAIN&&stars<3?" · Keep all your hearts to get 3 stars":"");
     var miss=Object.keys(B.miss);
     $("rMissBox").hidden=!miss.length;
     $("rMiss").innerHTML=miss.map(function(k){ var p=k.split("x"); return "<span>"+p[0]+" × "+p[1]+" = "+(p[0]*p[1])+"</span>"; }).join("");
@@ -464,27 +459,15 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     })(t0);
   }
 
-  // ---------- install as an app (free: no app store needed) ----------
-  var deferredPrompt=null, ua=navigator.userAgent||"";
-  var isWeChat=/MicroMessenger/i.test(ua), isIOS=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
-  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); deferredPrompt=e; });
-  window.addEventListener("appinstalled",function(){ $("installBtn").hidden=true; $("howto").hidden=true; });
-  $("installBtn").onclick=function(){
-    if(deferredPrompt&&!isWeChat){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(function(){ deferredPrompt=null; }); return; }
-    var h=$("howto"), steps;
-    if(isWeChat){
-      steps=["点右上角的 <b>···</b>","选 <b>在浏览器打开</b>（iPhone 选 Safari 打开）","在浏览器里再点一次「📲 装到手机桌面」"];
-    }else if(isIOS){
-      steps=["用 <b>Safari</b> 打开这个页面","点屏幕下方的 <b>分享按钮</b>（方框加向上箭头）","往下滑，点 <b>添加到主屏幕</b>，再点 <b>添加</b>"];
-    }else{
-      steps=["点浏览器右上角或右下角的 <b>菜单</b>（⋮ 或 ☰）","选 <b>添加到主屏幕</b> 或 <b>安装应用</b>","回到手机桌面，点 🏝️ 乘法怪兽岛 图标就能玩"];
-    }
-    h.innerHTML="<h3>"+(isWeChat?"微信里不能直接安装，先换到浏览器：":"三步装到桌面：")+"</h3><ol><li>"+steps.join("</li><li>")+
-      '</li></ol><div class="note">完全免费。装好后从桌面图标打开，没网也能玩。</div>';
-    h.hidden=!h.hidden;
-  };
-  if("serviceWorker" in navigator){
-    window.addEventListener("load",function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+  // ---------- back to the book the child came from ----------
+  try{
+    var ref=document.referrer||"";
+    if(/\/books\/[^/]+\/[^/]+\.html/.test(ref)&&new URL(ref).origin===location.origin){ $("homeLink").href=ref; $("homeLink").textContent="← Back to the book"; }
+  }catch(e){}
+
+  // this page used to be an installable app; drop the old offline copy so everyone gets this version
+  if("serviceWorker" in navigator&&navigator.serviceWorker.getRegistrations){
+    navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ if(/\/math-game\/$/.test(r.scope)) r.unregister(); }); }).catch(function(){});
   }
 
   renderSound(); renderMap();
