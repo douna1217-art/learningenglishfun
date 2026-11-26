@@ -69,6 +69,8 @@ button{font:inherit;cursor:pointer;color:inherit}
 .legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-weight:800;font-size:.85rem;color:var(--muted)}
 .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:4px}
 .hide{display:none!important}
+.msg{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:10px 14px;font-weight:900;margin:0 0 14px}
+[hidden]{display:none!important}
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
 @media(max-width:620px){.tables{grid-template-columns:repeat(4,1fr)}.modes{grid-template-columns:1fr}.mode{display:flex;align-items:center;gap:12px;text-align:left}.mode .ic{font-size:1.8rem}
 .cell{font-size:.7rem;padding:9px 1px}.cell .k{display:none}.chart{gap:3px}}
@@ -100,6 +102,7 @@ button{font:inherit;cursor:pointer;color:inherit}
   <div class="panel">
     <h2>② 选玩法 Pick a game</h2>
     <p class="hint">按键盘 1 2 3 4 也能选答案</p>
+    <p class="msg" id="menuMsg" hidden></p>
     <div class="modes">
       <button class="mode m1" type="button" data-mode="practice"><span class="ic">🐢</span><div><b>慢慢练 Practice</b><span>10 道题，不计时，答错会教你</span></div></button>
       <button class="mode m2" type="button" data-mode="timed"><span class="ic">⏱️</span><div><b>60 秒挑战 Speed</b><span>60 秒能答对几道？</span></div></button>
@@ -215,7 +218,7 @@ button{font:inherit;cursor:pointer;color:inherit}
       b.className="tbtn"+(data.selected.indexOf(t)>=0?" on":"");
       b.innerHTML=(tableMastered(t)?'<span class="medal">🥇</span>':"")+"× "+t+"<small>"+t+"×1 ~ "+t+"×9</small>";
       (function(t){ b.onclick=function(){
-        var i=data.selected.indexOf(t); if(i>=0) data.selected.splice(i,1); else data.selected.push(t);
+        $("menuMsg").hidden=true; var i=data.selected.indexOf(t); if(i>=0) data.selected.splice(i,1); else data.selected.push(t);
         save(); renderTables();
       };})(t);
       box.appendChild(b);
@@ -278,8 +281,8 @@ button{font:inherit;cursor:pointer;color:inherit}
   function start(mode){
     var pool=buildPool(mode);
     if(!pool.length){
-      alert(mode==="review" ? "错题本是空的，先去玩别的吧！" : "请先选至少一个口诀 Please pick a table.");
-      return;
+      var m=$("menuMsg"); m.textContent = mode==="review" ? "错题本是空的，先去玩别的吧！" : "请先在上面选至少一列 Please pick a table.";
+      m.hidden=false; return;
     }
     G={mode:mode,pool:pool,n:0,total:mode==="timed"?0:Math.min(10,mode==="review"?Math.max(pool.length,5):10),
        correct:0,stars:0,streak:0,best:0,miss:{},last:null,time:60,locked:false};
@@ -363,7 +366,7 @@ button{font:inherit;cursor:pointer;color:inherit}
   $("quitBtn").onclick=function(){ clearInterval(timer); try{speechSynthesis.cancel();}catch(e){} toMenu(); };
   $("againBtn").onclick=function(){ start(G.mode); };
   $("menuBtn").onclick=toMenu;
-  function toMenu(){ renderTables(); renderChart(); show("menu"); }
+  function toMenu(){ $("menuMsg").hidden=true; renderTables(); renderChart(); show("menu"); }
   [].forEach.call(document.querySelectorAll(".mode"),function(b){ b.onclick=function(){ start(b.dataset.mode); }; });
   document.addEventListener("keydown",function(e){
     if($("game").classList.contains("hide")) return;
