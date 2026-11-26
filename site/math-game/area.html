@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Garden Builder</title>
+<meta name="theme-color" content="#5a9e3a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Garden Builder: count squares, plant flower beds, build fences. Area and perimeter in English for Grade 3.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* Layout: garden map (plots to play, garden shop) -> building screen (grid, question, answers) -> end of the day */
+:root{--ink:#2c3a1f;--muted:#66745a;--line:#dfe8d2;--brand:#5a9e3a;--brand-dark:#3e7426;--bg:#f2f7ea;--card:#fff;
+--good:#2f9e5b;--bad:#e0554f;--gold:#f5b301;--soil:#b9895a;--soil2:#a67748;--shadow:0 14px 34px rgba(44,58,31,.13)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
+[hidden]{display:none!important}
+.top{max-width:920px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}
+.wallet{display:flex;gap:8px;align-items:center}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:900;white-space:nowrap}
+.wrap{max-width:920px;margin:auto;padding:0 16px 48px}
+
+/* ===== map ===== */
+.hero{position:relative;border-radius:28px;padding:20px 14px 16px;color:#fff;text-align:center;box-shadow:var(--shadow);overflow:hidden;
+  background:linear-gradient(180deg,#8fd0f2 0 38%,#7bc35a 38%)}
+.hero h1{margin:0;font-size:clamp(1.9rem,7vw,3rem);text-shadow:0 3px 0 rgba(0,0,0,.2)}
+.hero p{margin:4px 0 0;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.mygarden{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;max-width:420px;margin:12px auto 4px;padding:6px;background:#8a5f36;border-radius:12px}
+.mygarden span{aspect-ratio:1;background:var(--soil);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:clamp(1rem,4.5vw,1.6rem)}
+.progress{display:inline-block;margin-top:8px;background:rgba(255,255,255,.92);border-radius:999px;padding:6px 14px;font-weight:900;color:var(--ink)}
+.plots{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.plot{position:relative;border:0;border-radius:22px;padding:12px 6px 10px;background:#fff;box-shadow:0 6px 0 #d6e3c6,var(--shadow);text-align:center;transition:transform .15s}
+.plot:hover{transform:translateY(-4px)}
+.plot:active{transform:translateY(2px)}
+.plot .ic{font-size:2rem;line-height:1.2;display:block}
+.plot .tag{font-family:Fredoka,sans-serif;font-weight:700;font-size:1.02rem;display:block;line-height:1.15}
+.plot .stars{font-size:.95rem;letter-spacing:.05em;min-height:1.3em}
+.plot.gold{box-shadow:0 6px 0 #e0b200,0 0 0 3px var(--gold),var(--shadow)}
+.plot.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px}
+.plot.wide .txt{text-align:left}
+.plot .name{display:block;font-size:.76rem;font-weight:800;color:var(--muted)}
+.plot.boss{background:linear-gradient(135deg,#8a5a1e,#d3922f);color:#fff;box-shadow:0 6px 0 #5e3c12,var(--shadow)}
+.plot.boss .name{color:#fff0d6}
+.plot.boss.locked{filter:grayscale(.85);opacity:.75;cursor:not-allowed}
+.plot.practice{background:#fff7e3}
+.plot.practice:disabled{opacity:.6;cursor:default;transform:none}
+.panel{margin-top:22px;background:#fff;border-radius:20px;padding:4px 18px;box-shadow:var(--shadow)}
+.panel summary{cursor:pointer;font-weight:900;padding:12px 0}
+.panel summary small{color:var(--muted);font-weight:800}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding-bottom:16px}
+.item{border:2px solid var(--line);border-radius:16px;background:#fff;padding:10px 6px;text-align:center;font-weight:900}
+.item .e{font-size:2rem;display:block}
+.item .n{display:block;font-size:.85rem}
+.item .p{display:block;font-size:.82rem;color:var(--muted);margin-top:2px}
+.item.own{border-color:var(--good);background:#effaf2}
+.item.own .p{color:var(--good)}
+.item:disabled{opacity:.55;cursor:default}
+.skills{width:100%;border-collapse:collapse;margin-bottom:14px;font-weight:800;font-size:.9rem}
+.skills td{padding:7px 4px;border-top:1px solid var(--line)}
+.skills td:last-child{text-align:right;white-space:nowrap}
+.meter{display:inline-block;width:90px;height:10px;border-radius:9px;background:#eef3e6;overflow:hidden;vertical-align:middle;margin-left:6px}
+.meter i{display:block;height:100%;background:var(--good)}
+
+/* ===== building ===== */
+.bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hearts{font-size:1.4rem;letter-spacing:.06em;font-weight:900}
+.hearts .lost{filter:grayscale(1);opacity:.3}
+.stage{position:relative;margin-top:12px;border-radius:26px;box-shadow:var(--shadow);overflow:hidden;background:linear-gradient(180deg,#e6f4d8,#f7fbf1);padding:12px 12px 14px}
+.task{background:#fff;border-radius:14px;padding:9px 12px;font-weight:900;font-size:1.08rem;text-align:center;line-height:1.4;box-shadow:0 3px 0 rgba(0,0,0,.06)}
+.task b{color:var(--brand-dark)}
+.grid{display:grid;gap:3px;margin:12px auto 0;padding:5px;background:#8a5f36;border-radius:10px;touch-action:manipulation}
+.cell{aspect-ratio:1;border:0;border-radius:4px;background:var(--soil);padding:0;display:flex;align-items:center;justify-content:center;font-size:clamp(.9rem,4.6vw,1.6rem);line-height:1}
+.cell.bed{background:#6db34a}
+.cell.pick{cursor:pointer}
+.cell.pick:hover{background:var(--soil2)}
+.cell.pick.bed:hover{background:#5ea53d}
+.cell.cut{background:#7c9a63;opacity:.35}
+.cell.flash{animation:pop .4s}
+.counter{text-align:center;font-weight:900;margin-top:8px;font-size:1.05rem}
+.rect{position:relative;left:30px;margin:40px auto 10px;background:repeating-linear-gradient(45deg,#7cc35a 0 10px,#6db34a 10px 20px);border:4px solid #3e7426;border-radius:4px}
+.rect.fence{border:6px dashed #8a5f36;background:#cfe8b8}
+.rect .side{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.05rem;white-space:nowrap;color:var(--ink)}
+.rect .top{left:50%;top:-12px;transform:translate(-50%,-100%)}
+.rect .left{top:50%;left:-14px;transform:translate(-100%,-50%)}
+.which{font-size:3.4rem;text-align:center;margin-top:8px}
+.setbtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.setbtns button{border:0;border-radius:14px;padding:12px 4px;font-weight:900;font-size:1.05rem;background:#fff;box-shadow:0 4px 0 #d6e3c6}
+.setbtns .go{background:var(--good);color:#fff;box-shadow:0 4px 0 #1f7041}
+.setbtns button:disabled{opacity:.5}
+.words{font-weight:900;color:var(--muted);font-size:1.08rem;min-height:1.5em;text-align:center;margin-top:8px}
+.msg{text-align:center;font-weight:900;min-height:1.6em;font-size:1.1rem;margin-top:2px}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}.msg.combo{color:#e07b00}
+.msg.pop{animation:pop .35s}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.choice{border:0;border-radius:22px;padding:14px 6px;font-family:Fredoka,sans-serif;font-size:1.9rem;font-weight:700;color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.13);transition:transform .06s}
+.choice small{display:block;font-size:.85rem;font-family:Nunito,sans-serif;font-weight:900}
+.choice:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.13)}
+.choice:nth-child(1){background:#d6efc4}.choice:nth-child(2){background:#ffe7a8}.choice:nth-child(3){background:#cfe7ff}.choice:nth-child(4){background:#ffd1e3}
+.choice.right{background:var(--good)!important;color:#fff}
+.choice.wrong{background:var(--bad)!important;color:#fff;animation:shake .35s}
+.choice:disabled{cursor:default}
+.hint{text-align:center;color:var(--muted);font-weight:800;font-size:.9rem;margin-top:8px}
+
+/* ===== end of the day ===== */
+.result{background:#fff;border-radius:28px;padding:26px 18px;text-align:center;box-shadow:var(--shadow);margin-top:8px}
+.result .big{font-size:5.5rem;line-height:1.1;display:inline-block;animation:pop .6s}
+.result h2{margin:6px 0;font-size:1.8rem}
+.result .stars{font-size:2.6rem;letter-spacing:.1em}
+.result p{color:var(--muted);font-weight:800;margin:6px 0}
+.reward{display:inline-block;background:#fff6d6;border-radius:999px;padding:8px 16px;font-weight:900;margin:8px 0}
+.mistakes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.mistakes span{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:7px 11px;font-weight:900}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:16px;padding:14px 22px;font-weight:900;font-size:1.05rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--brand-dark)}
+.btn.light{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media(max-width:620px){.plots{gap:8px}.plot .tag{font-size:.9rem}.choice{font-size:1.6rem}}
+</style></head>
+<body>
+<div class="top">
+  <a class="home" id="homeLink" href="../index.html">← Home</a>
+  <div class="wallet">
+    <span class="chip" id="coinChip">🌰 <span id="coinTotal">0</span></span>
+    <button class="tbtn" type="button" id="soundBtn">🔔 Sound on</button>
+  </div>
+</div>
+<div class="wrap">
+
+<!-- ===== MAP ===== -->
+<section id="map">
+  <div class="hero">
+    <h1>🌻 Garden Builder</h1>
+    <p>Count the squares, plant the beds, build the fences!</p>
+    <div class="mygarden" id="myGarden"></div>
+    <div class="progress" id="progress"></div>
+  </div>
+  <div class="plots" id="plots"></div>
+  <details class="panel" open>
+    <summary>🛍️ Garden shop: seeds buy plants and friends <small>用种子装扮你的花园</small></summary>
+    <div class="shop" id="shop"></div>
+  </details>
+  <details class="panel">
+    <summary>📋 For parents: what is going well <small>给家长看：掌握情况</small></summary>
+    <table class="skills" id="skills"></table>
+  </details>
+</section>
+
+<!-- ===== BUILDING ===== -->
+<section id="play" hidden>
+  <div class="bar-top">
+    <button class="tbtn" type="button" id="quitBtn">✕ Leave the garden</button>
+    <span class="hearts" id="hearts"></span>
+    <span class="chip">🌰 +<span id="pCoins">0</span></span>
+  </div>
+  <div class="stage" id="stage">
+    <div class="task" id="task"></div>
+    <div id="field"></div>
+    <div class="counter" id="counter"></div>
+    <div class="setbtns" id="setbtns" hidden>
+      <button type="button" id="clearBtn">↺ Start again</button><button type="button" class="go" id="goBtn">✓ Done!</button>
+    </div>
+  </div>
+  <div class="words" id="words"></div>
+  <div class="msg" id="msg"></div>
+  <div class="choices" id="choices"></div>
+  <div class="hint" id="hint"></div>
+</section>
+
+<!-- ===== END OF THE DAY ===== -->
+<section id="result" hidden>
+  <div class="result">
+    <div class="big" id="rBig"></div>
+    <h2 id="rTitle"></h2>
+    <div class="stars" id="rStars"></div>
+    <div class="reward" id="rReward"></div>
+    <p id="rSub"></p>
+    <div id="rMissBox">
+      <p>Practice these again:</p>
+      <div class="mistakes" id="rMiss"></div>
+    </div>
+    <div class="row">
+      <button class="btn" type="button" id="againBtn">Play again</button>
+      <button class="btn light" type="button" id="mapBtn">Back to the garden</button>
+    </div>
+  </div>
+</section>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  "use strict";
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function between(a,b){ return a+rnd(b-a+1); }
+  function pickOne(a){ return a[rnd(a.length)]; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=rnd(i+1),t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  var ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+  var TENS=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+  function inWords(n){ if(n<20) return ONES[n]; var t=TENS[Math.floor(n/10)], o=n%10; return o?t+"-"+ONES[o]:t; }
+  function units(n,sq){ return n+" "+(sq?"square ":"")+"unit"+(n===1?"":"s"); }
+
+  // ---------- the questions ----------
+  // count: how many squares does the bed cover?  plant: plant a bed of n squares  rect: plant a w by h rectangle
+  // area: a w by h bed (sides given), the area?  perim: the fence around a w by h bed?  L: an L-shaped bed, the area?
+  // which: a sentence; does it need the area or the perimeter?
+  var FLOWERS=["🌷","🌻","🌼","🌸","🥕","🥬","🍓","🌽"];
+  var JOBS=[
+    ["put a fence around the garden","p"],["put a rug on the whole floor","a"],["put a frame around a picture","p"],["plant grass on the whole yard","a"],
+    ["put tape around the edge of a table","p"],["paint the whole wall","a"],["walk all the way around the park","p"],["cover the top of a box with paper","a"],
+    ["hang lights around a window","p"],["put tiles on the kitchen floor","a"],["put a ribbon around the edge of a card","p"],["cover a table with a tablecloth","a"],
+    ["build a wall around the castle","p"],["plant flowers in every square of the bed","a"],["put a border around the bulletin board","p"],["cover the floor of the tent with a mat","a"]
+  ];
+  var NAMES=["Mia","Leo","Ava","Sam","Zoe","Ben","Lily","Max","Ella","Noah","Grandpa","Grandma"];
+  function Q(kind,a,b,c,d){ var q={kind:kind,a:a||0,b:b||0,c:c||0,d:d||0}; q.key=[kind,q.a,q.b,q.c,q.d].join("|"); return q; }
+  function fromKey(k){ var s=k.split("|"); return Q(s[0],+s[1],+s[2],+s[3],+s[4]); }
+  function rectQ(kind,maxW,maxH){ return Q(kind,between(2,maxW),between(2,maxH)); }
+  function lQ(){ var W=between(4,8), H=between(3,6), cw=between(1,W-2), ch=between(1,H-1); return Q("L",W,H,cw,ch); }
+  function whichQ(){ return Q("which",rnd(JOBS.length),rnd(NAMES.length)); }
+  var PLOTS=[
+    {id:"g1",e:"🔢",n:"Count the Squares",gen:function(){ return rectQ("count",6,5); }},
+    {id:"g2",e:"🌱",n:"Plant a Garden",gen:function(){ return Q("plant",between(5,16)); }},
+    {id:"g3",e:"✖️",n:"Rows Times Columns",gen:function(){ return Math.random()<.4?rectQ("rect",5,4):rectQ("area",9,7); }},
+    {id:"g4",e:"🚧",n:"Fence It In",gen:function(){ return rectQ("perim",9,7); }},
+    {id:"g5",e:"📐",n:"L-Shaped Gardens",gen:lQ},
+    {id:"g6",e:"🤔",n:"Area or Perimeter?",gen:function(){ var r=Math.random(); return r<.5?whichQ():r<.75?rectQ("area",10,8):rectQ("perim",10,8); }}
+  ];
+  var BOSS={id:"boss",n:"Big Farm",gen:function(){ return pickOne(PLOTS).gen(); }};
+  var PRACTICE={id:"practice",n:"Practice Patch"};
+  var BOSS_NEED=3;
+  var SHOP=[
+    {id:"sunflower",e:"🌻",n:"Sunflowers",p:10},{id:"tulip",e:"🌷",n:"Tulips",p:10},{id:"tomato",e:"🍅",n:"Tomatoes",p:15},{id:"carrot",e:"🥕",n:"Carrots",p:15},
+    {id:"berry",e:"🍓",n:"Strawberries",p:20},{id:"pumpkin",e:"🎃",n:"Pumpkin",p:25},{id:"bee",e:"🐝",n:"Bees",p:30},{id:"butterfly",e:"🦋",n:"Butterflies",p:35},
+    {id:"bunny",e:"🐇",n:"Bunny",p:45},{id:"tree",e:"🌳",n:"Apple tree",p:55},{id:"fountain",e:"⛲",n:"Fountain",p:70},{id:"house",e:"🏡",n:"Cottage",p:90}
+  ];
+  var SPOTS=[12,5,27,18,1,23,9,15,21,3,26,7];   // where each thing goes in the little garden on the map (10 x 3)
+  var KIND_NAME={count:"Count square units",plant:"Plant a bed of a given area",rect:"Build a rectangle (rows and columns)",area:"Area = length × width",perim:"Perimeter (the fence around)",L:"Area of L-shaped gardens",which:"Area or perimeter? (reading)"};
+
+  // ---------- saved progress (this browser only) ----------
+  var STORE="gardenBuilder.v1";
+  var data={facts:{},plots:{},kinds:{},coins:0,owned:{},sound:true};
+  try{
+    var raw=localStorage.getItem(STORE);
+    if(raw){ var d0=JSON.parse(raw);
+      if(d0&&typeof d0==="object"){ ["facts","plots","kinds","owned"].forEach(function(k){ if(d0[k]&&typeof d0[k]==="object") data[k]=d0[k]; });
+        if(typeof d0.coins==="number") data.coins=d0.coins; if(typeof d0.sound==="boolean") data.sound=d0.sound; } }
+  }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(data)); }catch(e){} }
+  function fact(k){ return data.facts[k]||(data.facts[k]={ok:0,miss:0}); }
+  function mastered(k){ var f=data.facts[k]; return f&&f.ok>=2&&f.ok-f.miss*2>=1; }
+  function missList(){ return Object.keys(data.facts).filter(function(k){ return data.facts[k].miss>0&&!mastered(k); }); }
+  function starsOf(id){ return (data.plots[id]&&data.plots[id].stars)||0; }
+  function playedCount(){ return PLOTS.filter(function(P){ return starsOf(P.id)>0; }).length; }
+
+  // ---------- sound effects (no voice) ----------
+  var actx=null;
+  function tone(notes,type,len){
+    if(!data.sound) return;
+    try{
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      notes.forEach(function(f,i){
+        var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+i*(len*.6);
+        o.type=type; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.14,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+len);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02);
+      });
+    }catch(e){}
+  }
+  var SFX={
+    grow:function(){tone([523,784],"triangle",.14);},
+    fast:function(){tone([784,988,1175],"square",.08);},
+    plant:function(){tone([880],"sine",.05);},
+    oops:function(){tone([260,180],"sawtooth",.16);},
+    buy:function(){tone([659,880,1047],"triangle",.12);},
+    win:function(){tone([523,659,784,1047],"triangle",.18);},
+    lose:function(){tone([392,330,262],"sine",.25);}
+  };
+
+  var $=function(id){return document.getElementById(id);};
+  function show(id){ ["map","play","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); window.scrollTo(0,0); }
+
+  // ---------- map ----------
+  function starText(n){ return "⭐".repeat(n)+"☆".repeat(3-n); }
+  function renderMap(){
+    $("coinTotal").textContent=data.coins;
+    var cells=[]; for(var i=0;i<30;i++) cells.push("");
+    SHOP.forEach(function(it,i){ if(data.owned[it.id]) cells[SPOTS[i]]=it.e; });
+    if(!SHOP.some(function(it){ return data.owned[it.id]; })) cells[14]="🌱";
+    $("myGarden").innerHTML=cells.map(function(e){ return "<span>"+e+"</span>"; }).join("");
+    $("progress").textContent="Gardens done: "+(playedCount()+(starsOf("boss")?1:0))+" / 7";
+    var box=$("plots"); box.innerHTML="";
+    PLOTS.forEach(function(P){
+      var s=starsOf(P.id), b=document.createElement("button");
+      b.type="button"; b.className="plot"+(s===3?" gold":"");
+      b.innerHTML='<span class="ic">'+P.e+'</span><span class="tag">'+P.n+'</span><div class="stars">'+starText(s)+'</div>';
+      b.onclick=function(){ start(P); };
+      box.appendChild(b);
+    });
+    var bs=starsOf("boss"), open=playedCount()>=BOSS_NEED, left=BOSS_NEED-playedCount(), bb=document.createElement("button");
+    bb.type="button"; bb.className="plot wide boss"+(open?"":" locked")+(bs===3?" gold":"");
+    bb.innerHTML='<span class="ic" style="font-size:2.4rem">'+(open?"🚜":"🔒")+'</span><span class="txt"><span class="tag">Big Farm</span><span class="name">'+
+      (open?(bs?"Every kind of job "+starText(bs):"Every kind of job on the big farm!"):"Finish "+left+" more "+(left===1?"garden":"gardens")+" to unlock")+'</span></span>';
+    bb.onclick=function(){ if(open) start(BOSS); };
+    box.appendChild(bb);
+    var n=missList().length, pb=document.createElement("button");
+    pb.type="button"; pb.className="plot wide practice"; pb.disabled=!n;
+    pb.innerHTML='<span class="ic" style="font-size:2.4rem">🪴</span><span class="txt"><span class="tag">Practice Patch</span><span class="name">'+
+      (n?("You missed "+n+" "+(n===1?"job":"jobs")+". Let's practice! No hearts lost here."):"Nothing to practice. Great job!")+'</span></span>';
+    pb.onclick=function(){ if(n) start(PRACTICE); };
+    box.appendChild(pb);
+    renderShop(); renderSkills();
+  }
+  function renderShop(){
+    var box=$("shop"); box.innerHTML="";
+    SHOP.forEach(function(it){
+      var own=!!data.owned[it.id], b=document.createElement("button");
+      b.type="button"; b.className="item"+(own?" own":""); b.disabled=own||data.coins<it.p;
+      b.innerHTML='<span class="e">'+it.e+'</span><span class="n">'+it.n+'</span><span class="p">'+(own?"✓ In your garden":"🌰 "+it.p)+'</span>';
+      b.onclick=function(){ if(own||data.coins<it.p) return; data.coins-=it.p; data.owned[it.id]=1; save(); SFX.buy(); renderMap(); };
+      box.appendChild(b);
+    });
+  }
+  function renderSkills(){
+    var h="";
+    Object.keys(KIND_NAME).forEach(function(k){
+      var s=data.kinds[k]||{ok:0,miss:0}, tot=s.ok+s.miss, pct=tot?Math.round(100*s.ok/tot):0;
+      h+="<tr><td>"+KIND_NAME[k]+"</td><td>"+(tot?pct+"% right of "+tot:"not tried yet 还没练")+'<span class="meter"><i style="width:'+pct+'%"></i></span></td></tr>';
+    });
+    $("skills").innerHTML=h;
+  }
+  $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
+  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 Sound on":"🔕 Sound off"; }
+
+  // ---------- drawing ----------
+  function gridHtml(W,H,filled,opts){
+    // a W x H patch of soil; filled(x,y) -> true for the squares of the bed
+    opts=opts||{};
+    var maxPx=Math.min(44*W,460), h='<div class="grid" id="grid" style="grid-template-columns:repeat('+W+',1fr);max-width:'+maxPx+'px">';
+    for(var y=0;y<H;y++) for(var x=0;x<W;x++){
+      var f=filled&&filled(x,y);
+      h+='<button type="button" class="cell'+(f?" bed":"")+(opts.pick?" pick":"")+(opts.cut&&opts.cut(x,y)?" cut":"")+'" data-x="'+x+'" data-y="'+y+'"'+(opts.pick?' aria-label="square '+(y*W+x+1)+'"':' tabindex="-1" disabled')+'>'+(f&&opts.icon?opts.icon:"")+'</button>';
+    }
+    return h+'</div>';
+  }
+  function rectHtml(w,h,fence){
+    // a bed drawn to scale with its two sides written on it (no squares to count)
+    var unit=Math.min(26,Math.floor(250/Math.max(w,h)));
+    return '<div class="rect'+(fence?" fence":"")+'" style="width:'+(w*unit)+'px;height:'+(h*unit)+'px"><span class="side top">'+units(w)+'</span><span class="side left">'+units(h)+'</span></div>';
+  }
+  function lFilled(q){ return function(x,y){ return !(x>=q.a-q.c&&y<q.d); }; }   // the top right corner (c wide, d tall) is cut off
+
+  // ---------- playing ----------
+  var G=null, pending=0, planted={};
+  function start(P){
+    var pool=null;
+    if(P===PRACTICE){ pool=missList(); if(!pool.length) return; }
+    var total = P===BOSS?12 : P===PRACTICE?Math.max(4,Math.min(10,pool.length*2)) : 8;
+    G={P:P,pool:pool,left:total,total:total,hearts:P===PRACTICE?Infinity:3,coins:0,streak:0,best:0,correct:0,miss:{},q:null,locked:false,lastKey:"",again:[]};
+    $("pCoins").textContent="0"; renderHearts(); show("play"); next();
+  }
+  function renderHearts(){
+    if(G.hearts===Infinity){ $("hearts").textContent="💪 Practice"; return; }
+    var h=""; for(var i=0;i<3;i++) h+= i<G.hearts ? "💛" : '<span class="lost">💛</span>';
+    $("hearts").innerHTML=h+' <span style="font-size:1rem">🌱 '+G.left+'</span>';
+  }
+  function makeQ(){
+    var q, tries=0;
+    do{
+      if(G.P===PRACTICE) q=fromKey(pickOne(G.pool));
+      else if(G.again.length&&Math.random()<.5) q=fromKey(G.again.shift());
+      else q=G.P.gen();
+      tries++;
+    }while(q.key===G.lastKey&&tries<8);
+    G.lastKey=q.key; return q;
+  }
+  function numChoices(right,wrongs){
+    var out=[right], seen={}; seen[right]=1;
+    shuffle(wrongs.slice()).forEach(function(v){ if(out.length<4&&v>0&&!seen[v]){ seen[v]=1; out.push(v); } });
+    for(var t=1;out.length<4;t++){ [right+t,right-t].forEach(function(v){ if(out.length<4&&v>0&&!seen[v]){ seen[v]=1; out.push(v); } }); }
+    return shuffle(out);
+  }
+  function choiceBtn(html,val){
+    var b=document.createElement("button"); b.type="button"; b.className="choice"; b.innerHTML=html; b.dataset.v=val;
+    b.onclick=function(){ answer(val,b); }; return b;
+  }
+  function plantedList(){ return Object.keys(planted).filter(function(k){ return planted[k]; }); }
+  function updateCounter(){ var n=plantedList().length; $("counter").textContent="Planted: "+n+" "+(n===1?"square":"squares"); }
+  function wirePlanting(){
+    planted={};
+    [].forEach.call(document.querySelectorAll("#grid .cell.pick"),function(c){
+      c.onclick=function(){ if(!G||G.locked) return; var k=c.dataset.x+","+c.dataset.y; planted[k]=!planted[k];
+        c.classList.toggle("bed",planted[k]); c.textContent=planted[k]?G.icon:""; if(planted[k]){ c.classList.remove("flash"); void c.offsetWidth; c.classList.add("flash"); SFX.plant(); } updateCounter(); };
+    });
+    $("setbtns").hidden=false; updateCounter();
+  }
+  $("clearBtn").onclick=function(){ if(!G||G.locked) return; planted={}; [].forEach.call(document.querySelectorAll("#grid .cell.pick"),function(c){ c.classList.remove("bed"); c.textContent=""; }); updateCounter(); };
+  $("goBtn").onclick=function(){ if(!G||G.locked) return; answer(plantAnswer(),null); };
+  function plantAnswer(){
+    // what the planted squares are: their number, and the w x h of their box (when they fill it)
+    var ks=plantedList(); if(!ks.length) return "0";
+    var xs=ks.map(function(k){ return +k.split(",")[0]; }), ys=ks.map(function(k){ return +k.split(",")[1]; });
+    var w=Math.max.apply(null,xs)-Math.min.apply(null,xs)+1, h=Math.max.apply(null,ys)-Math.min.apply(null,ys)+1;
+    return G.q.kind==="rect" ? (ks.length===w*h?Math.min(w,h)+"x"+Math.max(w,h):"shape") : String(ks.length);
+  }
+
+  function next(){
+    G.locked=false; var q=G.q=makeQ(); G.t0=Date.now(); G.icon=pickOne(FLOWERS);
+    $("msg").textContent=""; $("msg").className="msg"; $("words").textContent=""; $("hint").textContent=""; $("counter").textContent="";
+    $("setbtns").hidden=true; [].forEach.call(document.querySelectorAll("#setbtns button"),function(b){ b.disabled=false; });
+    var ch=$("choices"); ch.innerHTML=""; var fd=$("field"); fd.innerHTML="";
+    if(q.kind==="count"){
+      var W=Math.max(q.a+2,6), H=Math.max(q.b+2,5), ox=rnd(W-q.a+1), oy=rnd(H-q.b+1);
+      $("task").innerHTML="How many <b>square units</b> does the flower bed cover?";
+      fd.innerHTML=gridHtml(W,H,function(x,y){ return x>=ox&&x<ox+q.a&&y>=oy&&y<oy+q.b; },{icon:G.icon});
+      numChoices(q.a*q.b,[q.a*q.b+1,q.a*q.b-1,q.a+q.b,2*(q.a+q.b),q.a*q.b+q.a]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>square units</small>",String(v))); });
+      $("hint").textContent="Count every green square. Or count the rows and the squares in each row.";
+    }else if(q.kind==="plant"){
+      $("task").innerHTML="Plant a flower bed with an area of <b>"+units(q.a,true)+"</b>.";
+      fd.innerHTML=gridHtml(8,5,null,{pick:true}); wirePlanting();
+      $("words").textContent="Tap the soil to plant "+inWords(q.a)+" squares.";
+    }else if(q.kind==="rect"){
+      $("task").innerHTML="Plant a rectangle <b>"+q.a+" squares long</b> and <b>"+q.b+" rows</b>.";
+      fd.innerHTML=gridHtml(8,5,null,{pick:true}); wirePlanting();
+      $("words").textContent=inWords(q.a)+" squares in each row, "+inWords(q.b)+" rows.";
+    }else if(q.kind==="area"){
+      $("task").innerHTML="What is the <b>area</b> of the flower bed?";
+      fd.innerHTML=rectHtml(q.a,q.b,false);
+      numChoices(q.a*q.b,[2*(q.a+q.b),q.a+q.b,q.a*q.b+q.a,q.a*q.b-q.b]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>square units</small>",String(v))); });
+      $("hint").textContent="Area = length × width.";
+    }else if(q.kind==="perim"){
+      $("task").innerHTML="How long is the <b>fence</b> all the way around the garden?";
+      fd.innerHTML=rectHtml(q.a,q.b,true);
+      numChoices(2*(q.a+q.b),[q.a*q.b,q.a+q.b,2*q.a+q.b,q.a+2*q.b]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>units</small>",String(v))); });
+      $("hint").textContent="Add all four sides. The sides across from each other are the same.";
+    }else if(q.kind==="L"){
+      $("task").innerHTML="What is the <b>area</b> of this L-shaped garden?";
+      fd.innerHTML=gridHtml(q.a,q.b,lFilled(q),{icon:G.icon});
+      var A=q.a*q.b-q.c*q.d;
+      numChoices(A,[q.a*q.b,A+q.c,A-q.d,2*(q.a+q.b)]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>square units</small>",String(v))); });
+      $("hint").textContent="Split it into two rectangles, find each area, then add.";
+    }else{
+      var job=JOBS[q.a], who=NAMES[q.b];
+      $("task").innerHTML=who+" wants to <b>"+job[0]+"</b>.";
+      fd.innerHTML='<div class="which">🤔</div>';   // the answer's picture is shown after
+      ch.appendChild(choiceBtn("Area<small>the space inside</small>","a"));
+      ch.appendChild(choiceBtn("Perimeter<small>the distance around</small>","p"));
+      $("words").textContent="Does "+(who.indexOf("Grand")===0?"they":who)+" need the area or the perimeter?";
+    }
+  }
+  function rightAnswer(q){
+    if(q.kind==="count"||q.kind==="area") return String(q.a*q.b);
+    if(q.kind==="plant") return String(q.a);
+    if(q.kind==="rect") return Math.min(q.a,q.b)+"x"+Math.max(q.a,q.b);
+    if(q.kind==="perim") return String(2*(q.a+q.b));
+    if(q.kind==="L") return String(q.a*q.b-q.c*q.d);
+    return JOBS[q.a][1];
+  }
+  function explain(q){
+    if(q.kind==="count"||q.kind==="area") return q.b+" rows of "+q.a+" = "+q.a+" × "+q.b+" = "+units(q.a*q.b,true)+".";
+    if(q.kind==="plant") return "Any shape of "+q.a+" squares has an area of "+units(q.a,true)+".";
+    if(q.kind==="rect") return q.b+" rows of "+q.a+" squares: "+q.a+" × "+q.b+" = "+units(q.a*q.b,true)+".";
+    if(q.kind==="perim") return q.a+" + "+q.b+" + "+q.a+" + "+q.b+" = "+units(2*(q.a+q.b))+" of fence.";
+    if(q.kind==="L") return q.a+" × "+q.b+" = "+(q.a*q.b)+", take away the empty corner "+q.c+" × "+q.d+" = "+(q.c*q.d)+": "+units(q.a*q.b-q.c*q.d,true)+".";
+    var j=JOBS[q.a]; return "To "+j[0]+" you need the "+(j[1]==="p"?"perimeter: the distance around.":"area: the space inside.");
+  }
+  function say(text,cls){ var m=$("msg"); m.className="msg "+cls; void m.offsetWidth; m.textContent=text; m.classList.add("pop"); }
+  function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
+  function answer(val,btn){
+    if(!G||G.locked) return; G.locked=true;
+    var q=G.q, right=rightAnswer(q), ok=String(val)===right, f=fact(q.key), ms=Date.now()-G.t0;
+    var ks=data.kinds[q.kind]||(data.kinds[q.kind]={ok:0,miss:0});
+    [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(x.dataset.v===right) x.classList.add("right"); });
+    [].forEach.call(document.querySelectorAll("#setbtns button, #grid .cell"),function(b){ b.disabled=true; });
+    if(!ok&&btn) btn.classList.add("wrong");
+    if(q.kind==="which") $("field").firstChild.textContent=JOBS[q.a][1]==="p"?"🚧":"🟩";
+    if(!ok&&(q.kind==="plant"||q.kind==="rect")){
+      // show one right way to do it
+      var w=q.kind==="rect"?q.a:Math.min(q.a,8), h=q.kind==="rect"?q.b:Math.ceil(q.a/8);
+      $("field").innerHTML=gridHtml(8,5,function(x,y){ return q.kind==="rect"?(x<w&&y<h):(y*8+x<q.a); },{icon:G.icon});
+      $("counter").textContent="One way to do it:";
+    }
+    $("words").textContent=explain(q);
+    $("hint").textContent="";
+    G.left--;
+    if(ok){
+      f.ok++; ks.ok++; G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
+      var fast=ms<((q.kind==="plant"||q.kind==="rect")?20000:8000), gain=fast?2:1; G.coins+=gain; $("pCoins").textContent=G.coins;
+      if(fast) SFX.fast(); else SFX.grow();
+      if(G.streak>=3) say("🔥 "+G.streak+" jobs done in a row!","combo");
+      else say(fast?"⚡ Speedy gardener! Two seeds!":pickOne(["Great job!","Your garden grows!","You got it!","Lovely work!"]),"good");
+    }else{
+      f.miss++; ks.miss++; G.streak=0; G.miss[q.key]=q; G.again.push(q.key);
+      SFX.oops();
+      if(G.hearts!==Infinity) G.hearts--;
+      say(q.kind==="plant"?"Count again: you planted "+val+".":q.kind==="rect"?"Not quite that rectangle.":"Oops! The right answer is green.","bad");
+    }
+    save(); renderHearts();
+    var wait=ok?1800:3400;
+    if(G.hearts<=0) later(function(){ finish(false); },wait);
+    else if(G.left<=0) later(function(){ SFX.win(); finish(true); },wait);
+    else later(next,wait);
+  }
+  function missText(q){
+    if(q.kind==="count"||q.kind==="area"||q.kind==="rect") return q.a+" × "+q.b+" = "+(q.a*q.b);
+    if(q.kind==="plant") return "plant "+q.a+" squares";
+    if(q.kind==="perim") return "fence "+q.a+" + "+q.b+" + "+q.a+" + "+q.b+" = "+(2*(q.a+q.b));
+    if(q.kind==="L") return "L: "+(q.a*q.b)+" − "+(q.c*q.d)+" = "+(q.a*q.b-q.c*q.d);
+    return JOBS[q.a][0]+": "+(JOBS[q.a][1]==="p"?"perimeter":"area");
+  }
+  function finish(won){
+    clearTimeout(pending);
+    var P=G.P, stars=0, bonus=0;
+    if(won){
+      if(P===PRACTICE) bonus=5;
+      else{ stars=G.hearts; if(stars>starsOf(P.id)) data.plots[P.id]={stars:stars}; bonus=stars*5; }
+    }
+    data.coins+=G.coins+bonus; save();
+    $("rBig").textContent=won?(P===PRACTICE?"🪴":"🌻"):"🌧️";
+    $("rTitle").textContent=won?(P===PRACTICE?"Practice done!":"Garden finished: "+P.n+(/[?!]$/.test(P.n)?"":"!")):"The garden needs more work. Try again!";
+    $("rStars").textContent=(won&&P!==PRACTICE)?starText(stars):"";
+    $("rReward").textContent="🌰 +"+(G.coins+bonus)+(bonus?" (bonus +"+bonus+")":"");
+    $("rSub").textContent=G.correct+" jobs done · best streak "+G.best+(won&&P!==PRACTICE&&stars<3?" · Keep all your hearts to get 3 stars":"");
+    var miss=Object.keys(G.miss);
+    $("rMissBox").hidden=!miss.length;
+    $("rMiss").innerHTML=miss.map(function(k){ return "<span>"+missText(G.miss[k])+"</span>"; }).join("");
+    show("result");
+    if(won) confetti(); else SFX.lose();
+  }
+  function quit(){ clearTimeout(pending); renderMap(); show("map"); }
+  $("quitBtn").onclick=function(){ G=null; quit(); };
+  $("mapBtn").onclick=quit;
+  $("againBtn").onclick=function(){ var P=G.P; if(P===PRACTICE&&!missList().length){ quit(); return; } start(P); };
+  document.addEventListener("keydown",function(e){
+    if($("play").hidden) return;
+    var i="1234".indexOf(e.key); if(i<0) return;
+    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+  });
+
+  // ---------- confetti ----------
+  function confetti(){
+    if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cv=$("confetti"),ctx=cv.getContext("2d"); cv.width=innerWidth; cv.height=innerHeight;
+    var cols=["#f5b301","#2f9e5b","#e86a9c","#5a9e3a","#3aa3c4"],ps=[];
+    for(var i=0;i<150;i++) ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.28,c:cols[i%5],s:6+Math.random()*6});
+    var t0=performance.now();
+    (function loop(t){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); });
+      if(t-t0<3000) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+    })(t0);
+  }
+
+  // inside the site's reader window the reader's own close button takes the child back to the shelf
+  var framed=true; try{ framed=window.self!==window.top; }catch(e){}
+  if(framed) $("homeLink").style.visibility="hidden";
+
+  // for the tests: the question makers, without playing
+  window.__garden={gen:function(i){ return (i==="boss"?BOSS:PLOTS[i]).gen(); },rightAnswer:rightAnswer,numChoices:numChoices,jobs:JOBS,cur:function(){ return G&&G.q; }};
+
+  renderSound(); renderMap();
+})();
+</script>
+</body></html>

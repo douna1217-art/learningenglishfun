@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fraction Frog</title>
+<meta name="theme-color" content="#2f8f6a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Fraction Frog: jump to the right place on the number line. Fractions in English for Grade 3: halves to eighths, past one, the same spot, which is bigger.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* Layout: pond map (ponds to play, shop) -> jumping screen (number line, question, answers) -> end of the pond */
+:root{--ink:#1f3a30;--muted:#5f7a6f;--line:#d6e9df;--brand:#2f8f6a;--brand-dark:#1f6a4d;--bg:#eef8f2;--card:#fff;
+--good:#2f9e5b;--bad:#e0554f;--gold:#f5b301;--water:#bfe6f2;--shadow:0 14px 34px rgba(31,58,48,.13)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
+[hidden]{display:none!important}
+.top{max-width:920px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}
+.wallet{display:flex;gap:8px;align-items:center}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:900;white-space:nowrap}
+.wrap{max-width:920px;margin:auto;padding:0 16px 48px}
+
+/* a fraction written the school way */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;font-family:Fredoka,sans-serif;font-weight:700;margin:0 .08em}
+.fr b{display:block;padding:0 .12em}
+.fr b:first-child{border-bottom:.09em solid currentColor;padding-bottom:.06em}
+.fr b:last-child{padding-top:.06em}
+
+/* ===== map ===== */
+.hero{position:relative;border-radius:28px;padding:22px 18px 18px;color:#fff;text-align:center;box-shadow:var(--shadow);overflow:hidden;
+  background:radial-gradient(ellipse at 50% 120%,#7fd0e6 0 45%,transparent 46%),linear-gradient(180deg,#43b07f,#7fd09f)}
+.hero h1{margin:0;font-size:clamp(1.9rem,7vw,3rem);text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.hero p{margin:4px 0 0;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.hero .me{font-size:3.6rem;line-height:1;margin-top:6px;position:relative;display:inline-block}
+.hat{position:absolute;left:50%;top:-.78em;transform:translateX(-50%);font-size:.55em}
+.friends{font-size:1.8rem;letter-spacing:6px;min-height:1.2em}
+.progress{display:inline-block;margin-top:8px;background:rgba(255,255,255,.92);border-radius:999px;padding:6px 14px;font-weight:900;color:var(--ink)}
+.ponds{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.pond{position:relative;border:0;border-radius:22px;padding:12px 6px 10px;background:#fff;box-shadow:0 6px 0 #cfe6da,var(--shadow);text-align:center;transition:transform .15s}
+.pond:hover{transform:translateY(-4px)}
+.pond:active{transform:translateY(2px)}
+.pond .ic{font-size:1.7rem;line-height:1.25;display:block;min-height:1.3em}
+.pond .tag{font-family:Fredoka,sans-serif;font-weight:700;font-size:1.05rem;display:block;line-height:1.15}
+.pond .name{display:block;font-size:.74rem;font-weight:800;color:var(--muted)}
+.pond .stars{font-size:.95rem;letter-spacing:.05em;min-height:1.3em}
+.pond.gold{box-shadow:0 6px 0 #e0b200,0 0 0 3px var(--gold),var(--shadow)}
+.pond.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px}
+.pond.wide .txt{text-align:left}
+.pond.boss{background:linear-gradient(135deg,#1f6a8a,#3fa7c9);color:#fff;box-shadow:0 6px 0 #154b63,var(--shadow)}
+.pond.boss .name{color:#dff4fb}
+.pond.boss.locked{filter:grayscale(.85);opacity:.75;cursor:not-allowed}
+.pond.practice{background:#fff7e3}
+.pond.practice:disabled{opacity:.6;cursor:default;transform:none}
+.panel{margin-top:22px;background:#fff;border-radius:20px;padding:4px 18px;box-shadow:var(--shadow)}
+.panel summary{cursor:pointer;font-weight:900;padding:12px 0}
+.panel summary small{color:var(--muted);font-weight:800}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding-bottom:16px}
+.item{border:2px solid var(--line);border-radius:16px;background:#fff;padding:10px 6px;text-align:center;font-weight:900}
+.item .e{font-size:2rem;display:block}
+.item .n{display:block;font-size:.85rem}
+.item .p{display:block;font-size:.82rem;color:var(--muted);margin-top:2px}
+.item.own{border-color:var(--good);background:#effaf2}
+.item.own .p{color:var(--good)}
+.item.on{box-shadow:0 0 0 3px var(--gold)}
+.item:disabled{opacity:.55;cursor:default}
+.skills{width:100%;border-collapse:collapse;margin-bottom:14px;font-weight:800;font-size:.9rem}
+.skills td{padding:7px 4px;border-top:1px solid var(--line)}
+.skills td:last-child{text-align:right;white-space:nowrap}
+.meter{display:inline-block;width:90px;height:10px;border-radius:9px;background:#eef3f0;overflow:hidden;vertical-align:middle;margin-left:6px}
+.meter i{display:block;height:100%;background:var(--good)}
+
+/* ===== jumping ===== */
+.bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hearts{font-size:1.4rem;letter-spacing:.06em;font-weight:900}
+.hearts .lost{filter:grayscale(1);opacity:.3}
+.stage{position:relative;margin-top:12px;border-radius:26px;box-shadow:var(--shadow);overflow:hidden;
+  background:linear-gradient(180deg,#d9f3e6 0 30%,var(--water) 30%);padding:12px 14px 16px}
+.task{font-weight:900;font-size:1.1rem;text-align:center;min-height:1.6em;line-height:1.4}
+.task .fr{font-size:1.5em}
+.nl{position:relative;height:118px;margin:4px 14px 0}
+.nl.small{height:96px}
+.nl .axis{position:absolute;left:0;right:0;top:70px;height:5px;border-radius:3px;background:#2e5a4a}
+.nl.small .axis{top:56px}
+.tick{position:absolute;top:56px;width:34px;height:34px;margin-left:-17px;border:0;border-radius:50%;background:transparent;padding:0}
+.nl.small .tick{top:42px}
+.tick:before{content:"";position:absolute;left:50%;top:7px;width:3px;height:20px;margin-left:-1.5px;background:#2e5a4a;border-radius:2px}
+.tick.whole:before{height:28px;top:3px;width:4px;margin-left:-2px}
+.tick.pick{cursor:pointer}
+.tick.pick:hover:after,.tick.pick:focus-visible:after{content:"";position:absolute;inset:3px;border-radius:50%;background:rgba(47,143,106,.25)}
+.tick.right:after{content:"";position:absolute;inset:2px;border-radius:50%;background:rgba(47,158,91,.45)}
+.tick.wrong:after{content:"";position:absolute;inset:2px;border-radius:50%;background:rgba(224,85,79,.45)}
+.lbl{position:absolute;top:92px;transform:translateX(-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:1rem}
+.nl.small .lbl{top:78px}
+.lbl .fr{font-size:.85rem}
+.frog{position:absolute;top:8px;font-size:2.6rem;line-height:1;transform:translateX(-50%);transition:left .55s ease-in-out;z-index:2;pointer-events:none}
+.nl.small .frog{top:0;font-size:2.2rem}
+.frog .hat{font-size:.6em;top:-.42em}
+.frog.jump{animation:jump .55s ease-in-out}
+.frog.splash{animation:splash .6s}
+.frog.b{filter:hue-rotate(160deg)}
+.fly{position:absolute;font-size:1.3rem;top:6px;transform:translateX(-50%);animation:buzz 1s ease-in-out infinite}
+.vs{display:flex;justify-content:center;gap:16px;margin:10px 0 2px}
+.words{font-weight:900;color:var(--muted);font-size:1.1rem;min-height:1.5em;text-align:center;margin-top:8px}
+.msg{text-align:center;font-weight:900;min-height:1.6em;font-size:1.1rem;margin-top:2px}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}.msg.combo{color:#e07b00}
+.msg.pop{animation:pop .35s}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.choices.two{grid-template-columns:1fr 1fr}
+.choice{border:0;border-radius:22px;padding:12px 6px;font-family:Fredoka,sans-serif;font-size:1.9rem;font-weight:700;color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.13);transition:transform .06s;min-height:84px}
+.choice .fr{font-size:1.15em}
+.choice small{display:block;font-size:.8rem;font-family:Nunito,sans-serif;font-weight:900;margin-top:4px}
+.choice:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.13)}
+.choice:nth-child(1){background:#d9f3c4}.choice:nth-child(2){background:#c7ecf7}.choice:nth-child(3){background:#ffe7a8}.choice:nth-child(4){background:#ffd1e3}
+.choice.right{background:var(--good)!important;color:#fff}
+.choice.wrong{background:var(--bad)!important;color:#fff;animation:shake .35s}
+.choice:disabled{cursor:default}
+.hint{text-align:center;color:var(--muted);font-weight:800;font-size:.9rem;margin-top:8px}
+
+/* ===== end of the pond ===== */
+.result{background:#fff;border-radius:28px;padding:26px 18px;text-align:center;box-shadow:var(--shadow);margin-top:8px}
+.result .big{font-size:5.5rem;line-height:1.1;display:inline-block;animation:pop .6s}
+.result h2{margin:6px 0;font-size:1.8rem}
+.result .stars{font-size:2.6rem;letter-spacing:.1em}
+.result p{color:var(--muted);font-weight:800;margin:6px 0}
+.reward{display:inline-block;background:#fff6d6;border-radius:999px;padding:8px 16px;font-weight:900;margin:8px 0}
+.mistakes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.mistakes span{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:7px 11px;font-weight:900}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:16px;padding:14px 22px;font-weight:900;font-size:1.05rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--brand-dark)}
+.btn.light{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@keyframes jump{0%{margin-top:0}45%{margin-top:-46px}100%{margin-top:0}}
+@keyframes splash{0%{transform:translateX(-50%)}30%{transform:translateX(-50%) translateY(18px) scale(.9);opacity:.5}100%{transform:translateX(-50%)}}
+@keyframes buzz{0%,100%{margin-top:0}50%{margin-top:-6px}}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media(max-width:620px){.ponds{gap:8px}.pond .tag{font-size:.92rem}.pond .name{font-size:.66rem}.choice{font-size:1.6rem;min-height:76px}.nl{margin:4px 8px 0}.tick{width:28px;height:30px;margin-left:-14px}}
+</style></head>
+<body>
+<div class="top">
+  <a class="home" id="homeLink" href="../index.html">← Home</a>
+  <div class="wallet">
+    <span class="chip" id="coinChip">🪰 <span id="coinTotal">0</span></span>
+    <button class="tbtn" type="button" id="soundBtn">🔔 Sound on</button>
+  </div>
+</div>
+<div class="wrap">
+
+<!-- ===== MAP ===== -->
+<section id="map">
+  <div class="hero">
+    <h1>🪷 Fraction Frog</h1>
+    <p>Jump to the right place on the number line!</p>
+    <div class="me" id="heroFrog">🐸</div>
+    <div class="friends" id="friends"></div>
+    <div class="progress" id="progress"></div>
+  </div>
+  <div class="ponds" id="ponds"></div>
+  <details class="panel" open>
+    <summary>🛍️ Frog shop: flies buy hats and pond friends <small>用苍蝇换帽子和池塘朋友</small></summary>
+    <div class="shop" id="shop"></div>
+  </details>
+  <details class="panel">
+    <summary>📋 For parents: what is going well <small>给家长看：掌握情况</small></summary>
+    <table class="skills" id="skills"></table>
+  </details>
+</section>
+
+<!-- ===== JUMPING ===== -->
+<section id="play" hidden>
+  <div class="bar-top">
+    <button class="tbtn" type="button" id="quitBtn">✕ Leave the pond</button>
+    <span class="hearts" id="hearts"></span>
+    <span class="chip">🪰 +<span id="pCoins">0</span></span>
+  </div>
+  <div class="stage" id="stage">
+    <div class="task" id="task"></div>
+    <div id="lines"></div>
+  </div>
+  <div class="words" id="words"></div>
+  <div class="msg" id="msg"></div>
+  <div class="choices" id="choices"></div>
+  <div class="hint" id="hint"></div>
+</section>
+
+<!-- ===== END OF THE POND ===== -->
+<section id="result" hidden>
+  <div class="result">
+    <div class="big" id="rBig"></div>
+    <h2 id="rTitle"></h2>
+    <div class="stars" id="rStars"></div>
+    <div class="reward" id="rReward"></div>
+    <p id="rSub"></p>
+    <div id="rMissBox">
+      <p>Practice these again:</p>
+      <div class="mistakes" id="rMiss"></div>
+    </div>
+    <div class="row">
+      <button class="btn" type="button" id="againBtn">Play again</button>
+      <button class="btn light" type="button" id="mapBtn">Back to the ponds</button>
+    </div>
+  </div>
+</section>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  "use strict";
+  // ---------- fractions in words: "three fourths", "one half" ----------
+  var NUM=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen"];
+  var DEN={1:["whole","wholes"],2:["half","halves"],3:["third","thirds"],4:["fourth","fourths"],6:["sixth","sixths"],8:["eighth","eighths"]};
+  function frWords(p,q){ return NUM[p]+" "+DEN[q][p===1?0:1]; }
+  function frHtml(p,q){ return '<span class="fr"><b>'+p+'</b><b>'+q+'</b></span>'; }
+  function frText(p,q){ return p+"/"+q; }
+  function same(a,b,c,d){ return a*d===b*c; }
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function pickOne(a){ return a[rnd(a.length)]; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=rnd(i+1),t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+  // ---------- the questions ----------
+  // place: tap where p/q is on a line from 0 to W;  name: the frog sits somewhere, which fraction is it?
+  // equiv: which fraction is at the same spot as a/b?  cmp: which frog jumps farther, a/b or c/d?
+  function placeQ(p,q,W){ return {kind:"place",key:"place|"+p+"|"+q+"|"+W,p:p,q:q,W:W}; }
+  function nameQ(p,q,W){ return {kind:"name",key:"name|"+p+"|"+q+"|"+W,p:p,q:q,W:W}; }
+  function equivQ(a,b,c,d){ return {kind:"equiv",key:"equiv|"+a+"|"+b+"|"+c+"|"+d,a:a,b:b,c:c,d:d}; }
+  function cmpQ(a,b,c,d){ return {kind:"cmp",key:"cmp|"+a+"|"+b+"|"+c+"|"+d,a:a,b:b,c:c,d:d}; }
+  function fromKey(k){
+    var s=k.split("|"), n=s.slice(1).map(Number);
+    if(s[0]==="place") return placeQ(n[0],n[1],n[2]);
+    if(s[0]==="name") return nameQ(n[0],n[1],n[2]);
+    if(s[0]==="equiv") return equivQ(n[0],n[1],n[2],n[3]);
+    return cmpQ(n[0],n[1],n[2],n[3]);
+  }
+  function lineQ(dens,W,withWholes){
+    var q=pickOne(dens), p;
+    do{ p=1+rnd(q*W-1+(withWholes?1:0)); }while(!withWholes&&p%q===0);
+    return Math.random()<.55?placeQ(p,q,W):nameQ(p,q,W);
+  }
+  var EQUIVS=[[1,2,2,4],[1,2,3,6],[1,2,4,8],[2,4,4,8],[1,3,2,6],[2,3,4,6],[1,4,2,8],[3,4,6,8],[2,2,4,4],[3,3,6,6],[1,1,4,4],[1,1,2,2],[1,1,3,3],[1,1,8,8],[2,1,4,2],[2,1,6,3],[2,1,8,4],[3,2,6,4]];
+  function equivGen(){ var e=pickOne(EQUIVS); return Math.random()<.5?equivQ(e[0],e[1],e[2],e[3]):equivQ(e[2],e[3],e[0],e[1]); }
+  function cmpGen(){
+    var dens=[2,3,4,6,8], a,b,c,d;
+    if(Math.random()<.5){ b=d=pickOne([3,4,6,8]); a=1+rnd(b-1); do{ c=1+rnd(b-1); }while(c===a); }   // the same bottom number
+    else{ a=c=1+rnd(3); do{ b=pickOne(dens); d=pickOne(dens); }while(b===d||a>=b||a>=d); }            // the same top number
+    return cmpQ(a,b,c,d);
+  }
+  var PONDS=[
+    {id:"p1",e:"½ ¼",n:"Halves & Fourths",gen:function(){ return lineQ([2,4],1,false); }},
+    {id:"p2",e:"⅓ ⅙",n:"Thirds & Sixths",gen:function(){ return lineQ([3,6],1,false); }},
+    {id:"p3",e:"⅛",n:"Eighths",gen:function(){ return lineQ([8,8,4,2],1,false); }},
+    {id:"p4",e:"1 2",n:"Past One",gen:function(){ return lineQ([2,3,4],2,true); }},
+    {id:"p5",e:"= =",n:"The Same Spot",gen:equivGen},
+    {id:"p6",e:"< >",n:"Farther Jump",gen:cmpGen}
+  ];
+  var BOSS={id:"boss",e:"🌊",n:"Big Pond",gen:function(){ return pickOne(PONDS).gen(); }};
+  var PRACTICE={id:"practice",e:"🪷",n:"Practice Pond"};
+  var BOSS_NEED=3;
+  var SHOP=[
+    {id:"bow",t:"hat",e:"🎀",n:"Bow",p:10},{id:"cap",t:"hat",e:"🧢",n:"Cap",p:20},{id:"glasses",t:"hat",e:"🕶️",n:"Sunglasses",p:25},
+    {id:"tophat",t:"hat",e:"🎩",n:"Top hat",p:35},{id:"crown",t:"hat",e:"👑",n:"Crown",p:60},
+    {id:"duck",t:"friend",e:"🦆",n:"Duck",p:15},{id:"turtle",t:"friend",e:"🐢",n:"Turtle",p:25},{id:"fish",t:"friend",e:"🐟",n:"Fish",p:30},
+    {id:"snail",t:"friend",e:"🐌",n:"Snail",p:35},{id:"butterfly",t:"friend",e:"🦋",n:"Butterfly",p:45},{id:"swan",t:"friend",e:"🦢",n:"Swan",p:70}
+  ];
+  var KIND_NAME={place:"Find the place on the number line",name:"Name the fraction",equiv:"Equal fractions (the same spot)",cmp:"Compare fractions"};
+
+  // ---------- saved progress (this browser only) ----------
+  var STORE="fracFrog.v1";
+  var data={facts:{},ponds:{},kinds:{},coins:0,owned:{},hat:"",sound:true};
+  try{
+    var raw=localStorage.getItem(STORE);
+    if(raw){ var d0=JSON.parse(raw);
+      if(d0&&typeof d0==="object"){ ["facts","ponds","kinds","owned"].forEach(function(k){ if(d0[k]&&typeof d0[k]==="object") data[k]=d0[k]; });
+        if(typeof d0.coins==="number") data.coins=d0.coins; if(typeof d0.hat==="string") data.hat=d0.hat; if(typeof d0.sound==="boolean") data.sound=d0.sound; } }
+  }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(data)); }catch(e){} }
+  function fact(k){ return data.facts[k]||(data.facts[k]={ok:0,miss:0}); }
+  function mastered(k){ var f=data.facts[k]; return f&&f.ok>=2&&f.ok-f.miss*2>=1; }
+  function missList(){ return Object.keys(data.facts).filter(function(k){ return data.facts[k].miss>0&&!mastered(k); }); }
+  function starsOf(id){ return (data.ponds[id]&&data.ponds[id].stars)||0; }
+  function playedCount(){ return PONDS.filter(function(P){ return starsOf(P.id)>0; }).length; }
+
+  // ---------- sound effects (no voice) ----------
+  var actx=null;
+  function tone(notes,type,len){
+    if(!data.sound) return;
+    try{
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      notes.forEach(function(f,i){
+        var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+i*(len*.6);
+        o.type=type; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.14,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+len);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02);
+      });
+    }catch(e){}
+  }
+  var SFX={
+    boing:function(){tone([392,784],"triangle",.14);},
+    yum:function(){tone([784,1047,1319],"square",.08);},
+    splash:function(){tone([260,180],"sawtooth",.16);},
+    buy:function(){tone([659,880,1047],"triangle",.12);},
+    win:function(){tone([523,659,784,1047],"triangle",.18);},
+    lose:function(){tone([392,330,262],"sine",.25);}
+  };
+
+  var $=function(id){return document.getElementById(id);};
+  function show(id){ ["map","play","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); window.scrollTo(0,0); }
+  function frogHtml(cls){ return '<span class="frog'+(cls?" "+cls:"")+'">🐸'+(data.hat?'<span class="hat">'+data.hat+'</span>':"")+'</span>'; }
+
+  // ---------- map ----------
+  function starText(n){ return "⭐".repeat(n)+"☆".repeat(3-n); }
+  function renderMap(){
+    $("coinTotal").textContent=data.coins;
+    $("heroFrog").innerHTML="🐸"+(data.hat?'<span class="hat">'+data.hat+'</span>':"");
+    $("friends").textContent=SHOP.filter(function(it){ return it.t==="friend"&&data.owned[it.id]; }).map(function(it){ return it.e; }).join("");
+    $("progress").textContent="Ponds done: "+(playedCount()+(starsOf("boss")?1:0))+" / 7";
+    var box=$("ponds"); box.innerHTML="";
+    PONDS.forEach(function(P){
+      var s=starsOf(P.id), b=document.createElement("button");
+      b.type="button"; b.className="pond"+(s===3?" gold":"");
+      b.innerHTML='<span class="ic">'+P.e+'</span><span class="tag">'+P.n+'</span><div class="stars">'+starText(s)+'</div>';
+      b.onclick=function(){ start(P); };
+      box.appendChild(b);
+    });
+    var bs=starsOf("boss"), open=playedCount()>=BOSS_NEED, left=BOSS_NEED-playedCount(), bb=document.createElement("button");
+    bb.type="button"; bb.className="pond wide boss"+(open?"":" locked")+(bs===3?" gold":"");
+    bb.innerHTML='<span class="ic" style="font-size:2.4rem">'+(open?BOSS.e:"🔒")+'</span><span class="txt"><span class="tag">Big Pond</span><span class="name">'+
+      (open?(bs?"Everything mixed up "+starText(bs):"Everything mixed up. Can you cross the big pond?"):"Finish "+left+" more "+(left===1?"pond":"ponds")+" to unlock")+'</span></span>';
+    bb.onclick=function(){ if(open) start(BOSS); };
+    box.appendChild(bb);
+    var n=missList().length, pb=document.createElement("button");
+    pb.type="button"; pb.className="pond wide practice"; pb.disabled=!n;
+    pb.innerHTML='<span class="ic" style="font-size:2.4rem">'+PRACTICE.e+'</span><span class="txt"><span class="tag">Practice Pond</span><span class="name">'+
+      (n?("You missed "+n+" "+(n===1?"jump":"jumps")+". Let's practice! No hearts lost here."):"No missed jumps. Great job!")+'</span></span>';
+    pb.onclick=function(){ if(n) start(PRACTICE); };
+    box.appendChild(pb);
+    renderShop(); renderSkills();
+  }
+  function renderShop(){
+    var box=$("shop"); box.innerHTML="";
+    SHOP.forEach(function(it){
+      var own=!!data.owned[it.id], on=it.t==="hat"&&data.hat===it.e, b=document.createElement("button");
+      b.type="button"; b.className="item"+(own?" own":"")+(on?" on":"");
+      b.disabled=!own&&data.coins<it.p || (own&&it.t==="friend");
+      b.innerHTML='<span class="e">'+it.e+'</span><span class="n">'+it.n+'</span><span class="p">'+(own?(it.t==="hat"?(on?"✓ Wearing":"Tap to wear"):"✓ In your pond"):"🪰 "+it.p)+'</span>';
+      b.onclick=function(){
+        if(own){ if(it.t==="hat"){ data.hat=on?"":it.e; save(); renderMap(); } return; }
+        if(data.coins<it.p) return;
+        data.coins-=it.p; data.owned[it.id]=1; if(it.t==="hat") data.hat=it.e; save(); SFX.buy(); renderMap();
+      };
+      box.appendChild(b);
+    });
+  }
+  function renderSkills(){
+    var h="";
+    Object.keys(KIND_NAME).forEach(function(k){
+      var s=data.kinds[k]||{ok:0,miss:0}, tot=s.ok+s.miss, pct=tot?Math.round(100*s.ok/tot):0;
+      h+="<tr><td>"+KIND_NAME[k]+"</td><td>"+(tot?pct+"% right of "+tot:"not tried yet 还没练")+'<span class="meter"><i style="width:'+pct+'%"></i></span></td></tr>';
+    });
+    $("skills").innerHTML=h;
+  }
+  $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
+  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 Sound on":"🔕 Sound off"; }
+
+  // ---------- drawing a number line ----------
+  function lineHtml(q,W,opts){
+    // ticks every 1/q from 0 to W; labels under 0, 1, 2 (and under the given ticks)
+    opts=opts||{};
+    var n=q*W, h='<div class="nl'+(opts.small?" small":"")+'"><div class="axis"></div>';
+    for(var i=0;i<=n;i++){
+      var x=(i/n*100).toFixed(3), whole=i%q===0;
+      h+='<button type="button" class="tick'+(whole?" whole":"")+(opts.pick?" pick":"")+'" data-i="'+i+'" style="left:'+x+'%"'+(opts.pick?' aria-label="mark '+i+'"':' tabindex="-1" disabled')+'></button>';
+      if(whole) h+='<span class="lbl" style="left:'+x+'%">'+(i/q)+'</span>';
+      else if(opts.labels) h+='<span class="lbl" style="left:'+x+'%">'+frHtml(i,q)+'</span>';
+    }
+    return h+'</div>';
+  }
+  function putFrog(nl,i,n,cls,startAt){
+    var f=document.createElement("span"); f.innerHTML=frogHtml(cls); f=f.firstChild;
+    f.style.left=((startAt==null?i:startAt)/n*100)+"%"; nl.appendChild(f);
+    if(startAt!=null&&startAt!==i){ void f.offsetWidth; f.classList.add("jump"); f.style.left=(i/n*100)+"%"; }
+    return f;
+  }
+
+  // ---------- playing ----------
+  var G=null, pending=0;
+  function start(P){
+    var pool=null;
+    if(P===PRACTICE){ pool=missList(); if(!pool.length) return; }
+    var total = P===BOSS?12 : P===PRACTICE?Math.max(4,Math.min(10,pool.length*2)) : 8;
+    G={P:P,pool:pool,left:total,total:total,hearts:P===PRACTICE?Infinity:3,coins:0,streak:0,best:0,correct:0,miss:{},q:null,locked:false,lastKey:""};
+    $("pCoins").textContent="0"; renderHearts(); show("play"); next();
+  }
+  function renderHearts(){
+    if(G.hearts===Infinity){ $("hearts").textContent="💪 Practice"; return; }
+    var h=""; for(var i=0;i<3;i++) h+= i<G.hearts ? "💚" : '<span class="lost">💚</span>';
+    $("hearts").innerHTML=h+' <span style="font-size:1rem">🪷 '+G.left+'</span>';
+  }
+  function makeQ(){
+    var q, tries=0;
+    do{
+      if(G.P===PRACTICE) q=fromKey(pickOne(G.pool));
+      else if(G.again&&G.again.length&&Math.random()<.5) q=fromKey(G.again.shift());
+      else q=G.P.gen();
+      tries++;
+    }while(q.key===G.lastKey&&tries<8);
+    G.lastKey=q.key; return q;
+  }
+  function choiceBtn(html,val,small){
+    var b=document.createElement("button"); b.type="button"; b.className="choice"; b.innerHTML=html+(small?"<small>"+small+"</small>":""); b.dataset.v=val;
+    b.onclick=function(){ answer(val,b); }; return b;
+  }
+  function nameChoices(p,q){
+    var out=[[p,q]], seen={}; seen[p+"/"+q]=1;
+    var cand=[[p+1,q],[p-1,q],[q,p],[p,q===2?4:q===4?2:q===3?6:q===6?3:4],[p,q+1],[p+2,q]];
+    shuffle(cand).forEach(function(c){ if(out.length<4&&c[0]>0&&c[1]>1&&c[1]<=8&&!seen[c[0]+"/"+c[1]]&&!same(c[0],c[1],p,q)){ seen[c[0]+"/"+c[1]]=1; out.push(c); } });
+    return shuffle(out);
+  }
+  function equivChoices(a,b,c,d){
+    var out=[[c,d]], seen={}; seen[c+"/"+d]=1;
+    var dens=[2,3,4,6,8];
+    for(var t=0;out.length<4&&t<60;t++){
+      var y=pickOne(dens.concat([d,d])), x=1+rnd(Math.max(1,y*Math.max(1,Math.ceil(a/b))+ (a>=b?y:0)));
+      if(!seen[x+"/"+y]&&!same(x,y,a,b)){ seen[x+"/"+y]=1; out.push([x,y]); }
+    }
+    return shuffle(out);
+  }
+  function next(){
+    G.locked=false; var q=G.q=makeQ(); G.t0=Date.now();
+    $("msg").textContent=""; $("msg").className="msg"; $("words").textContent=""; $("hint").textContent="";
+    var lines=$("lines"), ch=$("choices"); ch.innerHTML=""; ch.className="choices";
+    if(q.kind==="place"){
+      $("task").innerHTML="Jump to "+frHtml(q.p,q.q)+" !";
+      lines.innerHTML=lineHtml(q.q,q.W,{pick:true});
+      var nl=lines.firstChild; putFrog(nl,0,q.q*q.W);
+      [].forEach.call(nl.querySelectorAll(".tick"),function(t){ t.onclick=function(){ answer(+t.dataset.i,t); }; });
+      $("words").textContent="Where is "+frWords(q.p,q.q)+"?";
+      $("hint").textContent="Tap the spot on the line. Each little jump is one "+DEN[q.q][0]+".";
+    }else if(q.kind==="name"){
+      $("task").textContent="Where did the frog land?";
+      lines.innerHTML=lineHtml(q.q,q.W,{});
+      putFrog(lines.firstChild,q.p,q.q*q.W,"",0);
+      nameChoices(q.p,q.q).forEach(function(c){ ch.appendChild(choiceBtn(frHtml(c[0],c[1]),c[0]+"/"+c[1])); });
+      $("hint").textContent="Count the little jumps from 0.";
+    }else if(q.kind==="equiv"){
+      var W=Math.max(1,Math.ceil(q.a/q.b));
+      $("task").innerHTML="Which fraction is at the same spot as "+frHtml(q.a,q.b)+" ?";
+      lines.innerHTML=lineHtml(q.b,W,{small:true});
+      putFrog(lines.firstChild,q.a,q.b*W,"",0);
+      equivChoices(q.a,q.b,q.c,q.d).forEach(function(c){ ch.appendChild(choiceBtn(frHtml(c[0],c[1]),c[0]+"/"+c[1])); });
+      $("words").textContent="Same spot as "+frWords(q.a,q.b)+"?";
+    }else{
+      $("task").textContent="Which frog jumps farther?";
+      lines.innerHTML="";
+      ch.className="choices two";
+      ch.appendChild(choiceBtn(frHtml(q.a,q.b),"L","🐸 green frog"));
+      ch.appendChild(choiceBtn(frHtml(q.c,q.d),"R","🐸 blue frog"));
+      $("words").textContent=frWords(q.a,q.b)+" or "+frWords(q.c,q.d)+"?";
+      $("hint").textContent=q.b===q.d?"Same bottom number: the pieces are the same size. Who has more pieces?":"Same top number: who has the bigger pieces?";
+    }
+  }
+  function say(text,cls){ var m=$("msg"); m.className="msg "+cls; void m.offsetWidth; m.textContent=text; m.classList.add("pop"); }
+  function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
+  function rightAnswer(q){
+    if(q.kind==="place") return q.p;
+    if(q.kind==="name") return q.p+"/"+q.q;
+    if(q.kind==="equiv") return q.c+"/"+q.d;
+    return q.a*q.d>q.c*q.b?"L":"R";
+  }
+  function explain(q){
+    if(q.kind==="place"||q.kind==="name") return frWords(q.p,q.q)+" means "+q.p+" "+(q.p===1?"jump":"jumps")+" of one "+DEN[q.q][0]+" from 0";
+    if(q.kind==="equiv") return frWords(q.a,q.b)+" and "+frWords(q.c,q.d)+" are at the same spot";
+    var big=q.a*q.d>q.c*q.b;
+    return (big?frWords(q.a,q.b):frWords(q.c,q.d))+" is greater than "+(big?frWords(q.c,q.d):frWords(q.a,q.b));
+  }
+  function showAfter(q,ok){
+    // draw what the right answer looks like
+    var lines=$("lines");
+    if(q.kind==="place"){
+      var nl=lines.firstChild, n=q.q*q.W, fr=nl.querySelector(".frog");
+      [].forEach.call(nl.querySelectorAll(".tick"),function(t){ t.disabled=true; if(+t.dataset.i===q.p) t.classList.add("right"); });
+      fr.classList.remove("jump"); void fr.offsetWidth; fr.classList.add("jump"); fr.style.left=(q.p/n*100)+"%";
+      var lb=document.createElement("span"); lb.className="lbl"; lb.style.left=(q.p/n*100)+"%"; lb.innerHTML=frHtml(q.p,q.q); if(q.p%q.q) nl.appendChild(lb);
+    }else if(q.kind==="name"){
+      var nl2=lines.firstChild, lb2=document.createElement("span"); lb2.className="lbl"; lb2.style.left=(q.p/(q.q*q.W)*100)+"%"; lb2.innerHTML=frHtml(q.p,q.q); nl2.appendChild(lb2);
+    }else if(q.kind==="equiv"){
+      var W=Math.max(1,Math.ceil(q.a/q.b));
+      lines.innerHTML=lineHtml(q.b,W,{small:true,labels:true})+lineHtml(q.d,W,{small:true,labels:true});
+      putFrog(lines.children[0],q.a,q.b*W); putFrog(lines.children[1],q.c,q.d*W,"",0);
+    }else{
+      lines.innerHTML=lineHtml(q.b,1,{small:true,labels:true})+lineHtml(q.d,1,{small:true,labels:true});
+      putFrog(lines.children[0],q.a,q.b,"",0); putFrog(lines.children[1],q.c,q.d,"b",0);
+    }
+  }
+  function answer(val,btn){
+    if(!G||G.locked) return; G.locked=true;
+    var q=G.q, right=rightAnswer(q), ok=String(val)===String(right), f=fact(q.key), ms=Date.now()-G.t0;
+    var ks=data.kinds[q.kind]||(data.kinds[q.kind]={ok:0,miss:0});
+    [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(x.dataset.v===String(right)) x.classList.add("right"); });
+    if(!ok&&btn) btn.classList.add("wrong");
+    showAfter(q,ok);
+    $("words").textContent=explain(q)+".";
+    $("hint").textContent="";
+    G.left--;
+    if(ok){
+      f.ok++; ks.ok++; G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
+      var fast=ms<6000, gain=fast?2:1; G.coins+=gain; $("pCoins").textContent=G.coins;
+      if(fast) SFX.yum(); else SFX.boing();
+      if(G.streak>=3) say("🔥 "+G.streak+" good jumps in a row!","combo");
+      else say(fast?"⚡ Quick jump! Two flies!":pickOne(["Great jump!","Nice landing!","You got it!","Ribbit! Right!"]),"good");
+    }else{
+      f.miss++; ks.miss++; G.streak=0; G.miss[q.key]=q;
+      (G.again||(G.again=[])).push(q.key);   // a missed one comes back soon
+      var fr=document.querySelector("#lines .frog"); if(fr){ fr.classList.add("splash"); }
+      SFX.splash();
+      if(G.hearts!==Infinity) G.hearts--;
+      say("Splash! Look where it really is.","bad");
+    }
+    save(); renderHearts();
+    var wait=ok?1700:3000;
+    if(G.hearts<=0) later(function(){ finish(false); },wait);
+    else if(G.left<=0) later(function(){ SFX.win(); finish(true); },wait);
+    else later(next,wait);
+  }
+  function missText(q){
+    if(q.kind==="place"||q.kind==="name") return frText(q.p,q.q)+" = "+frWords(q.p,q.q);
+    if(q.kind==="equiv") return frText(q.a,q.b)+" = "+frText(q.c,q.d);
+    var big=q.a*q.d>q.c*q.b; return big?frText(q.a,q.b)+" > "+frText(q.c,q.d):frText(q.c,q.d)+" > "+frText(q.a,q.b);
+  }
+  function finish(won){
+    clearTimeout(pending);
+    var P=G.P, stars=0, bonus=0;
+    if(won){
+      if(P===PRACTICE) bonus=5;
+      else{ stars=G.hearts; if(stars>starsOf(P.id)) data.ponds[P.id]={stars:stars}; bonus=stars*5; }
+    }
+    data.coins+=G.coins+bonus; save();
+    $("rBig").textContent=won?(P===PRACTICE?"🪷":"🐸"):"💦";
+    $("rTitle").textContent=won?(P===PRACTICE?"Practice done!":"You crossed "+(P===BOSS?"the Big Pond":P.n)+"!"):"Splash! Try again!";
+    $("rStars").textContent=(won&&P!==PRACTICE)?starText(stars):"";
+    $("rReward").textContent="🪰 +"+(G.coins+bonus)+(bonus?" (bonus +"+bonus+")":"");
+    $("rSub").textContent=G.correct+" good jumps · best streak "+G.best+(won&&P!==PRACTICE&&stars<3?" · Keep all your hearts to get 3 stars":"");
+    var miss=Object.keys(G.miss);
+    $("rMissBox").hidden=!miss.length;
+    $("rMiss").innerHTML=miss.map(function(k){ return "<span>"+missText(G.miss[k])+"</span>"; }).join("");
+    show("result");
+    if(won) confetti(); else SFX.lose();
+  }
+  function quit(){ clearTimeout(pending); renderMap(); show("map"); }
+  $("quitBtn").onclick=function(){ G=null; quit(); };
+  $("mapBtn").onclick=quit;
+  $("againBtn").onclick=function(){ var P=G.P; if(P===PRACTICE&&!missList().length){ quit(); return; } start(P); };
+  document.addEventListener("keydown",function(e){
+    if($("play").hidden) return;
+    var i="1234".indexOf(e.key); if(i<0) return;
+    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+  });
+
+  // ---------- confetti ----------
+  function confetti(){
+    if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cv=$("confetti"),ctx=cv.getContext("2d"); cv.width=innerWidth; cv.height=innerHeight;
+    var cols=["#f5b301","#2f9e5b","#3fa7c9","#e86a9c","#7cc47f"],ps=[];
+    for(var i=0;i<150;i++) ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.28,c:cols[i%5],s:6+Math.random()*6});
+    var t0=performance.now();
+    (function loop(t){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); });
+      if(t-t0<3000) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+    })(t0);
+  }
+
+  // inside the site's reader window the reader's own close button takes the child back to the shelf
+  var framed=true; try{ framed=window.self!==window.top; }catch(e){}
+  if(framed) $("homeLink").style.visibility="hidden";
+
+  // for the tests: the question makers, without playing
+  window.__fracFrog={gen:function(i){ return (i==="boss"?BOSS:PONDS[i]).gen(); },nameChoices:nameChoices,equivChoices:equivChoices,frWords:frWords,rightAnswer:rightAnswer,same:same,cur:function(){ return G&&G.q; }};
+
+  renderSound(); renderMap();
+})();
+</script>
+</body></html>

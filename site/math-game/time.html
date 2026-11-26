@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Train Time</title>
+<meta name="theme-color" content="#3b5bb5">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Train Time: read the clock, set the clock and work out trip times at the train station. Telling time in English for Grade 3.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* Layout: station map (platforms to play, train shop) -> question screen (clocks, answers) -> end of the line */
+:root{--ink:#1f2a4a;--muted:#5d6888;--line:#dde3f3;--brand:#3b5bb5;--brand-dark:#283f82;--bg:#eef2fb;--card:#fff;
+--good:#2f9e5b;--bad:#e0554f;--gold:#f5b301;--shadow:0 14px 34px rgba(31,42,74,.13)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
+[hidden]{display:none!important}
+.top{max-width:920px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}
+.wallet{display:flex;gap:8px;align-items:center}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:900;white-space:nowrap}
+.wrap{max-width:920px;margin:auto;padding:0 16px 48px}
+
+/* ===== map ===== */
+.hero{position:relative;border-radius:28px;padding:22px 14px 16px;color:#fff;text-align:center;box-shadow:var(--shadow);overflow:hidden;
+  background:linear-gradient(180deg,#4f74d6 0 66%,#8a6a4a 66% 68%,#b7c3d9 68% 72%,#7d8aa8 72%)}
+.hero h1{margin:0;font-size:clamp(1.9rem,7vw,3rem);text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.hero p{margin:4px 0 0;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.2)}
+.train{display:flex;justify-content:center;align-items:flex-end;gap:3px;flex-wrap:wrap;margin:12px 0 4px;font-size:2.2rem;line-height:1}
+.train .car{display:inline-flex;align-items:center;justify-content:center;width:1.45em;height:1.15em;background:#fff;border-radius:.2em;box-shadow:0 .08em 0 rgba(0,0,0,.2);font-size:.8em}
+.progress{display:inline-block;margin-top:8px;background:rgba(255,255,255,.92);border-radius:999px;padding:6px 14px;font-weight:900;color:var(--ink)}
+.plats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+.plat{position:relative;border:0;border-radius:22px;padding:12px 6px 10px;background:#fff;box-shadow:0 6px 0 #d3dbef,var(--shadow);text-align:center;transition:transform .15s}
+.plat:hover{transform:translateY(-4px)}
+.plat:active{transform:translateY(2px)}
+.plat .ic{display:block;margin:0 auto 4px;width:54px;height:54px}
+.plat .num{position:absolute;left:10px;top:8px;background:var(--brand);color:#fff;border-radius:8px;font-weight:900;font-size:.8rem;padding:2px 7px}
+.plat .tag{font-family:Fredoka,sans-serif;font-weight:700;font-size:1.02rem;display:block;line-height:1.15}
+.plat .stars{font-size:.95rem;letter-spacing:.05em;min-height:1.3em}
+.plat.gold{box-shadow:0 6px 0 #e0b200,0 0 0 3px var(--gold),var(--shadow)}
+.plat.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;padding:14px}
+.plat.wide .txt{text-align:left}
+.plat.wide .big{font-size:2.4rem}
+.plat .name{display:block;font-size:.76rem;font-weight:800;color:var(--muted)}
+.plat.boss{background:linear-gradient(135deg,#b23a48,#e86a5c);color:#fff;box-shadow:0 6px 0 #7f2833,var(--shadow)}
+.plat.boss .name{color:#ffe1dc}
+.plat.boss.locked{filter:grayscale(.85);opacity:.75;cursor:not-allowed}
+.plat.practice{background:#fff7e3}
+.plat.practice:disabled{opacity:.6;cursor:default;transform:none}
+.panel{margin-top:22px;background:#fff;border-radius:20px;padding:4px 18px;box-shadow:var(--shadow)}
+.panel summary{cursor:pointer;font-weight:900;padding:12px 0}
+.panel summary small{color:var(--muted);font-weight:800}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;padding-bottom:16px}
+.item{border:2px solid var(--line);border-radius:16px;background:#fff;padding:10px 6px;text-align:center;font-weight:900}
+.item .e{font-size:2rem;display:block}
+.item .n{display:block;font-size:.85rem}
+.item .p{display:block;font-size:.82rem;color:var(--muted);margin-top:2px}
+.item.own{border-color:var(--good);background:#effaf2}
+.item.own .p{color:var(--good)}
+.item:disabled{opacity:.55;cursor:default}
+.skills{width:100%;border-collapse:collapse;margin-bottom:14px;font-weight:800;font-size:.9rem}
+.skills td{padding:7px 4px;border-top:1px solid var(--line)}
+.skills td:last-child{text-align:right;white-space:nowrap}
+.meter{display:inline-block;width:90px;height:10px;border-radius:9px;background:#eef1f8;overflow:hidden;vertical-align:middle;margin-left:6px}
+.meter i{display:block;height:100%;background:var(--good)}
+
+/* ===== question ===== */
+.bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hearts{font-size:1.4rem;letter-spacing:.06em;font-weight:900}
+.hearts .lost{filter:grayscale(1);opacity:.3}
+.stage{position:relative;margin-top:12px;border-radius:26px;box-shadow:var(--shadow);overflow:hidden;background:linear-gradient(180deg,#dfe8fb,#f6f8fe);padding:12px 12px 14px}
+.board{background:#22314f;color:#ffd84a;border-radius:14px;padding:8px 12px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.1rem;text-align:center;line-height:1.35;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.board .w{color:#fff}
+.clocks{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.clockbox{text-align:center;font-weight:900;color:var(--muted);font-size:.9rem}
+.clock{display:block;width:190px;height:190px}
+.clocks.two .clock{width:140px;height:140px}
+.arrow{font-size:1.6rem;font-weight:900;color:var(--brand)}
+.badge{display:inline-block;background:var(--brand);color:#fff;border-radius:999px;padding:4px 12px;font-weight:900}
+.digital{display:inline-block;margin-top:4px;background:#22314f;color:#7dffb0;font-family:"Courier New",monospace;font-weight:700;font-size:1.3rem;border-radius:8px;padding:2px 10px;min-width:4.2em}
+.setter{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.setter button{border:0;border-radius:14px;padding:11px 4px;font-weight:900;font-size:1rem;background:#fff;box-shadow:0 4px 0 #cfd8ee}
+.setter button:active{transform:translateY(3px);box-shadow:0 1px 0 #cfd8ee}
+.setter .go{grid-column:1/-1;background:var(--good);color:#fff;box-shadow:0 4px 0 #1f7041;font-size:1.15rem}
+.setter button:disabled{opacity:.5}
+.words{font-weight:900;color:var(--muted);font-size:1.1rem;min-height:1.5em;text-align:center;margin-top:8px}
+.msg{text-align:center;font-weight:900;min-height:1.6em;font-size:1.1rem;margin-top:2px}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}.msg.combo{color:#e07b00}
+.msg.pop{animation:pop .35s}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.choice{border:0;border-radius:22px;padding:14px 6px;font-family:Fredoka,sans-serif;font-size:1.9rem;font-weight:700;color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.13);transition:transform .06s}
+.choice.text{font-size:1.15rem;padding:16px 6px}
+.choice:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.13)}
+.choice:nth-child(1){background:#cfe0ff}.choice:nth-child(2){background:#ffe7a8}.choice:nth-child(3){background:#d6efc4}.choice:nth-child(4){background:#ffd1e3}
+.choice.right{background:var(--good)!important;color:#fff}
+.choice.wrong{background:var(--bad)!important;color:#fff;animation:shake .35s}
+.choice:disabled{cursor:default}
+.hint{text-align:center;color:var(--muted);font-weight:800;font-size:.9rem;margin-top:8px}
+.choo{position:absolute;bottom:4px;font-size:2rem;left:-60px}
+.choo.go{animation:choo 1.6s linear forwards}
+
+/* ===== end of the line ===== */
+.result{background:#fff;border-radius:28px;padding:26px 18px;text-align:center;box-shadow:var(--shadow);margin-top:8px}
+.result .big{font-size:5.5rem;line-height:1.1;display:inline-block;animation:pop .6s}
+.result h2{margin:6px 0;font-size:1.8rem}
+.result .stars{font-size:2.6rem;letter-spacing:.1em}
+.result p{color:var(--muted);font-weight:800;margin:6px 0}
+.reward{display:inline-block;background:#fff6d6;border-radius:999px;padding:8px 16px;font-weight:900;margin:8px 0}
+.mistakes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.mistakes span{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:7px 11px;font-weight:900}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:16px;padding:14px 22px;font-weight:900;font-size:1.05rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--brand-dark)}
+.btn.light{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@keyframes choo{from{left:-60px}to{left:110%}}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media(max-width:620px){.plats{gap:8px}.plat .tag{font-size:.9rem}.plat .ic{width:44px;height:44px}.choice{font-size:1.6rem}.choice.text{font-size:1rem}.clock{width:170px;height:170px}.clocks.two .clock{width:120px;height:120px}}
+</style></head>
+<body>
+<div class="top">
+  <a class="home" id="homeLink" href="../index.html">← Home</a>
+  <div class="wallet">
+    <span class="chip" id="coinChip">🎟️ <span id="coinTotal">0</span></span>
+    <button class="tbtn" type="button" id="soundBtn">🔔 Sound on</button>
+  </div>
+</div>
+<div class="wrap">
+
+<!-- ===== MAP ===== -->
+<section id="map">
+  <div class="hero">
+    <h1>🚉 Train Time</h1>
+    <p>Read the clocks and keep every train on time!</p>
+    <div class="train" id="myTrain"></div>
+    <div class="progress" id="progress"></div>
+  </div>
+  <div class="plats" id="plats"></div>
+  <details class="panel" open>
+    <summary>🛍️ Train shop: tickets buy new cars <small>用车票买新车厢</small></summary>
+    <div class="shop" id="shop"></div>
+  </details>
+  <details class="panel">
+    <summary>📋 For parents: what is going well <small>给家长看：掌握情况</small></summary>
+    <table class="skills" id="skills"></table>
+  </details>
+</section>
+
+<!-- ===== QUESTION ===== -->
+<section id="play" hidden>
+  <div class="bar-top">
+    <button class="tbtn" type="button" id="quitBtn">✕ Leave the station</button>
+    <span class="hearts" id="hearts"></span>
+    <span class="chip">🎟️ +<span id="pCoins">0</span></span>
+  </div>
+  <div class="stage" id="stage">
+    <div class="board" id="board"></div>
+    <div class="clocks" id="clocks"></div>
+    <div class="setter" id="setter" hidden>
+      <button type="button" data-d="-60">◀ hour</button><button type="button" data-d="-5">− 5 min</button><button type="button" data-d="-1">− 1 min</button>
+      <button type="button" data-d="60">hour ▶</button><button type="button" data-d="5">+ 5 min</button><button type="button" data-d="1">+ 1 min</button>
+      <button type="button" class="go" id="goBtn">✓ Ready!</button>
+    </div>
+    <span class="choo" id="choo">🚂</span>
+  </div>
+  <div class="words" id="words"></div>
+  <div class="msg" id="msg"></div>
+  <div class="choices" id="choices"></div>
+  <div class="hint" id="hint"></div>
+</section>
+
+<!-- ===== END OF THE LINE ===== -->
+<section id="result" hidden>
+  <div class="result">
+    <div class="big" id="rBig"></div>
+    <h2 id="rTitle"></h2>
+    <div class="stars" id="rStars"></div>
+    <div class="reward" id="rReward"></div>
+    <p id="rSub"></p>
+    <div id="rMissBox">
+      <p>Practice these again:</p>
+      <div class="mistakes" id="rMiss"></div>
+    </div>
+    <div class="row">
+      <button class="btn" type="button" id="againBtn">Play again</button>
+      <button class="btn light" type="button" id="mapBtn">Back to the station</button>
+    </div>
+  </div>
+</section>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  "use strict";
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function pickOne(a){ return a[rnd(a.length)]; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=rnd(i+1),t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+
+  // ---------- times in words ----------
+  var ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+  var TENS=["","","twenty","thirty","forty","fifty"];
+  function inWords(n){ if(n<20) return ONES[n]; var t=TENS[Math.floor(n/10)], o=n%10; return o?t+"-"+ONES[o]:t; }
+  function nextH(h){ return h%12+1; }
+  function digital(h,m){ return h+":"+(m<10?"0":"")+m; }
+  function sayDigital(h,m){ return m===0?ONES[h]+" o'clock":ONES[h]+" "+(m<10?"oh "+ONES[m]:inWords(m)); }
+  function sayTime(h,m){   // the way people say it
+    if(m===0) return ONES[h]+" o'clock";
+    if(m===15) return "quarter past "+ONES[h];
+    if(m===30) return "half past "+ONES[h];
+    if(m===45) return "quarter to "+ONES[nextH(h)];
+    return sayDigital(h,m);
+  }
+  function addMin(h,m,n){ var t=((h%12)*60+m+n)%720; if(t<0) t+=720; var hh=Math.floor(t/60); return [hh===0?12:hh,t%60]; }
+  function minsWords(n){ return n+" minute"+(n===1?"":"s"); }
+
+  // ---------- the clock ----------
+  function clockSvg(h,m,id){
+    var s='<svg class="clock"'+(id?' id="'+id+'"':'')+' viewBox="0 0 200 200" role="img" aria-label="clock">';
+    s+='<circle cx="100" cy="100" r="94" fill="#fff" stroke="#22314f" stroke-width="7"/>';
+    for(var i=0;i<60;i++){
+      var a=i*6*Math.PI/180, big=i%5===0, r1=big?78:83, r2=88;
+      s+='<line x1="'+(100+r1*Math.sin(a)).toFixed(1)+'" y1="'+(100-r1*Math.cos(a)).toFixed(1)+'" x2="'+(100+r2*Math.sin(a)).toFixed(1)+'" y2="'+(100-r2*Math.cos(a)).toFixed(1)+'" stroke="#22314f" stroke-width="'+(big?3:1.2)+'"/>';
+    }
+    for(var n=1;n<=12;n++){ var b=n*30*Math.PI/180; s+='<text x="'+(100+64*Math.sin(b)).toFixed(1)+'" y="'+(100-64*Math.cos(b)+7).toFixed(1)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="20" fill="#22314f">'+n+'</text>'; }
+    s+='<g class="hands">'+hands(h,m)+'</g><circle cx="100" cy="100" r="6" fill="#22314f"/></svg>';
+    return s;
+  }
+  function hands(h,m){
+    var ha=((h%12)+m/60)*30, ma=m*6;
+    return '<line x1="100" y1="100" x2="100" y2="54" stroke="#3b5bb5" stroke-width="8" stroke-linecap="round" transform="rotate('+ha.toFixed(1)+' 100 100)"/>'+
+           '<line x1="100" y1="100" x2="100" y2="24" stroke="#e0554f" stroke-width="5" stroke-linecap="round" transform="rotate('+ma+' 100 100)"/>';
+  }
+
+  // ---------- the questions ----------
+  // read: which time does the clock show?  words: which clock time is "quarter past seven"?  set: move the hands to 4:35
+  // dur: the train left at a and arrived at b, how long?  end: the train leaves at a and takes n minutes, when does it arrive?
+  function Q(kind,h,m,n){ return {kind:kind,h:h,m:m,n:n||0,key:kind+"|"+h+"|"+m+(n?"|"+n:"")}; }
+  function fromKey(k){ var s=k.split("|"); return Q(s[0],+s[1],+s[2],s[3]?+s[3]:0); }
+  function anyH(){ return 1+rnd(12); }
+  var PLATS=[
+    {id:"t1",n:"O'clock & Half Past",show:[3,0],gen:function(){ return Q(pickOne(["read","read","words"]),anyH(),pickOne([0,30])); }},
+    {id:"t2",n:"Quarter Past & Quarter To",show:[7,15],gen:function(){ return Q(pickOne(["read","words","words"]),anyH(),pickOne([15,45,15,45,0,30])); }},
+    {id:"t3",n:"Five Minutes",show:[4,35],gen:function(){ return Q(pickOne(["read","read","set"]),anyH(),5*rnd(12)); }},
+    {id:"t4",n:"To the Minute",show:[9,47],gen:function(){ return Q(pickOne(["read","read","set"]),anyH(),rnd(60)); }},
+    {id:"t5",n:"How Long Is the Trip?",show:[2,10],gen:function(){ var m=5*rnd(9), n=5*(1+rnd((55-m)/5)); return Q("dur",anyH(),m,n); }},  // the trip ends within the same hour
+    {id:"t6",n:"When Do We Arrive?",show:[5,40],gen:function(){ var m=5*rnd(12), n=pickOne([10,15,20,25,30,35,40,45,50]); return Q("end",anyH(),m,n); }}
+  ];
+  var BOSS={id:"boss",n:"Rush Hour",gen:function(){ return pickOne(PLATS).gen(); }};
+  var PRACTICE={id:"practice",n:"Practice Platform"};
+  var BOSS_NEED=3;
+  var SHOP=[
+    {id:"coach",e:"🧳",n:"Passenger car",p:10},{id:"fruit",e:"🍎",n:"Fruit wagon",p:15},{id:"cows",e:"🐄",n:"Cow wagon",p:20},
+    {id:"logs",e:"🪵",n:"Log wagon",p:25},{id:"mail",e:"✉️",n:"Mail car",p:30},{id:"toys",e:"🧸",n:"Toy car",p:35},
+    {id:"circus",e:"🎪",n:"Circus car",p:45},{id:"icecream",e:"🍦",n:"Ice cream car",p:55},{id:"music",e:"🎺",n:"Band car",p:65},{id:"rainbow",e:"🌈",n:"Rainbow caboose",p:90}
+  ];
+  var KIND_NAME={read:"Read the clock",words:"Times in words (quarter past, half past)",set:"Set the clock",dur:"How long (elapsed time)",end:"When it ends (elapsed time)"};
+
+  // ---------- saved progress (this browser only) ----------
+  var STORE="trainTime.v1";
+  var data={facts:{},plats:{},kinds:{},coins:0,owned:{},sound:true};
+  try{
+    var raw=localStorage.getItem(STORE);
+    if(raw){ var d0=JSON.parse(raw);
+      if(d0&&typeof d0==="object"){ ["facts","plats","kinds","owned"].forEach(function(k){ if(d0[k]&&typeof d0[k]==="object") data[k]=d0[k]; });
+        if(typeof d0.coins==="number") data.coins=d0.coins; if(typeof d0.sound==="boolean") data.sound=d0.sound; } }
+  }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(data)); }catch(e){} }
+  function fact(k){ return data.facts[k]||(data.facts[k]={ok:0,miss:0}); }
+  function mastered(k){ var f=data.facts[k]; return f&&f.ok>=2&&f.ok-f.miss*2>=1; }
+  function missList(){ return Object.keys(data.facts).filter(function(k){ return data.facts[k].miss>0&&!mastered(k); }); }
+  function starsOf(id){ return (data.plats[id]&&data.plats[id].stars)||0; }
+  function playedCount(){ return PLATS.filter(function(P){ return starsOf(P.id)>0; }).length; }
+
+  // ---------- sound effects (no voice) ----------
+  var actx=null;
+  function tone(notes,type,len){
+    if(!data.sound) return;
+    try{
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      notes.forEach(function(f,i){
+        var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+i*(len*.6);
+        o.type=type; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.14,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+len);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02);
+      });
+    }catch(e){}
+  }
+  var SFX={
+    toot:function(){tone([587,784],"triangle",.16);},
+    fast:function(){tone([784,988,1175],"square",.08);},
+    tick:function(){tone([1200],"sine",.04);},
+    oops:function(){tone([260,180],"sawtooth",.16);},
+    buy:function(){tone([659,880,1047],"triangle",.12);},
+    win:function(){tone([523,659,784,1047],"triangle",.18);},
+    lose:function(){tone([392,330,262],"sine",.25);}
+  };
+
+  var $=function(id){return document.getElementById(id);};
+  function show(id){ ["map","play","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); window.scrollTo(0,0); }
+
+  // ---------- map ----------
+  function starText(n){ return "⭐".repeat(n)+"☆".repeat(3-n); }
+  function renderMap(){
+    $("coinTotal").textContent=data.coins;
+    var cars=SHOP.filter(function(it){ return data.owned[it.id]; }).map(function(it){ return '<span class="car">'+it.e+'</span>'; }).join("");
+    $("myTrain").innerHTML="🚂"+(cars||'<span class="car">🚃</span>');
+    $("progress").textContent="Platforms done: "+(playedCount()+(starsOf("boss")?1:0))+" / 7";
+    var box=$("plats"); box.innerHTML="";
+    PLATS.forEach(function(P,i){
+      var s=starsOf(P.id), b=document.createElement("button");
+      b.type="button"; b.className="plat"+(s===3?" gold":"");
+      b.innerHTML='<span class="num">'+(i+1)+'</span>'+clockSvg(P.show[0],P.show[1]).replace('class="clock"','class="ic"')+'<span class="tag">'+P.n+'</span><div class="stars">'+starText(s)+'</div>';
+      b.onclick=function(){ start(P); };
+      box.appendChild(b);
+    });
+    var bs=starsOf("boss"), open=playedCount()>=BOSS_NEED, left=BOSS_NEED-playedCount(), bb=document.createElement("button");
+    bb.type="button"; bb.className="plat wide boss"+(open?"":" locked")+(bs===3?" gold":"");
+    bb.innerHTML='<span class="big">'+(open?"🚄":"🔒")+'</span><span class="txt"><span class="tag">Rush Hour</span><span class="name">'+
+      (open?(bs?"Every kind of question "+starText(bs):"Every kind of question, and the trains are busy!"):"Finish "+left+" more "+(left===1?"platform":"platforms")+" to unlock")+'</span></span>';
+    bb.onclick=function(){ if(open) start(BOSS); };
+    box.appendChild(bb);
+    var n=missList().length, pb=document.createElement("button");
+    pb.type="button"; pb.className="plat wide practice"; pb.disabled=!n;
+    pb.innerHTML='<span class="big">🛤️</span><span class="txt"><span class="tag">Practice Platform</span><span class="name">'+
+      (n?("You missed "+n+" "+(n===1?"question":"questions")+". Let's practice! No hearts lost here."):"Nothing to practice. Great job!")+'</span></span>';
+    pb.onclick=function(){ if(n) start(PRACTICE); };
+    box.appendChild(pb);
+    renderShop(); renderSkills();
+  }
+  function renderShop(){
+    var box=$("shop"); box.innerHTML="";
+    SHOP.forEach(function(it){
+      var own=!!data.owned[it.id], b=document.createElement("button");
+      b.type="button"; b.className="item"+(own?" own":""); b.disabled=own||data.coins<it.p;
+      b.innerHTML='<span class="e">'+it.e+'</span><span class="n">'+it.n+'</span><span class="p">'+(own?"✓ On your train":"🎟️ "+it.p)+'</span>';
+      b.onclick=function(){ if(own||data.coins<it.p) return; data.coins-=it.p; data.owned[it.id]=1; save(); SFX.buy(); renderMap(); };
+      box.appendChild(b);
+    });
+  }
+  function renderSkills(){
+    var h="";
+    Object.keys(KIND_NAME).forEach(function(k){
+      var s=data.kinds[k]||{ok:0,miss:0}, tot=s.ok+s.miss, pct=tot?Math.round(100*s.ok/tot):0;
+      h+="<tr><td>"+KIND_NAME[k]+"</td><td>"+(tot?pct+"% right of "+tot:"not tried yet 还没练")+'<span class="meter"><i style="width:'+pct+'%"></i></span></td></tr>';
+    });
+    $("skills").innerHTML=h;
+  }
+  $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
+  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 Sound on":"🔕 Sound off"; }
+
+  // ---------- playing ----------
+  var G=null, pending=0;
+  function start(P){
+    var pool=null;
+    if(P===PRACTICE){ pool=missList(); if(!pool.length) return; }
+    var total = P===BOSS?12 : P===PRACTICE?Math.max(4,Math.min(10,pool.length*2)) : 8;
+    G={P:P,pool:pool,left:total,total:total,hearts:P===PRACTICE?Infinity:3,coins:0,streak:0,best:0,correct:0,miss:{},q:null,locked:false,lastKey:"",again:[]};
+    $("pCoins").textContent="0"; renderHearts(); show("play"); next();
+  }
+  function renderHearts(){
+    if(G.hearts===Infinity){ $("hearts").textContent="💪 Practice"; return; }
+    var h=""; for(var i=0;i<3;i++) h+= i<G.hearts ? "❤️" : '<span class="lost">❤️</span>';
+    $("hearts").innerHTML=h+' <span style="font-size:1rem">🚆 '+G.left+'</span>';
+  }
+  function makeQ(){
+    var q, tries=0;
+    do{
+      if(G.P===PRACTICE) q=fromKey(pickOne(G.pool));
+      else if(G.again.length&&Math.random()<.5) q=fromKey(G.again.shift());
+      else q=G.P.gen();
+      tries++;
+    }while(q.key===G.lastKey&&tries<8);
+    G.lastKey=q.key; return q;
+  }
+  function timeChoices(h,m){
+    // the right time and the usual mix-ups: the hands read the wrong way round, the hour before, a few minutes off
+    var out=[[h,m]], seen={}; seen[h+":"+m]=1;
+    var swapH=Math.round(m/5)||12, swapM=(h%12)*5;
+    var hb=m>=30?nextH(h):h;   // reading the hour hand by the number it is closest to
+    var cand=[[swapH,swapM],[h===1?12:h-1,m],[nextH(h),m],[h,(m+5)%60],[h,(m+55)%60],[hb,m],[h,(m+10)%60],[h,(m+30)%60]];
+    shuffle(cand).forEach(function(c){ if(out.length<4&&!seen[c[0]+":"+c[1]]){ seen[c[0]+":"+c[1]]=1; out.push(c); } });
+    while(out.length<4){ var c=[anyH(),5*rnd(12)]; if(!seen[c[0]+":"+c[1]]){ seen[c[0]+":"+c[1]]=1; out.push(c); } }
+    return shuffle(out);
+  }
+  function durChoices(n){
+    var out=[n], seen={}; seen[n]=1;
+    shuffle([n+5,n-5,n+10,n-10,60-n,n+15]).forEach(function(v){ if(out.length<4&&v>0&&v<=90&&!seen[v]){ seen[v]=1; out.push(v); } });
+    return shuffle(out);
+  }
+  function choiceBtn(html,val,cls){
+    var b=document.createElement("button"); b.type="button"; b.className="choice"+(cls?" "+cls:""); b.innerHTML=html; b.dataset.v=val;
+    b.onclick=function(){ answer(val,b); }; return b;
+  }
+  var setT=null;
+  function drawSet(){ var c=$("setClock"); if(c) c.querySelector(".hands").innerHTML=hands(setT[0],setT[1]); var d=$("setDigital"); if(d) d.textContent=digital(setT[0],setT[1]); }
+  [].forEach.call(document.querySelectorAll("#setter [data-d]"),function(b){
+    b.onclick=function(){ if(!G||G.locked) return; var d=+b.dataset.d; setT=addMin(setT[0],setT[1],d); SFX.tick(); drawSet(); };
+  });
+  $("goBtn").onclick=function(){ if(!G||G.locked||!setT) return; answer(setT[0]+":"+setT[1],null); };
+
+  function next(){
+    G.locked=false; var q=G.q=makeQ(); G.t0=Date.now();
+    $("msg").textContent=""; $("msg").className="msg"; $("words").textContent=""; $("hint").textContent="";
+    var ch=$("choices"); ch.innerHTML=""; $("setter").hidden=true; $("clocks").className="clocks";
+    [].forEach.call(document.querySelectorAll("#setter button"),function(b){ b.disabled=false; });
+    var c=$("choo"); c.className="choo";
+    if(q.kind==="read"){
+      $("board").innerHTML='The train leaves at this time. <span class="w">What time is it?</span>';
+      $("clocks").innerHTML=clockSvg(q.h,q.m);
+      timeChoices(q.h,q.m).forEach(function(t){ ch.appendChild(choiceBtn(digital(t[0],t[1]),t[0]+":"+t[1])); });
+      $("hint").textContent="The short hand shows the hour. The long hand shows the minutes.";
+    }else if(q.kind==="words"){
+      $("board").innerHTML='"The train leaves at <span class="w">'+sayTime(q.h,q.m)+'</span>."';
+      $("clocks").innerHTML="";
+      timeChoices(q.h,q.m).forEach(function(t){ ch.appendChild(choiceBtn(clockSvg(t[0],t[1]).replace('class="clock"','class="clock" style="width:92px;height:92px;margin:auto"'),t[0]+":"+t[1])); });
+      $("hint").textContent="Which clock shows that time?";
+    }else if(q.kind==="set"){
+      $("board").innerHTML='Set the station clock to <span class="w">'+digital(q.h,q.m)+'</span>';
+      setT=(q.h===12&&q.m===0)?[3,0]:[12,0];
+      $("clocks").innerHTML='<div class="clockbox">'+clockSvg(setT[0],setT[1],"setClock")+'<span class="digital" id="setDigital">'+digital(setT[0],setT[1])+'</span></div>';
+      $("setter").hidden=false;
+      $("words").textContent=sayDigital(q.h,q.m);
+    }else if(q.kind==="dur"){
+      var e=addMin(q.h,q.m,q.n);
+      $("board").innerHTML='The train left at '+digital(q.h,q.m)+' and arrived at '+digital(e[0],e[1])+'. <span class="w">How long was the trip?</span>';
+      $("clocks").className="clocks two";
+      $("clocks").innerHTML='<div class="clockbox">'+clockSvg(q.h,q.m)+'Left</div><span class="arrow">➜</span><div class="clockbox">'+clockSvg(e[0],e[1])+'Arrived</div>';
+      durChoices(q.n).forEach(function(v){ ch.appendChild(choiceBtn(v+'<small style="display:block;font-size:.85rem;font-family:Nunito,sans-serif;font-weight:900">minutes</small>',String(v))); });
+      $("hint").textContent="Count on from "+digital(q.h,q.m)+" by fives.";
+    }else{
+      $("board").innerHTML='The train leaves at '+digital(q.h,q.m)+'. The trip takes '+minsWords(q.n)+'. <span class="w">When does it arrive?</span>';
+      $("clocks").className="clocks two";
+      $("clocks").innerHTML='<div class="clockbox">'+clockSvg(q.h,q.m)+'Leaves</div><span class="arrow">+ '+q.n+' min</span>';
+      var r=addMin(q.h,q.m,q.n);
+      timeChoices(r[0],r[1]).forEach(function(t){ ch.appendChild(choiceBtn(digital(t[0],t[1]),t[0]+":"+t[1])); });
+      $("hint").textContent="Move the long hand on by "+minsWords(q.n)+".";
+    }
+  }
+  function rightAnswer(q){
+    if(q.kind==="dur") return String(q.n);
+    if(q.kind==="end"){ var r=addMin(q.h,q.m,q.n); return r[0]+":"+r[1]; }
+    return q.h+":"+q.m;
+  }
+  function explain(q){
+    if(q.kind==="dur"){ var e=addMin(q.h,q.m,q.n); return "From "+digital(q.h,q.m)+" to "+digital(e[0],e[1])+" is "+minsWords(q.n)+"."; }
+    if(q.kind==="end"){ var r=addMin(q.h,q.m,q.n); return digital(q.h,q.m)+" plus "+minsWords(q.n)+" is "+digital(r[0],r[1])+", "+sayDigital(r[0],r[1])+"."; }
+    var said=sayTime(q.h,q.m), dig=sayDigital(q.h,q.m);
+    return digital(q.h,q.m)+" is "+dig+(said!==dig?", or "+said:"")+".";
+  }
+  function say(text,cls){ var m=$("msg"); m.className="msg "+cls; void m.offsetWidth; m.textContent=text; m.classList.add("pop"); }
+  function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
+  function answer(val,btn){
+    if(!G||G.locked) return; G.locked=true;
+    var q=G.q, right=rightAnswer(q), ok=String(val)===right, f=fact(q.key), ms=Date.now()-G.t0;
+    var ks=data.kinds[q.kind]||(data.kinds[q.kind]={ok:0,miss:0});
+    [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(x.dataset.v===right) x.classList.add("right"); });
+    [].forEach.call(document.querySelectorAll("#setter button"),function(b){ b.disabled=true; });
+    if(!ok&&btn) btn.classList.add("wrong");
+    if(q.kind==="set"&&!ok){ setT=[q.h,q.m]; drawSet(); }
+    if(q.kind==="end"){ var r=addMin(q.h,q.m,q.n); $("clocks").innerHTML+='<div class="clockbox">'+clockSvg(r[0],r[1])+'Arrives</div>'; }
+    $("words").textContent=explain(q);
+    $("hint").textContent="";
+    G.left--;
+    if(ok){
+      f.ok++; ks.ok++; G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
+      var fast=ms<(q.kind==="set"?15000:7000), gain=fast?2:1; G.coins+=gain; $("pCoins").textContent=G.coins;
+      var c=$("choo"); void c.offsetWidth; c.className="choo go";
+      if(fast) SFX.fast(); else SFX.toot();
+      if(G.streak>=3) say("🔥 "+G.streak+" trains on time in a row!","combo");
+      else say(fast?"⚡ Right on time! Two tickets!":pickOne(["All aboard!","Right on time!","Choo choo! Correct!","Great job!"]),"good");
+    }else{
+      f.miss++; ks.miss++; G.streak=0; G.miss[q.key]=q; G.again.push(q.key);
+      SFX.oops();
+      if(G.hearts!==Infinity) G.hearts--;
+      say(q.kind==="set"?"Not quite. Look: this is "+digital(q.h,q.m)+".":"Oops! The right answer is green.","bad");
+    }
+    save(); renderHearts();
+    var wait=ok?1800:3200;
+    if(G.hearts<=0) later(function(){ finish(false); },wait);
+    else if(G.left<=0) later(function(){ SFX.win(); finish(true); },wait);
+    else later(next,wait);
+  }
+  function missText(q){
+    if(q.kind==="dur"){ var e=addMin(q.h,q.m,q.n); return digital(q.h,q.m)+" → "+digital(e[0],e[1])+" = "+q.n+" min"; }
+    if(q.kind==="end"){ var r=addMin(q.h,q.m,q.n); return digital(q.h,q.m)+" + "+q.n+" min = "+digital(r[0],r[1]); }
+    if(q.kind==="words") return sayTime(q.h,q.m)+" = "+digital(q.h,q.m);
+    return digital(q.h,q.m);
+  }
+  function finish(won){
+    clearTimeout(pending);
+    var P=G.P, stars=0, bonus=0;
+    if(won){
+      if(P===PRACTICE) bonus=5;
+      else{ stars=G.hearts; if(stars>starsOf(P.id)) data.plats[P.id]={stars:stars}; bonus=stars*5; }
+    }
+    data.coins+=G.coins+bonus; save();
+    $("rBig").textContent=won?(P===PRACTICE?"🛤️":"🚂"):"🕰️";
+    $("rTitle").textContent=won?(P===PRACTICE?"Practice done!":"Every train on time: "+P.n+(/[?!]$/.test(P.n)?"":"!")):"The trains were late. Try again!";
+    $("rStars").textContent=(won&&P!==PRACTICE)?starText(stars):"";
+    $("rReward").textContent="🎟️ +"+(G.coins+bonus)+(bonus?" (bonus +"+bonus+")":"");
+    $("rSub").textContent=G.correct+" trains on time · best streak "+G.best+(won&&P!==PRACTICE&&stars<3?" · Keep all your hearts to get 3 stars":"");
+    var miss=Object.keys(G.miss);
+    $("rMissBox").hidden=!miss.length;
+    $("rMiss").innerHTML=miss.map(function(k){ return "<span>"+missText(G.miss[k])+"</span>"; }).join("");
+    show("result");
+    if(won) confetti(); else SFX.lose();
+  }
+  function quit(){ clearTimeout(pending); renderMap(); show("map"); }
+  $("quitBtn").onclick=function(){ G=null; quit(); };
+  $("mapBtn").onclick=quit;
+  $("againBtn").onclick=function(){ var P=G.P; if(P===PRACTICE&&!missList().length){ quit(); return; } start(P); };
+  document.addEventListener("keydown",function(e){
+    if($("play").hidden) return;
+    var i="1234".indexOf(e.key); if(i<0) return;
+    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+  });
+
+  // ---------- confetti ----------
+  function confetti(){
+    if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cv=$("confetti"),ctx=cv.getContext("2d"); cv.width=innerWidth; cv.height=innerHeight;
+    var cols=["#f5b301","#2f9e5b","#3b5bb5","#e86a5c","#7cc47f"],ps=[];
+    for(var i=0;i<150;i++) ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.28,c:cols[i%5],s:6+Math.random()*6});
+    var t0=performance.now();
+    (function loop(t){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); });
+      if(t-t0<3000) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+    })(t0);
+  }
+
+  // inside the site's reader window the reader's own close button takes the child back to the shelf
+  var framed=true; try{ framed=window.self!==window.top; }catch(e){}
+  if(framed) $("homeLink").style.visibility="hidden";
+
+  // for the tests: the question makers, without playing
+  window.__trainTime={gen:function(i){ return (i==="boss"?BOSS:PLATS[i]).gen(); },timeChoices:timeChoices,durChoices:durChoices,sayTime:sayTime,sayDigital:sayDigital,addMin:addMin,rightAnswer:rightAnswer,cur:function(){ return G&&G.q; }};
+
+  renderSound(); renderMap();
+})();
+</script>
+</body></html>
