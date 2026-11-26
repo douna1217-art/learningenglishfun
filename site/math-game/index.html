@@ -459,11 +459,9 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     })(t0);
   }
 
-  // ---------- back to the book the child came from ----------
-  try{
-    var ref=document.referrer||"";
-    if(/\/books\/[^/]+\/[^/]+\.html/.test(ref)&&new URL(ref).origin===location.origin){ $("homeLink").href=ref; $("homeLink").textContent="← Back to the book"; }
-  }catch(e){}
+  // inside the site's reader window the reader's own close button takes the child back to the shelf
+  var framed=true; try{ framed=window.self!==window.top; }catch(e){}
+  if(framed) $("homeLink").style.visibility="hidden";
 
   // this page used to be an installable app; drop the old offline copy so everyone gets this version
   if("serviceWorker" in navigator&&navigator.serviceWorker.getRegistrations){
