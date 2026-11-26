@@ -1,7 +1,7 @@
 /* 乘法怪兽岛 offline cache. Scope is /math-game/ only, so the rest of the site is untouched.
    Strategy: answer from cache at once (works offline), refresh the cache from the network in the background.
    Bump VERSION when files change so old caches are dropped. */
-var VERSION = "math-game-v1";
+var VERSION = "math-game-v2";
 var FILES = [
   "./",
   "./index.html",
