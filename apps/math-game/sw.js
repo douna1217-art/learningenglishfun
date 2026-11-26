@@ -1,7 +1,7 @@
-/* 乘法怪兽岛 offline cache. Scope is /math-game/ only, so the rest of the site is untouched.
+/* 乘法怪兽岛 offline cache. Scope is this folder only.
    Strategy: answer from cache at once (works offline), refresh the cache from the network in the background.
    Bump VERSION when files change so old caches are dropped. */
-var VERSION = "math-game-v2";
+var VERSION = "math-game-v3";
 var FILES = [
   "./",
   "./index.html",
@@ -10,11 +10,11 @@ var FILES = [
   "./icons/icon-512.png",
   "./icons/maskable-512.png",
   "./icons/apple-touch-icon.png",
-  "/fonts/fonts.css",
-  "/fonts/fredoka-latin.woff2",
-  "/fonts/fredoka-latin-ext.woff2",
-  "/fonts/nunito-latin.woff2",
-  "/fonts/nunito-latin-ext.woff2"
+  "./fonts/fonts.css",
+  "./fonts/fredoka-latin.woff2",
+  "./fonts/fredoka-latin-ext.woff2",
+  "./fonts/nunito-latin.woff2",
+  "./fonts/nunito-latin-ext.woff2"
 ];
 
 self.addEventListener("install", function (e) {
