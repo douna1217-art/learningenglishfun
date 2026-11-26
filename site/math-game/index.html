@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>乘法怪兽岛</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="Baiduspider" content="noindex, nofollow">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#3f8fd8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="乘法怪兽岛">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="description" content="乘法口诀闯关小游戏：打怪兽、收集星星和金币。Times tables monster game for kids.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* Layout: island map of monster cards -> full-width battle arena with a 2x2 answer pad */
+:root{--ink:#22302a;--muted:#6c7a72;--line:#dfe8e1;--green:#315f47;--soft:#eaf4ec;--bg:#eef5ef;--card:#fff;
+--good:#2f9e5b;--bad:#e0554f;--gold:#f5b301;--shadow:0 14px 34px rgba(34,48,42,.13)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;min-height:100vh}
+h1,h2,h3{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
+[hidden]{display:none!important}
+.install{margin-top:14px;background:rgba(255,255,255,.95);color:var(--green);border:0;border-radius:999px;padding:10px 18px;font-weight:900;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.howto{margin-top:16px;background:#fff;border-radius:20px;padding:16px 18px;box-shadow:var(--shadow);font-weight:800;line-height:1.7}
+.howto h3{margin:0 0 6px;font-size:1.15rem}
+.howto ol{margin:0;padding-left:1.3em}
+.howto .note{color:var(--muted);font-size:.85rem;margin-top:8px}
+@media (display-mode:standalone){.home{visibility:hidden}.install,.howto{display:none!important}}
+.top{max-width:920px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}
+.wallet{display:flex;gap:8px;align-items:center}
+.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:900;white-space:nowrap}
+.wrap{max-width:920px;margin:auto;padding:0 16px 48px}
+
+/* ===== map ===== */
+.hero{border-radius:28px;padding:26px 22px;color:#fff;text-align:center;box-shadow:var(--shadow);
+  background:radial-gradient(circle at 20% 120%,#7cc47f 0 30%,transparent 31%),radial-gradient(circle at 85% 130%,#5fae6a 0 34%,transparent 35%),linear-gradient(180deg,#3f8fd8,#7cc0f0)}
+.hero h1{margin:0;font-size:clamp(2rem,7vw,3.2rem);text-shadow:0 3px 0 rgba(0,0,0,.15)}
+.hero p{margin:6px 0 0;font-weight:800}
+.progress{display:inline-block;margin-top:12px;background:rgba(255,255,255,.25);border-radius:999px;padding:7px 14px;font-weight:900}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:20px}
+.lv{position:relative;border:0;border-radius:24px;padding:14px 8px 12px;background:#fff;box-shadow:0 6px 0 #d3ddd6,var(--shadow);text-align:center;transition:transform .15s}
+.lv:hover{transform:translateY(-4px)}
+.lv:active{transform:translateY(2px)}
+.lv .mon{font-size:3.2rem;line-height:1.15;display:block}
+.lv.unknown .mon{filter:brightness(0);opacity:.28}
+.lv .tag{font-family:Fredoka,sans-serif;font-weight:700;font-size:1.3rem;display:block}
+.lv .name{display:block;font-size:.8rem;font-weight:800;color:var(--muted);min-height:1.2em}
+.lv .stars{font-size:1rem;letter-spacing:.05em;min-height:1.3em}
+.lv.gold{box-shadow:0 6px 0 #e0b200,0 0 0 3px var(--gold),var(--shadow)}
+.lv.boss{grid-column:1/-1;background:linear-gradient(135deg,#3b2a63,#7a4fc4);color:#fff;box-shadow:0 6px 0 #2a1d47,var(--shadow);display:flex;align-items:center;justify-content:center;gap:16px;padding:16px}
+.lv.boss .name{color:#e7dcff}
+.lv.boss.unknown .mon{filter:none;opacity:1}
+.lv.boss.locked{filter:grayscale(.85);opacity:.75;cursor:not-allowed}
+.lv.train{grid-column:1/-1;background:#fff7e3;display:flex;align-items:center;justify-content:center;gap:14px;padding:12px}
+.lv.train .mon{font-size:2.4rem}
+.lv.train:disabled{opacity:.6;cursor:default;transform:none}
+.lv .txt{text-align:left}
+.parent{margin-top:22px;background:#fff;border-radius:20px;padding:4px 18px;box-shadow:var(--shadow)}
+.parent summary{cursor:pointer;font-weight:900;padding:12px 0}
+.chart{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:12px}
+.cell{border-radius:8px;padding:7px 1px;text-align:center;font-weight:800;font-size:.72rem;background:#f1f4f1;color:#9aa69f;font-variant-numeric:tabular-nums}
+.cell.blank{background:transparent}
+.cell.l1{background:#fff1c4;color:#7a5d00}.cell.l2{background:#cdeed6;color:#1f6138}.cell.l3{background:#315f47;color:#fff}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-weight:800;font-size:.8rem;color:var(--muted);padding-bottom:14px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+
+/* ===== battle ===== */
+.bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.hearts{font-size:1.5rem;letter-spacing:.08em;font-weight:900}
+.hearts .lost{filter:grayscale(1);opacity:.3}
+.arena{position:relative;margin-top:12px;border-radius:26px;overflow:hidden;height:250px;box-shadow:var(--shadow);
+  background:linear-gradient(180deg,var(--a1,#bfe6ff),var(--a2,#eaf7ff) 70%,var(--a3,#cfe9c9) 70%)}
+.arena.shake{animation:shake .4s}
+.hp{position:absolute;left:50%;top:14px;transform:translateX(-50%);width:min(70%,320px);text-align:center;z-index:2}
+.hp b{font-family:Fredoka,sans-serif;font-size:1.05rem;text-shadow:0 1px 0 #fff}
+.hpbar{height:16px;border-radius:99px;background:rgba(0,0,0,.15);overflow:hidden;margin-top:4px;border:2px solid #fff}
+.hpbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff6b5a,#ffb14a);transition:width .35s}
+.monster{position:absolute;left:50%;top:62%;transform:translate(-50%,-50%);font-size:7rem;line-height:1;animation:bob 1.6s ease-in-out infinite;user-select:none}
+.monster.hit{animation:hit .4s}
+.monster.attack{animation:lunge .45s}
+.monster.dead{animation:poof .7s forwards}
+.shadow{position:absolute;left:50%;top:84%;width:110px;height:18px;transform:translateX(-50%);background:rgba(0,0,0,.14);border-radius:50%}
+.float{position:absolute;left:50%;top:40%;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.8rem;color:#e8402f;text-shadow:0 2px 0 #fff;animation:rise .9s forwards;pointer-events:none;white-space:nowrap;z-index:3}
+.float.crit{color:#f08c00;font-size:2.2rem}
+.shot{position:absolute;left:50%;bottom:-30px;font-size:2.2rem;animation:shoot .28s ease-in forwards;pointer-events:none}
+.timer{height:8px;border-radius:99px;background:#dfe8e1;overflow:hidden;margin-top:14px}
+.timer i{display:block;height:100%;width:100%;background:var(--good)}
+.timer i.warn{background:var(--bad)}
+.qbox{text-align:center;margin:12px 0 2px}
+.q{font-family:Fredoka,sans-serif;font-weight:700;font-size:clamp(2.8rem,13vw,4.6rem);line-height:1.1}
+.q .ans{display:inline-block;min-width:1.3em;color:#7254b8;border-bottom:5px solid var(--line)}
+.msg{text-align:center;font-weight:900;min-height:1.6em;font-size:1.1rem}
+.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}.msg.combo{color:#e07b00}
+.msg.pop{animation:pop .35s}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.choice{border:0;border-radius:22px;padding:18px 6px;font-family:Fredoka,sans-serif;font-size:2.3rem;font-weight:700;color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.13);transition:transform .06s}
+.choice:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.13)}
+.choice:nth-child(1){background:#ffe7a8}.choice:nth-child(2){background:#bfe9ff}.choice:nth-child(3){background:#ffd1e3}.choice:nth-child(4){background:#c9f0c4}
+.choice.right{background:var(--good)!important;color:#fff}
+.choice.wrong{background:var(--bad)!important;color:#fff;animation:shake .35s}
+.choice:disabled{cursor:default}
+
+/* ===== result ===== */
+.result{background:#fff;border-radius:28px;padding:26px 18px;text-align:center;box-shadow:var(--shadow);margin-top:8px}
+.result .big{font-size:6rem;line-height:1.1;display:inline-block;animation:pop .6s}
+.result h2{margin:6px 0;font-size:1.8rem}
+.result .stars{font-size:2.6rem;letter-spacing:.1em}
+.result p{color:var(--muted);font-weight:800;margin:6px 0}
+.reward{display:inline-block;background:#fff6d6;border-radius:999px;padding:8px 16px;font-weight:900;margin:8px 0}
+.mistakes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.mistakes span{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:7px 11px;font-weight:900;font-variant-numeric:tabular-nums}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.btn{border:0;border-radius:16px;padding:14px 22px;font-weight:900;font-size:1.05rem;background:var(--green);color:#fff;box-shadow:0 5px 0 #1f3f2f}
+.btn.light{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@keyframes bob{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-58%)}}
+@keyframes hit{0%{transform:translate(-50%,-50%)}20%{transform:translate(-42%,-50%) rotate(8deg);filter:brightness(2.2)}50%{transform:translate(-56%,-50%) rotate(-6deg)}100%{transform:translate(-50%,-50%)}}
+@keyframes lunge{0%{transform:translate(-50%,-50%)}40%{transform:translate(-50%,-20%) scale(1.35)}100%{transform:translate(-50%,-50%)}}
+@keyframes poof{0%{transform:translate(-50%,-50%) scale(1)}40%{transform:translate(-50%,-50%) scale(1.3) rotate(15deg)}100%{transform:translate(-50%,-50%) scale(0) rotate(-200deg);opacity:0}}
+@keyframes rise{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,-70px);opacity:0}}
+@keyframes shoot{from{transform:translate(-50%,0) scale(.8)}to{transform:translate(-50%,-150px) scale(1.3);opacity:.2}}
+@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+@media(max-width:620px){.levels{gap:10px}.lv .mon{font-size:2.5rem}.lv .tag{font-size:1.1rem}.lv .name{font-size:.7rem}
+ .arena{height:215px}.monster{font-size:5.6rem}.choice{font-size:2rem;padding:15px 4px}.cell{font-size:.6rem}}
+</style></head>
+<body>
+<div class="top">
+  <span></span>
+  <div class="wallet">
+    <span class="chip" id="coinChip">🪙 <span id="coinTotal">0</span></span>
+    <button class="tbtn" type="button" id="soundBtn">🔔 音效开</button>
+  </div>
+</div>
+<div class="wrap">
+
+<!-- ===== MAP ===== -->
+<section id="map">
+  <div class="hero">
+    <h1>🏝️ 乘法怪兽岛</h1>
+    <p>答对乘法题打败怪兽，把它们都收服！</p>
+    <div class="progress" id="progress"></div>
+    <div><button class="install" type="button" id="installBtn">📲 装到手机桌面，像 App 一样玩</button></div>
+  </div>
+  <div class="howto" id="howto" hidden></div>
+  <div class="levels" id="levels"></div>
+  <details class="parent">
+    <summary>📋 给家长看：口诀掌握表</summary>
+    <div class="chart" id="chart"></div>
+    <div class="legend">
+      <span><i style="background:#f1f4f1"></i>还没练</span>
+      <span><i style="background:#fff1c4"></i>练过</span>
+      <span><i style="background:#cdeed6"></i>快会了</span>
+      <span><i style="background:#315f47"></i>掌握啦</span>
+    </div>
+  </details>
+</section>
+
+<!-- ===== BATTLE ===== -->
+<section id="battle" hidden>
+  <div class="bar-top">
+    <button class="tbtn" type="button" id="quitBtn">✕ 逃跑</button>
+    <span class="hearts" id="hearts"></span>
+    <span class="chip">🪙 +<span id="bCoins">0</span></span>
+  </div>
+  <div class="arena" id="arena">
+    <div class="hp"><b id="monName"></b><div class="hpbar"><i id="hpFill"></i></div></div>
+    <div class="shadow"></div>
+    <div class="monster" id="monster"></div>
+  </div>
+  <div class="timer"><i id="timerFill"></i></div>
+  <div class="qbox"><div class="q" id="question"></div></div>
+  <div class="msg" id="msg"></div>
+  <div class="choices" id="choices"></div>
+</section>
+
+<!-- ===== RESULT ===== -->
+<section id="result" hidden>
+  <div class="result">
+    <div class="big" id="rBig"></div>
+    <h2 id="rTitle"></h2>
+    <div class="stars" id="rStars"></div>
+    <div class="reward" id="rReward"></div>
+    <p id="rSub"></p>
+    <div id="rMissBox">
+      <p>这些题再记一记：</p>
+      <div class="mistakes" id="rMiss"></div>
+    </div>
+    <div class="row">
+      <button class="btn" type="button" id="againBtn">再打一次</button>
+      <button class="btn light" type="button" id="mapBtn">回到地图</button>
+    </div>
+  </div>
+</section>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  "use strict";
+  var LEVELS=[
+    {id:"1",t:1,e:"🐛",n:"毛毛虫",  a:["#d9f7b0","#f4ffe6","#b9e08f"]},
+    {id:"2",t:2,e:"🐸",n:"呱呱蛙",  a:["#c4f0d0","#effff3","#8fd19e"]},
+    {id:"3",t:3,e:"🦀",n:"钳钳蟹",  a:["#ffe1c4","#fff6ec","#f3cf9b"]},
+    {id:"4",t:4,e:"🐙",n:"墨墨章鱼",a:["#c9e4ff","#eef7ff","#7fb3e6"]},
+    {id:"5",t:5,e:"🦇",n:"夜夜蝙蝠",a:["#d7cdf5","#f2eeff","#a493d6"]},
+    {id:"6",t:6,e:"🦂",n:"沙漠蝎王",a:["#ffe9a8","#fff8de","#e7c56b"]},
+    {id:"7",t:7,e:"🦈",n:"大白鲨",  a:["#a9dcf2","#e4f6ff","#5aa9d6"]},
+    {id:"8",t:8,e:"🦖",n:"霸王龙",  a:["#d5efb9","#f3fbe8","#9cc86a"]},
+    {id:"9",t:9,e:"🐲",n:"火焰龙",  a:["#ffc9b8","#fff0ea","#f08f74"]}
+  ];
+  var BOSS={id:"boss",e:"👾",n:"外星大魔王",a:["#cbb8f5","#f1ebff","#8b6fd1"]};
+  var TRAIN={id:"train",e:"🥊",n:"训练沙袋",a:["#ffe8c2","#fff9ee","#f2cf8f"]};
+  var BOSS_NEED=3;
+
+  // ---------- saved progress (this browser only) ----------
+  var STORE="ttGame.v2";
+  var data={facts:{},levels:{},coins:0,sound:true};
+  try{
+    var raw=localStorage.getItem(STORE)||localStorage.getItem("ttGame.v1");
+    if(raw){ var d=JSON.parse(raw);
+      if(d&&typeof d==="object"){
+        if(d.facts) data.facts=d.facts;
+        if(d.levels) data.levels=d.levels;
+        if(typeof d.coins==="number") data.coins=d.coins;
+        if(typeof d.sound==="boolean") data.sound=d.sound;
+      } }
+  }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(data)); }catch(e){} }
+
+  function key(a,b){ return Math.min(a,b)+"x"+Math.max(a,b); }
+  function fact(k){ return data.facts[k]||(data.facts[k]={ok:0,miss:0}); }
+  function level(k){
+    var f=data.facts[k]; if(!f||(f.ok+f.miss)===0) return 0;
+    var net=f.ok-f.miss*2;
+    if(f.ok>=5&&net>=4) return 3;
+    if(f.ok>=2&&net>=1) return 2;
+    return 1;
+  }
+  function missList(){ return Object.keys(data.facts).filter(function(k){ return data.facts[k].miss>0&&level(k)<3; }); }
+  function starsOf(id){ return (data.levels[id]&&data.levels[id].stars)||0; }
+  function beatenCount(){ return LEVELS.filter(function(L){return starsOf(L.id)>0;}).length; }
+
+  // ---------- sound effects (no voice) ----------
+  var actx=null;
+  function tone(notes,type,len){
+    if(!data.sound) return;
+    try{
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      notes.forEach(function(f,i){
+        var o=actx.createOscillator(),g=actx.createGain(),t=actx.currentTime+i*(len*.6);
+        o.type=type; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.14,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+len);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02);
+      });
+    }catch(e){}
+  }
+  var SFX={
+    hit:function(){tone([660,990],"triangle",.13);},
+    crit:function(){tone([660,880,1320],"square",.1);},
+    hurt:function(){tone([260,180],"sawtooth",.16);},
+    win:function(){tone([523,659,784,1047],"triangle",.18);},
+    lose:function(){tone([392,330,262],"sine",.25);}
+  };
+
+  var $=function(id){return document.getElementById(id);};
+  function show(id){ ["map","battle","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); window.scrollTo(0,0); }
+
+  // ---------- map ----------
+  function starText(n){ return "⭐".repeat(n)+"☆".repeat(3-n); }
+  function renderMap(){
+    $("coinTotal").textContent=data.coins;
+    var beat=beatenCount()+(starsOf("boss")?1:0);
+    $("progress").textContent="已收服 "+beat+" / 10 只怪兽";
+    var box=$("levels"); box.innerHTML="";
+    LEVELS.forEach(function(L){
+      var s=starsOf(L.id), b=document.createElement("button");
+      b.type="button"; b.className="lv"+(s?"":" unknown")+(s===3?" gold":"");
+      b.innerHTML='<span class="mon">'+L.e+'</span><span class="tag">× '+L.t+'</span><span class="name">'+(s?L.n:"???")+'</span><div class="stars">'+starText(s)+'</div>';
+      b.onclick=function(){ startBattle(L); };
+      box.appendChild(b);
+    });
+    var bs=starsOf("boss"), open=beatenCount()>=BOSS_NEED, bb=document.createElement("button");
+    bb.type="button"; bb.className="lv boss"+(open?"":" locked")+(bs===3?" gold":"");
+    bb.innerHTML='<span class="mon">'+(open?BOSS.e:"🔒")+'</span><span class="txt"><span class="tag">Boss 大混战</span><span class="name">'+
+      (open?(bs?BOSS.n+" "+starText(bs):"2 到 9 全部混在一起，敢来挑战吗？"):"再打败 "+(BOSS_NEED-beatenCount())+" 只怪兽就能解锁")+'</span></span>';
+    bb.onclick=function(){ if(open) startBattle(BOSS); };
+    box.appendChild(bb);
+    var n=missList().length, tb=document.createElement("button");
+    tb.type="button"; tb.className="lv train"; tb.disabled=!n;
+    tb.innerHTML='<span class="mon">'+TRAIN.e+'</span><span class="txt"><span class="tag">训练营</span><span class="name">'+
+      (n?("有 "+n+" 道答错过的题，来练练！不会扣心"):"没有错题，太棒了！")+'</span></span>';
+    tb.onclick=function(){ if(n) startBattle(TRAIN); };
+    box.appendChild(tb);
+    renderChart();
+  }
+  function renderChart(){
+    var box=$("chart"); box.innerHTML="";
+    for(var r=1;r<=9;r++) for(var c=1;c<=9;c++){
+      var el=document.createElement("div");
+      if(c>r){ el.className="cell blank"; }
+      else{ el.className="cell l"+level(key(c,r)); el.textContent=c+"×"+r; el.title=c+"×"+r+"="+(c*r); }
+      box.appendChild(el);
+    }
+  }
+  $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
+  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 音效开":"🔕 音效关"; }
+
+  // ---------- battle ----------
+  var B=null, raf=0, pending=0;
+  function buildPool(L){
+    var pool=[];
+    if(L===TRAIN){ missList().forEach(function(k){ var p=k.split("x"); pool.push([+p[0],+p[1]]); }); }
+    else if(L===BOSS){ for(var a=2;a<=9;a++) for(var b=a;b<=9;b++) pool.push([a,b]); }
+    else{ for(var i=1;i<=9;i++) pool.push([L.t,i]); }
+    return pool;
+  }
+  function weight(q){ var f=data.facts[key(q[0],q[1])]; return 1+(f?f.miss*2:0)+(level(key(q[0],q[1]))<2?1:0); }
+  function pick(){
+    var pool=B.pool, last=B.q, tot=0;
+    var ws=pool.map(function(q){ var w=weight(q); if(last&&key(q[0],q[1])===key(last[0],last[1])&&pool.length>1) w=0; tot+=w; return w; });
+    var r=Math.random()*tot, i=0;
+    for(;i<pool.length;i++){ r-=ws[i]; if(r<=0) break; }
+    var q=pool[Math.min(i,pool.length-1)];
+    return Math.random()<.5?[q[0],q[1]]:[q[1],q[0]];
+  }
+  function choicesFor(a,b){
+    var p=a*b, seen={}, out=[p]; seen[p]=1;
+    var cand=[(a+1)*b,(a-1)*b,a*(b+1),a*(b-1),p+1,p-1,p+10,p-10,p+2,a+b];
+    cand.sort(function(){return Math.random()-.5;});
+    cand.forEach(function(v){ if(out.length<4&&v>0&&v<=90&&!seen[v]){ seen[v]=1; out.push(v); } });
+    while(out.length<4){ var v=1+Math.floor(Math.random()*81); if(!seen[v]){ seen[v]=1; out.push(v); } }
+    return out.sort(function(){return Math.random()-.5;});
+  }
+
+  function startBattle(L){
+    var pool=buildPool(L); if(!pool.length) return;
+    var hp = L===BOSS?15 : L===TRAIN?Math.max(5,Math.min(12,pool.length*2)) : 8;
+    B={L:L,pool:pool,hp:hp,maxHp:hp,hearts:L===TRAIN?Infinity:3,coins:0,streak:0,best:0,correct:0,miss:{},q:null,locked:false,
+       limit:L===BOSS?8000:10000};
+    var ar=$("arena"); ar.style.setProperty("--a1",L.a[0]); ar.style.setProperty("--a2",L.a[1]); ar.style.setProperty("--a3",L.a[2]);
+    $("monster").textContent=L.e; $("monster").className="monster";
+    $("monName").textContent=L.n+(L.t?" · ×"+L.t:"");
+    $("bCoins").textContent="0"; $("msg").textContent=""; $("msg").className="msg";
+    renderHearts(); renderHp(); show("battle"); nextQ();
+  }
+  function renderHearts(){
+    if(B.hearts===Infinity){ $("hearts").textContent="💪 练习中"; return; }
+    var h=""; for(var i=0;i<3;i++) h+= i<B.hearts ? "❤️" : '<span class="lost">❤️</span>';
+    $("hearts").innerHTML=h;
+  }
+  function renderHp(){ $("hpFill").style.width=Math.max(0,B.hp/B.maxHp*100)+"%"; }
+  function nextQ(){
+    B.locked=false; B.q=pick();
+    var a=B.q[0], b=B.q[1];
+    $("question").innerHTML=a+" × "+b+' = <span class="ans">?</span>';
+    var box=$("choices"); box.innerHTML="";
+    choicesFor(a,b).forEach(function(v){
+      var bt=document.createElement("button"); bt.type="button"; bt.className="choice"; bt.textContent=v; bt.dataset.v=v;
+      bt.onclick=function(){ answer(bt); }; box.appendChild(bt);
+    });
+    B.t0=performance.now(); tick();
+  }
+  function tick(){
+    cancelAnimationFrame(raf);
+    (function loop(){
+      if(!B||B.locked) return;
+      var left=1-(performance.now()-B.t0)/B.limit;
+      var tf=$("timerFill"); tf.style.width=Math.max(0,left*100)+"%"; tf.className=left<.3?"warn":"";
+      if(left<=0){ answer(null); return; }
+      raf=requestAnimationFrame(loop);
+    })();
+  }
+  function say(text,cls){ var m=$("msg"); m.className="msg "+cls; void m.offsetWidth; m.textContent=text; m.classList.add("pop"); }
+  function floatText(text,crit){
+    var s=document.createElement("span"); s.className="float"+(crit?" crit":""); s.textContent=text;
+    $("arena").appendChild(s); setTimeout(function(){ s.remove(); },950);
+  }
+  function anim(el,cls){ el.classList.remove("hit","attack"); void el.offsetWidth; el.classList.add(cls); }
+  function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
+
+  function answer(btn){
+    if(!B||B.locked) return; B.locked=true; cancelAnimationFrame(raf);
+    var a=B.q[0], b=B.q[1], p=a*b, k=key(a,b), f=fact(k), ms=performance.now()-B.t0;
+    [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(+x.dataset.v===p) x.classList.add("right"); });
+    $("question").innerHTML=a+" × "+b+' = <span class="ans">'+p+'</span>';
+    var mon=$("monster");
+    if(btn&&+btn.dataset.v===p){
+      f.ok++; B.correct++; B.streak++; B.best=Math.max(B.best,B.streak);
+      var crit=ms<3000, dmg=crit?2:1, gain=crit?2:1;
+      B.hp-=dmg; B.coins+=gain; $("bCoins").textContent=B.coins;
+      var shot=document.createElement("span"); shot.className="shot"; shot.textContent=crit?"💥":"⭐"; $("arena").appendChild(shot);
+      setTimeout(function(){ shot.remove(); anim(mon,"hit"); floatText(crit?"暴击 -2!":"-1",crit); renderHp(); },260);
+      if(crit) SFX.crit(); else SFX.hit();
+      if(B.streak>=3) say("🔥 "+B.streak+" 连击！","combo");
+      else say(crit?"⚡ 好快！暴击！":["答对了！","漂亮！","打中了！","厉害！"][Math.floor(Math.random()*4)],"good");
+      save();
+      if(B.hp<=0){ later(function(){ mon.className="monster dead"; SFX.win(); later(function(){ finish(true); },750); },500); }
+      else later(nextQ,850);
+    }else{
+      if(btn) btn.classList.add("wrong");
+      f.miss++; B.streak=0; B.miss[k]=1;
+      B.pool.push([a,b],[a,b]);   // 答错的题等一下会再出
+      anim(mon,"attack"); var ar=$("arena"); ar.classList.remove("shake"); void ar.offsetWidth; ar.classList.add("shake");
+      SFX.hurt();
+      if(B.hearts!==Infinity){ B.hearts--; renderHearts(); }
+      say(btn?"哎呀！答案是 "+p:"时间到！答案是 "+p,"bad");
+      save();
+      if(B.hearts<=0) later(function(){ finish(false); },1600);
+      else later(nextQ,1800);
+    }
+  }
+
+  function finish(won){
+    cancelAnimationFrame(raf); clearTimeout(pending);
+    var L=B.L, stars=0, bonus=0;
+    if(won){
+      if(L===TRAIN){ bonus=5; }
+      else{
+        stars=B.hearts;
+        if(stars>starsOf(L.id)) data.levels[L.id]={stars:stars};
+        bonus=stars*5;
+      }
+    }
+    data.coins+=B.coins+bonus; save();
+    $("rBig").textContent = won?L.e:"💫";
+    $("rTitle").textContent = won ? (L===TRAIN?"训练完成！":"收服了"+L.n+"！") : "差一点点！再来一次吧";
+    $("rStars").textContent = (won&&L!==TRAIN) ? starText(stars) : "";
+    $("rReward").textContent = "🪙 +"+(B.coins+bonus)+(bonus?"（过关奖励 +"+bonus+"）":"");
+    $("rSub").textContent = "答对 "+B.correct+" 题 · 最高 "+B.best+" 连击"+(won&&L!==TRAIN&&stars<3?" · 一颗心都不丢就能拿 3 颗星":"");
+    var miss=Object.keys(B.miss);
+    $("rMissBox").hidden=!miss.length;
+    $("rMiss").innerHTML=miss.map(function(k){ var p=k.split("x"); return "<span>"+p[0]+" × "+p[1]+" = "+(p[0]*p[1])+"</span>"; }).join("");
+    show("result");
+    if(won) confetti(); else SFX.lose();
+  }
+  function quit(){ cancelAnimationFrame(raf); clearTimeout(pending); renderMap(); show("map"); }
+  $("quitBtn").onclick=function(){ B=null; quit(); };
+  $("mapBtn").onclick=quit;
+  $("againBtn").onclick=function(){ var L=B.L; if(L===TRAIN&&!missList().length){ quit(); return; } startBattle(L); };
+  document.addEventListener("keydown",function(e){
+    if($("battle").hidden) return;
+    var i="1234".indexOf(e.key); if(i<0) return;
+    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+  });
+
+  // ---------- confetti ----------
+  function confetti(){
+    if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cv=$("confetti"),ctx=cv.getContext("2d"); cv.width=innerWidth; cv.height=innerHeight;
+    var cols=["#f5b301","#2f9e5b","#7254b8","#e86a5c","#3aa3c4"],ps=[];
+    for(var i=0;i<150;i++) ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.28,c:cols[i%5],s:6+Math.random()*6});
+    var t0=performance.now();
+    (function loop(t){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); });
+      if(t-t0<3000) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+    })(t0);
+  }
+
+  // ---------- install as an app (free: no app store needed) ----------
+  var deferredPrompt=null, ua=navigator.userAgent||"";
+  var isWeChat=/MicroMessenger/i.test(ua), isIOS=/iPhone|iPad|iPod/i.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  window.addEventListener("beforeinstallprompt",function(e){ e.preventDefault(); deferredPrompt=e; });
+  window.addEventListener("appinstalled",function(){ $("installBtn").hidden=true; $("howto").hidden=true; });
+  $("installBtn").onclick=function(){
+    if(deferredPrompt&&!isWeChat){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(function(){ deferredPrompt=null; }); return; }
+    var h=$("howto"), steps;
+    if(isWeChat){
+      steps=["点右上角的 <b>···</b>","选 <b>在浏览器打开</b>（iPhone 选 Safari 打开）","在浏览器里再点一次「📲 装到手机桌面」"];
+    }else if(isIOS){
+      steps=["用 <b>Safari</b> 打开这个页面","点屏幕下方的 <b>分享按钮</b>（方框加向上箭头）","往下滑，点 <b>添加到主屏幕</b>，再点 <b>添加</b>"];
+    }else{
+      steps=["点浏览器右上角或右下角的 <b>菜单</b>（⋮ 或 ☰）","选 <b>添加到主屏幕</b> 或 <b>安装应用</b>","回到手机桌面，点 🏝️ 乘法怪兽岛 图标就能玩"];
+    }
+    h.innerHTML="<h3>"+(isWeChat?"微信里不能直接安装，先换到浏览器：":"三步装到桌面：")+"</h3><ol><li>"+steps.join("</li><li>")+
+      '</li></ol><div class="note">完全免费。装好后从桌面图标打开，没网也能玩。</div>';
+    h.hidden=!h.hidden;
+  };
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); });
+  }
+
+  renderSound(); renderMap();
+})();
+</script>
+</body></html>

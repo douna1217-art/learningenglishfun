@@ -1,0 +1,17 @@
+{
+  "name": "乘法怪兽岛",
+  "short_name": "乘法怪兽岛",
+  "description": "答对乘法题打败怪兽，收集星星和金币。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef5ef",
+  "theme_color": "#3f8fd8",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
