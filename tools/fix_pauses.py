@@ -7,7 +7,8 @@ This downloads such a page's audio, cuts every silence of 2 s or more in the mid
 word times and the sentence marks of the page by the time that was cut, uploads the new clip to the same place with a new ?v=N (so browsers do not
 keep the old one) and updates the page. No OpenAI key is needed and Whisper is not run: the new word times are the old ones, shifted.
 
-Run it on your own Mac, where voice_all.py already uploads (the Tencent COS login is read from .cos_credentials). It needs ffmpeg.
+Run it on your own Mac, where voice_all.py already uploads (the Tencent COS login is read from .cos_credentials). It needs ffmpeg: either
+installed (brew install ffmpeg) or, simpler, the one that comes with a Python package:  python3 -m pip install imageio-ffmpeg
 
     python3 tools/fix_pauses.py a-birthday-between-two-worlds:3 the-second-clarinet:1
     python3 tools/fix_pauses.py --dry-run a-birthday-between-two-worlds:3     # only say what would be cut
@@ -70,11 +71,12 @@ def shift(t, cuts, clamp=False):
 
 
 def bitrate(path):
-    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "a:0", "-show_entries", "stream=bit_rate,sample_rate,channels",
-                        "-of", "default=nw=1", path], capture_output=True, text=True)
-    info = dict(l.split("=", 1) for l in r.stdout.split() if "=" in l)
-    br = int(info["bit_rate"]) if info.get("bit_rate", "").isdigit() else 64000
-    return max(32, min(192, round(br / 1000 / 8) * 8)), info.get("sample_rate"), info.get("channels")
+    """(kbit/s, sample rate, channels) of an mp3, read from what ffmpeg says about it (no ffprobe needed)"""
+    r = subprocess.run([A.ffmpeg_exe(), "-hide_banner", "-i", path], capture_output=True, text=True)
+    m = re.search(r"Audio: mp3[^\n]*?, (\d+) Hz, (mono|stereo)[^\n]*?(\d+) kb/s", r.stderr)
+    if not m:
+        return 64, None, None
+    return max(32, min(192, round(int(m.group(3)) / 8) * 8)), m.group(1), "1" if m.group(2) == "mono" else "2"
 
 
 def cut_audio(raw, cuts, dur):
@@ -91,7 +93,7 @@ def cut_audio(raw, cuts, dur):
         parts = "".join("[0:a]atrim=start=%.3f:end=%.3f,asetpts=PTS-STARTPTS[p%d];" % (a, b, i) for i, (a, b) in enumerate(keep))
         fc = parts + "".join("[p%d]" % i for i in range(len(keep))) + "concat=n=%d:v=0:a=1[out]" % len(keep)
         kbps, rate, ch = bitrate(src)
-        cmd = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", src, "-filter_complex", fc, "-map", "[out]",
+        cmd = [A.ffmpeg_exe(), "-hide_banner", "-loglevel", "error", "-y", "-i", src, "-filter_complex", fc, "-map", "[out]",
                "-c:a", "libmp3lame", "-b:a", "%dk" % kbps]
         if rate:
             cmd += ["-ar", rate]
@@ -149,8 +151,8 @@ def main(argv=None):
     ap.add_argument("pages", nargs="+", help="book-slug:page, for example a-birthday-between-two-worlds:3")
     ap.add_argument("--dry-run", action="store_true", help="only say what would be cut; nothing is uploaded or changed")
     args = ap.parse_args(argv)
-    if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
-        sys.exit("ffmpeg is needed: brew install ffmpeg")
+    if not A.ffmpeg_exe():
+        sys.exit("ffmpeg is needed. The simplest way:  python3 -m pip install imageio-ffmpeg   (or: brew install ffmpeg)")
     want = {}
     for x in args.pages:
         slug, _, page = x.partition(":")

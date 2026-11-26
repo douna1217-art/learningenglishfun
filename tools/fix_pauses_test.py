@@ -21,13 +21,13 @@ def ok(cond, name, extra=None):
         print("  FAIL:", name, "" if extra is None else extra)
 
 
-if not (shutil.which("ffmpeg") and shutil.which("ffprobe")):
+if not FP.A.ffmpeg_exe():
     print("fix_pauses_test: skipped (ffmpeg not installed)")
     sys.exit(0)
 
 
 def mp3(spec):
-    return subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", spec, "-ac", "1", "-ar", "24000", "-b:a", "64k", "-f", "mp3", "pipe:1"],
+    return subprocess.run([FP.A.ffmpeg_exe(), "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", spec, "-ac", "1", "-ar", "24000", "-b:a", "64k", "-f", "mp3", "pipe:1"],
                           capture_output=True, check=True).stdout
 
 

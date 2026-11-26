@@ -154,9 +154,9 @@ FILES = {
     "/short.mp3": (frame_header(9) + b"\x00" * 7996, "audio/mpeg"),      # 0.5 s but 3 s of words
 }
 # real sound for the pause check (needs ffmpeg): 2 s of tone, 4 s of silence, 2 s of tone; and 8 s of tone
-HAS_FFMPEG = bool(A.shutil.which("ffmpeg"))
+HAS_FFMPEG = bool(A.ffmpeg_exe())
 def tone_mp3(spec):
-    r = A.subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", spec, "-f", "mp3", "pipe:1"], capture_output=True)
+    r = A.subprocess.run([A.ffmpeg_exe(), "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", spec, "-f", "mp3", "pipe:1"], capture_output=True)
     return r.stdout
 if HAS_FFMPEG:
     FILES["/pause.mp3"] = (tone_mp3("sine=f=440:d=2,apad=pad_dur=4[a];sine=f=440:d=2[b];[a][b]concat=n=2:v=0:a=1"), "audio/mpeg")

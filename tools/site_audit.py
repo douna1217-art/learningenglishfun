@@ -507,11 +507,24 @@ def mp3_seconds(head, size):
     return None
 
 
+def ffmpeg_exe():
+    """the ffmpeg program: the one installed (brew / apt), else the one inside the imageio-ffmpeg Python package; None if neither"""
+    exe = shutil.which("ffmpeg")
+    if exe:
+        return exe
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        return None
+
+
 def silences(mp3):
     """[(start, end)] of the silent stretches (>= 1 s) in an mp3, and its length, measured with ffmpeg; (None, None) without ffmpeg"""
-    if not shutil.which("ffmpeg"):
+    exe = ffmpeg_exe()
+    if not exe:
         return None, None
-    r = subprocess.run(["ffmpeg", "-hide_banner", "-i", "pipe:0", "-af", "silencedetect=noise=%ddB:d=1.0" % SILENCE_DB, "-f", "null", "-"],
+    r = subprocess.run([exe, "-hide_banner", "-i", "pipe:0", "-af", "silencedetect=noise=%ddB:d=1.0" % SILENCE_DB, "-f", "null", "-"],
                        input=mp3, capture_output=True, timeout=60)
     out = r.stderr.decode("utf8", "ignore")
     m = re.findall(r"time=(\d+):(\d+):([\d.]+)", out) or re.findall(r"Duration: (\d+):(\d+):([\d.]+)", out)
@@ -555,7 +568,7 @@ def check_media(F, books, catalog, workers, cache, gaps_out=None):
     """gaps_out (a list) gets one row per long pause that was listened to"""
     jobs = []
     gaps_out = [] if gaps_out is None else gaps_out
-    has_ffmpeg = bool(shutil.which("ffmpeg"))
+    has_ffmpeg = bool(ffmpeg_exe())
     if not has_ffmpeg:
         print("  (ffmpeg is not installed: the long pauses are not listened to)", file=sys.stderr)
     for slug, b in books.items():
@@ -750,7 +763,7 @@ def main():
         cache = json.load(open(cf)) if os.path.isfile(cf) else {}
         pauses = []
         media_jobs = check_media(F, books, catalog, args.workers, cache, pauses)
-        if shutil.which("ffmpeg"):  # the long pauses, listened to: tools/revoice_pages.py --pauses fixes them from this list
+        if ffmpeg_exe():  # the long pauses, listened to: tools/fix_pauses.py shortens the "trim" ones
             json.dump(pauses, open(os.path.join(AUDIT, "pauses.json"), "w"), indent=1, ensure_ascii=False)
         json.dump(cache, open(cf, "w"))
     summary = {"books": len(books), "levels": levels}
