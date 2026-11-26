@@ -153,6 +153,14 @@ FILES = {
     "/long.mp3": (frame_header(9) + b"\x00" * 15996 * 20, "audio/mpeg"),  # 20 s
     "/short.mp3": (frame_header(9) + b"\x00" * 7996, "audio/mpeg"),      # 0.5 s but 3 s of words
 }
+# real sound for the pause check (needs ffmpeg): 2 s of tone, 4 s of silence, 2 s of tone; and 8 s of tone
+HAS_FFMPEG = bool(A.shutil.which("ffmpeg"))
+def tone_mp3(spec):
+    r = A.subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", spec, "-f", "mp3", "pipe:1"], capture_output=True)
+    return r.stdout
+if HAS_FFMPEG:
+    FILES["/pause.mp3"] = (tone_mp3("sine=f=440:d=2,apad=pad_dur=4[a];sine=f=440:d=2[b];[a][b]concat=n=2:v=0:a=1"), "audio/mpeg")
+    FILES["/steady.mp3"] = (tone_mp3("sine=f=440:d=8"), "audio/mpeg")
 
 
 class H(http.server.BaseHTTPRequestHandler):
@@ -194,6 +202,25 @@ ok(any("audio of page 1" in m and "runaway tail" in m for m in msgs), "online: a
 ok(any("audio of page 2" in m and "cut off" in m for m in msgs), "online: audio shorter than its word times", msgs)
 ok(any("audio of page 3" in m and "does not answer" in m for m in msgs), "online: a missing audio file", msgs)
 ok(not any("audio of page 0" in m for m in msgs), "online: a good clip raises nothing", msgs)
+
+# --- the long pauses, listened to (ffmpeg)
+if HAS_FFMPEG:
+    sil, dur = A.silences(FILES["/pause.mp3"][0])
+    ok(dur and 7.5 < dur < 8.6 and len(sil) == 1 and 1.8 < sil[0][0] < 2.3 and 5.7 < sil[0][1] < 6.3, "pause: ffmpeg finds the 4 s of silence in the middle", (sil, dur))
+    ok(A.silences(FILES["/steady.mp3"][0])[0] == [], "pause: a steady sound has no silence")
+    ok(A.silence_at([(2.0, 6.0)], 1.9, 6.0)[0] >= 3.9 and A.silence_at([(2.0, 6.0)], 6.5, 7.0)[0] == 0, "pause: only the silence between the two words counts")
+    tm = [0.0, 0.8, 1.6, 6.0, 7.0]
+    bk2 = {"pages": [{"type": "cover", "title": "t"}, {"text": "one two three four five"}, {"text": "one two three four five"}],
+           "audio": {"1": base + "/pause.mp3", "2": base + "/steady.mp3"}, "times": {"1": tm, "2": tm}}
+    F = A.Findings()
+    rows = []
+    A.check_media(F, {"red-kite": bk2}, {"red-kite": {"topic": "fiction"}}, 2, {}, rows)
+    msgs = [x["msg"] for x in F.items]
+    ok(any(m.startswith("page 1: the audio really is silent") and "'three'" in m and "trim" in m for m in msgs), "pause: a real silence in the audio is to be trimmed", msgs)
+    ok(any(m.startswith("page 2: the word times jump 4.4 s") and "only the word times" in m for m in msgs), "pause: no silence in the audio, only the word times are off", msgs)
+    ok([(r["page"], r["fix"], r["after_word"]) for r in rows] == [(2, "realign", 3), (1, "trim", 3)] and 3.5 < rows[1]["real_silence"] < 4.5, "pause: the list for the fixing tool", rows)
+else:
+    print("  (ffmpeg not installed: the pause checks are skipped)")
 srv.shutdown()
 
 print("%d passed, %d failed" % (passed, failed))

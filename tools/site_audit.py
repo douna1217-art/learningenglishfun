@@ -16,7 +16,9 @@ This reads every book page under site/books and checks, with no network:
 and, with --online (needs a network that can reach the media server; run it on your own computer or on GitHub):
 
   media      every picture and every audio file answers, is not tiny, the audio is as long as its word times say (a clip much
-             longer than the last word time is a runaway tail)
+             longer than the last word time is a runaway tail); and, when ffmpeg is installed, every page whose word times
+             have a long gap is listened to: is the audio really silent there (trim the silence), or are only the word times
+             off (redo them)? The list goes to tools/audit/pauses.json.
 
     python3 tools/site_audit.py                       # the offline checks, report in tools/audit/
     python3 tools/site_audit.py --online              # and the media checks (a few minutes)
@@ -33,8 +35,10 @@ import json
 import math
 import os
 import re
+import shutil
 import statistics
 import struct
+import subprocess
 import sys
 import time
 import urllib.error
@@ -52,6 +56,8 @@ MAX_WORD_GAP = 3.0          # seconds between two spoken words
 PACE_LOW, PACE_HIGH = 0.9, 4.6   # words a second, one page
 PACE_VS_BOOK = (0.6, 1.5)   # a page's pace against the book's median pace
 TAIL_MAX = 4.0              # seconds of audio after the last word time (online)
+REAL_SILENCE = 2.0          # (online) a timing gap is a real pause in the audio when the sound is off this long there
+SILENCE_DB = -38            # below this loudness counts as silence
 MIN_IMAGE_BYTES = 6000
 MIN_AUDIO_BYTES = 3000
 ANSWER_SHARE_FLAG = 0.7     # one answer position holds this share of >= 8 questions
@@ -501,6 +507,32 @@ def mp3_seconds(head, size):
     return None
 
 
+def silences(mp3):
+    """[(start, end)] of the silent stretches (>= 1 s) in an mp3, and its length, measured with ffmpeg; (None, None) without ffmpeg"""
+    if not shutil.which("ffmpeg"):
+        return None, None
+    r = subprocess.run(["ffmpeg", "-hide_banner", "-i", "pipe:0", "-af", "silencedetect=noise=%ddB:d=1.0" % SILENCE_DB, "-f", "null", "-"],
+                       input=mp3, capture_output=True, timeout=60)
+    out = r.stderr.decode("utf8", "ignore")
+    m = re.findall(r"time=(\d+):(\d+):([\d.]+)", out) or re.findall(r"Duration: (\d+):(\d+):([\d.]+)", out)
+    dur = (int(m[-1][0]) * 3600 + int(m[-1][1]) * 60 + float(m[-1][2])) if m else None
+    st = [float(x) for x in re.findall(r"silence_start: (-?[\d.]+)", out)]
+    en = [float(x) for x in re.findall(r"silence_end: ([\d.]+)", out)]
+    if len(en) < len(st):
+        en.append(dur or st[-1])
+    return [(max(0.0, a), b) for a, b in zip(st, en)], dur
+
+
+def silence_at(sil, a0, a1):
+    """the longest silent stretch that lies between two words (word starting at a0, next word at a1); 0 when none"""
+    best = (0.0, None, None)
+    for a, b in sil or []:
+        lo, hi = max(a, a0), min(b, a1 + 0.3)
+        if hi - lo > best[0]:
+            best = (round(hi - lo, 2), round(a, 2), round(b, 2))
+    return best
+
+
 def jpeg_png_size(head):
     if head[:8] == b"\x89PNG\r\n\x1a\n" and len(head) >= 24:
         return struct.unpack(">II", head[16:24])
@@ -519,8 +551,13 @@ def jpeg_png_size(head):
     return None
 
 
-def check_media(F, books, catalog, workers, cache):
+def check_media(F, books, catalog, workers, cache, gaps_out=None):
+    """gaps_out (a list) gets one row per long pause that was listened to"""
     jobs = []
+    gaps_out = [] if gaps_out is None else gaps_out
+    has_ffmpeg = bool(shutil.which("ffmpeg"))
+    if not has_ffmpeg:
+        print("  (ffmpeg is not installed: the long pauses are not listened to)", file=sys.stderr)
     for slug, b in books.items():
         P, A, T = b["pages"], b["audio"], b["times"]
         topic = catalog.get(slug, {}).get("topic", "")
@@ -535,15 +572,26 @@ def check_media(F, books, catalog, workers, cache):
                     last = T[k][-1]
                 if isinstance(u, str):
                     jobs.append(("aud", slug, topic, k, u, last))
+                    tm = T.get(k) if isinstance(T, dict) else None
+                    if tm and len(tm) > 1 and has_ffmpeg:
+                        g, j = max((round(b2 - a2, 2), j) for j, (a2, b2) in enumerate(zip(tm, tm[1:])))
+                        if g > MAX_WORD_GAP:
+                            jobs.append(("sil", slug, topic, k, u, (tm[j], tm[j + 1], j, g)))
 
     def one(job):
         kind, slug, topic, key, url, last = job
         ck = "%s|%s" % (kind, url)
+        if kind == "sil":
+            ck += "|%.2f" % last[0]
         if ck in cache and cache[ck].get("t", 0) > time.time() - 7 * 86400 and cache[ck].get("ok"):
             return job, cache[ck]
         if kind == "img":
             st, size, head, ct = fetch(url, (0, 65535))
             res = {"st": st, "size": size, "ct": ct, "dim": jpeg_png_size(head) if st in (200, 206) else None}
+        elif kind == "sil":
+            st, size, body, ct = fetch(url, timeout=40)
+            sil, dur = silences(body) if st == 200 else (None, None)
+            res = {"st": st, "size": size, "ct": ct, "sil": sil, "dur": dur}
         else:
             st, size, head, ct = fetch(url, (0, 8191))
             res = {"st": st, "size": size, "ct": ct, "sec": mp3_seconds(head, size) if st in (200, 206) else None}
@@ -556,9 +604,25 @@ def check_media(F, books, catalog, workers, cache):
         for job, res in ex.map(one, jobs):
             done += 1
             kind, slug, topic, key, url, last = job
-            cache["%s|%s" % (kind, url)] = res
+            cache["%s|%s" % (kind, url) + ("|%.2f" % last[0] if kind == "sil" else "")] = res
             if done % 500 == 0:
                 print("  media checked: %d / %d" % (done, len(jobs)), file=sys.stderr)
+            if kind == "sil":
+                if not res["ok"] or res.get("sil") is None:
+                    continue  # (the "aud" job of the same file reports a missing file)
+                a0, a1, j, g = last
+                real, s0, s1 = silence_at(res["sil"], a0, a1)
+                P = books[slug]["pages"]
+                w = words(page_text(P[int(key)])) if isinstance(P, list) and str(key).isdigit() and int(key) < len(P) else []
+                word = w[j] if j < len(w) else "?"
+                fix = "trim" if real >= REAL_SILENCE else "realign"
+                gaps_out.append({"topic": topic, "slug": slug, "page": int(key), "after_word": j + 1, "word": word, "timing_gap": g,
+                                 "real_silence": real, "silence_from": s0, "silence_to": s1, "audio_seconds": res.get("dur"), "fix": fix, "audio": url})
+                if fix == "trim":
+                    F.add(slug, "media", "warn", "page %s: the audio really is silent for %.1f s after word %d (%r): trim the silence" % (key, real, j + 1, word), topic)
+                else:
+                    F.add(slug, "media", "warn", "page %s: the word times jump %.1f s after word %d (%r), but the audio has no long silence there: only the word times need redoing" % (key, g, j + 1, word), topic)
+                continue
             if not res["ok"]:
                 F.add(slug, "media", "error", "%s %s does not answer (%s)" % ("picture of page" if kind == "img" else "audio of page", key, res["st"] or res["ct"] or "no answer"), topic)
                 continue
@@ -582,6 +646,7 @@ def check_media(F, books, catalog, workers, cache):
                         F.add(slug, "media", "error", "the audio of page %s runs %.1f s but the last word is at %.1f s: a runaway tail" % (key, sec, last), topic)
                     elif sec < last - 0.5:
                         F.add(slug, "media", "error", "the audio of page %s is %.1f s, shorter than its last word time %.1f s: it is cut off" % (key, sec, last), topic)
+    gaps_out.sort(key=lambda r: (r["fix"], -r["real_silence"], -r["timing_gap"]))
     return len(jobs)
 
 
@@ -683,7 +748,10 @@ def main():
         cf = os.path.join(AUDIT, "media_cache.json")
         os.makedirs(AUDIT, exist_ok=True)
         cache = json.load(open(cf)) if os.path.isfile(cf) else {}
-        media_jobs = check_media(F, books, catalog, args.workers, cache)
+        pauses = []
+        media_jobs = check_media(F, books, catalog, args.workers, cache, pauses)
+        if shutil.which("ffmpeg"):  # the long pauses, listened to: tools/revoice_pages.py --pauses fixes them from this list
+            json.dump(pauses, open(os.path.join(AUDIT, "pauses.json"), "w"), indent=1, ensure_ascii=False)
         json.dump(cache, open(cf, "w"))
     summary = {"books": len(books), "levels": levels}
     tot = write_report(F, {"books": len(books)}, levels, mid, catalog, qpos_total, args, media_jobs, longest)

@@ -12,4 +12,5 @@
 tools/audit/report.json
 tools/audit/levels.json
 tools/audit/media_cache.json
+tools/audit/pauses.json
 __pycache__/
