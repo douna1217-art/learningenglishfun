@@ -134,6 +134,17 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @keyframes jump{0%{margin-top:0}45%{margin-top:-46px}100%{margin-top:0}}
 @keyframes splash{0%{transform:translateX(-50%)}30%{transform:translateX(-50%) translateY(18px) scale(.9);opacity:.5}100%{transform:translateX(-50%)}}
 @keyframes buzz{0%,100%{margin-top:0}50%{margin-top:-6px}}
+/* the explanation after a wrong answer: it stays until the child taps "Got it" */
+.teach{margin-top:12px;background:#fff;border:3px solid #ffd166;border-radius:20px;padding:12px 14px 14px;box-shadow:0 10px 24px rgba(0,0,0,.1);animation:pop .3s}
+.teach h3{margin:0 0 8px;font-size:1.15rem}
+.teach h3 small{font-family:Nunito,sans-serif;font-size:.85rem;color:#7a7a7a;font-weight:800}
+.teach ol{margin:0;padding-left:1.4em;font-weight:800;line-height:1.55}
+.teach li{margin:3px 0}
+.teach .cn{margin-top:8px;padding:8px 10px;border-radius:12px;background:#fff8e1;font-weight:800;font-size:.95rem;line-height:1.5}
+.teach .pic{text-align:center;margin:2px 0 8px;line-height:1.1}
+.teach .pic .grp{display:inline-block;margin:3px 5px;padding:4px 6px;border-radius:12px;background:#f2f5fb;vertical-align:middle}
+.teach .ok{display:block;width:100%;margin-top:12px;border:0;border-radius:14px;padding:13px;font-weight:900;font-size:1.1rem;color:#fff;background:#3a7bd5;box-shadow:0 4px 0 #2a5ea8}
+.teach .ok small{font-weight:800;opacity:.9}
 @keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
@@ -183,6 +194,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   <div class="words" id="words"></div>
   <div class="msg" id="msg"></div>
   <div class="choices" id="choices"></div>
+  <div class="teach" id="teach" hidden></div>
   <div class="hint" id="hint"></div>
 </section>
 
@@ -429,6 +441,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     return shuffle(out);
   }
   function next(){
+    $("teach").hidden=true;
     G.locked=false; var q=G.q=makeQ(); G.t0=Date.now();
     $("msg").textContent=""; $("msg").className="msg"; $("words").textContent=""; $("hint").textContent="";
     var lines=$("lines"), ch=$("choices"); ch.innerHTML=""; ch.className="choices";
@@ -462,6 +475,55 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       $("hint").textContent=q.b===q.d?"Same bottom number: the pieces are the same size. Who has more pieces?":"Same top number: who has the bigger pieces?";
     }
   }
+  // ---------- the explanation after a wrong answer ----------
+  function teachShow(t,cont){
+    var el=$("teach");
+    el.innerHTML='<h3>💡 Let\'s see why <small>看看为什么</small></h3>'+(t.pic||"")+'<ol><li>'+t.steps.join("</li><li>")+'</li></ol>'+
+      (t.cn?'<div class="cn">'+t.cn+'</div>':"")+'<button type="button" class="ok" id="teachOk">Got it! Next ➜ <small>明白了</small></button>';
+    el.hidden=false;
+    $("teachOk").onclick=function(){ el.hidden=true; cont(); };
+    setTimeout(function(){ try{ el.scrollIntoView({behavior:"smooth",block:"nearest"}); $("teachOk").focus({preventScroll:true}); }catch(e){} },400);
+  }
+  function dotRows(rows,per,color){
+    var h='<div class="pic" style="font-size:'+(per>6||rows>6?".85rem":"1.15rem")+';color:'+(color||"#3a7bd5")+'">';
+    for(var r=0;r<rows;r++){ h+="●".repeat(per)+(r<rows-1?"<br>":""); }
+    return h+"</div>";
+  }
+  function countBy(step,upto){ var a=[]; for(var v=step;v<=upto;v+=step) a.push(v); return a.join(", "); }
+  function teachFrac(q,val){
+    var steps, cn;
+    if(q.kind==="place"||q.kind==="name"){
+      var unit=frHtml(1,q.q);
+      steps=["The space from 0 to 1 is cut into <b>"+q.q+" equal parts</b>. Each part is "+unit+", one "+DEN[q.q][0]+".",
+             "The bottom number "+q.q+" tells the size of the jumps. The top number <b>"+q.p+"</b> tells how many jumps. Start at 0 and count <b>"+q.p+" "+(q.p===1?"jump":"jumps")+"</b>."];
+      if(q.p>q.q&&q.p%q.q) steps.push(q.q+" jumps take you to 1. Keep going for "+(q.p-q.q)+" more.");
+      if(q.p%q.q===0) steps.push(q.p+" jumps land right on "+(q.p/q.q)+": "+frHtml(q.p,q.q)+" = "+(q.p/q.q)+".");
+      steps.push("You land on "+frHtml(q.p,q.q)+", <b>"+frWords(q.p,q.q)+"</b>.");
+      if(q.kind==="place"&&typeof val==="number") steps.push("You tapped "+(val%q.q===0?String(val/q.q):frHtml(val,q.q))+": that is "+val+" "+(val===1?"jump":"jumps")+", not "+q.p+".");
+      cn="分母 "+q.q+"：把 0 到 1 平均分成 "+q.q+" 份，每份是 1/"+q.q+"。分子 "+q.p+"：从 0 开始数 "+q.p+" 份。";
+    }else if(q.kind==="equiv"){
+      steps=["Look at the two lines above: "+frHtml(q.a,q.b)+" and "+frHtml(q.c,q.d)+" land on the <b>same spot</b>."];
+      if(q.d%q.b===0){ var k=q.d/q.b; steps.push("Cut every "+frHtml(1,q.b)+" piece into "+k+" smaller pieces. Then "+q.a+" "+(q.a===1?"piece becomes":"pieces become")+" "+q.a+" × "+k+" = "+q.c+" pieces of "+frHtml(1,q.d)+"."); }
+      else if(q.b%q.d===0){ var k2=q.b/q.d; steps.push("Put every "+k2+" small "+frHtml(1,q.b)+" pieces together into one "+frHtml(1,q.d)+" piece. Then "+q.a+" pieces become "+q.a+" ÷ "+k2+" = "+q.c+"."); }
+      steps.push("Multiply (or divide) the top and the bottom by the same number, and the size does not change: "+frHtml(q.a,q.b)+" = "+frHtml(q.c,q.d)+".");
+      cn="分子和分母同时乘（或除以）同一个数，分数的大小不变："+q.a+"/"+q.b+" = "+q.c+"/"+q.d+"。";
+    }else{
+      var big=q.a*q.d>q.c*q.b, B=big?[q.a,q.b]:[q.c,q.d], Sm=big?[q.c,q.d]:[q.a,q.b];
+      if(q.b===q.d){
+        steps=["Both are cut into <b>"+q.b+" equal pieces</b>, so all the pieces are the same size.",
+               "So just compare the top numbers: "+B[0]+" pieces is more than "+Sm[0]+" pieces.",
+               "So "+frHtml(B[0],B[1])+" &gt; "+frHtml(Sm[0],Sm[1])+": "+frWords(B[0],B[1])+" is greater."];
+        cn="分母相同，每一份一样大，只比分子：分子大的分数大。";
+      }else{
+        steps=["Both have <b>"+q.a+" "+(q.a===1?"piece":"pieces")+"</b>. But the pieces are different sizes.",
+               "Cutting 1 into "+Math.min(q.b,q.d)+" pieces makes <b>bigger</b> pieces than cutting it into "+Math.max(q.b,q.d)+" pieces. (Look at the lines above.)",
+               "Bigger pieces go farther, so "+frHtml(B[0],B[1])+" &gt; "+frHtml(Sm[0],Sm[1])+": "+frWords(B[0],B[1])+" is greater."];
+        cn="分子相同，分母越小，每一份越大，所以分数越大。";
+      }
+    }
+    return {steps:steps,cn:cn};
+  }
+
   function say(text,cls){ var m=$("msg"); m.className="msg "+cls; void m.offsetWidth; m.textContent=text; m.classList.add("pop"); }
   function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
   function rightAnswer(q){
@@ -520,10 +582,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       say("Splash! Look where it really is.","bad");
     }
     save(); renderHearts();
-    var wait=ok?1700:3000;
-    if(G.hearts<=0) later(function(){ finish(false); },wait);
-    else if(G.left<=0) later(function(){ SFX.win(); finish(true); },wait);
-    else later(next,wait);
+    var cont=G.hearts<=0?function(){ finish(false); }:G.left<=0?function(){ SFX.win(); finish(true); }:next;
+    if(ok) later(cont,1700); else teachShow(teachFrac(q,val),cont);
   }
   function missText(q){
     if(q.kind==="place"||q.kind==="name") return frText(q.p,q.q)+" = "+frWords(q.p,q.q);
