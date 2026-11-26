@@ -6,7 +6,8 @@
    MathGame.run({
      title, icon, tagline, store,                    // store: the localStorage key
      coin: {e, n}, heart, theme: {brand, dark, bg, line, ink, muted, hero, choice: [4 colours]},
-     levels: [{id, n, ic, gen}], boss: {n, ic, gen?, desc}, practice: {n, ic}, levelWord: "ride"|"report"…,
+     levels: [{id, n, ic, gen, easy?, hard?}],   // easy/hard: the adaptive questions (without them the levels before/after are used)
+     boss: {n, ic, gen?, desc}, practice: {n, ic}, levelWord: "ride"|"report"…,
      shop: [{id, e, n, p}], shopTitle, shopCn, kinds: {kind: "what it practises"},
      fromKey(key) -> question, render(q, ui), right(q) -> string, explain(q) -> string,
      teach(q, given) -> {steps: [html], cn, pic}, after(q, ok, given, ui)?, miss(q) -> string, fastMs?,
@@ -76,6 +77,8 @@
     '.mistakes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}.mistakes span{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:7px 11px;font-weight:900}' +
     '.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}' +
     '.btn{border:0;border-radius:16px;padding:14px 22px;font-weight:900;font-size:1.05rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark)}.btn.light{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}' +
+    '.qtag{display:inline-block;margin:0 0 8px;padding:4px 12px;border-radius:999px;font-weight:900;font-size:.85rem}.qtag small{font-weight:800;opacity:.75}' +
+    '.qtag.hard{background:#FFE9A8;color:#7A4A00;animation:pop .4s}.qtag.easy{background:#E3F6E8;color:#1F6B3A}' +
     '#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}' +
     '@keyframes shake{20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}' +
     '@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}' +
@@ -218,7 +221,8 @@
       var pool = null;
       if (P === PRACTICE) { pool = missList(); if (!pool.length) return; }
       var total = P === BOSS ? 12 : P === PRACTICE ? Math.max(4, Math.min(10, pool.length * 2)) : 8;
-      G = { P: P, pool: pool, left: total, total: total, hearts: P === PRACTICE ? Infinity : 3, coins: 0, streak: 0, best: 0, correct: 0, miss: {}, q: null, locked: false, lastKey: "", again: [] };
+      G = { P: P, pool: pool, left: total, total: total, hearts: P === PRACTICE ? Infinity : 3, coins: 0, streak: 0, best: 0, correct: 0, miss: {}, q: null, locked: false, lastKey: "", again: [],
+            idx: C.levels.indexOf(P), slump: 0, sinceHard: 0, hardDone: 0, mode: "" };
       $("pCoins").textContent = "0"; renderHearts(); show("play"); next();
       track("game_level_start", { game: C.gameId, level: P.id });
     }
@@ -227,8 +231,25 @@
       var h = ""; for (var i = 0; i < 3; i++) h += i < G.hearts ? C.heart : '<span class="lost">' + C.heart + "</span>";
       $("hearts").innerHTML = h + ' <span style="font-size:1rem">' + C.icon + " " + G.left + "</span>";
     }
+    // Adapting to the child, inside a level: after 2 misses in a row the next question is an easier one (the level's own easy(), or a
+    // question from the level before), and after 4 right in a row a challenge question may come (hard(), or one from the next level):
+    // worth 3 more coins, and a wrong answer to it costs no heart. At most 2 challenges a round. Practice rounds and the boss are left alone.
+    function adaptQ() {
+      G.mode = ""; G.sinceHard++;
+      if (G.idx < 0 || G.P === PRACTICE) return null;
+      var L = C.levels, i = G.idx, f = null;
+      if (G.slump >= 2) {
+        G.slump = 0; f = G.P.easy || (i > 0 ? L[i - 1].gen : null);
+        if (f) { G.mode = "easy"; return f(); }
+      } else if (G.streak >= 4 && G.sinceHard >= 3 && G.hardDone < 2 && G.left > 1) {
+        f = G.P.hard || (i < L.length - 1 ? L[i + 1].gen : null);
+        if (f) { G.mode = "hard"; G.sinceHard = 0; G.hardDone++; return f(); }
+      }
+      return null;
+    }
     function makeQ() {
-      var q, tries = 0;
+      var q = adaptQ(), tries = 0;
+      if (q) { G.lastKey = q.key; return q; }
       do {
         if (G.P === PRACTICE) q = C.fromKey(pickOne(G.pool));
         else if (G.again.length && Math.random() < .5) q = C.fromKey(G.again.shift());
@@ -259,6 +280,10 @@
       G.locked = false; var q = G.q = makeQ(); G.t0 = Date.now();
       $("msg").textContent = ""; $("msg").className = "msg"; $("words").textContent = ""; $("hint").textContent = ""; $("choices").innerHTML = ""; $("field").innerHTML = "";
       C.render(q, ui);
+      var tag = $("qtag");
+      if (!tag) { tag = doc.createElement("div"); tag.id = "qtag"; $("task").parentNode.insertBefore(tag, $("task")); }
+      tag.className = G.mode ? "qtag " + G.mode : "";
+      tag.innerHTML = G.mode === "hard" ? "⚡ Challenge question! +3 " + C.coin.e + " <small>挑战题：答错也不扣心</small>" : G.mode === "easy" ? "🌱 Warm-up question <small>热身题</small>" : "";
     }
     function say(text, cls) { var m = $("msg"); m.className = "msg " + cls; void m.offsetWidth; m.textContent = text; m.classList.add("pop"); }
     function later(fn, ms) { clearTimeout(pending); pending = setTimeout(fn, ms); }
@@ -284,11 +309,16 @@
         var fast = ms < (C.fastMs || 8000), gain = fast ? 2 : 1; G.coins += gain; $("pCoins").textContent = G.coins;
         if (fast) SFX.fast(); else SFX.ok();
         if (C.cheer) confetti(60, 1300);
-        if (G.streak >= 3) say("🔥 " + G.streak + " right in a row!", "combo");
+        if (G.mode === "hard") { G.coins += 3; $("pCoins").textContent = G.coins; }
+        G.slump = 0;
+        if (G.mode === "hard") say("⚡ Challenge solved! +3 " + C.coin.n + "!", "combo");
+        else if (G.streak >= 3) say("🔥 " + G.streak + " right in a row!", "combo");
         else say(C.rightText ? C.rightText(q, fast) : fast ? "⚡ Speedy! Two " + C.coin.n + "!" : pickOne(["Great job!", "You got it!", "Awesome!", "Well done!"]), "good");
       } else {
-        f.miss++; ks.miss++; G.streak = 0; G.miss[q.key] = q; G.again.push(q.key);
-        SFX.oops(); if (G.hearts !== Infinity) G.hearts--;
+        var free = G.mode === "hard";   // a challenge question from further on: no heart lost, and not put in the practice list
+        if (!free) { f.miss++; ks.miss++; G.miss[q.key] = q; G.again.push(q.key); G.slump++; }
+        G.streak = 0;
+        SFX.oops(); if (G.hearts !== Infinity && !free) G.hearts--;
         say(C.wrongText ? C.wrongText(q, val) : "Oops! The right answer is green.", "bad");
       }
       save(); renderHearts();
@@ -300,7 +330,7 @@
       var P = G.P, stars = 0, bonus = 0;
       if (won) { if (P === PRACTICE) bonus = 5; else { stars = G.hearts; if (stars > starsOf(P.id)) data.lv[P.id] = { stars: stars }; bonus = stars * 5; } }
       data.coins += G.coins + bonus; save();
-      var end = { game: C.gameId, level: P.id, name: P.n, practice: P === PRACTICE, won: !!won, stars: stars, correct: G.correct, total: G.total - G.left, best: G.best };
+      var end = { game: C.gameId, level: P.id, name: P.n, title: C.title, practice: P === PRACTICE, won: !!won, stars: stars, correct: G.correct, total: G.total - G.left, best: G.best };
       if (root.GameProgress && C.gameId) root.GameProgress.report(end);   // crowns, today's wins, the event log, the home page's goals
       else track("game_level_end", end);
       $("rBig").textContent = won ? (P === PRACTICE ? PRACTICE.ic : C.icon) : "💫";

@@ -19,6 +19,8 @@
    GameProgress.crowns(game, level) -> 0..3      .ready(game, level) -> true when the next crown can be won today
    GameProgress.badge(game, level) -> html (the crowns for a level on a game's map)
    GameProgress.total(game) -> crowns in a game     .readyCount(game)     .winsToday(game)
+   GameProgress.card(info) -> a promise of a PNG data URL: the picture a crown makes (the pet, the crown, the skill, the game, the site),
+       and after a new crown the result screen of the game (#rSub) gets a "Share" button that shows it to save or send.
    GameProgress._pure: the crown rule, for the node tests.
    Written for old Android WebViews: no optional chaining, no spread, no Object.assign. */
 (function (root) {
@@ -98,6 +100,11 @@
       "@keyframes gpPulse{0%,100%{transform:none}50%{transform:scale(1.12)}}@media(prefers-reduced-motion:reduce){.gpc.ready{animation:none}}" +
       "#gpNote{position:fixed;left:50%;top:14px;transform:translateX(-50%) translateY(-140%);z-index:60;background:#FFF7D6;border:3px solid #FFC93C;border-radius:18px;" +
       "padding:10px 16px;font-weight:900;color:#5A3A00;box-shadow:0 6px 0 rgba(255,201,60,.35);text-align:center;max-width:92vw;transition:transform .45s cubic-bezier(.2,1.4,.4,1);font-family:inherit}" +
+      ".gpShare{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:10px 20px;font:inherit;font-weight:900;background:#FFC93C;color:#5A3A00;cursor:pointer;box-shadow:0 4px 0 #D9A21E}.gpShare small{font-weight:800;opacity:.75}" +
+      ".gpCard{position:fixed;inset:0;z-index:70;background:rgba(20,10,40,.6);display:flex;align-items:center;justify-content:center;padding:14px}" +
+      ".gpIn{background:#fff;border-radius:24px;padding:14px;max-width:420px;width:100%;max-height:96vh;overflow:auto;text-align:center}.gpIn img{width:100%;border-radius:16px;display:block}" +
+      ".gpTip{font-weight:800;font-size:.85rem;color:#5A4F86;margin:10px 0}.gpTip small{display:block;opacity:.8}.gpRow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}" +
+      ".gpB{border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:900;background:#EEE8FF;color:#3A2C6B;text-decoration:none;cursor:pointer}" +
       "#gpNote.on{transform:translateX(-50%) translateY(0)}#gpNote b{font-size:1.15rem;display:block}#gpNote small{display:block;font-weight:800;opacity:.75;margin-top:2px}";
     root.document.head.appendChild(s);
   }
@@ -147,9 +154,109 @@
       }
     }
     write(s);
+    try {
+      shareButton({ crown: out.crown, game: r.game, level: r.level, name: r.name, title: r.title || (root.document && root.document.title) || "" });
+    } catch (e) {}
     tellHome(out);
     return out;
   }
+  /* ---- the crown card: a picture to save or send to family ---- */
+  var TONES = [null, ["#F6C79A", "#C9773A", "#7A3E12"], ["#E9EEF5", "#A8B4C6", "#3E4C63"], ["#FFE9A0", "#F2B705", "#6A4A00"]];
+  function petPicture() {
+    // the pet as drawn on the home page (the games run in the home page's reader frame)
+    try {
+      var P = root.parent && root.parent !== root ? root.parent : root,
+        pet = P.__petBridge ? P.__petBridge.pet() : null;
+      if (pet && typeof P.petSvg === "function") return { name: pet.name, svg: P.petSvg(pet.type, "excited", pet.eq || {}, "icon", "width:100%;height:100%") };
+    } catch (e) {}
+    return null;
+  }
+  function svgImage(svg) {
+    return new Promise(function (ok) {
+      if (!svg) return ok(null);
+      var m = svg.match(/<svg[^>]*>/), s = svg;
+      if (m && m[0].indexOf("xmlns") < 0) s = svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+      s = s.replace(/style="[^"]*"/, 'width="420" height="420"');
+      var img = new Image();
+      img.onload = function () { ok(img); };
+      img.onerror = function () { ok(null); };
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+    });
+  }
+  function roundRect(x, l, t, w, h, r) {
+    x.beginPath(); x.moveTo(l + r, t); x.arcTo(l + w, t, l + w, t + h, r); x.arcTo(l + w, t + h, l, t + h, r); x.arcTo(l, t + h, l, t, r); x.arcTo(l, t, l + w, t, r); x.closePath();
+  }
+  function card(info) {
+    var c = Math.max(1, Math.min(3, info.crown || 1)), T = TONES[c], pet = petPicture();
+    return svgImage(pet && pet.svg).then(function (img) {
+      var W = 900, H = 1125, cv = root.document.createElement("canvas"), x;
+      cv.width = W; cv.height = H; x = cv.getContext("2d");
+      var g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, T[0]); g.addColorStop(1, "#FFFFFF");
+      x.fillStyle = g; x.fillRect(0, 0, W, H);
+      // a few soft rays behind the crown
+      x.save(); x.translate(W / 2, 330); x.fillStyle = "rgba(255,255,255,.45)";
+      for (var i = 0; i < 12; i++) { x.rotate(Math.PI / 6); x.beginPath(); x.moveTo(0, 0); x.lineTo(-40, -520); x.lineTo(40, -520); x.closePath(); x.fill(); }
+      x.restore();
+      roundRect(x, 40, 40, W - 80, H - 80, 48); x.lineWidth = 14; x.strokeStyle = T[1]; x.stroke();
+      var F = "Fredoka, 'Trebuchet MS', Arial, sans-serif";
+      x.textAlign = "center"; x.textBaseline = "middle";
+      x.font = "150px serif"; x.fillText(new Array(c + 1).join("👑"), W / 2, 150);
+      if (img) x.drawImage(img, W / 2 - 210, 220, 420, 420);
+      else { x.font = "260px serif"; x.fillText("🏆", W / 2, 430); }
+      x.fillStyle = T[2]; x.font = "bold 78px " + F;
+      x.fillText(["", "Bronze Crown!", "Silver Crown!", "Gold Crown!"][c], W / 2, 700);
+      x.font = "bold 52px " + F; x.fillStyle = "#2D2250";
+      x.fillText(info.name || "", W / 2, 790, W - 140);
+      x.font = "bold 40px " + F; x.fillStyle = "#5A4F86";
+      x.fillText((info.title || "") + (pet && pet.name ? "  ·  with " + pet.name : ""), W / 2, 860, W - 140);
+      x.font = "bold 34px " + F; x.fillStyle = "#7A6FA6";
+      x.fillText(["", "Perfect on the first day", "Perfect again on another day", "Perfect 3 times: mastered!"][c], W / 2, 920, W - 140);
+      var d = new Date();
+      x.font = "bold 30px " + F; x.fillStyle = "#8A84A8";
+      x.fillText(d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate(), W / 2, 985);
+      x.fillStyle = T[1]; roundRect(x, W / 2 - 280, 1010, 560, 60, 30); x.fill();
+      x.fillStyle = "#fff"; x.font = "bold 32px " + F; x.fillText("learning-english-fun.com", W / 2, 1041);
+      return cv.toDataURL("image/png");
+    });
+  }
+  function shareButton(info) {
+    var doc = root.document, sub = doc.getElementById("rSub"), old = doc.getElementById("gpShare");
+    if (old) old.parentNode.removeChild(old);
+    if (!sub || !info.crown) return;
+    css();
+    var b = doc.createElement("button");
+    b.type = "button"; b.id = "gpShare"; b.className = "gpShare";
+    b.innerHTML = "📤 Share my crown <small>分享我的皇冠</small>";
+    sub.parentNode.insertBefore(b, sub.nextSibling);
+    b.onclick = function () {
+      b.disabled = true;
+      card(info).then(function (url) {
+        b.disabled = false;
+        showCard(url, info);
+        track("game_crown_share", { game: info.game, level: info.level, crown: info.crown });
+      });
+    };
+  }
+  function showCard(url, info) {
+    var doc = root.document, box = doc.createElement("div");
+    box.className = "gpCard";
+    box.innerHTML = '<div class="gpIn"><img alt="Crown card" src="' + url + '"><div class="gpTip">Press and hold the picture to save it, or use the buttons. <small>长按图片可以保存，也可以用下面的按钮</small></div>' +
+      '<div class="gpRow"><a class="gpB" download="crown.png" href="' + url + '">💾 Save 保存</a><button type="button" class="gpB" id="gpSend" hidden>📤 Send 发送</button><button type="button" class="gpB gpX">Close 关闭</button></div></div>';
+    doc.body.appendChild(box);
+    function close() { if (box.parentNode) box.parentNode.removeChild(box); }
+    box.querySelector(".gpX").onclick = close;
+    box.onclick = function (e) { if (e.target === box) close(); };
+    try {
+      var bin = atob(url.split(",")[1]), arr = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      var file = new File([arr], "crown.png", { type: "image/png" }), send = box.querySelector("#gpSend");
+      if (root.navigator.canShare && root.navigator.canShare({ files: [file] })) {
+        send.hidden = false;
+        send.onclick = function () { root.navigator.share({ files: [file], title: "A new crown!", text: (info.name || "") + " · learning-english-fun.com" }).catch(function () {}); };
+      }
+    } catch (e) {}
+  }
+
   function badge(game, level) {
     var cur = lv(game, level),
       c = cur ? cur.c : 0;
@@ -192,6 +299,7 @@
       return isReady(lv(game, level), dayNum());
     },
     badge: badge,
+    card: card,
     total: total,
     readyCount: readyCount,
     winsToday: function (game) {
