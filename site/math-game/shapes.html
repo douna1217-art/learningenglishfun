@@ -70,17 +70,132 @@
     ["I have only 3 sides and 3 corners. I am not a quadrilateral.","triangle"],
     ["I am a quadrilateral that is also a rectangle and also a rhombus.","square"]];
   function riddleQ(){ return Q("riddle",{r:rnd(RIDDLES.length)}); }
+  // ---------- hands-on play: sorting into baskets, a pegboard, tapping corners ----------
+  var board=null;   // the pegboard of the question on the screen
+  function esortQ(){ var eq=M.shuffle(["square","rhombus"]), no=M.shuffle(["rectangle","trapezoid","parallelogram","quad"]), k=1+rnd(3);
+    return Q("esort",{s:M.shuffle(eq.slice(0,Math.min(k,2)).concat(no.slice(0,4-Math.min(k,2)))),c:rnd(6)}); }
+  // which basket a shape belongs in: 0 = the left one
+  function basketOf(q,id){ return q.kind==="quad" ? (SH[id].sides===4?0:1) : (SH[id].eq?0:1); }
+  function sortGame(q,ui){
+    var B=q.kind==="quad"?[["Quadrilateral","四边形 · 4 sides"],["Not a quadrilateral","不是四边形"]]:[["All 4 sides equal","四条边都相等"],["Not all equal","边不都相等"]];
+    ui.task(q.kind==="quad"?"Drag each shape into the right basket. <small>把每个图形拖进正确的篮子</small>":"Are all the sides the same length? Sort the shapes! <small>四条边一样长吗？分一分</small>");
+    var h='<div class="tray">'+q.s.map(function(id,i){ return '<div class="piece" data-i="'+i+'" tabindex="0" role="button" aria-label="'+SH[id].n+'">'+shapeSvg(id,70,COLS[(i+q.c)%6])+'</div>'; }).join("")+'</div><div class="baskets">'+
+      B.map(function(b,i){ return '<div class="basket" data-b="'+i+'"><b>'+b[0]+'</b><small>'+b[1]+'</small><div class="in"></div></div>'; }).join("")+'</div>';
+    var f=ui.stage(h), left=q.s.length, sel=null;
+    function drop(p,b){
+      if(ui.locked()) return;
+      var id=q.s[+p.dataset.i];
+      if(basketOf(q,id)!==b){ p.classList.add("bad"); f.querySelectorAll(".basket")[b].querySelector(".in").appendChild(p); p.style.transform=""; ui.answer("x:"+id); return; }
+      p.classList.remove("sel"); p.classList.add("done"); p.style.transform=""; f.querySelectorAll(".basket")[b].querySelector(".in").appendChild(p); blip(700,.12);
+      if(--left===0) ui.answer("ok");
+    }
+    [].forEach.call(f.querySelectorAll(".piece"),function(p){
+      drag(p,function(x,y){ var el=hit(p,x,y,".basket"); if(el) drop(p,+el.dataset.b); else p.style.transform=""; });
+      p.addEventListener("click",function(){ if(p.classList.contains("done")||ui.locked()) return; if(sel) sel.classList.remove("sel"); sel=p; p.classList.add("sel"); });
+    });
+    [].forEach.call(f.querySelectorAll(".basket"),function(b){ b.addEventListener("click",function(){ if(sel&&!sel.classList.contains("done")){ var p=sel; sel=null; drop(p,+b.dataset.b); } }); });
+  }
+  // follow a finger (or the mouse); end(x, y) where it was let go. A tap without moving is left to the click handler.
+  function drag(el,end){
+    var sx=0,sy=0,on=false,moved=false;
+    el.addEventListener("pointerdown",function(e){ if(el.classList.contains("done")) return; on=true; moved=false; sx=e.clientX; sy=e.clientY; try{ el.setPointerCapture(e.pointerId); }catch(_){} });
+    el.addEventListener("pointermove",function(e){ if(!on) return; var dx=e.clientX-sx, dy=e.clientY-sy; if(!moved&&Math.abs(dx)+Math.abs(dy)<8) return; moved=true; el.classList.add("lift"); el.style.transform="translate("+dx+"px,"+dy+"px) scale(1.1)"; });
+    function up(e){ if(!on) return; on=false; el.classList.remove("lift"); if(moved){ end(e.clientX,e.clientY); } }
+    el.addEventListener("pointerup",up); el.addEventListener("pointercancel",function(){ on=false; el.classList.remove("lift"); el.style.transform=""; });
+  }
+  function hit(el,x,y,sel){ el.style.visibility="hidden"; var t=document.elementFromPoint(x,y); el.style.visibility=""; return t&&t.closest?t.closest(sel):null; }
+
+  // the pegboard: 4 pegs on a 7 x 7 grid joined by a rubber band
+  var GRID=6, STEP=36, PAD=22;
+  function sub(a,b){ return [a[0]-b[0],a[1]-b[1]]; }
+  function cross(a,b){ return a[0]*b[1]-a[1]*b[0]; }
+  function dot(a,b){ return a[0]*b[0]+a[1]*b[1]; }
+  function crosses(a,b,c,d){ var d1=cross(sub(b,a),sub(c,a)),d2=cross(sub(b,a),sub(d,a)),d3=cross(sub(d,c),sub(a,c)),d4=cross(sub(d,c),sub(b,c)); return d1*d2<0&&d3*d4<0; }
+  // what the band makes: {ok:false, why} when it is not a proper 4-sided shape, else its right angles, equal sides and parallel sides
+  function measure(P){
+    for(var i=0;i<4;i++) for(var j=i+1;j<4;j++) if(P[i][0]===P[j][0]&&P[i][1]===P[j][1]) return {ok:false,why:"Two pegs are on the same dot."};
+    var v=[0,1,2,3].map(function(i){ return sub(P[(i+1)%4],P[i]); });
+    for(i=0;i<4;i++) if(cross(v[(i+3)%4],v[i])===0) return {ok:false,why:"Three pegs are in a straight line: that makes only 3 sides."};
+    if(crosses(P[0],P[1],P[2],P[3])||crosses(P[1],P[2],P[3],P[0])) return {ok:false,why:"The band crosses itself. Move a peg so it makes one shape."};
+    var len=v.map(function(x){ return dot(x,x); }), rt=[0,1,2,3].filter(function(i){ return dot(v[(i+3)%4],v[i])===0; }),
+      par=(cross(v[0],v[2])===0?1:0)+(cross(v[1],v[3])===0?1:0), eq=len[0]===len[1]&&len[1]===len[2]&&len[2]===len[3];
+    return {ok:true,rt:rt,eq:eq,par:par,len:len};
+  }
+  // the most exact name of what was built
+  function nameOf(m){ if(m.rt.length===4) return m.eq?"square":"rectangle"; if(m.eq) return "rhombus"; if(m.par===2) return "parallelogram"; if(m.par===1) return "trapezoid"; return "quadrilateral"; }
+  // does it count as the shape asked for? (a square is also a rectangle, a rhombus and a parallelogram)
+  function fits(m,want){ var n=nameOf(m); if(want==="quadrilateral") return true; if(want==="rectangle") return m.rt.length===4; if(want==="rhombus") return m.eq; if(want==="parallelogram") return m.par===2; return n===want; }
+  function buildGame(q,ui){
+    var want=SH[q.s].n, c=COLS[q.c||0];
+    ui.task("Build a <b>"+want+"</b> on the pegboard! <small>在钉板上拉出一个"+({square:"正方形",rectangle:"长方形",rhombus:"菱形",trapezoid:"梯形",parallelogram:"平行四边形"}[want]||"四边形")+"</small>");
+    var f=ui.stage('<div class="geo"><svg viewBox="0 0 260 260" id="geoSvg"></svg></div><div class="geoMsg" id="geoMsg">Drag the 4 pegs. 拖动 4 个钉子</div><button type="button" class="go" id="geoGo">Check ✓ <small>检查</small></button>');
+    var svg=f.querySelector("#geoSvg"), pegs=[[1,1],[5,2],[4,5],[2,4]], drag=-1;
+    board={pegs:pegs,reveal:function(){ draw(true); }};
+    function xy(p){ return [PAD+p[0]*STEP,PAD+p[1]*STEP]; }
+    function draw(marks){
+      var h="";
+      for(var y=0;y<=GRID;y++) for(var x=0;x<=GRID;x++) h+='<circle cx="'+(PAD+x*STEP)+'" cy="'+(PAD+y*STEP)+'" r="3.5" fill="#9bb3cc"/>';
+      h+='<polygon points="'+pegs.map(function(p){ return xy(p).join(","); }).join(" ")+'" fill="'+c+'" fill-opacity=".55" stroke="#1f3a5a" stroke-width="5" stroke-linejoin="round"/>';
+      if(marks){ var m=measure(pegs); if(m.ok) m.rt.forEach(function(i){ var p=xy(pegs[i]), a=xy(pegs[(i+1)%4]), b=xy(pegs[(i+3)%4]), u=sub(a,p), w=sub(b,p), lu=Math.hypot(u[0],u[1]), lw=Math.hypot(w[0],w[1]);
+        u=[u[0]/lu*26,u[1]/lu*26]; w=[w[0]/lw*26,w[1]/lw*26]; h+='<path d="M'+(p[0]+u[0])+' '+(p[1]+u[1])+' L'+(p[0]+u[0]+w[0])+' '+(p[1]+u[1]+w[1])+' L'+(p[0]+w[0])+' '+(p[1]+w[1])+'" fill="none" stroke="#c0392b" stroke-width="3"/>'; }); }
+      pegs.forEach(function(p,i){ var a=xy(p); h+='<circle class="peg" data-i="'+i+'" cx="'+a[0]+'" cy="'+a[1]+'" r="14" fill="#fff" stroke="#2f7fc8" stroke-width="5"/>'; });
+      svg.innerHTML=h;
+    }
+    function toGrid(e){ var r=svg.getBoundingClientRect(), s=260/r.width; return [Math.max(0,Math.min(GRID,Math.round(((e.clientX-r.left)*s-PAD)/STEP))),Math.max(0,Math.min(GRID,Math.round(((e.clientY-r.top)*s-PAD)/STEP)))]; }
+    svg.addEventListener("pointerdown",function(e){ if(ui.locked()) return; var t=e.target; if(!t.classList||!t.classList.contains("peg")){ // a tap on the board: the nearest peg jumps there
+        var g=toGrid(e), best=-1, bd=1e9; pegs.forEach(function(p,i){ var d=Math.pow(p[0]-g[0],2)+Math.pow(p[1]-g[1],2); if(d<bd){ bd=d; best=i; } }); drag=best; }
+      else drag=+t.getAttribute("data-i");
+      try{ svg.setPointerCapture(e.pointerId); }catch(_){} move(e); e.preventDefault(); });
+    function move(e){ if(drag<0) return; var g=toGrid(e); if(g[0]!==pegs[drag][0]||g[1]!==pegs[drag][1]){ pegs[drag]=g; draw(false); blip(420,.05); } }
+    svg.addEventListener("pointermove",move);
+    svg.addEventListener("pointerup",function(){ drag=-1; }); svg.addEventListener("pointercancel",function(){ drag=-1; });
+    f.querySelector("#geoGo").onclick=function(){
+      if(ui.locked()) return;
+      var m=measure(pegs), msg=f.querySelector("#geoMsg");
+      if(!m.ok){ msg.textContent=m.why; msg.className="geoMsg warn"; return; }   // not a 4-sided shape yet: fix it, no heart lost
+      ui.answer(fits(m,want)?"ok":"x:"+nameOf(m));
+    };
+    draw(false);
+  }
+  function cornerGame(q,ui){
+    ui.task("Tap every <b>right angle</b> (square corner). Then press Done. <small>点出所有直角，再按完成</small>");
+    var s=SH[q.s], c=COLS[q.c||0], k=1.9, on={};
+    var f=ui.stage('<div class="geo"><svg viewBox="-6 -6 240 240" id="cnSvg"></svg></div><button type="button" class="go" id="cnGo">Done ✓ <small>完成</small></button>');
+    var svg=f.querySelector("#cnSvg");
+    function P(i){ return [s.pts[i][0]*k,s.pts[i][1]*k]; }
+    board={reveal:function(){ on={}; s.rt.forEach(function(i){ on[i]=1; }); draw(); f.querySelector("#cnGo").disabled=true; }};
+    function draw(){
+      var n=s.pts.length, h='<polygon points="'+s.pts.map(function(p){ return (p[0]*k)+","+(p[1]*k); }).join(" ")+'" fill="'+c+'" stroke="#1f3a5a" stroke-width="6" stroke-linejoin="round"/>';
+      for(var i=0;i<n;i++){ var p=P(i);
+        if(on[i]){ var a=P((i+1)%n), b=P((i+n-1)%n), u=sub(a,p), w=sub(b,p), lu=Math.hypot(u[0],u[1]), lw=Math.hypot(w[0],w[1]); u=[u[0]/lu*20,u[1]/lu*20]; w=[w[0]/lw*20,w[1]/lw*20];
+          h+='<path d="M'+(p[0]+u[0])+' '+(p[1]+u[1])+' L'+(p[0]+u[0]+w[0])+' '+(p[1]+u[1]+w[1])+' L'+(p[0]+w[0])+' '+(p[1]+w[1])+'" fill="rgba(255,255,255,.6)" stroke="#c0392b" stroke-width="4"/>'; }
+        h+='<circle class="cn'+(on[i]?" on":"")+'" data-i="'+i+'" cx="'+p[0]+'" cy="'+p[1]+'" r="20" fill="'+(on[i]?"rgba(192,57,43,.18)":"rgba(255,255,255,.01)")+'" stroke="'+(on[i]?"#c0392b":"#9bb3cc")+'" stroke-width="3" stroke-dasharray="'+(on[i]?"":"5 4")+'"/>'; }
+      svg.innerHTML=h;
+    }
+    svg.addEventListener("click",function(e){ if(ui.locked()) return; var t=e.target; if(t.classList&&t.classList.contains("cn")){ var i=+t.getAttribute("data-i"); if(on[i]) delete on[i]; else on[i]=1; blip(420,.05); draw(); } });
+    f.querySelector("#cnGo").onclick=function(){ if(ui.locked()) return; var got=Object.keys(on).map(Number).sort(), want=s.rt.slice().sort();
+      ui.answer(got.join(",")===want.join(",")?"ok":"x:"+got.length); };
+    draw();
+  }
+  var actx=null;
+  function blip(fr,len){ if(!M.sound||!M.sound()) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); var t=actx.currentTime,o=actx.createOscillator(),g=actx.createGain();
+    o.type="sine"; o.frequency.value=fr; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }catch(e){} }
+
   var LEVELS=[
     {id:"s1",n:"Four Sides?",ic:"4️⃣",gen:quadQ},
-    {id:"s2",n:"Name That Shape",ic:"🔷",gen:nameQ},
+    {id:"s2",n:"Build That Shape",ic:"📌",gen:nameQ},
     {id:"s3",n:"Right Angles",ic:"📐",gen:rightQ},
-    {id:"s4",n:"Equal Sides",ic:"📏",gen:equalQ},
+    {id:"s4",n:"Equal Sides",ic:"📏",gen:esortQ},
     {id:"s5",n:"True or False?",ic:"✅",gen:truthQ},
     {id:"s6",n:"Shape Riddles",ic:"🕵️",gen:riddleQ}
   ];
 
   // ---------- answers ----------
+  // hands-on questions are right when the child did it ("ok"); a wrong try comes back as "x:..." (the shape put in the wrong basket,
+  // the shape that was built, how many corners were tapped)
+  var HANDS={quad:1,esort:1,name:1,right:1};
   function right(q){
+    if(HANDS[q.kind]) return "ok";
     if(q.kind==="quad"){ for(var i=0;i<4;i++){ var isQ=SH[q.s[i]].sides===4; if(q.not?!isQ:isQ) return String(i); } }
     if(q.kind==="name") return SH[q.s].n;
     if(q.kind==="right") return String(SH[q.s].rt.length);
@@ -92,25 +207,11 @@
     rhombus:"4 equal sides, but no right angles. It looks like a pushed-over square.",parallelogram:"the sides across from each other are equal and go the same way, but there are no right angles.",
     trapezoid:"only one pair of sides that go the same way (the top and the bottom).",triangle:"3 sides and 3 corners.",quadrilateral:"4 sides and 4 corners."};
   function render(q,ui){
-    var c=COLS[q.c||0];
-    if(q.kind==="quad"){
-      ui.task("Which shape is "+(q.not?"<b>NOT</b> a quadrilateral":"a <b>quadrilateral</b>")+"?");
-      ui.stage('<div style="text-align:center;font-weight:800;color:#5a6f88;margin:6px 0">A quadrilateral has 4 sides.</div>');
-      ui.choices(q.s.map(function(id,i){ return {html:shapeSvg(id,82,COLS[(i+q.c)%6]),val:i}; }));
-    }else if(q.kind==="name"){
-      ui.task("What is the name of this shape?");
-      ui.stage('<div style="margin:6px 0">'+shapeSvg(q.s,170,c)+'</div>');
-      // a square is also a rectangle, a rhombus and a parallelogram (and so on): those names are not offered as wrong answers
-      var ALSO={square:["rectangle","rhombus","parallelogram"],rectangle:["parallelogram"],rhombus:["parallelogram"]};
-      var right1=SH[q.s].n, also=ALSO[right1]||[], pool=NAMES.concat(["triangle","pentagon"]).filter(function(n){ return n!==right1&&also.indexOf(n)<0; });
-      var opts=[right1].concat(M.shuffle(pool).slice(0,3));
-      ui.choices(M.shuffle(opts).map(function(n){ return {html:n,val:n,cls:"text"}; }));
-    }else if(q.kind==="right"){
-      ui.task("How many <b>right angles</b> (square corners) does this shape have?");
-      ui.stage('<div style="margin:6px 0">'+shapeSvg(q.s,170,c)+'</div>');
-      ui.choices([0,1,2,4].map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("A right angle is a square corner, like the corner of a book.");
-    }else if(q.kind==="equal"){
+    var c=COLS[q.c||0]; board=null;
+    if(q.kind==="quad"||q.kind==="esort") return sortGame(q,ui);
+    if(q.kind==="name") return buildGame(q,ui);
+    if(q.kind==="right") return cornerGame(q,ui);
+    if(q.kind==="equal"){
       ui.task("Are <b>all 4 sides</b> of this "+SH[q.s].n+" the same length?");
       ui.stage('<div style="margin:6px 0">'+shapeSvg(q.s,170,c)+'</div>');
       ui.choices([{html:"Yes",val:"yes"},{html:"No",val:"no"}]);
@@ -127,35 +228,57 @@
       ui.choices(M.shuffle(opts2).map(function(n,i){ return {html:shapeSvg(idOf[n],54,COLS[i])+"<small>"+n+"</small>",val:n}; }));
     }
   }
-  function after(q){
-    if(q.kind==="right"||q.kind==="name"){ document.getElementById("field").innerHTML='<div style="margin:6px 0">'+shapeSvg(q.s,170,COLS[q.c||0],true)+'</div>'; }
+  function after(q,ok,val){
+    if(q.kind==="name"&&board) board.reveal();   // the right angles of what was built, in red
+    if(q.kind==="right"&&board) board.reveal();   // the real right angles, marked
+    if((q.kind==="quad"||q.kind==="esort")&&!ok){ // show where every shape goes
+      var f=document.getElementById("field"); [].forEach.call(f.querySelectorAll(".piece"),function(p){ var id=q.s[+p.dataset.i]; f.querySelectorAll(".basket")[basketOf(q,id)].querySelector(".in").appendChild(p); p.classList.remove("bad","sel"); p.classList.add("done"); p.style.transform=""; });
+    }
+    var g=document.getElementById("geoGo"); if(g) g.disabled=true;
   }
+  function wrongText(q,v){
+    var g=givenOf(v);
+    if(q.kind==="quad"||q.kind==="esort") return "Oops! The "+(SH[g]?SH[g].n:"shape")+" goes in the other basket.";
+    if(q.kind==="name") return "That is a "+g+", not a "+SH[q.s].n+".";
+    if(q.kind==="right") return "Not quite: check every corner.";
+    return "Oops! The right answer is green.";
+  }
+  function givenOf(v){ return v&&v.indexOf("x:")===0?v.slice(2):""; }
   function explain(q){
     var r=right(q);
-    if(q.kind==="quad"){ var id=q.s[+r]; return "The "+SH[id].n+" has "+SH[id].sides+" sides"+(q.not?", so it is not a quadrilateral.":": it is a quadrilateral."); }
-    if(q.kind==="name") return "It is a "+r+": "+DEF[r];
-    if(q.kind==="right") return "It has "+r+" right "+(r==="1"?"angle":"angles")+".";
+    if(q.kind==="quad") return "Quadrilaterals have 4 sides: "+q.s.filter(function(id){ return SH[id].sides===4; }).map(function(id){ return SH[id].n; }).join(", ")+".";
+    if(q.kind==="esort") return "All 4 sides equal: "+(q.s.filter(function(id){ return SH[id].eq; }).map(function(id){ return SH[id].n; }).join(", ")||"none")+".";
+    if(q.kind==="name") return "A "+SH[q.s].n+" has "+DEF[SH[q.s].n];
+    if(q.kind==="right"){ var n=SH[q.s].rt.length; return "This "+SH[q.s].n+" has "+n+" right "+(n===1?"angle":"angles")+"."; }
     if(q.kind==="equal") return r==="yes"?"Yes: all 4 sides are equal.":"No: not all the sides are equal.";
     if(q.kind==="truth") return (FACTS[q.f][1]?"True. ":"False. ")+FACTS[q.f][2];
     return "I am a "+r+"!";
   }
   function teach(q,given){
     var r=right(q), steps, cn, pic="";
+    var gv=givenOf(given);
     if(q.kind==="quad"){
       steps=["A <b>quadrilateral</b> has <b>4 sides</b> and <b>4 corners</b>. (\"Quad\" means four.)"];
-      q.s.forEach(function(id){ steps.push("The "+SH[id].n+" has "+(SH[id].sides||"no straight")+" sides"+(SH[id].sides===4?" ✓":"")+"."); });
-      steps.push("So the answer is the <b>"+SH[q.s[+r]].n+"</b>.");
+      if(SH[gv]) steps.push("The <b>"+SH[gv].n+"</b> has "+(SH[gv].sides?SH[gv].sides+" sides":"no straight sides")+", so it goes in <b>"+(SH[gv].sides===4?"Quadrilateral":"Not a quadrilateral")+"</b>.");
+      steps.push("Count the sides of every shape: 4 sides → Quadrilateral.");
       cn="四边形：有 4 条边、4 个角。三角形、五边形、六边形和圆都不是四边形。";
+    }else if(q.kind==="esort"){
+      var wrongId=SH[gv];
+      steps=["Look at the 4 sides of each shape. Are they all the same length?"];
+      if(wrongId) steps.push("A <b>"+wrongId.n+"</b> has "+DEF[wrongId.n==="quadrilateral"?"quadrilateral":wrongId.n]+(wrongId.eq?" All 4 sides are equal.":" Its sides are not all equal."));
+      steps.push("Squares and rhombuses have 4 equal sides. Rectangles, trapezoids and parallelograms usually don't.");
+      cn="正方形和菱形的 4 条边都相等；长方形、梯形和平行四边形一般不是。";
     }else if(q.kind==="name"){
+      var w=SH[q.s].n;
       pic='<div class="pic">'+shapeSvg(q.s,110,COLS[q.c||0],true)+'</div>';
-      steps=["A <b>"+r+"</b> has "+DEF[r]];
-      if(given&&given!==r&&DEF[given]) steps.push("A "+given+" has "+DEF[given]);
-      steps.push("Look at this shape's sides and corners: it is a <b>"+r+"</b>.");
+      steps=["A <b>"+w+"</b> has "+DEF[w]];
+      if(gv&&gv!==w&&DEF[gv]) steps.push("You built a <b>"+gv+"</b>: it has "+DEF[gv]);
+      steps.push(w==="rectangle"||w==="square"?"Check every corner: each one must be a square corner (the red marks).":w==="rhombus"?"Count the dots along each side: all 4 sides must be the same length.":w==="trapezoid"?"Make the top and the bottom go the same way, but not the other two sides.":"Make the sides across from each other go the same way.");
       cn="正方形：4 边相等、4 个直角；长方形：4 个直角；菱形：4 边相等、没有直角；梯形：只有一组对边平行。";
     }else if(q.kind==="right"){
       var n=SH[q.s].rt.length;
       pic='<div class="pic">'+shapeSvg(q.s,110,COLS[q.c||0],true)+'</div>';
-      steps=["A <b>right angle</b> is a square corner, like the corner of a book or a piece of paper.","Check every corner of the "+SH[q.s].n+". The square corners are marked in red.",
+      steps=["A <b>right angle</b> is a square corner, like the corner of a book or a piece of paper.","Check every corner of the "+SH[q.s].n+". The square corners are marked in red."+(gv!==""&&+gv!==n?" You tapped "+gv+".":""),
              n?"There "+(n===1?"is ":"are ")+"<b>"+n+"</b> right "+(n===1?"angle":"angles")+".":"None of the corners is a square corner: <b>0</b> right angles."];
       cn="直角就是“方方正正”的角，像书本的角。可以用一张纸的角去比一比。";
     }else if(q.kind==="equal"){
@@ -174,9 +297,10 @@
   }
   function miss(q){
     var r=right(q);
-    if(q.kind==="quad") return SH[q.s[+r]].n+(q.not?" is not a quadrilateral":" is a quadrilateral");
-    if(q.kind==="name") return r;
-    if(q.kind==="right") return SH[q.s].n+": "+r+" right angles";
+    if(q.kind==="quad") return "Sort: quadrilateral or not";
+    if(q.kind==="esort") return "Sort: all sides equal or not";
+    if(q.kind==="name") return "Build a "+SH[q.s].n;
+    if(q.kind==="right") return SH[q.s].n+": "+SH[q.s].rt.length+" right angles";
     if(q.kind==="equal") return SH[q.s].n+": "+(r==="yes"?"4 equal sides":"not all equal");
     if(q.kind==="truth") return '"'+FACTS[q.f][0]+'" '+r;
     return r;
@@ -189,8 +313,18 @@
           {id:"gift",e:"🎁",n:"Gift box",p:25},{id:"house",e:"🏠",n:"House",p:35},{id:"puzzle",e:"🧩",n:"Puzzle",p:40},{id:"robot",e:"🤖",n:"Robot",p:50},
           {id:"rocket",e:"🚀",n:"Rocket",p:60},{id:"castle",e:"🏰",n:"Castle",p:90}],
     shopTitle:"Shape shop: gems build things from shapes",shopCn:"用宝石搭出各种东西",emptyOwned:"🔺🟦",
-    kinds:{quad:"What is a quadrilateral",name:"Name the shape",right:"Count right angles",equal:"Equal sides",truth:"Shape families (true or false)",riddle:"Shape riddles (reading)"},
-    fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss});
+    kinds:{quad:"What is a quadrilateral",name:"Build the shape",right:"Find the right angles",equal:"Equal sides",esort:"Equal sides (sorting)",truth:"Shape families (true or false)",riddle:"Shape riddles (reading)"},
+    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+      '.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:84px;margin:4px 0 12px}.piece{width:78px;height:78px;border-radius:16px;background:#fff;border:3px dashed #c9dcef;display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}'+
+      '.piece.lift{border-style:solid;border-color:#2f7fc8;box-shadow:0 10px 18px rgba(31,58,90,.25);z-index:5;position:relative;cursor:grabbing}.piece.sel{border-style:solid;border-color:#f5b301;box-shadow:0 0 0 4px #ffe9a8}'+
+      '.piece.done{width:54px;height:54px;border:0;background:none;cursor:default}.piece.done svg{width:50px;height:50px}.piece.bad{animation:shake .4s}.piece.bad svg{filter:drop-shadow(0 0 4px #e0475b)}'+
+      '.baskets{display:grid;grid-template-columns:1fr 1fr;gap:10px}.basket{min-height:150px;border-radius:20px;background:#e4f1fb;border:3px solid #b8d4ee;padding:8px;text-align:center;cursor:pointer}.basket:nth-child(2){background:#fde6ee;border-color:#f3bfd0}'+
+      '.basket b{display:block;font-size:.95rem}.basket small{display:block;font-weight:800;opacity:.7;font-size:.75rem}.basket .in{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin-top:6px}'+
+      '@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}'+
+      '.geo{max-width:300px;margin:0 auto}.geo svg{width:100%;height:auto;display:block;touch-action:none;user-select:none;-webkit-user-select:none}.geo .peg{cursor:grab}.geo .cn{cursor:pointer}'+
+      '.geoMsg{text-align:center;font-weight:800;color:var(--muted);margin:6px 0;min-height:1.3em}.geoMsg.warn{color:#b0244e}'+
+      '.go{display:block;margin:8px auto 0;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.8}.go:disabled{opacity:.5}',
+    fromKey:fromKey,render:render,wrongText:wrongText,right:right,explain:explain,teach:teach,after:after,miss:miss});
 })();
 </script>
 </body></html>
