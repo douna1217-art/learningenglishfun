@@ -86,21 +86,30 @@
       var layers=q.kind==="add"?[[Math.min(P.v,P.v1==null?P.v:P.v1),POTIONS[q.c][0]],[P.v1==null?0:P.v-P.v1,POTIONS[q.d][0]]]:[[P.v,POTIONS[q.c][0]]];
       box.innerHTML=beakerSvg(q.cap,q.lab,layers,null);
     }
-    var st=document.getElementById("stream"); if(st) st.style.opacity=P.holding?1:0;
+    var st=document.getElementById("stream"); if(st) st.style.opacity=P.holding&&P.dir>0?1:0;
+    var mb=document.getElementById("minusBtn"), pb=document.getElementById("plusBtn");
+    if(mb&&!P.done) mb.disabled=!(P.v>lowest()+.001);
+    if(pb&&!P.done) pb.disabled=!(P.v<highest()-.001);
   }
+  // how far the child may go back: not below the first colour of a two-part recipe, not above the start when pouring out
+  function lowest(){ return P.q.kind==="add"&&P.phase===2?P.v1:0; }
+  function highest(){ return P.q.kind==="sub"?P.q.s:Infinity; }
+
   function stopPour(){ if(P) P.holding=false; cancelAnimationFrame(raf); var st=document.getElementById("stream"); if(st) st.style.opacity=0; }
-  function startPour(){
+  // dir +1: more in the beaker / on the scale (the + end of the button), -1: less (the − end)
+  function startPour(dir){
     if(!P||P.done||P.holding) return;
-    P.holding=true; P.held=0; var last=performance.now(), q=P.q, dir=q.kind==="sub"?-1:1;
+    var q=P.q; dir=dir<0?-1:1;
+    P.holding=true; P.held=0; P.dir=dir; var last=performance.now();
     var rate=q.kind==="scale"&&q.u==="g"?240:q.cap>=20?2.6:q.cap>=10?1.5:1.1;
     (function loop(t){
       if(!P||!P.holding) return;
       var dt=Math.min(.05,(t-last)/1000); last=t; P.held+=dt;
       // slow at first, so a quick tap adds only a drop
-      P.v=Math.max(0,P.v+dir*rate*dt*Math.min(1,.45+P.held/.8));
+      P.v=Math.min(highest(),Math.max(lowest(),P.v+dir*rate*dt*Math.min(1,.45+P.held/.8)));
       draw();
       var cap=q.cap;
-      if(P.v>cap*1.02){ P.v=cap*1.03; stopPour(); overflow(); return; }
+      if(dir>0&&P.v>cap*1.02){ P.v=cap*1.03; stopPour(); overflow(); return; }
       document.getElementById("serveBtn").disabled=false;
       raf=requestAnimationFrame(loop);
     })(last);
@@ -115,7 +124,7 @@
     if(q.kind==="add"&&P.phase===1){
       if(Math.abs(P.v-q.a)>tol(q)){ P.done=true; P.ui.answer("phase1:"+P.v.toFixed(2)); return; }
       P.phase=2; P.v1=P.v; P.v=P.v1;
-      document.getElementById("holdBtn").innerHTML="🫗 Hold to pour <b style=\"color:"+POTIONS[q.d][0]+"\">"+POTIONS[q.d][1]+"</b>";
+      var mid=document.getElementById("midIc"); if(mid) mid.style.background=POTIONS[q.d][0];
       document.getElementById("serveBtn").textContent="✓ Serve";
       document.getElementById("stream").style.background=POTIONS[q.d][0];
       P.ui.hint("Now add the "+POTIONS[q.d][1]+" potion. Stop at the line for "+(q.a+q.b)+" liters!");
@@ -125,8 +134,10 @@
     P.done=true;
     P.ui.answer(Math.abs(P.v-goal(q))<=tol(q)?"ok":"v:"+P.v.toFixed(2));
   }
-  document.addEventListener("keydown",function(e){ if(e.code==="Space"&&P&&!P.done&&document.getElementById("holdBtn")){ e.preventDefault(); if(!e.repeat) startPour(); } });
-  document.addEventListener("keyup",function(e){ if(e.code==="Space"&&P) stopPour(); });
+  // keyboard: Space or ↑ / + for more, ↓ / − for less
+  function keyDir(e){ return (e.code==="Space"||e.key==="ArrowUp"||e.key==="+"||e.key==="=")?1:(e.key==="ArrowDown"||e.key==="-")?-1:0; }
+  document.addEventListener("keydown",function(e){ var d=keyDir(e); if(d&&P&&!P.done&&document.getElementById("plusBtn")){ e.preventDefault(); if(!e.repeat) startPour(d); } });
+  document.addEventListener("keyup",function(e){ if(keyDir(e)&&P) stopPour(); });
 
   function dragon(ui,happy){
     var r=ui.round(), dots="", got=r.correct+(happy?1:0);   // (the right answer just given is not counted yet)
@@ -147,15 +158,19 @@
       else what="One spell needs <b>"+q.p+" kg</b> of "+SANDS[q.i][1]+". Make <b>"+q.n+" spells</b>: put it all on the scale.";
       ui.task(what);
       ui.stage(dragon(ui,false)+'<div class="lab"><div class="bottle">'+(q.kind==="scale"||q.kind==="batch"?"🥄":"⚗️")+'</div><div class="stream" id="stream" style="background:'+col+'"></div><div class="vessel" id="vessel"></div></div>'+
-        '<div class="pourbar"><button type="button" class="hold" id="holdBtn">'+(q.kind==="sub"?"🫗 Hold to pour out":q.kind==="add"?"🫗 Hold to pour <b style=\"color:"+POTIONS[q.c][0]+"\">"+POTIONS[q.c][1]+"</b>":"🫗 Hold to pour")+'</button>'+
+        '<div class="pourbar"><div class="rocker"><button type="button" class="rk minus" id="minusBtn" aria-label="less">−<small>'+(q.kind==="scale"||q.kind==="batch"?"take off":"pour out")+'</small></button>'+
+        '<span class="mid" id="midIc" style="background:'+col+'">'+(q.kind==="scale"||q.kind==="batch"?"🥄":"🧪")+'</span>'+
+        '<button type="button" class="rk plus" id="plusBtn" aria-label="more">+<small>'+(q.kind==="scale"||q.kind==="batch"?"add":"pour in")+'</small></button></div>'+
         '<button type="button" class="serve" id="serveBtn"'+(q.kind==="sub"?"":" disabled")+'>'+(q.kind==="add"?"✓ Next color":"✓ Serve")+'</button></div>');
       draw();
-      var hb=document.getElementById("holdBtn");
-      hb.addEventListener("pointerdown",function(e){ e.preventDefault(); try{ hb.setPointerCapture(e.pointerId); }catch(x){} startPour(); });
-      ["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){ hb.addEventListener(ev,stopPour); });
-      hb.addEventListener("contextmenu",function(e){ e.preventDefault(); });
+      ["minusBtn","plusBtn"].forEach(function(id){
+        var hb=document.getElementById(id), dir=id==="plusBtn"?1:-1;
+        hb.addEventListener("pointerdown",function(e){ e.preventDefault(); if(hb.disabled) return; try{ hb.setPointerCapture(e.pointerId); }catch(x){} startPour(dir); });
+        ["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){ hb.addEventListener(ev,stopPour); });
+        hb.addEventListener("contextmenu",function(e){ e.preventDefault(); });
+      });
       document.getElementById("serveBtn").onclick=serve;
-      ui.hint("Find the right line first. Hold to pour, let go to stop. A quick tap adds just a drop.");
+      ui.hint("Find the right line first. Hold + for more, hold − for less, let go to stop. Then Serve.");
       if(q.kind==="add") ui.words("First stop at "+q.a+" liters.");
       if(q.kind==="batch") ui.words(q.n+" spells × "+q.p+" kilograms = ?");
       return;
@@ -206,7 +221,7 @@
     if(ok) box.insertAdjacentHTML("beforeend",'<div class="sparkle" style="top:'+topPct.toFixed(0)+'%">✨✨✨</div>');
     else if(given==="overflow") box.insertAdjacentHTML("beforeend",'<div class="foam">🫧🫧🫧<br>🫧🫧🫧🫧</div>');
     else if(given!=="overflow") box.insertAdjacentHTML("beforeend",'<div class="fizzle">💨 pfff…</div>');
-    ["holdBtn","serveBtn"].forEach(function(id){ var b=document.getElementById(id); if(b) b.disabled=true; });
+    ["minusBtn","plusBtn","serveBtn"].forEach(function(id){ var b=document.getElementById(id); if(b) b.disabled=true; });
   }
   function mix(a,b){ function h(x){ return [parseInt(x.substr(1,2),16),parseInt(x.substr(3,2),16),parseInt(x.substr(5,2),16)]; } var p=h(a),r=h(b); return "rgb("+Math.round((p[0]+r[0])/2)+","+Math.round((p[1]+r[1])/2)+","+Math.round((p[2]+r[2])/2)+")"; }
   function explain(q){
@@ -244,7 +259,7 @@
       }
       if(given==="overflow") steps.push("You kept pouring until it spilled over the top. Let go of the button sooner!");
       else if(v!=null) steps.push("You stopped "+amount(q,v)+". "+(v<g?"That is not enough: pour a little more.":"That is too much: let go a little sooner."));
-      steps.push("Tip: when you are close, use quick taps to add just a little at a time.");
+      steps.push("Tip: when you are close, use quick taps. Too much? Hold <b>−</b>. Too little? Hold <b>+</b>. Check the line again, then Serve.");
       cn=isScale?"读秤：先看每一小格代表多少，指针停在目标刻度上再停手。快到的时候轻轻点，一点一点加。":"看准目标刻度线；快到的时候轻轻点按钮，一点一点加，液面碰到线就停。";
       return {steps:steps,cn:cn};
     }
@@ -277,10 +292,14 @@
       '.stream{position:absolute;left:calc(50% - 4px);top:24px;width:8px;height:70px;border-radius:4px;opacity:0;transition:opacity .1s;z-index:1}'+
       '.vessel{position:relative}.foam{position:absolute;left:0;right:0;top:0;text-align:center;font-size:2rem;line-height:1.1;animation:pop .4s}'+
       '.sparkle{position:absolute;left:0;right:0;top:30%;text-align:center;font-size:2.2rem;animation:pop .5s}.fizzle{position:absolute;left:0;right:0;top:30%;text-align:center;font-weight:900;font-size:1.4rem;color:#8a7ab0;animation:pop .5s}'+
-      '.pourbar{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:10px}'+
-      '.hold{border:0;border-radius:18px;padding:18px 8px;font-weight:900;font-size:1.2rem;background:#fff3c4;box-shadow:0 6px 0 #e0b200;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}'+
-      '.hold:active{transform:translateY(4px);box-shadow:0 2px 0 #e0b200}.serve{border:0;border-radius:18px;padding:18px 8px;font-weight:900;font-size:1.1rem;background:var(--good);color:#fff;box-shadow:0 6px 0 #1f7041}'+
-      '.hold:disabled,.serve:disabled{opacity:.45}@keyframes hic{0%,80%,100%{transform:none}88%{transform:translateY(-8px) rotate(-6deg)}}',
+      '.pourbar{display:grid;gap:10px;margin-top:10px}'+
+      '.rocker{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;border-radius:999px;background:#fff3c4;box-shadow:0 6px 0 #e0b200;overflow:hidden}'+
+      '.rk{border:0;background:transparent;font-family:Fredoka,sans-serif;font-weight:700;font-size:2.6rem;line-height:1;padding:10px 6px 8px;color:#3a2c6b;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none}'+
+      '.rk small{display:block;font-family:Nunito,sans-serif;font-weight:900;font-size:.8rem;margin-top:2px;opacity:.75}.rk.minus{border-right:3px dashed #e8c95a}.rk.plus{border-left:3px dashed #e8c95a}'+
+      '.rk:active{background:#ffe88a}.rk:disabled{opacity:.35}'+
+      '.mid{align-self:center;margin:0 10px;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;box-shadow:inset 0 -4px 0 rgba(0,0,0,.12)}'+
+      '.serve{border:0;border-radius:18px;padding:14px 8px;font-weight:900;font-size:1.1rem;background:var(--good);color:#fff;box-shadow:0 6px 0 #1f7041}'+
+      '.serve:disabled{opacity:.45}@keyframes hic{0%,80%,100%{transform:none}88%{transform:translateY(-8px) rotate(-6deg)}}',
     levels:LEVELS,boss:{n:"Cure Sparky",ic:"🐲",desc:"Every kind of potion. Make Sparky well again!"},practice:{n:"Practice Table",ic:"📜"},
     shop:[{id:"flask",e:"⚗️",n:"Flask",p:10},{id:"tube",e:"🧪",n:"Test tube",p:10},{id:"candle",e:"🕯️",n:"Candle",p:15},{id:"book",e:"📖",n:"Spell book",p:20},
           {id:"owl",e:"🦉",n:"Owl",p:30},{id:"frog",e:"🐸",n:"Frog",p:30},{id:"crystal",e:"🔮",n:"Crystal ball",p:45},{id:"moon",e:"🌙",n:"Moon lamp",p:50},
