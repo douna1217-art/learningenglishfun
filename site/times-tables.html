@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>乘法口诀大冒险 Times Tables</title>
+<meta name="description" content="乘法口诀小游戏：选口诀、答题、闯关、错题复习。Times tables game for kids.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#26372e;--muted:#718077;--line:#dfe8e1;--green:#315f47;--soft:#eaf4ec;--bg:#f5f7f4;--card:#fff;
+--good:#2f9e5b;--bad:#d9534f;--gold:#f4b400;--purple:#7254b8;--shadow:0 18px 42px rgba(46,66,55,.12)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;min-height:100vh}
+h1,h2,h3,.big{font-family:Fredoka,ui-rounded,"Trebuchet MS",Arial,sans-serif}
+button{font:inherit;cursor:pointer;color:inherit}
+.top{max-width:900px;margin:auto;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.home{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 14px;font-weight:900;text-decoration:none;color:var(--ink)}
+.sound{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 14px;font-weight:900}
+.wrap{max-width:900px;margin:auto;padding:0 16px 48px}
+.hero{background:linear-gradient(125deg,#315f47,#82aa76);color:#fff;border-radius:28px;padding:28px 24px;box-shadow:var(--shadow);text-align:center}
+.hero h1{margin:0;font-size:clamp(1.9rem,6vw,3rem)}
+.hero p{margin:8px 0 0;font-weight:700;opacity:.92}
+.panel{background:var(--card);border-radius:24px;padding:22px;box-shadow:var(--shadow);margin-top:20px}
+.panel h2{margin:0 0 6px;font-size:1.35rem}
+.hint{color:var(--muted);font-weight:700;margin:0 0 14px;font-size:.95rem}
+.tables{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.tbtn{border:2px solid var(--line);background:#fff;border-radius:16px;padding:12px 4px;font-weight:900;font-size:1.15rem;position:relative;transition:.12s}
+.tbtn small{display:block;font-size:.72rem;color:var(--muted);font-weight:800}
+.tbtn.on{background:var(--green);border-color:var(--green);color:#fff}.tbtn.on small{color:#d9eadf}
+.tbtn .medal{position:absolute;top:-8px;right:-6px;font-size:1rem}
+.modes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.mode{border:0;border-radius:20px;padding:18px 12px;text-align:center;font-weight:900;box-shadow:0 8px 20px rgba(40,60,49,.1);transition:.15s transform}
+.mode:hover{transform:translateY(-3px)}
+.mode .ic{font-size:2rem;display:block}.mode b{display:block;font-size:1.1rem;margin-top:4px}.mode span{display:block;font-size:.8rem;opacity:.75;margin-top:3px;font-weight:700}
+.m1{background:#fff0d6}.m2{background:#e3f4f5}.m3{background:#f3e7f8}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.pill{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:900}
+/* game */
+.hud{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:900;flex-wrap:wrap}
+.hud .chip{background:var(--soft);border-radius:999px;padding:7px 13px}
+.bar{height:10px;background:var(--soft);border-radius:99px;overflow:hidden;margin:14px 0 0}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#82aa76,#315f47);width:0;transition:width .3s}
+.q{text-align:center;margin:26px 0 8px}
+.q .big{font-size:clamp(3rem,14vw,5.4rem);font-weight:800;letter-spacing:.02em}
+.q .big .ans{display:inline-block;min-width:1.4em;border-bottom:6px solid var(--line);color:var(--purple)}
+.koujue{text-align:center;min-height:2.2em;font-size:1.35rem;font-weight:900;color:var(--green)}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.choice{border:0;border-radius:22px;padding:20px 8px;font-family:Fredoka,ui-rounded,sans-serif;font-size:2.2rem;font-weight:800;background:#fff;box-shadow:0 6px 0 #d4ddd6,0 10px 20px rgba(40,60,49,.08);transition:.08s}
+.choice:active{transform:translateY(4px);box-shadow:0 2px 0 #d4ddd6}
+.choice:nth-child(1){background:#fff7e6}.choice:nth-child(2){background:#eaf7f8}.choice:nth-child(3){background:#f6eefa}.choice:nth-child(4){background:#eef7ea}
+.choice.right{background:var(--good)!important;color:#fff}
+.choice.wrong{background:var(--bad)!important;color:#fff;animation:shake .35s}
+.choice:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.combo{text-align:center;font-weight:900;color:var(--gold);min-height:1.5em;font-size:1.1rem}
+.combo.show{animation:pop .4s}
+/* results */
+.result{text-align:center}
+.result .stars{font-size:3rem;letter-spacing:.1em}
+.result .score{font-size:3.4rem;margin:4px 0}
+.mistakes{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.mistakes span{background:#fdeeee;color:#9b2c2c;border-radius:12px;padding:8px 12px;font-weight:900}
+.btn{border:0;border-radius:16px;padding:14px 22px;font-weight:900;font-size:1.05rem;background:var(--green);color:#fff;box-shadow:0 8px 18px rgba(49,95,71,.25)}
+.btn.light{background:#fff;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+/* chart */
+.chart{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+.cell{border-radius:10px;padding:6px 2px;text-align:center;font-weight:800;font-size:.78rem;line-height:1.25;background:#f3f5f3;color:#9aa69f;border:0}
+.cell.blank{background:transparent}
+.cell.l1{background:#fff3cf;color:#8a6a00}.cell.l2{background:#d9f0df;color:#24693f}.cell.l3{background:#315f47;color:#fff}
+.cell .k{display:block;font-size:.7rem;opacity:.85}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-weight:800;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:4px}
+.hide{display:none!important}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+@media(max-width:620px){.tables{grid-template-columns:repeat(4,1fr)}.modes{grid-template-columns:1fr}.mode{display:flex;align-items:center;gap:12px;text-align:left}.mode .ic{font-size:1.8rem}
+.cell{font-size:.7rem;padding:9px 1px}.cell .k{display:none}.chart{gap:3px}}
+</style></head>
+<body>
+<div class="top">
+  <a class="home" href="/">← Home 首页</a>
+  <button class="sound" id="soundBtn" type="button">🔊 读口诀：开</button>
+</div>
+<div class="wrap">
+
+<!-- ===== MENU ===== -->
+<section id="menu">
+  <div class="hero">
+    <h1>✖️ 乘法口诀大冒险</h1>
+    <p>Times Tables Adventure · 选口诀，答对得星星！</p>
+  </div>
+
+  <div class="panel">
+    <h2>① 选要练的口诀 Pick tables</h2>
+    <p class="hint">可以多选。🥇 = 这一列已经全部掌握</p>
+    <div class="tables" id="tables"></div>
+    <div class="row">
+      <button class="pill" type="button" id="allBtn">全选 All</button>
+      <button class="pill" type="button" id="noneBtn">清空 Clear</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>② 选玩法 Pick a game</h2>
+    <p class="hint">按键盘 1 2 3 4 也能选答案</p>
+    <div class="modes">
+      <button class="mode m1" type="button" data-mode="practice"><span class="ic">🐢</span><div><b>慢慢练 Practice</b><span>10 道题，不计时，答错会教你</span></div></button>
+      <button class="mode m2" type="button" data-mode="timed"><span class="ic">⏱️</span><div><b>60 秒挑战 Speed</b><span>一分钟能答对几道？</span></div></button>
+      <button class="mode m3" type="button" data-mode="review"><span class="ic">📒</span><div><b>错题复习 Review</b><span id="reviewInfo">把以前答错的再练一遍</span></div></button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>📋 我的口诀表 My chart</h2>
+    <p class="hint">答对越多，格子颜色越深。点格子可以听口诀。</p>
+    <div class="chart" id="chart"></div>
+    <div class="legend">
+      <span><i style="background:#f3f5f3"></i>还没练</span>
+      <span><i style="background:#fff3cf"></i>练过</span>
+      <span><i style="background:#d9f0df"></i>快会了</span>
+      <span><i style="background:#315f47"></i>掌握啦</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== GAME ===== -->
+<section id="game" class="hide">
+  <div class="panel">
+    <div class="hud">
+      <span class="chip" id="hudLeft">第 1 / 10 题</span>
+      <span class="chip">⭐ <span id="hudStars">0</span></span>
+      <button class="pill" type="button" id="quitBtn">✕ 退出</button>
+    </div>
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="q"><div class="big" id="question"></div></div>
+    <div class="koujue" id="koujue"></div>
+    <div class="combo" id="combo"></div>
+    <div class="choices" id="choices"></div>
+  </div>
+</section>
+
+<!-- ===== RESULT ===== -->
+<section id="result" class="hide">
+  <div class="panel result">
+    <div class="stars" id="resStars"></div>
+    <h2 id="resTitle"></h2>
+    <div class="score big" id="resScore"></div>
+    <p class="hint" id="resSub"></p>
+    <div id="resMistakesBox">
+      <p class="hint">要再练练的 Keep practicing:</p>
+      <div class="mistakes" id="resMistakes"></div>
+    </div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" type="button" id="againBtn">再玩一次 Again</button>
+      <button class="btn light" type="button" id="menuBtn">回菜单 Menu</button>
+    </div>
+  </div>
+</section>
+</div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+  "use strict";
+  var CN = ["零","一","二","三","四","五","六","七","八","九"];
+  function cnNum(n){
+    if(n<10) return CN[n];
+    var t=Math.floor(n/10), o=n%10;
+    if(n===10) return "一十";
+    return (t===1?"":CN[t])+"十"+(o?CN[o]:"");
+  }
+  // 口诀：小数在前，积小于 10 用「得」
+  function koujue(a,b){
+    var x=Math.min(a,b), y=Math.max(a,b), p=x*y;
+    return CN[x]+CN[y]+(p<10?"得":"")+cnNum(p);
+  }
+  function key(a,b){ return Math.min(a,b)+"x"+Math.max(a,b); }
+
+  // ---- storage (per-viewer, optional) ----
+  var STORE="ttGame.v1";
+  var data={facts:{},selected:[2,3,4,5],sound:true};
+  try{ var raw=localStorage.getItem(STORE); if(raw){ var d=JSON.parse(raw); if(d&&typeof d==="object"){ data.facts=d.facts||{}; if(Array.isArray(d.selected)&&d.selected.length) data.selected=d.selected; if(typeof d.sound==="boolean") data.sound=d.sound; } } }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(data)); }catch(e){} }
+  function fact(k){ return data.facts[k]||(data.facts[k]={ok:0,miss:0}); }
+  function level(k){
+    var f=data.facts[k]; if(!f||(f.ok+f.miss)===0) return 0;
+    var net=f.ok-f.miss*2;
+    if(f.ok>=5&&net>=4) return 3;
+    if(f.ok>=2&&net>=1) return 2;
+    return 1;
+  }
+  function tableMastered(t){ for(var i=1;i<=9;i++){ if(level(key(t,i))<3) return false; } return true; }
+  function missList(){ return Object.keys(data.facts).filter(function(k){ var f=data.facts[k]; return f.miss>0 && level(k)<3; }); }
+
+  // ---- speech ----
+  var zhVoice=null;
+  function pickVoice(){ try{ var vs=speechSynthesis.getVoices(); zhVoice=vs.filter(function(v){return /^zh/i.test(v.lang);})[0]||null; }catch(e){} }
+  try{ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }catch(e){}
+  function say(text){
+    if(!data.sound) return;
+    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(text); u.lang="zh-CN"; if(zhVoice) u.voice=zhVoice; u.rate=.95; speechSynthesis.speak(u); }catch(e){}
+  }
+  // ---- little sound effects ----
+  var actx=null;
+  function beep(good){
+    if(!data.sound) return;
+    try{
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      var notes=good?[660,880]:[300,220];
+      notes.forEach(function(f,i){
+        var o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime+i*.09;
+        o.type=good?"triangle":"sine"; o.frequency.value=f;
+        g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.18,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+.18);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+.2);
+      });
+    }catch(e){}
+  }
+
+  var $=function(id){return document.getElementById(id);};
+
+  // ---- menu ----
+  function renderTables(){
+    var box=$("tables"); box.innerHTML="";
+    for(var t=1;t<=9;t++){
+      var b=document.createElement("button"); b.type="button";
+      b.className="tbtn"+(data.selected.indexOf(t)>=0?" on":"");
+      b.innerHTML=(tableMastered(t)?'<span class="medal">🥇</span>':"")+"× "+t+"<small>"+CN[t]+"的口诀</small>";
+      (function(t){ b.onclick=function(){
+        var i=data.selected.indexOf(t); if(i>=0) data.selected.splice(i,1); else data.selected.push(t);
+        save(); renderTables();
+      };})(t);
+      box.appendChild(b);
+    }
+    var mix=document.createElement("button"); mix.type="button"; mix.className="tbtn"+(data.selected.length===9?" on":"");
+    mix.innerHTML="🎲<small>大混合</small>"; mix.onclick=function(){ data.selected=[1,2,3,4,5,6,7,8,9]; save(); renderTables(); };
+    box.appendChild(mix);
+    var n=missList().length;
+    $("reviewInfo").textContent = n ? ("错题本里有 "+n+" 道") : "暂时没有错题 👍";
+  }
+  function renderChart(){
+    var box=$("chart"); box.innerHTML="";
+    for(var r=1;r<=9;r++){
+      for(var c=1;c<=9;c++){
+        var el=document.createElement(c<=r?"button":"div");
+        if(c>r){ el.className="cell blank"; box.appendChild(el); continue; }
+        el.type="button"; el.className="cell l"+level(key(c,r));
+        el.innerHTML=c+"×"+r+'<span class="k">'+koujue(c,r)+"</span>";
+        (function(a,b){ el.onclick=function(){ say(koujue(a,b)); }; el.title=koujue(a,b)+"  "+a+"×"+b+"="+(a*b); })(c,r);
+        box.appendChild(el);
+      }
+    }
+  }
+  $("allBtn").onclick=function(){ data.selected=[1,2,3,4,5,6,7,8,9]; save(); renderTables(); };
+  $("noneBtn").onclick=function(){ data.selected=[]; save(); renderTables(); };
+  function renderSound(){ $("soundBtn").textContent = data.sound ? "🔊 读口诀：开" : "🔈 读口诀：关"; }
+  $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); if(!data.sound){ try{speechSynthesis.cancel();}catch(e){} } };
+
+  // ---- game ----
+  var G=null, timer=null;
+  function show(id){ ["menu","game","result"].forEach(function(s){ $(s).classList.toggle("hide",s!==id); }); window.scrollTo(0,0); }
+
+  function buildPool(mode){
+    var pool=[];
+    if(mode==="review"){
+      missList().forEach(function(k){ var p=k.split("x"); pool.push([+p[0],+p[1]]); });
+      return pool;
+    }
+    data.selected.forEach(function(t){ for(var i=1;i<=9;i++) pool.push([t,i]); });
+    return pool;
+  }
+  function weight(q){ var f=data.facts[key(q[0],q[1])]; return 1+(f?f.miss*2:0)+(level(key(q[0],q[1]))<2?1:0); }
+  function pick(pool,last){
+    var tot=0, ws=pool.map(function(q){ var w=weight(q); if(last&&q[0]===last[0]&&q[1]===last[1]) w=0.01; tot+=w; return w; });
+    var r=Math.random()*tot;
+    for(var i=0;i<pool.length;i++){ r-=ws[i]; if(r<=0) break; }
+    var q=pool[Math.min(i,pool.length-1)];
+    return Math.random()<.5?[q[0],q[1]]:[q[1],q[0]];
+  }
+  function distractors(a,b){
+    var p=a*b, set={}; set[p]=1;
+    var cand=[(a+1)*b,(a-1)*b,a*(b+1),a*(b-1),p+1,p-1,p+10,p-10,a+b,p+2];
+    var out=[p];
+    cand.sort(function(){return Math.random()-.5;});
+    for(var i=0;i<cand.length&&out.length<4;i++){ var v=cand[i]; if(v>0&&v<=90&&!set[v]){ set[v]=1; out.push(v); } }
+    while(out.length<4){ var v2=Math.floor(Math.random()*81)+1; if(!set[v2]){ set[v2]=1; out.push(v2);} }
+    return out.sort(function(){return Math.random()-.5;});
+  }
+
+  function start(mode){
+    var pool=buildPool(mode);
+    if(!pool.length){
+      alert(mode==="review" ? "错题本是空的，先去玩别的吧！" : "请先选至少一个口诀 Please pick a table.");
+      return;
+    }
+    G={mode:mode,pool:pool,n:0,total:mode==="timed"?0:Math.min(10,mode==="review"?Math.max(pool.length,5):10),
+       correct:0,stars:0,streak:0,best:0,miss:{},last:null,time:60,locked:false};
+    show("game"); $("hudStars").textContent="0";
+    if(mode==="timed"){
+      clearInterval(timer);
+      timer=setInterval(function(){
+        G.time--; renderHud();
+        if(G.time<=0){ clearInterval(timer); finish(); }
+      },1000);
+    }
+    next();
+  }
+  function renderHud(){
+    if(G.mode==="timed"){
+      $("hudLeft").textContent="⏱️ "+Math.max(G.time,0)+" 秒 · 答对 "+G.correct;
+      $("barFill").style.width=(Math.max(G.time,0)/60*100)+"%";
+    }else{
+      $("hudLeft").textContent="第 "+Math.min(G.n,G.total)+" / "+G.total+" 题";
+      $("barFill").style.width=((G.n-1)/G.total*100)+"%";
+    }
+  }
+  function next(){
+    if(G.mode!=="timed" && G.n>=G.total){ finish(); return; }
+    G.n++; G.locked=false;
+    var q=pick(G.pool,G.last); G.last=q; G.q=q;
+    $("question").innerHTML=q[0]+" × "+q[1]+' = <span class="ans">?</span>';
+    $("koujue").textContent="";
+    var box=$("choices"); box.innerHTML="";
+    distractors(q[0],q[1]).forEach(function(v,i){
+      var b=document.createElement("button"); b.type="button"; b.className="choice"; b.textContent=v; b.dataset.v=v;
+      b.onclick=function(){ answer(b); };
+      box.appendChild(b);
+    });
+    renderHud();
+  }
+  function answer(btn){
+    if(G.locked) return; G.locked=true;
+    var a=G.q[0], b=G.q[1], p=a*b, v=+btn.dataset.v, k=key(a,b), f=fact(k);
+    var buttons=[].slice.call(document.querySelectorAll(".choice"));
+    buttons.forEach(function(x){ x.disabled=true; if(+x.dataset.v===p) x.classList.add("right"); });
+    $("question").innerHTML=a+" × "+b+' = <span class="ans">'+p+"</span>";
+    $("koujue").textContent="「"+koujue(a,b)+"」";
+    var combo=$("combo"); combo.classList.remove("show");
+    if(v===p){
+      f.ok++; G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
+      var gain = G.streak>=5?3:G.streak>=3?2:1; G.stars+=gain;
+      $("hudStars").textContent=G.stars;
+      combo.textContent = G.streak>=3 ? ("🔥 连对 "+G.streak+"！ +"+gain+" ⭐") : ["太棒了！","答对啦！","Great!","真厉害！"][Math.floor(Math.random()*4)];
+      void combo.offsetWidth; combo.classList.add("show");
+      beep(true);
+      if(G.mode!=="timed") say(koujue(a,b));
+      save();
+      setTimeout(next, G.mode==="timed"?450:1100);
+    }else{
+      btn.classList.add("wrong"); f.miss++; G.streak=0; G.miss[k]=1;
+      combo.textContent="没关系，记住这句口诀 👆";
+      void combo.offsetWidth; combo.classList.add("show");
+      beep(false); say(koujue(a,b));
+      // 慢慢练：答错的题稍后会再出一次
+      if(G.mode!=="timed"){ G.pool.push([a,b],[a,b]); }
+      save();
+      setTimeout(next, G.mode==="timed"?1200:2300);
+    }
+  }
+  function finish(){
+    clearInterval(timer);
+    var mode=G.mode, c=G.correct, tot=G.mode==="timed"?G.n:G.total;
+    var ratio = mode==="timed" ? Math.min(c/20,1) : c/tot;
+    var s = ratio>=.9?3:ratio>=.6?2:ratio>0?1:0;
+    $("resStars").textContent="⭐".repeat(s)+"☆".repeat(3-s);
+    $("resTitle").textContent = s===3?"太厉害了！Amazing!":s===2?"做得很好！Nice job!":"继续加油！Keep going!";
+    $("resScore").textContent = mode==="timed" ? (c+" 道") : (c+" / "+tot);
+    $("resSub").textContent = (mode==="timed"?"60 秒答对 "+c+" 道":"答对 "+c+" 道")+" · 得到 "+G.stars+" ⭐ · 最长连对 "+G.best;
+    var ms=Object.keys(G.miss);
+    $("resMistakesBox").classList.toggle("hide",!ms.length);
+    $("resMistakes").innerHTML=ms.map(function(k){ var p=k.split("x"); return "<span>"+p[0]+"×"+p[1]+"="+(p[0]*p[1])+" · "+koujue(+p[0],+p[1])+"</span>"; }).join("");
+    show("result");
+    if(s>=2) confetti();
+  }
+  $("quitBtn").onclick=function(){ clearInterval(timer); try{speechSynthesis.cancel();}catch(e){} toMenu(); };
+  $("againBtn").onclick=function(){ start(G.mode); };
+  $("menuBtn").onclick=toMenu;
+  function toMenu(){ renderTables(); renderChart(); show("menu"); }
+  [].forEach.call(document.querySelectorAll(".mode"),function(b){ b.onclick=function(){ start(b.dataset.mode); }; });
+  document.addEventListener("keydown",function(e){
+    if($("game").classList.contains("hide")) return;
+    var i="1234".indexOf(e.key); if(i<0) return;
+    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+  });
+
+  // ---- confetti ----
+  function confetti(){
+    if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    var cv=$("confetti"), ctx=cv.getContext("2d"); cv.width=innerWidth; cv.height=innerHeight;
+    var cols=["#f4b400","#2f9e5b","#7254b8","#e86a5c","#3aa3c4"], ps=[];
+    for(var i=0;i<140;i++) ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.28,c:cols[i%5],s:6+Math.random()*6});
+    var t0=performance.now();
+    (function loop(t){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ps.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.r+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2); ctx.restore(); });
+      if(t-t0<3000) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+    })(t0);
+  }
+
+  renderSound(); renderTables(); renderChart();
+})();
+</script>
+</body></html>
