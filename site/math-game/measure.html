@@ -21,10 +21,10 @@
            ["✏️","a pencil",5,"g"],["🍉","a watermelon",5,"kg"],["🧴","a big water bottle",1,"L"],["🪣","a bucket of water",10,"L"],["🛁","a full bathtub",200,"L"],["🐠","a small fish tank",20,"L"]];
 
   // ---------- the questions ----------
-  // pour: fill the beaker to t liters (gold: the line is shown)   add: a liters of one colour, then b of another (stop at a+b)
+  // pour: fill the beaker to t liters (the line to aim at is shown only after the answer: finding it is the point)   add: a liters of one colour, then b of another (stop at a+b)
   // sub: the beaker has s liters, pour out b                       scale: pour onto the scale until t g / kg     batch: n spells of p kg each
-  function pour1(){ return Q("pour",{cap:6,lab:1,t:between(1,5),c:rnd(5),gold:1}); }
-  function pour2(){ var t; do{ t=between(1,9); }while(t%2===0&&Math.random()<.75); return Q("pour",{cap:10,lab:2,t:t,c:rnd(5),gold:0}); }
+  function pour1(){ return Q("pour",{cap:6,lab:1,t:between(1,5),c:rnd(5)}); }
+  function pour2(){ var t; do{ t=between(1,9); }while(t%2===0&&Math.random()<.75); return Q("pour",{cap:10,lab:2,t:t,c:rnd(5)}); }
   function add(){ var a=between(1,5), b=between(1,9-a); var c=rnd(5), d; do{ d=rnd(5); }while(d===c); return Q("add",{cap:10,lab:2,a:a,b:b,c:c,d:d}); }
   function sub(){ var s=between(5,10), b=between(1,s-1); return Q("sub",{cap:10,lab:2,s:s,b:b,c:rnd(5)}); }
   function scale(){ if(Math.random()<.5) return Q("scale",{u:"g",cap:1000,st:100,t:100*between(1,9),i:rnd(4)}); return Q("scale",{u:"kg",cap:10,st:1,t:between(1,9),i:rnd(4)}); }
@@ -32,7 +32,7 @@
   function unit(){ return Q("unit",{h:Math.random()<.5?1:0,o:rnd(10)}); }
   function est(){ return Q("est",{i:rnd(EST.length)}); }
   var LEVELS=[
-    {id:"p1",n:"First Drops",ic:"💧",gen:pour1},
+    {id:"p1",n:"First Drops",ic:"💧",gen:pour1},   // every line has its number
     {id:"p2",n:"Hidden Lines",ic:"🧪",gen:pour2},
     {id:"p3",n:"Two-Part Recipes",ic:"🌈",gen:add},
     {id:"p4",n:"Pour It Out",ic:"🫗",gen:sub},
@@ -45,7 +45,7 @@
 
   // ---------- drawing ----------
   function beakerSvg(cap,lab,layers,gold,marks){
-    // layers: [[liters, colour]] from the bottom; gold: a line to aim at (shown on the first level, and after an answer)
+    // layers: [[liters, colour]] from the bottom; gold: the line that was the goal (drawn only after an answer)
     var H=210, top=30, bot=top+H, s='<svg viewBox="0 0 230 260" style="width:100%;max-width:250px;display:block;margin:0 auto">', y=bot;
     layers.forEach(function(L){ if(L[0]<=0) return; var h=L[0]/cap*H, y2=Math.max(top-16,y-h);
       s+='<rect x="62" y="'+y2.toFixed(1)+'" width="96" height="'+(y-y2).toFixed(1)+'" fill="'+L[1]+'" opacity=".9"/>'; y=y2; });
@@ -84,7 +84,7 @@
     if(q.kind==="scale"||q.kind==="batch") box.innerHTML=scaleSvg(q,P.v,false);
     else{
       var layers=q.kind==="add"?[[Math.min(P.v,P.v1==null?P.v:P.v1),POTIONS[q.c][0]],[P.v1==null?0:P.v-P.v1,POTIONS[q.d][0]]]:[[P.v,POTIONS[q.c][0]]];
-      box.innerHTML=beakerSvg(q.cap,q.lab,layers,q.gold?goal(q):null);
+      box.innerHTML=beakerSvg(q.cap,q.lab,layers,null);
     }
     var st=document.getElementById("stream"); if(st) st.style.opacity=P.holding?1:0;
   }
@@ -155,7 +155,7 @@
       ["pointerup","pointercancel","lostpointercapture"].forEach(function(ev){ hb.addEventListener(ev,stopPour); });
       hb.addEventListener("contextmenu",function(e){ e.preventDefault(); });
       document.getElementById("serveBtn").onclick=serve;
-      ui.hint(q.kind==="pour"&&q.gold?"Hold the button, let go at the gold line 🎯. A quick tap adds just a drop.":"Hold to pour, let go to stop. A quick tap adds just a drop.");
+      ui.hint("Find the right line first. Hold to pour, let go to stop. A quick tap adds just a drop.");
       if(q.kind==="add") ui.words("First stop at "+q.a+" liters.");
       if(q.kind==="batch") ui.words(q.n+" spells × "+q.p+" kilograms = ?");
       return;
