@@ -530,7 +530,7 @@ var SHELF={},ALL=[];
 <script src="motion-guard.js?v=20261015a"></script><script src="pet-art.js?v=20261015b"></script><script src="subject-outfits.js?v=20261113a"></script><script src="pet-rig.js?v=20261015e"></script>
 <script src="pet-fest.js?v=20261015c"></script>
 <script src="pet-sound.js?v=20261014c"></script>
-<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261113b"></script><script src="weekly-themes-data.js?v=20261113a"></script><script src="weekly-themes.js?v=20261113a"></script><script src="next-book.js?v=20261114a"></script><script src="reading-buddy.js?v=20261114b"></script><script src="sightwords-prizes.js?v=20261104a"></script>
+<script src="badges.js?v=20261022a"></script><script src="daily-goals.js?v=20261113b"></script><script src="weekly-themes-data.js?v=20261113a"></script><script src="weekly-themes.js?v=20261113a"></script><script src="next-book.js?v=20261114a"></script><script src="reading-buddy.js?v=20261126a"></script><script src="sightwords-prizes.js?v=20261104a"></script>
 <script src="sightwords-data.js?v=20261022a"></script><script src="sightwords-data2.js?v=20261014a"></script><script src="sightwords-data3.js?v=20261016a"></script><script src="sightwords-data4.js?v=20261017a"></script><script src="sightwords-data5.js?v=20261018a"></script><script src="sightwords-data6.js?v=20261019a"></script><script src="sightwords-data7.js?v=20261020a"></script><script src="sightwords-data8.js?v=20261022a"></script>
 <script>
 /* The sight-words code (about 1.2 MB: the pictures, the games, the monsters) is fetched once the page is up, so the book pages open at once;
@@ -997,18 +997,25 @@ function plant(g){var p='';
 /* Practice games, shown after the last book of a shelf. They open in the reader like a book, but they are not books:
    no reading stars, not in the reading log (a game_open event instead). */
 var SHELF_GAMES={'Math|Grade 3':[
- {id:'times-tables',file:'math-game/index.html',name:'Times Table Monster Island',title:'Times Tables Practice',sub:'Catch monsters with the times tables! 乘法练习',
+ {id:'times-tables',e:'🏝️',file:'math-game/index.html',name:'Times Table Monster Island',title:'Times Tables Practice',sub:'Catch monsters with the times tables! 乘法练习',
   art:'<div style="font-size:64px;line-height:1">🏝️</div><div style="font-size:30px;letter-spacing:4px">🐸🦀🦈🦖</div>',q:'3 × 4 = ?',bg:'radial-gradient(circle at 20% 125%,#7cc47f 0 32%,transparent 33%),radial-gradient(circle at 85% 135%,#5fae6a 0 36%,transparent 37%),linear-gradient(180deg,#3f8fd8,#7cc0f0)'},
- {id:'division',file:'math-game/division.html',name:'Division Café',title:'Division Practice',sub:'Share the treats and run your café! 除法练习',
+ {id:'division',e:'☕',file:'math-game/division.html',name:'Division Café',title:'Division Practice',sub:'Share the treats and run your café! 除法练习',
   art:'<div style="font-size:64px;line-height:1">☕</div><div style="font-size:30px;letter-spacing:4px">🐻🍪🧁🐰</div>',q:'12 ÷ 3 = ?',bg:'linear-gradient(180deg,#e8916d 0 62%,#c98b5e 62% 64%,#d9785b 64%)'},
- {id:'fractions',file:'math-game/fractions.html',name:'Fraction Frog',title:'Fractions Practice',sub:'Jump to the right spot on the number line! 分数练习',
+ {id:'fractions',e:'🐸',file:'math-game/fractions.html',name:'Fraction Frog',title:'Fractions Practice',sub:'Jump to the right spot on the number line! 分数练习',
   art:'<div style="font-size:64px;line-height:1">🐸</div><div style="font-size:30px;letter-spacing:4px">🪷🪰🪷</div>',q:'¼  ½  ¾',bg:'radial-gradient(ellipse at 50% 120%,#7fd0e6 0 45%,transparent 46%),linear-gradient(180deg,#43b07f,#7fd09f)'},
- {id:'time',file:'math-game/time.html',name:'Train Time',title:'Telling Time Practice',sub:'Read the clocks and keep the trains on time! 认识时间',
+ {id:'time',e:'🚂',file:'math-game/time.html',name:'Train Time',title:'Telling Time Practice',sub:'Read the clocks and keep the trains on time! 认识时间',
   art:'<div style="font-size:64px;line-height:1">🕰️</div><div style="font-size:30px;letter-spacing:2px">🚂🚃🚃</div>',q:'7:15 = ?',bg:'linear-gradient(180deg,#4f74d6 0 66%,#8a6a4a 66% 68%,#b7c3d9 68% 72%,#7d8aa8 72%)'},
- {id:'area',file:'math-game/area.html',name:'Garden Builder',title:'Area & Perimeter Practice',sub:'Plant the beds and build the fences! 面积和周长',
+ {id:'area',e:'🌻',file:'math-game/area.html',name:'Garden Builder',title:'Area & Perimeter Practice',sub:'Plant the beds and build the fences! 面积和周长',
   art:'<div style="font-size:64px;line-height:1">🌻</div><div style="font-size:30px;letter-spacing:4px">🟩🟩🟩🚧</div>',q:'4 × 3 = ?',bg:'linear-gradient(180deg,#8fd0f2 0 38%,#7bc35a 38%)'}
 ]};
 function shelfGames(sj,g){return SHELF_GAMES[sj+'|'+g]||[];}
+/* the reward game of a book: offered in the "Book finished!" window (reading-buddy.js) the first time the book is finished */
+var BOOK_GAMES={'meet-multiplication':'times-tables','arrays-and-multiplication':'times-tables','multiplying-by-multiples-of-ten':'times-tables','patterns-in-the-multiplication-table':'times-tables','the-distributive-property':'times-tables',
+ 'division-as-sharing':'division','multiplication-division-fact-families':'division','finding-the-unknown-number':'division',
+ 'comparing-fractions':'fractions','equivalent-fractions-and-whole-numbers':'fractions','fractions-on-a-number-line':'fractions','partitioning-shapes-into-equal-areas':'fractions','line-plots-with-halves-and-fourths':'fractions',
+ 'telling-time-to-the-minute':'time','elapsed-time':'time',
+ 'understanding-area':'area','relating-area-to-multiplication':'area','perimeter-around-a-shape':'area'};
+function gameForBook(b){var id=b&&BOOK_GAMES[b.slug],out=null;if(!id)return null;Object.keys(SHELF_GAMES).forEach(function(k){SHELF_GAMES[k].forEach(function(x){if(x.id===id)out=x;});});return out;}
 function gameCard(c,x,i){return '<button class="bk ttgame" data-game="'+i+'" style="box-shadow:0 7px 0 '+c[1]+'55"><div style="aspect-ratio:700/520;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:'+x.bg+'">'+x.art+'<div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:30px;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18)">'+x.q+'</div></div><div style="padding:14px 16px 18px;flex:1;display:flex;flex-direction:column"><div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:22px;line-height:1.1">'+x.title+'</div><div style="font-weight:700;color:#4A5878;margin-top:4px;font-size:15px">'+x.sub+'</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:10px"><span style="background:#FFC93C;border-radius:999px;padding:4px 12px;font-weight:800;font-size:13px">🎮 Game 游戏</span></div></div></button>';}
 function openGame(x){currentFile=null;$('readerTitle').textContent=x.name;$('readerFrame').src=x.file;$('readerOverlay').style.display='flex';document.body.style.overflow='hidden';
  if(window.__trackEvent)window.__trackEvent('game_open',{game:x.id});}
@@ -1144,7 +1151,7 @@ function settleReading(){
  if(!n){save();return {got:0,lines:[],fresh:fresh};}
  var got=award(n);save();toast(lines,got,got<n);return {got:got,lines:lines,fresh:fresh};}
 /* the reading buddy (reading-buddy.js): the pet in the reader bar, and the little ceremony when a book is finished */
-if(window.ReadingBuddy)ReadingBuddy.init({pet:function(){return ART_OK&&st.type?{type:st.type,eq:st.eq,name:st.name}:null;},all:ALL,bookState:bookState,settle:function(){return settleReading();},openReader:function(b){openReader(b);},close:function(){closeBook();},sfx:function(){snd();},goals:window.DailyGoals||null});
+if(window.ReadingBuddy)ReadingBuddy.init({pet:function(){return ART_OK&&st.type?{type:st.type,eq:st.eq,name:st.name}:null;},all:ALL,bookState:bookState,settle:function(){return settleReading();},openReader:function(b){openReader(b);},close:function(){closeBook();},sfx:function(){snd();},goals:window.DailyGoals||null,bonusGame:gameForBook,playGame:function(x){openGame(x);}});
 /* today's mini goals + the streak saver (daily-goals.js) */
 if(window.DailyGoals){DailyGoals.init({booksToday:function(){return dayState().books.length;},award:function(n){return award(n);},toast:function(l,t,c){toast(l,t,c);},
  notice:function(en,cn){var t=$('toast');if(!t)return;t.innerHTML='<div class="tt">'+en+' <small>'+cn+'</small></div>';t.classList.add('on');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('on');},5200);},

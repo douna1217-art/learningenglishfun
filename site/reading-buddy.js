@@ -1,11 +1,13 @@
 /* The reading buddy: while a book is open on the homepage the child's pet sits in the reader bar, hops when the page turns and cheers when a part is done,
    and when the whole journey (reading, grammar and vocabulary) is finished a small ceremony opens: the pet cheers, the book's cover becomes a card,
    the stars just earned are listed, and the child sees how close the next book badge is and can go straight on to a next book.
+   A book that has a practice game (cfg.bonusGame) also shows it there as a reward: "Bonus game unlocked", Play.
 
    The book runs in an iframe of the same site, so its page number and progress are read from it (the same way settleReading() already reads its answers).
    Nothing is added to the books themselves.
 
-   ReadingBuddy.init({ pet: fn -> {type, eq, name} or null, all: [books], bookState: fn(slug), settle: fn -> {got, lines, fresh}, openReader: fn(book), close: fn, sfx: fn })
+   ReadingBuddy.init({ pet: fn -> {type, eq, name} or null, all: [books], bookState: fn(slug), settle: fn -> {got, lines, fresh}, openReader: fn(book), close: fn, sfx: fn,
+                       bonusGame: fn(book) -> {e, name} or null, playGame: fn(game) })
    ReadingBuddy.open(book)    a book was opened          ReadingBuddy.stop()   the reader was closed
    ReadingBuddy.finishNow()   (tests) run the ceremony as if the last part had just been completed
    Written for old Android WebViews: no optional chaining, no spread, no Object.assign. */
@@ -133,6 +135,10 @@
       "#rbDone .rbsave{background:#EAF3FF;border:2px solid #6AA7FF;border-radius:16px;padding:10px 12px;margin:10px 0;text-align:left;color:#12315F}" +
       "#rbDone .rbsave b{display:block;font-size:.95rem}#rbDone .rbsave span{display:block;font-size:.82rem;font-weight:700;margin:3px 0 8px;line-height:1.35}" +
       "#rbDone .rbsave button{border:0;border-radius:999px;background:#2F6FD6;color:#fff;font:inherit;font-weight:900;font-size:.9rem;padding:8px 16px;cursor:pointer;box-shadow:0 3px 0 #1C4A99}" +
+"#rbDone .rbgame{display:flex;gap:12px;align-items:center;width:100%;box-sizing:border-box;text-align:left;background:linear-gradient(135deg,#FFF4D6,#FFE7AE);border:3px solid #FFC93C;border-radius:18px;padding:10px 12px;margin:10px 0 4px;color:#2D2250;box-shadow:0 4px 0 #E0A800;font:inherit}" +
+      "#rbDone .rbgame:hover{background:#FFF0C2}#rbDone .rbgame .ge{font-size:2.3rem;line-height:1;flex:none}#rbDone .rbgame span{min-width:0;display:block}" +
+      "#rbDone .rbgame i{display:block;font-style:normal;font-weight:900;font-size:.8rem;color:#B86B00;line-height:1.2}#rbDone .rbgame b{display:block;font-size:1.02rem;line-height:1.2;margin-top:2px}" +
+      "#rbDone .rbgame small{display:block;font-weight:700;opacity:.75;font-size:.8rem;margin-top:2px}#rbDone .rbgame .play{margin-left:auto;flex:none;background:#2F9E5B;color:#fff;border-radius:999px;padding:8px 14px;font-weight:900;font-size:.95rem;box-shadow:0 3px 0 #1F7041}" +
       "#rbDone .rbpickh{font-weight:900;font-size:.95rem;margin:10px 0 6px;text-align:left;color:#3A2E6B}" +
       "#rbDone .rbpick{display:grid;gap:8px;margin-bottom:10px}" +
       "#rbDone .rbc2{display:flex;gap:12px;align-items:center;width:100%;box-sizing:border-box;text-align:left;background:#fff;border:3px solid #FFC93C;border-radius:18px;padding:8px 12px 8px 8px;cursor:pointer;font:inherit;color:#2D2250;box-shadow:0 4px 0 rgba(255,201,60,.45)}" +
@@ -347,7 +353,11 @@
         .join(""),
       prog = "",
       so = root.SubjectOutfits && root.SubjectOutfits.forSubject(sj),
-      outfit = "";
+      outfit = "",
+      bonus = null;
+    try {
+      bonus = cfg.bonusGame ? cfg.bonusGame(cur) : null;
+    } catch (e) {}
     if (so && !finishedIn(sj, cur.slug))
       outfit =
         '<div class="rbnext">New outfit unlocked: ' + esc(so.name) + '! 新装扮：「' + esc(so.cn) + "」<br><span style=\"opacity:.7\">Your pet wears it when you read " + esc(sj) + " books. 读" + esc(sj) + "的书时，宠物会穿上它。</span></div>";
@@ -389,6 +399,10 @@
       n +
       "</small></div></div>" +
       (lines ? '<div class="rbstars">' + lines + "</div>" : "") +
+      (bonus
+        ? '<button type="button" class="rbgame" id="rbGame"><span class="ge">' + esc(bonus.e || "🎮") + '</span><span><i>🎁 Bonus game unlocked! 奖励游戏</i><b>' +
+          esc(bonus.name) + "</b><small>Practice what you just read 练一练刚学的</small></span><span class=\"play\">Play ▶</span></button>"
+        : "") +
       outfit +
       prog +
       saveHtml +
@@ -406,6 +420,17 @@
     $("rbStay").onclick = function () {
       hideDone();
     };
+    var gm = $("rbGame");
+    if (gm)
+      gm.onclick = function () {
+        hideDone();
+        cfg.close();
+        setTimeout(function () {
+          try {
+            cfg.playGame(bonus);
+          } catch (e) {}
+        }, 60);
+      };
     var sv = $("rbSave");
     if (sv)
       sv.onclick = function () {
