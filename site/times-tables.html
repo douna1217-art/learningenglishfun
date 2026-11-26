@@ -76,7 +76,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 <body>
 <div class="top">
   <a class="home" href="/">← Home 首页</a>
-  <button class="sound" id="soundBtn" type="button">🔊 读口诀：开</button>
+  <button class="sound" id="soundBtn" type="button">🔊 朗读：开</button>
 </div>
 <div class="wrap">
 
@@ -102,14 +102,14 @@ button{font:inherit;cursor:pointer;color:inherit}
     <p class="hint">按键盘 1 2 3 4 也能选答案</p>
     <div class="modes">
       <button class="mode m1" type="button" data-mode="practice"><span class="ic">🐢</span><div><b>慢慢练 Practice</b><span>10 道题，不计时，答错会教你</span></div></button>
-      <button class="mode m2" type="button" data-mode="timed"><span class="ic">⏱️</span><div><b>60 秒挑战 Speed</b><span>一分钟能答对几道？</span></div></button>
+      <button class="mode m2" type="button" data-mode="timed"><span class="ic">⏱️</span><div><b>60 秒挑战 Speed</b><span>60 秒能答对几道？</span></div></button>
       <button class="mode m3" type="button" data-mode="review"><span class="ic">📒</span><div><b>错题复习 Review</b><span id="reviewInfo">把以前答错的再练一遍</span></div></button>
     </div>
   </div>
 
   <div class="panel">
     <h2>📋 我的口诀表 My chart</h2>
-    <p class="hint">答对越多，格子颜色越深。点格子可以听口诀。</p>
+    <p class="hint">答对越多，格子颜色越深。点格子可以听读音。</p>
     <div class="chart" id="chart"></div>
     <div class="legend">
       <span><i style="background:#f3f5f3"></i>还没练</span>
@@ -159,18 +159,10 @@ button{font:inherit;cursor:pointer;color:inherit}
 <script>
 (function(){
   "use strict";
-  var CN = ["零","一","二","三","四","五","六","七","八","九"];
-  function cnNum(n){
-    if(n<10) return CN[n];
-    var t=Math.floor(n/10), o=n%10;
-    if(n===10) return "一十";
-    return (t===1?"":CN[t])+"十"+(o?CN[o]:"");
-  }
-  // 口诀：小数在前，积小于 10 用「得」
-  function koujue(a,b){
-    var x=Math.min(a,b), y=Math.max(a,b), p=x*y;
-    return CN[x]+CN[y]+(p<10?"得":"")+cnNum(p);
-  }
+  // 只用阿拉伯数字：小数在前，如 3 × 7 = 21
+  function fact_text(a,b){ return a+" × "+b+" = "+(a*b); }
+  // 朗读用：数字交给语音自己读
+  function speech(a,b){ return a+"乘"+b+"等于"+(a*b); }
   function key(a,b){ return Math.min(a,b)+"x"+Math.max(a,b); }
 
   // ---- storage (per-viewer, optional) ----
@@ -221,7 +213,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     for(var t=1;t<=9;t++){
       var b=document.createElement("button"); b.type="button";
       b.className="tbtn"+(data.selected.indexOf(t)>=0?" on":"");
-      b.innerHTML=(tableMastered(t)?'<span class="medal">🥇</span>':"")+"× "+t+"<small>"+CN[t]+"的口诀</small>";
+      b.innerHTML=(tableMastered(t)?'<span class="medal">🥇</span>':"")+"× "+t+"<small>"+t+"×1 ~ "+t+"×9</small>";
       (function(t){ b.onclick=function(){
         var i=data.selected.indexOf(t); if(i>=0) data.selected.splice(i,1); else data.selected.push(t);
         save(); renderTables();
@@ -241,15 +233,15 @@ button{font:inherit;cursor:pointer;color:inherit}
         var el=document.createElement(c<=r?"button":"div");
         if(c>r){ el.className="cell blank"; box.appendChild(el); continue; }
         el.type="button"; el.className="cell l"+level(key(c,r));
-        el.innerHTML=c+"×"+r+'<span class="k">'+koujue(c,r)+"</span>";
-        (function(a,b){ el.onclick=function(){ say(koujue(a,b)); }; el.title=koujue(a,b)+"  "+a+"×"+b+"="+(a*b); })(c,r);
+        el.innerHTML=c+"×"+r+'<span class="k">= '+(c*r)+"</span>";
+        (function(a,b){ el.onclick=function(){ say(speech(a,b)); }; el.title=fact_text(a,b); })(c,r);
         box.appendChild(el);
       }
     }
   }
   $("allBtn").onclick=function(){ data.selected=[1,2,3,4,5,6,7,8,9]; save(); renderTables(); };
   $("noneBtn").onclick=function(){ data.selected=[]; save(); renderTables(); };
-  function renderSound(){ $("soundBtn").textContent = data.sound ? "🔊 读口诀：开" : "🔈 读口诀：关"; }
+  function renderSound(){ $("soundBtn").textContent = data.sound ? "🔊 朗读：开" : "🔈 朗读：关"; }
   $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); if(!data.sound){ try{speechSynthesis.cancel();}catch(e){} } };
 
   // ---- game ----
@@ -330,7 +322,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     var buttons=[].slice.call(document.querySelectorAll(".choice"));
     buttons.forEach(function(x){ x.disabled=true; if(+x.dataset.v===p) x.classList.add("right"); });
     $("question").innerHTML=a+" × "+b+' = <span class="ans">'+p+"</span>";
-    $("koujue").textContent="「"+koujue(a,b)+"」";
+    $("koujue").textContent = a===b ? "" : fact_text(b,a);
     var combo=$("combo"); combo.classList.remove("show");
     if(v===p){
       f.ok++; G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
@@ -339,14 +331,14 @@ button{font:inherit;cursor:pointer;color:inherit}
       combo.textContent = G.streak>=3 ? ("🔥 连对 "+G.streak+"！ +"+gain+" ⭐") : ["太棒了！","答对啦！","Great!","真厉害！"][Math.floor(Math.random()*4)];
       void combo.offsetWidth; combo.classList.add("show");
       beep(true);
-      if(G.mode!=="timed") say(koujue(a,b));
+      if(G.mode!=="timed") say(speech(a,b));
       save();
       setTimeout(next, G.mode==="timed"?450:1100);
     }else{
       btn.classList.add("wrong"); f.miss++; G.streak=0; G.miss[k]=1;
-      combo.textContent="没关系，记住这句口诀 👆";
+      combo.textContent="没关系，记住它 👆";
       void combo.offsetWidth; combo.classList.add("show");
-      beep(false); say(koujue(a,b));
+      beep(false); say(speech(a,b));
       // 慢慢练：答错的题稍后会再出一次
       if(G.mode!=="timed"){ G.pool.push([a,b],[a,b]); }
       save();
@@ -364,7 +356,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     $("resSub").textContent = (mode==="timed"?"60 秒答对 "+c+" 道":"答对 "+c+" 道")+" · 得到 "+G.stars+" ⭐ · 最长连对 "+G.best;
     var ms=Object.keys(G.miss);
     $("resMistakesBox").classList.toggle("hide",!ms.length);
-    $("resMistakes").innerHTML=ms.map(function(k){ var p=k.split("x"); return "<span>"+p[0]+"×"+p[1]+"="+(p[0]*p[1])+" · "+koujue(+p[0],+p[1])+"</span>"; }).join("");
+    $("resMistakes").innerHTML=ms.map(function(k){ var p=k.split("x"); return "<span>"+p[0]+"×"+p[1]+"="+(p[0]*p[1])+"</span>"; }).join("");
     show("result");
     if(s>=2) confetti();
   }
