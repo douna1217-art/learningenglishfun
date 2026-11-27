@@ -6,7 +6,7 @@
 <meta name="description" content="Sweet Shop: run a candy shop with your pet. Pay with pennies, nickels, dimes, quarters and dollars, count the tip jar and give change. Grade 2 money in English.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128b"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script>
 <script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="engine.js?v=20261128a"></script>
 <script>
 (function(){
@@ -72,14 +72,15 @@
     var f=ui.stage('<div class="sshop">'+top+'<div class="counter" id="ctr"><span class="ctrL">'+(q.kind==="change"?"Change for the customer 找给顾客":"Counter 柜台")+'</span><div class="ctrIn" id="ctrIn"></div><div class="tot" id="tot"></div></div>'+
       '<div class="tray">'+k.map(function(v){ return '<button type="button" class="tc" data-v="'+v+'">'+coinSvg(v,46)+'<small>'+COIN[v].n+'</small></button>'; }).join("")+'</div>'+
       '<button type="button" class="go" id="goBtn">'+(q.kind==="change"?"Give change ✓ <small>找零</small>":"Pay ✓ <small>付钱</small>")+'</button></div>');
+    var fresh=-1;   // the coin just put down: only it drops in
     function draw(){
       var s=counter.reduce(function(a,b){ return a+b; },0);
-      f.querySelector("#ctrIn").innerHTML=counter.map(function(v,i){ return '<button type="button" class="cc" data-i="'+i+'" aria-label="Take back">'+coinSvg(v,38)+'</button>'; }).join("")||'<span class="empty">Tap a coin below 点下面的硬币</span>';
+      f.querySelector("#ctrIn").innerHTML=counter.map(function(v,i){ return '<button type="button" class="cc'+(i===fresh?" fresh":"")+'" data-i="'+i+'" aria-label="Take back">'+coinSvg(v,38)+'</button>'; }).join("")||'<span class="empty">Tap a coin below 点下面的硬币</span>';
       f.querySelector("#tot").textContent=q.t?"Total: "+money(s):"";
     }
     f.querySelector(".tray").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".tc"):null; if(!b||counter.length>=20) return;
-      counter.push(+b.dataset.v); counter.sort(function(a,b2){ return b2-a; }); clink(); draw(); });
-    f.querySelector("#ctrIn").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".cc"):null; if(!b) return; counter.splice(+b.dataset.i,1); tick(); draw(); });
+      var v=+b.dataset.v; counter.push(v); counter.sort(function(a,b2){ return b2-a; }); fresh=counter.lastIndexOf(v); clink(); draw(); });
+    f.querySelector("#ctrIn").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".cc"):null; if(!b) return; counter.splice(+b.dataset.i,1); fresh=-1; tick(); draw(); });
     f.querySelector("#goBtn").onclick=function(){ if(ui.locked()) return; var s=counter.reduce(function(a,b){ return a+b; },0);
       if(s!==goal){ ui.answer("x:"+s); return; }
       if(q.kind==="few"&&counter.length>fewest(goal,k).length){ ui.answer("more:"+counter.length); return; }
@@ -167,7 +168,7 @@
       '.sshop{max-width:460px;margin:0 auto}.shopTop{display:flex;align-items:center;gap:10px;margin:2px 0 8px}.guest{font-size:3rem;line-height:1;transition:transform .3s}.guest.happy{animation:hop .6s 2}.guest.sad{filter:grayscale(.5)}'+
       '@keyframes hop{50%{transform:translateY(-12px) rotate(-6deg)}}.keeper{flex:none;width:58px;height:58px;display:flex;align-items:center;justify-content:center}.keeper.em{font-size:2.6rem}.keeper svg{overflow:hidden}.bub{background:#fff;border:3px solid var(--line);border-radius:18px;padding:8px 12px;font-weight:900;flex:1}.bub .ptag{display:inline-block;background:#ffe36e;border-radius:8px;padding:0 8px;margin-left:4px;transform:rotate(-3deg)}'+
       '.counter{background:linear-gradient(180deg,#f3c9a0,#e9b385);border-radius:20px;padding:8px;min-height:120px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}.ctrL{display:block;font-weight:900;font-size:.8rem;color:#6b3f1f}'+
-      '.ctrIn{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;min-height:70px}.ctrIn .empty{font-weight:800;color:#8a5a37;font-size:.85rem}.cc{border:0;background:none;padding:0;cursor:pointer;animation:drop .25s ease-out}'+
+      '.ctrIn{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;min-height:70px}.ctrIn .empty{font-weight:800;color:#8a5a37;font-size:.85rem}.cc{border:0;background:none;padding:0;cursor:pointer}.cc.fresh{animation:drop .25s ease-out}'+
       '@keyframes drop{from{transform:translateY(-30px) scale(1.2);opacity:.3}}.oneWay{font-weight:900;font-size:.8rem;color:#6b3f1f;flex-basis:100%;text-align:center}.tot{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.2rem;color:#6b3f1f;min-height:1.3em}'+
       '.tray{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}.tc{border:0;background:#fff;border-radius:18px;padding:6px 6px 4px;cursor:pointer;box-shadow:0 4px 0 var(--line);display:flex;flex-direction:column;align-items:center;min-width:64px}.tc:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}.tc small{font-weight:800;font-size:.72rem;color:var(--muted)}'+
       '.tc:disabled,.cc:disabled{opacity:.6;cursor:default}.go{display:block;margin:12px auto 0;border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.85}.go:disabled{opacity:.45}'+

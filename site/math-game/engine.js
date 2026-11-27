@@ -36,6 +36,8 @@
     '.home,.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px 13px;font-weight:900;text-decoration:none;color:var(--ink)}' +
     '.wallet{display:flex;gap:8px;align-items:center}.chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:900;white-space:nowrap}' +
     '.wrap{max-width:920px;margin:auto;padding:0 16px 48px}' +
+    // on a big screen (a tablet or a computer) the whole game is drawn larger, so the text and the things to tap are not tiny
+    '@media(min-width:760px){.wrap{zoom:1.15}}@media(min-width:1000px){.wrap{zoom:1.3}}@media(min-width:1300px){.wrap{zoom:1.45}}' +
     '.hero{position:relative;border-radius:28px;padding:22px 14px 16px;color:#fff;text-align:center;box-shadow:var(--shadow);overflow:hidden}' +
     '.hero h1{margin:0;font-size:clamp(1.9rem,7vw,3rem);text-shadow:0 3px 0 rgba(0,0,0,.2)}.hero p{margin:4px 0 0;font-weight:900;text-shadow:0 2px 0 rgba(0,0,0,.25)}' +
     '.owned{font-size:2rem;letter-spacing:6px;min-height:1.3em;margin-top:8px;line-height:1.3}' +

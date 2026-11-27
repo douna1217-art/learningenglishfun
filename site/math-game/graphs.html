@@ -111,19 +111,19 @@
 
   // Picture Graphs: draw the paws of one row
   function drawPaws(q,ui){
-    var ai=q.a[q.ask], n=0;
+    var ai=q.a[q.ask], n=0, added=false;   // added: the last paw was just drawn (only it pops in)
     ui.task("News: the <b>"+emo(ai)+" "+name(ai)+"</b> got <b>"+q.v[q.ask]+" votes</b>. Draw their row! <small>画出这一行的 🐾 · tap a 🐾 to take it away 点 🐾 可以去掉</small>");
     var f=ui.stage('<div><div id="pg"></div>'+goBtn("Print it ✓","完成")+'</div>').firstElementChild;   // listeners on a new element each question
     function draw(){
       var h='<div class="pg"><div class="pgT">Our favorite zoo animals</div>';
       q.a.forEach(function(a,r){
-        var row=r===q.ask, k=row?n:q.v[r]/q.k, ic=""; for(var i=0;i<k;i++) ic+=row?'<button type="button" class="paw" data-i="'+i+'" aria-label="Take away a paw">🐾</button>':"🐾";
+        var row=r===q.ask, k=row?n:q.v[r]/q.k, ic=""; for(var i=0;i<k;i++) ic+=row?'<button type="button" class="paw'+(added&&i===k-1?" fresh":"")+'" data-i="'+i+'" aria-label="Take away a paw">🐾</button>':"🐾";
         h+='<div class="pgR'+(row?" me":"")+'"><span class="pgN">'+emo(a)+" "+name(a)+'</span><span class="pgI">'+ic+(row&&k<12?'<button type="button" class="add" aria-label="Add a paw">＋ Add <small>加一个</small></button>':"")+(row&&!k?'<span class="none">none yet</span>':"")+'</span></div>';
       });
       f.querySelector("#pg").innerHTML=h+'<div class="pgK">Key: each 🐾 = '+q.k+' votes</div></div>';
     }
     f.addEventListener("click",function(e){ if(ui.locked()) return; var t=e.target.closest?e.target.closest("button"):null; if(!t) return;
-      if(t.classList.contains("add")){ n++; tick(); draw(); } else if(t.classList.contains("paw")){ n--; tick(); draw(); } else if(t.id==="goBtn") ui.answer(n*q.k===q.v[q.ask]?"ok":"x:"+n); });
+      if(t.classList.contains("add")){ n++; added=true; tick(); draw(); } else if(t.classList.contains("paw")){ n--; added=false; tick(); draw(); } else if(t.id==="goBtn") ui.answer(n*q.k===q.v[q.ask]?"ok":"x:"+n); });
     draw();
   }
   // Bar Graphs: pull the bar up to its number
@@ -311,7 +311,7 @@
       '.go{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.8}.go:disabled{opacity:.45}'+
       '.pg{max-width:440px;margin:8px auto 0;border:3px solid #2f8f8a;border-radius:16px;overflow:hidden;background:#fff}.pgT{background:#2f8f8a;color:#fff;font-weight:900;padding:6px 10px;text-align:center}'+
       '.pgR{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid #d7ecea;min-height:44px}.pgR.me{background:#fff6cc}.pgN{width:92px;flex:none;font-weight:900;font-size:.9rem}.pgI{font-size:1.25rem;letter-spacing:2px;display:flex;flex-wrap:wrap;gap:2px;align-items:center}'+
-      '.pgI .paw{border:0;background:none;font-size:1.35rem;padding:2px;cursor:pointer;animation:pop .3s}.pgI .add{border:0;background:#2f8f8a;border-radius:999px;font:inherit;font-weight:900;font-size:.9rem;padding:6px 12px;cursor:pointer;color:#fff;letter-spacing:0;box-shadow:0 3px 0 #1f6662;margin-left:4px}.pgI .add small{font-weight:800;opacity:.85}.pgI .none{font-size:.8rem;font-weight:800;color:var(--muted);letter-spacing:0;order:-1;margin-right:4px}'+
+      '.pgI .paw{border:0;background:none;font-size:1.35rem;padding:2px;cursor:pointer}.pgI .paw.fresh{animation:pop .3s}.pgI .add{border:0;background:#2f8f8a;border-radius:999px;font:inherit;font-weight:900;font-size:.9rem;padding:6px 12px;cursor:pointer;color:#fff;letter-spacing:0;box-shadow:0 3px 0 #1f6662;margin-left:4px}.pgI .add small{font-weight:800;opacity:.85}.pgI .none{font-size:.8rem;font-weight:800;color:var(--muted);letter-spacing:0;order:-1;margin-right:4px}'+
       '.pgK{border-top:2px solid #2f8f8a;padding:6px 10px;font-weight:900;text-align:center;background:#eef8f7}.keySlot .hole{display:inline-block;min-width:44px;border:3px dashed #2f8f8a;border-radius:10px;padding:0 8px;background:#fff}.keySlot .hole.in{border-style:solid}.keySlot .hole.fix{border-color:#2f9e5b;color:#1f6b3a}'+
       '.cards{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}.card{border:3px solid #d7ecea;background:#fff;border-radius:16px;padding:6px 10px;font-size:2rem;line-height:1.1;cursor:pointer;min-width:76px;font-family:inherit}.card small{display:block;font-size:.75rem;font-weight:800;color:var(--muted)}.card.used{opacity:.35}'+
       '.podium{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.spot{background:#eef8f7;border-radius:14px;text-align:center;padding:6px 2px}.spot .em{font-size:1.9rem;display:block;line-height:1.2}.spot .em.empty{opacity:.3}.spot b{font-size:.8rem;color:var(--muted)}'+

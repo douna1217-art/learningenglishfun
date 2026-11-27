@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Make-Ten Rocket</title>
+<meta name="theme-color" content="#3a4fa8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Make-Ten Rocket: fill the ten frame, jump the rocket by tens and ones, double and halve, add within 1000 and solve two-step missions. Grade 2 adding and subtracting in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script>
+<script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="engine.js?v=20261128a"></script>
+<script>
+(function(){
+  "use strict";
+  // Make-Ten Rocket (Grade 2, adding and subtracting): the child's pet flies a rocket. Fuel is added with a ten frame (make a ten, then
+  // add the rest), the rocket jumps along a 0 to 100 track by tens and ones (only the tens are labeled), stars are doubled in a mirror
+  // and halved with a slider, big sums are set on the wheels of the space station, and two-step missions are flown jump by jump.
+  var M=MathGame, pickOne=M.pickOne, rnd=M.rnd, between=M.between;
+  function Q(kind,d){ d.kind=kind; d.key=kind+"|"+JSON.stringify(d); return d; }
+  function fromKey(k){ var i=k.indexOf("|"); var d=JSON.parse(k.slice(i+1)); d.key=k; return d; }
+  function digits(n){ return [Math.floor(n/100),Math.floor(n/10)%10,n%10]; }
+
+  // ---------- the questions ----------
+  function frame(lo){ return function(){ var a=between(lo?6:7,9), b=between(lo?2:3,9); while(a+b<=10) b++; return Q("frame",Math.random()<.5?{a:a,b:b}:{a:a,b:b,sw:1}); }; }
+  function jumpAdd(){ var a=between(12,68), b=between(11,99-a); return Q("jump",{s:a,ops:[b]}); }
+  function jumpSub(){ var a=between(35,99), b=between(11,a-5); return Q("jump",{s:a,ops:[-b]}); }
+  function dbl(){ return Math.random()<.5?Q("double",{n:between(3,10)}):Q("half",{n:between(2,10)*2}); }
+  function big(){ var a=between(105,599), b=between(105,Math.min(399,990-a)); return Q("big",{a:a,b:b}); }
+  function three(){ var a=between(11,35), b=between(11,35), c=between(5,29); return Q("jump",{s:0,ops:[a,b,c],three:1}); }
+  var STORIES=[
+    ["{s} astronauts are on the space station. {a} more fly in. Then {b} fly home.","+","-"],
+    ["The rocket has {s} fuel cans. It gets {a} more. Then it uses {b}.","+","-"],
+    ["There are {s} moon rocks in the box. {a} rocks fall out. Then you find {b} more.","-","+"],
+    ["{s} stars are shining. {a} more come out. Then {b} more come out.","+","+"],
+    ["The robot has {s} bolts. It uses {a}. Then it uses {b} more.","-","-"]
+  ];
+  function story(){
+    for(var t=0;t<50;t++){
+      var i=rnd(STORIES.length), st=STORIES[i], s=between(20,60), a=between(11,29), b=between(11,29), x=s+(st[1]==="+"?a:-a), y=x+(st[2]==="+"?b:-b);
+      if(x>0&&x<100&&y>0&&y<100) return Q("jump",{s:s,ops:[st[1]==="+"?a:-a,st[2]==="+"?b:-b],st:i});
+    }
+    return jumpAdd();
+  }
+  var LEVELS=[
+    {id:"r1",n:"Fill the Ten",ic:"🔟",gen:frame(true)},
+    {id:"r2",n:"Make Ten Fast",ic:"⚡",gen:frame(false)},
+    {id:"r3",n:"Jump Up",ic:"🚀",gen:jumpAdd},
+    {id:"r4",n:"Jump Back",ic:"🛸",gen:jumpSub},
+    {id:"r5",n:"Double & Half",ic:"🪞",gen:dbl},
+    {id:"r6",n:"Space Station Sums",ic:"🛰️",gen:big},
+    {id:"r7",n:"Three Fuel Cans",ic:"⛽",gen:three},
+    {id:"r8",n:"Two-Step Missions",ic:"🧑‍🚀",gen:story}
+  ];
+  function answerOf(q){
+    if(q.kind==="frame") return q.a+q.b;
+    if(q.kind==="double") return q.n*2;
+    if(q.kind==="half") return q.n/2;
+    if(q.kind==="big") return q.a+q.b;
+    return q.ops.reduce(function(s,o){ return s+o; },q.s);
+  }
+  function right(q){ return String(answerOf(q)); }
+  var tick=function(){ M.blip&&M.blip(620,.05); }, zoom=function(){ M.blip&&M.blip(500,.08); setTimeout(function(){ M.blip&&M.blip(900,.1); },60); };
+  function goBtn(t,cn){ return '<button type="button" class="go" id="goBtn">'+t+' <small>'+cn+'</small></button>'; }
+  function pilot(say){ var p=MathPet.get(); return '<div class="kbar">'+(p?'<span class="keeper">'+MathPet.pic(p,"happy",50)+'</span>':'<span class="keeper em">🧑‍🚀</span>')+'<span class="kbub">'+say+'</span></div>'; }
+  function wheelsHtml(id,n,labels){ return '<div class="wheels" id="'+id+'">'+labels.slice(3-n).map(function(l,i){ return '<span class="wh"><small>'+l+'</small><button type="button" data-i="'+i+'" data-d="1">▲</button><b data-i="'+i+'">0</b><button type="button" data-i="'+i+'" data-d="-1">▼</button></span>'; }).join("")+'</div>'; }
+  function wireWheels(box,n,ui){ var d=[]; for(var i=0;i<n;i++) d.push(0); box.addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest("button"):null; if(!b) return; var i=+b.dataset.i; d[i]=(d[i]+ +b.dataset.d+10)%10; tick();
+      [].forEach.call(box.querySelectorAll("b"),function(x){ x.textContent=d[+x.dataset.i]; }); }); return function(){ return d.reduce(function(s,v){ return s*10+v; },0); }; }
+  var LBL=["Hundreds 百位","Tens 十位","Ones 个位"];
+
+  // ten frame: tap fuel drops from the pile into the frame until it is full, then the rest is easy to add
+  function frameGame(q,ui){
+    var a=q.sw?q.b:q.a, b=q.sw?q.a:q.b;   // sometimes the small number comes first: the frame is filled from the bigger one
+    var big=Math.max(a,b), small=Math.min(a,b), inFrame=big, pile=small;
+    ui.task("<b>"+a+" + "+b+"</b> = ? Fill the ten frame first! <small>先把十格框填满，再加剩下的</small>");
+    var f=ui.stage('<div class="spc">'+pilot("Tap the fuel drops to fill the frame! 点燃料滴，填满十格")+'<div class="frames"><div class="tf" id="tf"></div><div class="pile" id="pile"></div></div><div class="sum" id="sum"></div>'+wheelsHtml("fw",2,LBL)+goBtn("Launch! 🚀","发射")+'</div>');
+    function draw(){
+      var h=""; for(var i=0;i<10;i++) h+='<span class="cell'+(i<inFrame?(i<big?" have":" moved"+(i===inFrame-1?" fresh":"")):"")+'">'+(i<inFrame?"●":"")+'</span>'; f.querySelector("#tf").innerHTML=h;
+      var p=""; for(var j=0;j<pile;j++) p+='<button type="button" class="drop">●</button>'; f.querySelector("#pile").innerHTML=p||'<span class="none">—</span>';
+      f.querySelector("#sum").innerHTML=inFrame===10?'<b>10</b> + <b>'+pile+'</b> = ?':(10-inFrame)+" more to make 10 还差 "+(10-inFrame)+" 个凑成十";
+    }
+    f.querySelector("#pile").addEventListener("click",function(e){ if(ui.locked()) return; var b2=e.target.closest?e.target.closest(".drop"):null; if(!b2||inFrame>=10) return; inFrame++; pile--; tick(); if(inFrame===10) zoom(); draw(); });
+    var get=wireWheels(f.querySelector("#fw"),2,ui);
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(get())); };
+    draw();
+  }
+  // the 0-100 track: jump by tens and ones (only the tens are labeled, the rocket's number is not shown)
+  function trackSvg(pos,trail){
+    var s='<svg viewBox="0 0 340 92" class="trk"><line x1="15" y1="62" x2="325" y2="62" stroke="#c9d1f0" stroke-width="6" stroke-linecap="round"/>';
+    for(var v=0;v<=100;v++){ var x=15+v*3.1, big=v%10===0, mid=v%5===0;
+      s+='<line x1="'+x+'" y1="'+(big?52:mid?56:58)+'" x2="'+x+'" y2="'+(big?72:mid?68:66)+'" stroke="#5a64a8" stroke-width="'+(big?2:1)+'"/>';
+      if(big) s+='<text x="'+x+'" y="88" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#2a2f5a">'+v+'</text>'; }
+    (trail||[]).forEach(function(t){ var x1=15+t[0]*3.1, x2=15+t[1]*3.1, h=Math.min(26,Math.abs(x2-x1)*.6+6);
+      s+='<path d="M'+x1+' 58 Q'+((x1+x2)/2)+' '+(58-h)+' '+x2+' 58" fill="none" stroke="'+(t[1]>t[0]?"#f5b301":"#e8916d")+'" stroke-width="2.5" stroke-dasharray="4 3"/>'; });
+    s+='<text x="'+(15+pos*3.1)+'" y="52" text-anchor="middle" font-size="22">🚀</text>';
+    return s+'</svg>';
+  }
+  function jumpGame(q,ui){
+    var pos=q.s, trail=[], log=[], sub=q.ops.length===1&&q.ops[0]<0;
+    if(q.st!=null){ var st=STORIES[q.st], abs=q.ops.map(Math.abs); ui.task(st[0].replace("{s}","<b>"+q.s+"</b>").replace("{a}","<b>"+abs[0]+"</b>").replace("{b}","<b>"+abs[1]+"</b>")+" How many now? Fly it! <small>两步题：一步一步跳，最后落在答案上</small>"); }
+    else if(q.three) ui.task("Fill the rocket with three fuel cans: <b>"+q.ops.join(" + ")+"</b>. Jump from 0! <small>从 0 开始，三罐燃料依次加上去</small>");
+    else ui.task("Start at <b>"+q.s+"</b>. "+(sub?"Take away":"Add")+" <b>"+Math.abs(q.ops[0])+"</b>! <small>从 "+q.s+" 开始，用十和一跳"+(sub?"回去":"过去")+"</small>");
+    var f=ui.stage('<div class="spc">'+pilot(sub?"Jump back by tens, then by ones! 先退十，再退一":"Jump by tens, then by ones! 先跳十，再跳一")+'<div class="trkBox" id="trk"></div><div class="log" id="log"></div>'+
+      '<div class="jbtns">'+(q.three||q.st!=null||!sub?'<button type="button" class="jb up" data-d="10">+10</button><button type="button" class="jb up" data-d="1">+1</button>':"")+(q.st!=null||sub?'<button type="button" class="jb dn" data-d="-10">−10</button><button type="button" class="jb dn" data-d="-1">−1</button>':"")+
+      '<button type="button" class="jb undo" data-d="undo">↶</button></div>'+goBtn("Land here 🌕","降落在这里")+'</div>');
+    function draw(){ f.querySelector("#trk").innerHTML=trackSvg(pos,trail); f.querySelector("#log").textContent=log.length?(q.s+" "+log.join(" ")):"Start at "+q.s+" 从 "+q.s+" 出发"; }
+    f.querySelector(".jbtns").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".jb"):null; if(!b) return;
+      if(b.dataset.d==="undo"){ if(!trail.length) return; var t=trail.pop(); log.pop(); pos=t[0]; tick(); draw(); return; }
+      var d=+b.dataset.d, to=pos+d; if(to<0||to>100) return; trail.push([pos,to]); log.push((d>0?"+":"−")+Math.abs(d)); pos=to; zoom(); draw(); });
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(pos)); };
+    draw();
+  }
+  // doubling: put the same stars on the other side of the mirror; halving: slide the line so both sides are equal
+  function doubleGame(q,ui){
+    var r=0;
+    ui.task("Double <b>"+q.n+"</b>! Put the same stars on the other side of the mirror, then count them all. <small>加倍：镜子另一边放一样多，再数一共多少</small>");
+    var f=ui.stage('<div class="spc">'+pilot("Put the same stars on the right! 右边放一样多的星星")+'<div class="mirror"><div class="half l" id="ml"></div><div class="glass"></div><div class="half r" id="mr"></div></div><div class="jbtns"><button type="button" class="jb dn" id="sMinus">− star</button><button type="button" class="jb up" id="sPlus">+ star ⭐</button></div><div class="sum" id="sum"></div>'+wheelsHtml("dw",2,LBL)+goBtn("That's double ✓","这就是两倍")+'</div>');
+    function stars(n,cls){ var h=""; for(var i=0;i<n;i++) h+='<span class="st'+(cls||"")+(cls&&i===n-1?" fresh":"")+'">⭐</span>'; return h; }
+    function draw(){ f.querySelector("#ml").innerHTML=stars(q.n); f.querySelector("#mr").innerHTML=stars(r," new")||'<span class="addS">?</span>'; f.querySelector("#sum").textContent=r===q.n?"The same on both sides! 两边一样多":""; }
+    f.querySelector("#sPlus").onclick=function(){ if(ui.locked()||r>=q.n+3) return; r++; tick(); draw(); };
+    f.querySelector("#sMinus").onclick=function(){ if(ui.locked()||r<=0) return; r--; tick(); draw(); };
+    var get=wireWheels(f.querySelector("#dw"),2,ui);
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(get())); };
+    draw();
+  }
+  function halfGame(q,ui){
+    var cut=Math.round(q.n/3);
+    ui.task("Halve <b>"+q.n+"</b>! Slide the line so both sides have the same number of stars. <small>减半：移动分割线，让两边一样多</small>");
+    var f=ui.stage('<div class="spc">'+pilot("Drag the line! 拖动分割线")+'<div class="row" id="row"></div><input type="range" class="slider" id="sl" min="1" max="'+(q.n-1)+'" value="'+cut+'" aria-label="the line"><div class="sum" id="sum"></div>'+wheelsHtml("hw",2,LBL)+goBtn("That's half ✓","这就是一半")+'</div>');
+    function draw(){ var h=""; for(var i=0;i<q.n;i++){ if(i===cut) h+='<span class="cut"></span>'; h+='<span class="st'+(i<cut?"":" r")+'">⭐</span>'; } f.querySelector("#row").innerHTML=h;
+      f.querySelector("#sum").textContent=cut*2===q.n?"Both sides are equal! 两边一样多":""; }
+    f.querySelector("#sl").addEventListener("input",function(){ if(ui.locked()) return; cut=+this.value; tick(); draw(); });
+    var get=wireWheels(f.querySelector("#hw"),2,ui);
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(get())); };
+    draw();
+  }
+  // the space station: add within 1000 in columns, with carry marks to tap
+  function bigGame(q,ui){
+    var x=digits(q.a), y=digits(q.b), carry=[0,0];
+    ui.task("The space station needs <b>"+q.a+"</b> + <b>"+q.b+"</b> parts. How many in all? Set the wheels! <small>竖式加法，满十进一</small>");
+    var f=ui.stage('<div class="spc">'+pilot("Start with the ones! 从个位加起")+'<div class="col3"><div class="crow"><span></span><button type="button" class="cm" data-c="0"></button><button type="button" class="cm" data-c="1"></button><span></span></div>'+
+      '<div class="drow"><span></span>'+x.map(function(v){ return "<b>"+v+"</b>"; }).join("")+'</div><div class="drow"><span>+</span>'+y.map(function(v){ return "<b>"+v+"</b>"; }).join("")+'</div><div class="bar"></div></div>'+wheelsHtml("bw",3,LBL)+goBtn("Build it! 🛰️","完成")+'</div>');
+    function draw(){ [].forEach.call(f.querySelectorAll(".cm"),function(b){ var c=+b.dataset.c; b.textContent=carry[c]?"1":""; b.classList.toggle("on",!!carry[c]); }); }
+    f.querySelector(".crow").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".cm"):null; if(!b) return; carry[+b.dataset.c]^=1; tick(); draw(); });
+    var get=wireWheels(f.querySelector("#bw"),3,ui);
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(get())); };
+    draw();
+  }
+  function render(q,ui){
+    if(q.kind==="frame") return frameGame(q,ui);
+    if(q.kind==="jump") return jumpGame(q,ui);
+    if(q.kind==="double") return doubleGame(q,ui);
+    if(q.kind==="half") return halfGame(q,ui);
+    return bigGame(q,ui);
+  }
+  function after(q,ok){
+    [].forEach.call(document.querySelectorAll("#field button, #field input"),function(x){ x.disabled=true; });
+    if(ok){ MathPet.feed(2); travel(); var r=document.querySelector("#field .trk text:last-child"); if(r) r.classList.add("blast"); }
+    else if(q.kind==="jump"){ var t=document.getElementById("trk"); if(t) t.insertAdjacentHTML("afterend",'<div class="oneWay">'+wayText(q)+'</div>'); }
+  }
+  function wayText(q){
+    var pos=q.s, parts=[];
+    q.ops.forEach(function(o){ var t=Math.floor(Math.abs(o)/10), u=Math.abs(o)%10, sg=o>0?"+":"−"; var j=[]; for(var i=0;i<t;i++) j.push(sg+"10"); for(var k=0;k<u;k++) j.push(sg+"1"); parts.push(j.join(" ")); pos+=o; });
+    return "One way 一种跳法: "+q.s+" "+parts.join(" ")+" → <b>"+pos+"</b>";
+  }
+  function explain(q){
+    var a=answerOf(q);
+    if(q.kind==="frame"){ var big=Math.max(q.a,q.b), small=Math.min(q.a,q.b), need=10-big; return big+" + "+need+" = 10, and "+small+" − "+need+" = "+(small-need)+" left: 10 + "+(small-need)+" = "+a+"."; }
+    if(q.kind==="double") return q.n+" + "+q.n+" = "+a+".";
+    if(q.kind==="half") return a+" + "+a+" = "+q.n+", so half of "+q.n+" is "+a+".";
+    if(q.kind==="big") return q.a+" + "+q.b+" = "+a+".";
+    return q.s+" "+q.ops.map(function(o){ return (o>0?"+ ":"− ")+Math.abs(o); }).join(" ")+" = "+a+".";
+  }
+  function rightText(q){ return pickOne(["🚀 Blast off!","🌕 Perfect landing!","⭐ Out of this world!","🛸 Great flying!"]); }
+  function wrongText(q,v){ return "That is "+v+", not "+answerOf(q)+"."; }
+  function teach(q,given){
+    var a=answerOf(q), steps=[], cn;
+    if(q.kind==="frame"){ var big=Math.max(q.a,q.b), small=Math.min(q.a,q.b), need=10-big;
+      steps=["Start with the bigger number, <b>"+big+"</b>. It needs <b>"+need+"</b> more to make 10.","Take "+need+" from "+small+": "+small+" = "+need+" + "+(small-need)+".","So "+q.a+" + "+q.b+" = 10 + "+(small-need)+" = <b>"+a+"</b>."];
+      cn="凑十法：先把大的数凑成 10，再加剩下的。"; }
+    else if(q.kind==="double"){ steps=["Double means the same number twice: <b>"+q.n+" + "+q.n+"</b>.","Count both sides of the mirror: "+q.n+" and "+q.n+" make <b>"+a+"</b>."]; cn="加倍就是两个一样的数相加。"; }
+    else if(q.kind==="half"){ steps=["Half means two equal parts. Move the line until both sides have the same number of stars.","<b>"+a+"</b> + <b>"+a+"</b> = "+q.n+", so half of "+q.n+" is <b>"+a+"</b>."]; cn="减半就是平均分成两份，两份一样多。想：几加几等于 "+q.n+"？"; }
+    else if(q.kind==="big"){ var x=digits(q.a), y=digits(q.b), c1=x[2]+y[2]>=10?1:0, c2=x[1]+y[1]+c1>=10?1:0;
+      steps=["<b>Ones:</b> "+x[2]+" + "+y[2]+" = "+(x[2]+y[2])+(c1?". Write "+((x[2]+y[2])%10)+", carry 1.":"."),"<b>Tens:</b> "+x[1]+" + "+y[1]+(c1?" + 1":"")+" = "+(x[1]+y[1]+c1)+(c2?". Write "+((x[1]+y[1]+c1)%10)+", carry 1.":"."),"<b>Hundreds:</b> "+x[0]+" + "+y[0]+(c2?" + 1":"")+" = "+(x[0]+y[0]+c2)+".","So the answer is <b>"+a+"</b>."];
+      cn="竖式加法：从个位加起，满十向前一位进 1。"; }
+    else{ steps=["Split each number into tens and ones, and jump the tens first.",wayText(q)+"."];
+      if(q.ops.length>1) steps.push("Step by step: "+q.s+q.ops.map(function(o){ return " "+(o>0?"+":"−")+" "+Math.abs(o); }).join("")+" = <b>"+a+"</b>.");
+      cn="在数轴上：先跳整十，再跳一个一个的。两步题就一步一步来。"; }
+    return {steps:steps,cn:cn};
+  }
+  function miss(q){ return explain(q).replace(/\.$/,""); }
+
+  // ---------- planets visited: every 5 right answers, the rocket reaches the next planet ----------
+  var TRIP="makeTenRocket.trip.v1", trip=0;
+  try{ trip=+localStorage.getItem(TRIP)||0; }catch(e){ trip=0; }
+  function travel(){ trip++; try{ localStorage.setItem(TRIP,String(trip)); }catch(e){} }
+  var PLANETS=[["🌕","Moon"],["🔴","Mars"],["🪐","Saturn"],["🔵","Neptune"],["🟠","Jupiter"],["⚪","Pluto"],["🌟","Big Star"],["🌌","Galaxy"]];
+  function tripHtml(){
+    var reached=Math.min(PLANETS.length,Math.floor(trip/5)), left=5-trip%5;
+    return '<div style="font-weight:900;margin-bottom:8px">'+(reached?"Planets visited: "+reached+" 已到达 "+reached+" 个星球":"Fly to the Moon! 飞向月球")+'</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">'+
+      PLANETS.map(function(p,i){ var got=i<reached; return '<div style="text-align:center;background:'+(got?"#eef0ff":"#f4f4f6")+';border-radius:14px;padding:6px 2px;'+(got?"":"filter:grayscale(1);opacity:.45")+'"><div style="font-size:1.7rem">'+p[0]+'</div><b style="font-size:.75rem">'+(got?p[1]:"?")+'</b></div>'; }).join("")+
+      '</div><div style="color:var(--muted);font-weight:800;font-size:.8rem;margin-top:6px">'+(reached<PLANETS.length?left+" more right answers to the next planet · 再答对 "+left+" 题到下一个星球":"You flew to the edge of the galaxy! 你飞到了银河的尽头！")+'</div>';
+  }
+
+  var PS=MathPet.shop("rocket");
+  M.run({title:"Make-Ten Rocket",icon:"🚀",tagline:MathPet.name("Your pet")+" is the pilot! Add, take away, double and halve to fly.",store:"makeTenRocket.v1",gameId:"add-subtract",cheer:true,perLevel:6,bossCount:8,
+    hero:function(){ return MathPet.hero("🚀",function(n){ return n+" is your pilot! Earn stars and win space prizes for "+n+" in the shop."; }); },
+    coin:{e:"🌟",n:"stars"},heart:"💙",leave:"Back to Earth",levelWord:"mission",doneWord:"Missions done",ownedWord:"Prizes",fastMs:25000,
+    theme:{brand:"#3a4fa8",dark:"#26357a",bg:"#f1f3ff",line:"#d8ddf5",ink:"#1f2347",muted:"#626a99",hero:"linear-gradient(180deg,#3a4fa8,#7f8fe0)",choice:["#e8ebff","#fff4d1","#e6f6df","#fde6ee"]},
+    levels:LEVELS,boss:{n:"Mission to Mars",ic:"🔴",desc:"Every kind of mission, all the way to Mars!"},practice:{n:"Flight School",ic:"🎓"},
+    shop:PS.shop,isOwned:PS.isOwned,onBuy:PS.onBuy,useOwned:PS.useOwned,ownedText:PS.ownedText,
+    shopTitle:"Prize shop: stars win space prizes for your pet",shopCn:"用星星给宠物换太空奖品",emptyOwned:"🎁",
+    panel:{title:"🪐 Planets Visited",cn:"每答对 5 题，飞到下一个星球",html:tripHtml},
+    kinds:{frame:"Make ten to add within 20",jump:"Add and subtract within 100 (tens and ones)",double:"Doubles",half:"Halves",big:"Add within 1000"},
+    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+      '.spc{max-width:460px;margin:0 auto}.kbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}.keeper{flex:none;width:50px;height:50px;display:flex;align-items:center;justify-content:center}.keeper.em{font-size:2.3rem}.keeper svg{overflow:hidden}'+
+      '.kbub{background:#fff;border:3px solid var(--line);border-radius:16px;padding:6px 10px;font-weight:900;font-size:.85rem;flex:1}'+
+      '.go{display:block;margin:12px auto 0;border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.85}.go:disabled{opacity:.45}'+
+      '.wheels{display:flex;justify-content:center;gap:8px;margin-top:10px}.wh{display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:14px;box-shadow:0 3px 0 var(--line);padding:4px 2px 2px;min-width:72px}'+
+      '.wh small{font-weight:900;font-size:.62rem;color:var(--muted)}.wh b{font-family:Fredoka,sans-serif;font-size:2.2rem;line-height:1.1}.wh button{border:0;background:none;color:var(--brand);font-size:1.1rem;padding:2px 16px;cursor:pointer}'+
+      '.frames{display:flex;flex-direction:column;align-items:center;gap:10px}.tf{display:grid;grid-template-columns:repeat(5,44px);gap:4px;background:#26357a;padding:6px;border-radius:14px}'+
+      '.cell{height:44px;border-radius:8px;background:#e8ebff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#f5b301}.cell.have{color:#3a4fa8}.cell.moved{color:#f5b301}.cell.fresh{animation:pop .3s}'+
+      '.pile{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:44px}.drop{width:44px;height:44px;border:0;border-radius:50%;background:#fff4d1;color:#f5b301;font-size:1.6rem;cursor:pointer;box-shadow:0 3px 0 #f0dca0}.pile .none{color:var(--muted);font-weight:900}'+
+      '.sum{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.3rem;margin-top:8px;color:var(--ink);min-height:1.4em}.sum b{color:var(--brand)}'+
+      '.trkBox{background:#eef0ff;border-radius:16px;padding:6px}.trk{width:100%;display:block}.trk text.blast{animation:blast 1s ease-in forwards}@keyframes blast{to{transform:translateY(-60px);opacity:0}}'+
+      '.log{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;color:var(--muted);margin-top:6px;min-height:1.3em;word-break:break-word}.oneWay{text-align:center;font-weight:900;font-size:.9rem;margin-top:6px}'+
+      '.jbtns{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}.jb{border:0;border-radius:16px;padding:12px 16px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.35rem;cursor:pointer;min-width:70px}'+
+      '.jb.up{background:#fff4d1;box-shadow:0 4px 0 #f0dca0;color:#8a6200}.jb.dn{background:#ffe3e3;box-shadow:0 4px 0 #f3c0c0;color:#a03838}.jb.undo{background:#fff;box-shadow:0 4px 0 var(--line);color:var(--muted)}.jb:disabled{opacity:.5}'+
+      '.mirror{display:grid;grid-template-columns:1fr 8px 1fr;gap:8px;align-items:stretch}.half{min-height:120px;border-radius:16px;background:#eef0ff;display:flex;flex-wrap:wrap;gap:4px;align-content:center;justify-content:center;padding:8px;font-size:1.5rem}'+
+      '.half.r{border:3px dashed #b8c0ee}.glass{background:linear-gradient(180deg,#bfe4ff,#7fb6ff);border-radius:4px}.st.fresh{animation:pop .3s}.addS{font-weight:900;color:var(--brand);font-size:1.3rem}'+
+      '.row{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;font-size:1.45rem;background:#eef0ff;border-radius:16px;padding:10px}.row .st.r{filter:hue-rotate(160deg)}.row .cut{width:4px;background:#e0457b;border-radius:2px;margin:0 6px;align-self:stretch}'+
+      '.slider{width:100%;margin-top:10px;accent-color:#e0457b;height:28px}'+
+      '.col3{display:inline-block;margin:0 auto;font-family:Fredoka,sans-serif}.spc .col3{display:block;width:max-content;margin:0 auto}.drow,.crow{display:grid;grid-template-columns:1.2em repeat(3,46px);gap:6px;align-items:center;text-align:center;font-size:2rem;font-weight:700}'+
+      '.cm{width:30px;height:26px;margin:0 auto;border:2px dashed var(--brand);border-radius:8px;background:#fff;font:inherit;font-size:1rem;color:var(--brand);cursor:pointer;padding:0}.cm.on{border-style:solid;background:#fff4d1}.bar{border-top:4px solid var(--ink);margin:4px 0}',
+    fromKey:fromKey,render:render,right:right,rightText:rightText,wrongText:wrongText,explain:explain,teach:teach,after:after,miss:miss});
+})();
+</script>
+</body></html>

@@ -20,6 +20,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .wallet{display:flex;gap:8px;align-items:center}
 .chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-weight:900;white-space:nowrap}
 .wrap{max-width:920px;margin:auto;padding:0 16px 48px}
+/* on a big screen (a tablet or a computer) the whole game is drawn larger */
+@media(min-width:760px){.wrap{zoom:1.15}}@media(min-width:1000px){.wrap{zoom:1.3}}@media(min-width:1300px){.wrap{zoom:1.45}}
 
 /* ===== map ===== */
 .hero{position:relative;border-radius:28px;padding:20px 14px 16px;color:#fff;text-align:center;box-shadow:var(--shadow);overflow:hidden;
@@ -84,7 +86,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .hbtn{border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:900;background:#fff;box-shadow:0 4px 0 #cfe0c4;cursor:pointer;color:var(--ink)}.hbtn.big{background:#6db34a;color:#fff;box-shadow:0 4px 0 #3e7426}.hbtn:disabled{opacity:.5}
 .hgo{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--good,#2f9e5b);color:#fff;box-shadow:0 4px 0 #1f7041;cursor:pointer}.hgo small{font-weight:800;opacity:.85}.hgo:disabled{opacity:.45}
 .cell.counted{background:#6db34a;color:#fff;font-family:Fredoka,sans-serif;font-weight:700}
-.rect.rows{background:#e9d3b5}.rowsIn{position:absolute;inset:0;display:grid;align-content:start}.rowsIn .fl{display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-size:.85rem;background:#7cc35a;outline:1px solid #6aa84b;animation:sprout .35s ease-out}
+.rect.rows{background:#e9d3b5}.rowsIn{position:absolute;inset:0;display:grid;align-content:start}.rowsIn .fl{display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-size:.85rem;background:#7cc35a;outline:1px solid #6aa84b}.rowsIn .fl.fresh{animation:sprout .35s ease-out}
 @keyframes sprout{from{transform:scale(.3)}to{transform:none}}
 .fenceBox{display:flex;justify-content:center;margin-top:8px}.fenceBox svg{display:block;touch-action:manipulation}
 .edge{cursor:pointer}.edge line{stroke:rgba(0,0,0,0);stroke-width:7;stroke-linecap:round}.edge:hover line{stroke:rgba(138,95,54,.3)}.edge.on line{stroke:#8a5f36;stroke-dasharray:none}.edge.bad line{stroke:#e0475b;stroke-dasharray:none}
@@ -488,9 +490,9 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     var unit=Math.min(26,Math.floor(250/Math.max(q.a,q.b)));
     fd.innerHTML='<div class="rect rows" style="width:'+(q.a*unit)+'px;height:'+(q.b*unit)+'px"><span class="side top">'+units(q.a)+'</span><span class="side left">'+units(q.b)+'</span><div class="rowsIn" id="rowsIn" style="grid-template-columns:repeat('+q.a+',1fr)"></div></div>'+
       '<div class="hcount" id="hcount">Planted: 0 rows</div><div class="hrow"><button type="button" class="hbtn" id="rowMinus">− row</button><button type="button" class="hbtn big" id="rowPlus">＋ Plant a row of '+q.a+'</button></div>'+doneBtn("The bed is full ✓","种满了");
-    function draw(){ var h=""; for(var i=0;i<rows*q.a;i++) h+='<span class="fl">'+G.icon+'</span>'; $("rowsIn").innerHTML=h;
+    function draw(grew){ var h=""; for(var i=0;i<rows*q.a;i++) h+='<span class="fl'+(grew&&i>=(rows-1)*q.a?" fresh":"")+'">'+G.icon+'</span>'; $("rowsIn").innerHTML=h;
       var sums=[]; for(var r=1;r<=rows;r++) sums.push(r*q.a); $("hcount").textContent=rows?"Planted: "+rows+" row"+(rows>1?"s":"")+" · "+sums.join(", ")+" squares":"Planted: 0 rows"; }
-    $("rowPlus").onclick=function(){ if(!G||G.locked||rows>=q.b+3) return; rows++; SFX.plant(); draw(); };
+    $("rowPlus").onclick=function(){ if(!G||G.locked||rows>=q.b+3) return; rows++; SFX.plant(); draw(true); };
     $("rowMinus").onclick=function(){ if(!G||G.locked||!rows) return; rows--; SFX.plant(); draw(); };
     $("hgo").onclick=function(){ answer(String(rows*q.a),null); };
     $("hint").textContent="How many rows fit? Look at the side.";

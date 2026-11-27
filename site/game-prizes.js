@@ -2,7 +2,7 @@
    the crystals the child earns there). They are drawn like the other accessories and registered in ITEMS once pet-art.js has made
    PetKit and ITEMS, so the pet wears them on the home page, in the shop and in every game.
    Which ones are won is kept in localStorage "lef_gameprizes_v1" = {won: {id: time}} (synced with the account like the games).
-   Sweet Shop and Block Factory (Grade 2) sell their own four each.
+   Sweet Shop, Block Factory and Make-Ten Rocket (Grade 2) sell their own four each.
    GamePrizes.ids(), .forGame(game), .get(id), .isPrize(id), .won(id), .win(id), .thumb(id)
    Written for old Android WebViews: no optional chaining, no spread, no Object.assign. */
 (function (root) {
@@ -111,6 +111,30 @@
         for (var i = 0; i < 5; i++) h += '<rect x="' + (-22 + i * 9) + '" y="-8" width="8" height="8" fill="' + c[i] + '" stroke="' + INK + '" stroke-width="1.6"/>';
         h += '<rect x="-22" y="-17" width="8" height="8" fill="#F5B301" stroke="' + INK + '" stroke-width="1.6"/><rect x="-4" y="-26" width="8" height="8" fill="#E53950" stroke="' + INK + '" stroke-width="1.6"/><rect x="-4" y="-17" width="8" height="8" fill="#5FB7D4" stroke="' + INK + '" stroke-width="1.6"/><rect x="14" y="-17" width="8" height="8" fill="#7CC47F" stroke="' + INK + '" stroke-width="1.6"/>';
         return G(a, h);
+      } }
+,
+    // Make-Ten Rocket (Grade 2, adding and subtracting)
+    { id: "gp-antenna", game: "rocket", price: 15, slot: "hat", name: "Space antennas", cn: "太空天线", vb: "18 -16 84 70", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a, '<path d="M-22 2Q0 -16 22 2" fill="none" stroke="#5A4A9A" stroke-width="5" stroke-linecap="round"/><path d="M-12 -8L-20 -36M12 -8L20 -36" stroke="#5A4A9A" stroke-width="3" stroke-linecap="round"/>' +
+          '<circle cx="-20" cy="-38" r="6" fill="#FF5A7A" stroke="' + INK + '" stroke-width="2.5"/><circle cx="20" cy="-38" r="6" fill="#7CD67C" stroke="' + INK + '" stroke-width="2.5"/><circle cx="-22" cy="-40" r="1.8" fill="#fff"/><circle cx="18" cy="-40" r="1.8" fill="#fff"/>');
+      } },
+    { id: "gp-visor", game: "rocket", price: 25, slot: "face", name: "Space visor", cn: "太空护目镜", vb: "14 22 92 36", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var y = a.ey, w = a.edx + a.er + 10;
+        return '<g><rect x="' + (60 - w) + '" y="' + (y - 11) + '" width="' + (2 * w) + '" height="22" rx="11" fill="rgba(90,200,255,.55)" stroke="#2F5FB8" stroke-width="4"/>' +
+          '<path d="M' + (60 - w + 8) + ' ' + (y - 4) + 'h14" stroke="#fff" stroke-width="3" stroke-linecap="round"/><circle cx="' + (60 + w - 12) + '" cy="' + (y + 3) + '" r="2" fill="#FFD84A"/></g>';
+      } },
+    { id: "gp-starscarf", game: "rocket", price: 35, slot: "neck", name: "Star scarf", cn: "星星围巾", vb: "26 94 68 42", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny;
+        return '<g><path d="M32 ' + (y - 4) + 'Q60 ' + (y + 12) + ' 88 ' + (y - 4) + 'L86 ' + (y + 4) + 'Q60 ' + (y + 20) + ' 34 ' + (y + 4) + 'Z" fill="#3A4FA8" stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<path d="M72 ' + (y + 8) + 'l4 16l8 -3l-4 -15z" fill="#3A4FA8" stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"/>' + star(46, y + 6, 3.2) + star(60, y + 9, 3.2) + star(74, y + 5, 3) + '</g>';
+      } },
+    { id: "gp-planethat", game: "rocket", price: 50, slot: "hat", name: "Planet hat", cn: "星球帽", vb: "14 -8 92 62", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a, '<circle cx="0" cy="-16" r="15" fill="#FFB347" stroke="' + INK + '" stroke-width="3"/><path d="M-12 -22q8 4 22 -2M-14 -12q10 4 26 -1" fill="none" stroke="#E07B1E" stroke-width="2.5"/>' +
+          '<ellipse cx="0" cy="-14" rx="28" ry="7" fill="none" stroke="#A493D6" stroke-width="4" transform="rotate(-12 0 -14)"/>' + star(20, -34, 3.5) + star(-22, -30, 2.6, "#fff"));
       } }
   ];
   var BY_ID = {};
