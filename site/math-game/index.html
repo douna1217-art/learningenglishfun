@@ -129,6 +129,10 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 @media(max-width:620px){.levels{gap:10px}.lv .mon{font-size:2.5rem}.lv .tag{font-size:1.1rem}.lv .name{font-size:.7rem}
  .arena{height:215px}.monster{font-size:5.6rem}.choice{font-size:2rem;padding:15px 4px}.cell{font-size:.6rem}}
+.choices.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:340px;margin-left:auto;margin-right:auto}
+.key{border:0;border-radius:16px;padding:12px 0;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.7rem;background:#fff;color:var(--ink);box-shadow:0 5px 0 #c9d6ea;cursor:pointer}
+.key:active{transform:translateY(3px);box-shadow:0 2px 0 #c9d6ea}.key.del{font-size:1.3rem;background:#eef2f8}.key.cast{font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00}.key:disabled{opacity:.5}
+.ans.typed{color:var(--brand,#3a7bd5)}
 </style><script src="../game-progress.js?v=20261127a"></script>
 </head>
 <body>
@@ -265,6 +269,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   }
   var SFX={
     hit:function(){tone([660,990],"triangle",.13);},
+    tap:function(){tone([520],"sine",.04);},
     crit:function(){tone([660,880,1320],"square",.1);},
     hurt:function(){tone([260,180],"sawtooth",.16);},
     win:function(){tone([523,659,784,1047],"triangle",.18);},
@@ -338,15 +343,9 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     var q=pool[Math.min(i,pool.length-1)];
     return Math.random()<.5?[q[0],q[1]]:[q[1],q[0]];
   }
-  function choicesFor(a,b){
-    var p=a*b, seen={}, out=[p]; seen[p]=1;
-    var cand=[(a+1)*b,(a-1)*b,a*(b+1),a*(b-1),p+1,p-1,p+10,p-10,p+2,a+b];
-    cand.sort(function(){return Math.random()-.5;});
-    cand.forEach(function(v){ if(out.length<4&&v>0&&v<=90&&!seen[v]){ seen[v]=1; out.push(v); } });
-    while(out.length<4){ var v=1+Math.floor(Math.random()*81); if(!seen[v]){ seen[v]=1; out.push(v); } }
-    return out.sort(function(){return Math.random()-.5;});
-  }
 
+
+  window.__tt={cur:function(){ return B&&B.q; }};   // for the browser tests
   function startBattle(L){
     if(window.GameProgress) GameProgress.start(GID,L.id);
     var pool=buildPool(L); if(!pool.length) return;
@@ -371,12 +370,22 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     var a=B.q[0], b=B.q[1];
     $("question").innerHTML=a+" × "+b+' = <span class="ans">?</span>';
     $("qWords").textContent=sayFact(a,b);
-    var box=$("choices"); box.innerHTML="";
-    choicesFor(a,b).forEach(function(v){
-      var bt=document.createElement("button"); bt.type="button"; bt.className="choice"; bt.textContent=v; bt.dataset.v=v;
-      bt.onclick=function(){ answer(bt); }; box.appendChild(bt);
-    });
+    // the spell pad: the child types the answer (no four answers to pick from, so it has to be known) and casts it at the monster
+    var box=$("choices"); box.className="choices pad"; B.typed="";
+    box.innerHTML=[1,2,3,4,5,6,7,8,9].map(function(d){ return '<button type="button" class="key" data-k="'+d+'">'+d+'</button>'; }).join("")+
+      '<button type="button" class="key del" data-k="del" aria-label="Delete">⌫</button><button type="button" class="key" data-k="0">0</button><button type="button" class="key cast" data-k="cast">⚡ Cast</button>';
+    box.onclick=function(e){ var t=e.target.closest?e.target.closest(".key"):null; if(t) press(t.dataset.k); };
+    showTyped();
     B.t0=performance.now(); tick();
+  }
+  function showTyped(){ var a=B.q[0], b=B.q[1]; $("question").innerHTML=a+" × "+b+' = <span class="ans'+(B.typed?" typed":"")+'">'+(B.typed||"?")+'</span>'; }
+  function press(k){
+    if(!B||B.locked) return;
+    if(k==="cast"){ if(B.typed) answer(+B.typed); return; }
+    if(k==="del") B.typed=B.typed.slice(0,-1);
+    else if(B.typed.length<2) B.typed=(B.typed==="0"?"":B.typed)+k;
+    SFX.tap();
+    showTyped();
   }
   function tick(){
     cancelAnimationFrame(raf);
@@ -421,14 +430,15 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   function anim(el,cls){ el.classList.remove("hit","attack"); void el.offsetWidth; el.classList.add(cls); }
   function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
 
-  function answer(btn){
+  function answer(v){   // v: the number cast (null when the time ran out)
     if(!B||B.locked) return; B.locked=true; cancelAnimationFrame(raf);
     var a=B.q[0], b=B.q[1], p=a*b, k=key(a,b), f=fact(k), ms=performance.now()-B.t0;
     [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(+x.dataset.v===p) x.classList.add("right"); });
     $("question").innerHTML=a+" × "+b+' = <span class="ans">'+p+'</span>';
     $("qWords").textContent=sayFact(a,b,p);
     var mon=$("monster");
-    if(btn&&+btn.dataset.v===p){
+    [].forEach.call(document.querySelectorAll("#choices .key"),function(x){ x.disabled=true; });
+    if(v===p){
       f.ok++; B.correct++; B.streak++; B.best=Math.max(B.best,B.streak);
       var crit=ms<3000, dmg=crit?2:1, gain=crit?2:1;
       B.hp-=dmg; B.coins+=gain; $("bCoins").textContent=B.coins;
@@ -441,13 +451,12 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       if(B.hp<=0){ later(function(){ mon.className="monster dead"; SFX.win(); later(function(){ finish(true); },750); },500); }
       else later(nextQ,850);
     }else{
-      if(btn) btn.classList.add("wrong");
       f.miss++; B.streak=0; B.miss[k]=1;
       B.pool.push([a,b],[a,b]);   // a missed fact comes back soon
       anim(mon,"attack"); var ar=$("arena"); ar.classList.remove("shake"); void ar.offsetWidth; ar.classList.add("shake");
       SFX.hurt();
       if(B.hearts!==Infinity){ B.hearts--; renderHearts(); }
-      say((btn?"Oops! ":"Time's up! ")+a+" × "+b+" = "+p,"bad");
+      say((v!=null?"Oops! "+v+" is not it. ":"Time's up! ")+a+" × "+b+" = "+p,"bad");
       save();
       teachShow(teachMult(a,b),B.hearts<=0?function(){ finish(false); }:nextQ);
     }
@@ -483,8 +492,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   $("againBtn").onclick=function(){ var L=B.L; if(L===TRAIN&&!missList().length){ quit(); return; } startBattle(L); };
   document.addEventListener("keydown",function(e){
     if($("battle").hidden) return;
-    var i="1234".indexOf(e.key); if(i<0) return;
-    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+    if(/^[0-9]$/.test(e.key)) press(e.key); else if(e.key==="Backspace"){ e.preventDefault(); press("del"); } else if(e.key==="Enter") press("cast");
   });
 
   // ---------- confetti ----------
