@@ -30,21 +30,21 @@
   function most(){ var s=survey(true,false); return Q("most",{k:s.k,a:s.a,v:s.v,g:pickOne(["bar","pic"]),f:Math.random()<.5?1:0}); }
   function more(){ var s=survey(true,false), i=rnd(4), j; do{ j=rnd(4); }while(j===i); if(s.v[i]<s.v[j]){ var t=i; i=j; j=t; } return Q("more",{k:s.k,a:s.a,v:s.v,g:pickOne(["bar","pic"]),i:i,j:j}); }
   function lp(){
-    // leaf lengths from 1 to 3 inches, in quarters (4 = 1 inch); X marks above the line
+    // 6 to 9 leaves from 1 to 3 inches, in quarters (4 = 1 inch); the child puts each one on the line plot
     var step=pickOne([1,2]), pts=[], c=[];
-    for(var x=4;x<=12;x+=step){ pts.push(x); c.push(between(0,5)); }
-    var askMost=Math.random()<.35, mx=Math.max.apply(null,c);
-    if(askMost&&c.filter(function(v){ return v===mx; }).length>1){ c[c.indexOf(mx)]+=1; }
-    return Q("lp",{s:step,p:pts,c:c,ask:askMost?-1:rnd(pts.length)});
+    for(var x=4;x<=12;x+=step){ pts.push(x); c.push(0); }
+    var n=between(6,9);
+    while(n>0){ var i=rnd(pts.length); if(c[i]<4){ c[i]++; n--; } }
+    return Q("lp",{s:step,p:pts,c:c,ask:0});
   }
   function keyQ(){ var k=pickOne([2,5,10]), m=between(2,9); return Q("key",{k:k,n:k*m,a:rnd(8)}); }
   var LEVELS=[
     {id:"z1",n:"Picture Graphs",ic:"🐾",gen:pic},
     {id:"z2",n:"Bar Graphs",ic:"📊",gen:bar},
-    {id:"z3",n:"Most and Fewest",ic:"🏆",gen:most},
+    {id:"z3",n:"Most to Fewest",ic:"🏆",gen:most},
     {id:"z4",n:"How Many More?",ic:"➖",gen:more},
     {id:"z5",n:"Line Plots",ic:"🍃",gen:lp},
-    {id:"z6",n:"Make the Key",ic:"🔑",gen:keyQ}
+    {id:"z6",n:"Find the Key",ic:"🔑",gen:keyQ}
   ];
 
   // ---------- pictures ----------
@@ -81,112 +81,220 @@
   }
   function graph(d,hl){ return (d.kind==="pic"||d.g==="pic")?picGraph(d,hl):barGraph(d,hl); }
 
-  // ---------- one question on the screen ----------
-  function right(q){
-    if(q.kind==="pic"||q.kind==="bar") return String(q.v[q.ask]);
-    if(q.kind==="most"){ var m=q.f?Math.min.apply(null,q.v):Math.max.apply(null,q.v); return String(q.a[q.v.indexOf(m)]); }
-    if(q.kind==="more") return String(q.v[q.i]-q.v[q.j]);
-    if(q.kind==="lp"){ if(q.ask<0){ var mx=Math.max.apply(null,q.c); return String(q.p[q.c.indexOf(mx)]); } return String(q.c[q.ask]); }
-    return String(q.n/q.k);
+  // ---------- one question on the screen: the reporter makes the graphs ----------
+  // Every question is done with the hands: draw the paws of a row, pull a bar up to its number, line the animals up from the most votes
+  // to the fewest, add votes until two bars are level, put each leaf on the line plot, drag the right key into the key.
+  // right(q) is "ok"; a wrong try comes back as "x:..." with what the child made.
+  function right(q){ return "ok"; }
+  var BARC=["#5fb7d4","#7cc47f","#e8916d","#a493d6"];
+  function topOf(d){ var max=Math.max.apply(null,d.v); return Math.ceil((max+1)/d.k)*d.k; }
+  // a bar graph where some bars can be drawn at other heights: vals (the heights), o.handle (the bar with a grip on top),
+  // o.ghost {i, add} (votes being added on top of bar i), o.hl (a bar in gold), o.hide (a bar left empty)
+  function barSvg(d,vals,o){
+    o=o||{}; var top=topOf(d), H=160, W=320, x0=44, y0=204;
+    var s='<svg viewBox="0 0 360 250" class="bars" style="width:100%;max-width:440px;display:block;margin:6px auto 0;touch-action:none"><text x="180" y="16" text-anchor="middle" font-weight="900" font-size="14" fill="#1f4a47">Votes for our favorite zoo animals</text>';
+    for(var v=0;v<=top;v+=d.k){ var y=y0-v/top*H; s+='<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+W-10)+'" y2="'+y+'" stroke="#d7ecea" stroke-width="1.5"/><text x="'+(x0-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="12" font-weight="800" fill="#1f4a47">'+v+'</text>'; }
+    s+='<line x1="'+x0+'" y1="'+(y0-H-4)+'" x2="'+x0+'" y2="'+y0+'" stroke="#1f4a47" stroke-width="2"/><line x1="'+x0+'" y1="'+y0+'" x2="'+(x0+W-10)+'" y2="'+y0+'" stroke="#1f4a47" stroke-width="2"/>';
+    d.a.forEach(function(ai,i){ var bw=44, x=x0+18+i*76, bh=vals[i]/top*H;
+      if(o.hide===i&&!vals[i]) s+='<rect x="'+x+'" y="'+(y0-H)+'" width="'+bw+'" height="'+H+'" rx="5" fill="none" stroke="#b9d6d3" stroke-width="2" stroke-dasharray="6 5"/>';
+      s+='<rect x="'+x+'" y="'+(y0-bh)+'" width="'+bw+'" height="'+bh+'" rx="5" fill="'+(o.hl===i?"#f5b301":BARC[i])+'"/>';
+      if(o.ghost&&o.ghost.i===i&&o.ghost.add>0){ var gh=o.ghost.add/top*H; s+='<rect x="'+x+'" y="'+(y0-bh-gh)+'" width="'+bw+'" height="'+gh+'" rx="5" fill="'+BARC[i]+'" fill-opacity=".35" stroke="'+BARC[i]+'" stroke-width="3" stroke-dasharray="6 4"/>'; }
+      if(o.handle===i) s+='<g class="grip"><rect x="'+(x-8)+'" y="'+(y0-bh-11)+'" width="'+(bw+16)+'" height="22" rx="11" fill="#fff" stroke="#1f4a47" stroke-width="3"/><path d="M'+(x+bw/2-8)+' '+(y0-bh-3)+'l8 -6l8 6M'+(x+bw/2-8)+' '+(y0-bh+3)+'l8 6l8 -6" fill="none" stroke="#1f4a47" stroke-width="2.5" stroke-linecap="round"/></g>';
+      s+='<text x="'+(x+bw/2)+'" y="'+(y0+24)+'" text-anchor="middle" font-size="20">'+emo(ai)+'</text>'; });
+    return s+'<text x="12" y="'+(y0-H/2)+'" font-size="11" font-weight="800" fill="#4a6b68" transform="rotate(-90 12 '+(y0-H/2)+')" text-anchor="middle">votes</text></svg>';
+  }
+  function goBtn(t,cn){ return '<button type="button" class="go" id="goBtn">'+t+' <small>'+cn+'</small></button>'; }
+  function lockGo(){ var b=document.getElementById("goBtn"); if(b) b.disabled=true; }
+  var tick=function(){ M.blip&&M.blip(440,.05); }, pop=function(){ M.blip&&M.blip(720,.1); };
+
+  // Picture Graphs: draw the paws of one row
+  function drawPaws(q,ui){
+    var ai=q.a[q.ask], n=0;
+    ui.task("News: the <b>"+emo(ai)+" "+name(ai)+"</b> got <b>"+q.v[q.ask]+" votes</b>. Draw their row! <small>画出这一行的 🐾</small>");
+    var f=ui.stage('<div><div id="pg"></div>'+goBtn("Print it ✓","完成")+'</div>').firstElementChild;   // listeners on a new element each question
+    function draw(){
+      var h='<div class="pg"><div class="pgT">Our favorite zoo animals</div>';
+      q.a.forEach(function(a,r){
+        var row=r===q.ask, k=row?n:q.v[r]/q.k, ic=""; for(var i=0;i<k;i++) ic+=row?'<button type="button" class="paw" data-i="'+i+'" aria-label="Take away a paw">🐾</button>':"🐾";
+        h+='<div class="pgR'+(row?" me":"")+'"><span class="pgN">'+emo(a)+" "+name(a)+'</span><span class="pgI">'+ic+(row&&k<12?'<button type="button" class="add" aria-label="Add a paw">＋🐾</button>':"")+'</span></div>';
+      });
+      f.querySelector("#pg").innerHTML=h+'<div class="pgK">Key: each 🐾 = '+q.k+' votes</div></div>';
+    }
+    f.addEventListener("click",function(e){ if(ui.locked()) return; var t=e.target.closest?e.target.closest("button"):null; if(!t) return;
+      if(t.classList.contains("add")){ n++; tick(); draw(); } else if(t.classList.contains("paw")){ n--; tick(); draw(); } else if(t.id==="goBtn") ui.answer(n*q.k===q.v[q.ask]?"ok":"x:"+n); });
+    draw();
+  }
+  // Bar Graphs: pull the bar up to its number
+  function pullBar(q,ui){
+    var ai=q.a[q.ask], step=q.k%2?q.k:q.k/2, vals=q.v.slice(), top=topOf(q);
+    vals[q.ask]=0;
+    ui.task("News: the <b>"+emo(ai)+" "+name(ai)+"</b> got <b>"+q.v[q.ask]+" votes</b>. Pull their bar up! <small>把柱子拉到 "+q.v[q.ask]+"</small>");
+    var f=ui.stage('<div id="bg"></div>'+goBtn("Print it ✓","完成")), box=f.querySelector("#bg"), on=false;
+    function draw(){ box.innerHTML=barSvg(q,vals,{handle:q.ask,hide:q.ask}); }
+    function set(e){ var svg=box.querySelector("svg"), r=svg.getBoundingClientRect(), y=(e.clientY-r.top)*250/r.height, v=Math.round((204-y)/160*top/step)*step;
+      v=Math.max(0,Math.min(top,v)); if(v!==vals[q.ask]){ vals[q.ask]=v; tick(); draw(); } }
+    box.addEventListener("pointerdown",function(e){ if(ui.locked()) return; on=true; try{ box.setPointerCapture(e.pointerId); }catch(x){} set(e); e.preventDefault(); });
+    box.addEventListener("pointermove",function(e){ if(on) set(e); });
+    box.addEventListener("pointerup",function(){ on=false; }); box.addEventListener("pointercancel",function(){ on=false; });
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(vals[q.ask]===q.v[q.ask]?"ok":"x:"+vals[q.ask]); };
+    draw();
+  }
+  // Most and Fewest: line the animals up for the photo, the most votes first
+  function lineUp(q,ui){
+    var order=[];
+    ui.task("Photo time! Tap the animals from the <b>most</b> votes to the <b>fewest</b>. <small>按票数从多到少点一点</small>");
+    var f=ui.stage('<div><div id="gr">'+graph(q)+'</div><div class="podium" id="pod"></div><div class="cards" id="cards"></div>'+goBtn("Take the photo 📸","拍照")+'</div>').firstElementChild;
+    function draw(){
+      f.querySelector("#pod").innerHTML=[0,1,2,3].map(function(r){ var ai=order[r]; return '<div class="spot">'+(ai!=null?'<span class="em">'+emo(ai)+'</span>':'<span class="em empty">?</span>')+'<b>'+["1st","2nd","3rd","4th"][r]+'</b></div>'; }).join("");
+      f.querySelector("#cards").innerHTML=q.a.map(function(ai){ var used=order.indexOf(ai)>=0; return '<button type="button" class="card'+(used?" used":"")+'" data-a="'+ai+'">'+emo(ai)+'<small>'+name(ai)+'</small></button>'; }).join("");
+      f.querySelector("#goBtn").disabled=order.length<4;
+    }
+    f.addEventListener("click",function(e){ if(ui.locked()) return; var t=e.target.closest?e.target.closest("button"):null; if(!t) return;
+      if(t.classList.contains("card")){ var ai=+t.dataset.a, at=order.indexOf(ai); if(at>=0) order.splice(at,1); else order.push(ai); tick(); draw(); }
+      else if(t.id==="goBtn"&&order.length===4){ var want=q.a.slice().sort(function(x,y){ return q.v[q.a.indexOf(y)]-q.v[q.a.indexOf(x)]; });
+        ui.answer(order.join(",")===want.join(",")?"ok":"x:"+order.join(",")); } });
+    draw();
+  }
+  // How Many More?: add votes to the shorter bar until the two are level
+  function levelUp(q,ui){
+    var add=0, vals=q.v.slice(), top=topOf(q), i=q.i, j=q.j;
+    ui.task("How many <b>more</b> votes did the "+emo(q.a[i])+" "+name(q.a[i])+" get than the "+emo(q.a[j])+" "+name(q.a[j])+"? Add votes to the "+emo(q.a[j])+" until the bars are level! <small>给矮的柱子加票，加到一样高</small>");
+    var f=ui.stage('<div id="bg"></div><div class="addRow"><button type="button" class="rock" id="minus">−</button><span class="addN" id="addN">+ '+q.k+' votes each tap</span><button type="button" class="rock" id="plus">+</button></div>'+goBtn("Level! ✓","一样高了"));
+    function draw(){ f.querySelector("#bg").innerHTML=barSvg(q,vals,{ghost:{i:j,add:add},hl:i}); }
+    f.querySelector("#plus").onclick=function(){ if(ui.locked()||q.v[j]+add+q.k>top) return; add+=q.k; tick(); draw(); };
+    f.querySelector("#minus").onclick=function(){ if(ui.locked()||add<=0) return; add-=q.k; tick(); draw(); };
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(q.v[j]+add===q.v[i]?"ok":"x:"+add); };
+    q._add=function(){ return add; };
+    draw();
+  }
+  // Line Plots: put every leaf on the line (drag, or tap a leaf and then a length)
+  function leafList(q){ var out=[]; q.p.forEach(function(p,i){ for(var k=0;k<q.c[i];k++) out.push(p); }); return out; }
+  function placeLeaves(q,ui){
+    var leaves=M.shuffle(leafList(q).map(function(p,i){ return {p:p,i:i}; })), got=q.p.map(function(){ return 0; }), left=leaves.length, sel=null;
+    ui.task("We measured "+leaves.length+" leaves. Put each leaf on the line plot! <small>把每片叶子放到线状图上</small>");
+    var W=320, x0=26, n=q.p.length, gap=W/(n-1);
+    var f=ui.stage('<div class="leaves" id="lv">'+leaves.map(function(L){ return '<div class="leaf" data-p="'+L.p+'" tabindex="0" role="button">🍃<b>'+qt(L.p)+' in</b></div>'; }).join("")+'</div><div class="lpBox" id="lpBox"></div>');
+    function draw(hl){
+      var s='<svg viewBox="0 0 372 200" style="width:100%;max-width:460px;display:block;margin:6px auto 0"><text x="186" y="16" text-anchor="middle" font-weight="900" font-size="14" fill="#1f4a47">Lengths of the leaves we found (inches)</text>';
+      s+='<line x1="'+x0+'" y1="160" x2="'+(x0+W)+'" y2="160" stroke="#1f4a47" stroke-width="2.5"/>';
+      q.p.forEach(function(p,i){ var x=x0+i*gap;
+        s+='<rect class="slot" data-i="'+i+'" x="'+(x-gap/2)+'" y="24" width="'+gap+'" height="170" fill="'+(hl===i?"rgba(245,179,1,.18)":"rgba(0,0,0,0)")+'"/>';
+        s+='<line x1="'+x+'" y1="154" x2="'+x+'" y2="166" stroke="#1f4a47" stroke-width="2"/><text x="'+x+'" y="186" text-anchor="middle" font-size="'+(n>6?13:15)+'" font-weight="800" fill="#1f4a47">'+qt(p)+'</text>';
+        for(var k=0;k<got[i];k++) s+='<text x="'+x+'" y="'+(146-k*22)+'" text-anchor="middle" font-size="20" font-weight="900" fill="#2f8f8a">✕</text>'; });
+      f.querySelector("#lpBox").innerHTML=s+'</svg>';
+    }
+    function slotAt(x,y){ var svg=f.querySelector("#lpBox svg"), r=svg.getBoundingClientRect(); if(y<r.top||y>r.bottom+20||x<r.left-10||x>r.right+10) return -1;
+      var vx=(x-r.left)*372/r.width; return Math.max(0,Math.min(n-1,Math.round((vx-x0)/gap))); }
+    function put(el,i){
+      if(ui.locked()) return; var p=+el.dataset.p; el.style.transform="";
+      if(q.p[i]!==p){ el.classList.add("bad"); draw(i); ui.answer("x:"+p+">"+q.p[i]); return; }
+      got[i]++; el.parentNode.removeChild(el); pop(); draw(); if(--left===0) ui.answer("ok");
+    }
+    [].forEach.call(f.querySelectorAll(".leaf"),function(el){
+      M.drag(el,function(x,y){ var i=slotAt(x,y); if(i>=0) put(el,i); else el.style.transform=""; });
+      el.addEventListener("click",function(){ if(ui.locked()) return; if(sel) sel.classList.remove("sel"); sel=el; el.classList.add("sel"); });
+    });
+    f.querySelector("#lpBox").addEventListener("click",function(e){ if(!sel) return; var i=slotAt(e.clientX,e.clientY); if(i>=0){ var el=sel; sel=null; put(el,i); } });
+    draw();
+  }
+  // Make the Key: drag the right key card into the key
+  function makeKey(q,ui){
+    var paws=q.n/q.k, keys=M.shuffle([2,5,10].concat(q.k===10?[]:[q.k*2>10?3:q.k*2]).filter(function(v,i,a){ return a.indexOf(v)===i; })).slice(0,4);
+    if(keys.indexOf(q.k)<0) keys[0]=q.k;
+    var ic=""; for(var i=0;i<paws;i++) ic+="🐾";
+    ui.task("The "+emo(q.a)+" "+name(q.a)+" got <b>"+q.n+" votes</b>, and the graph shows "+paws+" 🐾. What must the key say? Drag the right card! <small>把正确的图例卡拖进去</small>");
+    var f=ui.stage('<div class="pg"><div class="pgT">Our favorite zoo animals</div><div class="pgR me"><span class="pgN">'+emo(q.a)+" "+name(q.a)+'</span><span class="pgI">'+ic+'</span></div>'+
+      '<div class="pgK keySlot" id="slot">Key: each 🐾 = <span class="hole">?</span> votes</div></div><div class="cards" id="kc">'+M.shuffle(keys).map(function(k){ return '<div class="kcard" data-k="'+k+'" tabindex="0" role="button">🐾 = '+k+'</div>'; }).join("")+'</div>');
+    var sel=null;
+    function put(el){ if(ui.locked()) return; var k=+el.dataset.k; el.style.transform=""; f.querySelector(".hole").textContent=k; f.querySelector(".hole").classList.add("in"); el.classList.add("done"); ui.answer(k===q.k?"ok":"x:"+k); }
+    [].forEach.call(f.querySelectorAll(".kcard"),function(el){
+      M.drag(el,function(x,y){ if(M.hit(el,x,y,"#slot")) put(el); else el.style.transform=""; });
+      el.addEventListener("click",function(){ if(ui.locked()) return; if(sel) sel.classList.remove("sel"); sel=el; el.classList.add("sel"); });
+    });
+    f.querySelector("#slot").addEventListener("click",function(){ if(sel) put(sel); });
   }
   function render(q,ui){
-    var r=right(q);
-    if(q.kind==="pic"){
-      ui.task("How many votes did the <b>"+emo(q.a[q.ask])+" "+name(q.a[q.ask])+"</b> get?");
-      ui.stage(picGraph(q));
-      var n=q.v[q.ask]/q.k;
-      ui.choices(M.numChoices(+r,[n,(n+1)*q.k,(n-1)*q.k,q.v[q.ask]+1],1).map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("Read the key first!");
-    }else if(q.kind==="bar"){
-      ui.task("How many votes did the <b>"+emo(q.a[q.ask])+" "+name(q.a[q.ask])+"</b> get?");
-      ui.stage(barGraph(q));
-      ui.choices(M.numChoices(+r,[+r+q.k,+r-q.k,+r+q.k/2,+r-q.k/2,Math.round(+r/q.k)],1).map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("The lines go up by "+q.k+". Look across from the top of the bar.");
-    }else if(q.kind==="most"){
-      ui.task("Which animal got the <b>"+(q.f?"fewest":"most")+"</b> votes?");
-      ui.stage(graph(q));
-      ui.choices(q.a.map(function(ai){ return {html:emo(ai)+"<small>"+name(ai)+"</small>",val:ai}; }));
-    }else if(q.kind==="more"){
-      ui.task("How many <b>more</b> votes did the "+emo(q.a[q.i])+" "+name(q.a[q.i])+" get than the "+emo(q.a[q.j])+" "+name(q.a[q.j])+"?");
-      ui.stage(graph(q));
-      var diff=+r;
-      ui.choices(M.numChoices(diff,[q.v[q.i]+q.v[q.j],diff+q.k,diff-q.k,q.v[q.i],(q.v[q.i]-q.v[q.j])/q.k],1).map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("Find both numbers, then subtract.");
-    }else if(q.kind==="lp"){
-      ui.stage(lineplot(q));
-      if(q.ask<0){
-        ui.task("Which leaf length is the <b>most common</b>?");
-        var idx=M.shuffle(q.p.map(function(p,i){ return i; })).slice(0,4), ri=q.p.indexOf(+r);
-        if(idx.indexOf(ri)<0) idx[0]=ri;
-        ui.choices(M.shuffle(idx).map(function(i){ return {html:qt(q.p[i])+"<small>inches</small>",val:q.p[i]}; }));
-      }else{
-        ui.task("How many leaves are <b>"+qt(q.p[q.ask])+" inches</b> long?");
-        ui.choices(M.numChoices(+r,[+r+1,+r-1,q.c[q.ask+1]==null?+r+2:q.c[q.ask+1],q.c[q.ask-1]==null?+r+2:q.c[q.ask-1]],0).map(function(v){ return {html:String(v),val:v}; }));
-      }
-      ui.hint("Each ✕ is one leaf.");
-    }else{
-      ui.task("Each 🐾 means <b>"+q.k+"</b> votes. The "+emo(q.a)+" "+name(q.a)+" got <b>"+q.n+"</b> votes. How many 🐾 do you draw?");
-      ui.stage('<div style="text-align:center;font-size:1.3rem;font-weight:900;margin:14px 0">Key: 🐾 = '+q.k+' votes<br><span style="font-size:2.2rem">'+emo(q.a)+' → 🐾 🐾 🐾 … ?</span></div>');
-      ui.choices(M.numChoices(+r,[q.n,+r+1,+r-1,q.n-q.k],1).map(function(v){ return {html:String(v),val:v}; }));
-    }
+    if(q.kind==="pic") return drawPaws(q,ui);
+    if(q.kind==="bar") return pullBar(q,ui);
+    if(q.kind==="most") return lineUp(q,ui);
+    if(q.kind==="more") return levelUp(q,ui);
+    if(q.kind==="lp") return placeLeaves(q,ui);
+    return makeKey(q,ui);
   }
-  function after(q){
+  function after(q,ok){
+    lockGo();
     var f=document.getElementById("field");
-    if(q.kind==="pic"||q.kind==="bar") f.innerHTML=graph(q,q.ask);
-    if(q.kind==="more") f.innerHTML=graph(q,q.i);
-    if(q.kind==="most"){ var m=q.f?Math.min.apply(null,q.v):Math.max.apply(null,q.v); f.innerHTML=graph(q,q.v.indexOf(m)); }
-    if(q.kind==="lp") f.innerHTML=lineplot(q,q.ask<0?q.p.indexOf(+right(q)):q.ask);
+    if(q.kind==="pic") f.querySelector("#pg").innerHTML=picGraph(q,q.ask);
+    if(q.kind==="bar"){ var b=f.querySelector("#bg"); if(b) b.innerHTML=barSvg(q,q.v,{hl:q.ask}); }
+    if(q.kind==="more"){ var b2=f.querySelector("#bg"), dd=q.v[q.i]-q.v[q.j]; if(b2) b2.innerHTML=barSvg(q,q.v,{hl:q.i,ghost:{i:q.j,add:dd}}); }
+    if(q.kind==="most"&&!ok){ var g=f.querySelector("#gr"), m=Math.max.apply(null,q.v); if(g) g.innerHTML=barSvg(q,q.v,{hl:q.v.indexOf(m)}); }
+    if(q.kind==="lp"&&!ok){ var lb=f.querySelector("#lpBox"); if(lb) lb.innerHTML=lineplot(q); var lv=f.querySelector("#lv"); if(lv) lv.innerHTML=""; }
+    if(q.kind==="key"&&!ok){ var h=f.querySelector(".hole"); if(h){ h.textContent=q.k; h.classList.add("fix"); } }
   }
+  function rankText(q){ return q.a.slice().sort(function(x,y){ return q.v[q.a.indexOf(y)]-q.v[q.a.indexOf(x)]; }).map(function(ai){ return emo(ai)+" "+q.v[q.a.indexOf(ai)]; }).join(" > "); }
   function explain(q){
-    var r=right(q);
-    if(q.kind==="pic"||q.kind==="bar") return "The "+name(q.a[q.ask])+" got "+r+" votes.";
-    if(q.kind==="most") return "The "+name(+r)+" got the "+(q.f?"fewest":"most")+" votes.";
-    if(q.kind==="more") return q.v[q.i]+" − "+q.v[q.j]+" = "+r+" more votes.";
-    if(q.kind==="lp") return q.ask<0?qt(+r)+" inches has the most ✕ marks.":r+" "+(r==="1"?"leaf is":"leaves are")+" "+qt(q.p[q.ask])+" inches long.";
-    return q.n+" ÷ "+q.k+" = "+r+" 🐾.";
+    if(q.kind==="pic"){ var n=q.v[q.ask]/q.k; return q.v[q.ask]+" ÷ "+q.k+" = "+n+" 🐾 for the "+name(q.a[q.ask])+"."; }
+    if(q.kind==="bar") return "📰 The "+name(q.a[q.ask])+" bar stops at "+q.v[q.ask]+".";
+    if(q.kind==="most") return "📰 "+rankText(q);
+    if(q.kind==="more") return "📰 "+q.v[q.i]+" − "+q.v[q.j]+" = "+(q.v[q.i]-q.v[q.j])+": the "+name(q.a[q.i])+" got "+(q.v[q.i]-q.v[q.j])+" more votes!";
+    if(q.kind==="lp") return "📰 Every leaf is on the line plot: one ✕ for each leaf.";
+    return q.n+" ÷ "+q.k+" = "+(q.n/q.k)+": each 🐾 is "+q.k+" votes.";
+  }
+  function rightText(q){ return pickOne(["📰 Hot news!","📰 Front page!","📰 Great report!","📰 Print it!"]); }
+  function wrongText(q,v){
+    var g=String(v).slice(2);
+    if(q.kind==="pic") return g+" 🐾 × "+q.k+" = "+(+g*q.k)+" votes, not "+q.v[q.ask]+".";
+    if(q.kind==="bar") return "Your bar says "+g+", not "+q.v[q.ask]+".";
+    if(q.kind==="most") return "Not in the right order. Compare the bars!";
+    if(q.kind==="more") return "The bars are not level yet.";
+    if(q.kind==="lp"){ var a=g.split(">"); return "That leaf is "+qt(+a[0])+" in, not "+qt(+a[1])+" in."; }
+    return "With 🐾 = "+g+", "+(q.n/q.k)+" 🐾 would be "+(q.n/q.k*+g)+" votes.";
   }
   function valuesList(q){ return q.a.map(function(ai,i){ return emo(ai)+" "+q.v[i]; }).join(", "); }
   function teach(q,given){
-    var r=right(q), steps, cn;
+    var steps, cn, g=String(given||"").slice(2), r;
     if(q.kind==="pic"){
       var n=q.v[q.ask]/q.k, cb=[]; for(var i=1;i<=n;i++) cb.push(i*q.k);
-      steps=["Read the <b>key</b> first: each 🐾 means <b>"+q.k+" votes</b>, not 1.","The "+name(q.a[q.ask])+" row has <b>"+n+"</b> 🐾.",
-             "Count by "+q.k+"s: "+cb.join(", ")+". Or multiply: "+n+" × "+q.k+" = <b>"+r+"</b> votes."];
-      if(+given===n) steps.push("You counted the 🐾 ("+n+"), but each 🐾 is worth "+q.k+".");
+      steps=["Read the <b>key</b> first: each 🐾 means <b>"+q.k+" votes</b>, not 1.","Count by "+q.k+"s until you reach "+q.v[q.ask]+": "+cb.join(", ")+". That is <b>"+n+"</b> 🐾.",
+             "Or divide: "+q.v[q.ask]+" ÷ "+q.k+" = <b>"+n+"</b>."];
+      if(+g===q.v[q.ask]) steps.push("You drew one 🐾 for every vote, but each 🐾 is worth "+q.k+".");
       cn="象形图：先看图例，一个图标代表几；再数有几个图标，乘起来。";
     }else if(q.kind==="bar"){
-      var v=q.v[q.ask], lo=Math.floor(v/q.k)*q.k;
+      r=q.v[q.ask]; var v=q.v[q.ask], lo=Math.floor(v/q.k)*q.k;
       steps=["Find the top of the "+emo(q.a[q.ask])+" bar and look straight across to the numbers on the side.","The lines go up by <b>"+q.k+"</b>: 0, "+q.k+", "+(2*q.k)+", "+(3*q.k)+" …",
              v===lo?"The bar stops right on the line for <b>"+v+"</b>.":"The bar stops halfway between "+lo+" and "+(lo+q.k)+": that is <b>"+v+"</b>."];
       cn="条形图：看柱子顶端对着左边哪个数。注意每一格代表几；停在两格中间，就是一半。";
     }else if(q.kind==="most"){
-      steps=["Compare all four: "+valuesList(q)+".",(q.f?"The <b>shortest</b> bar (the fewest 🐾)":"The <b>tallest</b> bar (the most 🐾)")+" is the "+emo(+r)+" "+name(+r)+".",
-             "So the "+name(+r)+" got the <b>"+(q.f?"fewest":"most")+"</b> votes."];
+      var mx=Math.max.apply(null,q.v); r=q.a[q.v.indexOf(mx)];
+      steps=["Compare all four: "+valuesList(q)+".","The <b>tallest</b> bar goes first: the "+emo(r)+" "+name(r)+". Then the next tallest, down to the shortest.",
+             "From the most to the fewest: "+rankText(q)+"."];
       cn="比一比：柱子最高（图标最多）的就是最多；最矮（最少）的就是最少。";
     }else if(q.kind==="more"){
+      r=q.v[q.i]-q.v[q.j];
       steps=["The "+name(q.a[q.i])+" got <b>"+q.v[q.i]+"</b> votes. The "+name(q.a[q.j])+" got <b>"+q.v[q.j]+"</b> votes.",
              "\"How many more\" means: find the difference. <b>Subtract</b>: "+q.v[q.i]+" − "+q.v[q.j]+" = <b>"+r+"</b>."];
-      if(+given===q.v[q.i]+q.v[q.j]) steps.push("Adding ("+given+") tells how many in all, not how many more.");
+      steps.push("On the graph: the "+name(q.a[q.j])+" bar needs <b>"+r+"</b> more votes to be as tall as the "+name(q.a[q.i])+" bar."+(g!==""?" You added "+g+".":""));
       cn="“多多少”就是求相差多少：用大的数减小的数。";
     }else if(q.kind==="lp"){
       steps=["Each <b>✕</b> is one leaf. The number under it is how long that leaf is."];
-      if(q.ask<0) steps.push("Look for the tallest stack of ✕: it is above <b>"+qt(+r)+"</b> inches. That length is the most common.");
-      else steps.push("Find <b>"+qt(q.p[q.ask])+"</b> on the line and count the ✕ above it: <b>"+r+"</b>.");
+      var lg=g.split(">");
+      steps.push("Read the length on the leaf card, then find the same number under the line. Put one ✕ above it."+(lg.length===2?" The leaf was <b>"+qt(+lg[0])+"</b> in, so it goes above "+qt(+lg[0])+", not "+qt(+lg[1])+".":""));
+      steps.push("Watch the quarters: ¼, ½, ¾ come between the whole inches.");
       cn="线状图：每个 ✕ 代表一个。找到这个长度，数它上面有几个 ✕。";
     }else{
-      steps=["Each 🐾 is a group of <b>"+q.k+"</b> votes.","How many groups of "+q.k+" make "+q.n+"? Count by "+q.k+"s up to "+q.n+": that is "+r+" groups.",
-             "Or divide: "+q.n+" ÷ "+q.k+" = <b>"+r+"</b>. Draw "+r+" 🐾."];
+      r=q.n/q.k;
+      steps=["The graph shows <b>"+r+"</b> 🐾 for <b>"+q.n+"</b> votes.","Which key makes "+r+" 🐾 into "+q.n+"? Try it: "+r+" × "+q.k+" = <b>"+q.n+"</b>. So each 🐾 = <b>"+q.k+"</b>."+(g?" With "+g+": "+r+" × "+g+" = "+(r*+g)+".":"")];
       cn="反过来想：总数 ÷ 每个图标代表的数 = 要画几个图标。";
     }
     return {steps:steps,cn:cn};
   }
   function miss(q){
-    var r=right(q);
-    if(q.kind==="pic"||q.kind==="bar") return name(q.a[q.ask])+": "+r;
-    if(q.kind==="most") return (q.f?"fewest: ":"most: ")+name(+r);
-    if(q.kind==="more") return q.v[q.i]+" − "+q.v[q.j]+" = "+r;
-    if(q.kind==="lp") return q.ask<0?"most common: "+qt(+r)+" in":qt(q.p[q.ask])+" in: "+r;
-    return q.n+" ÷ "+q.k+" = "+r;
+    if(q.kind==="pic") return "draw "+name(q.a[q.ask])+": "+q.v[q.ask]+" votes, 🐾 = "+q.k;
+    if(q.kind==="bar") return name(q.a[q.ask])+" bar: "+q.v[q.ask];
+    if(q.kind==="most") return "most to fewest: "+rankText(q);
+    if(q.kind==="more") return q.v[q.i]+" − "+q.v[q.j]+" = "+(q.v[q.i]-q.v[q.j]);
+    if(q.kind==="lp") return "line plot of "+leafList(q).length+" leaves";
+    return q.n+" ÷ "+(q.n/q.k)+" 🐾 = "+q.k;
   }
   M.run({title:"Zoo Reporter",gameId:"graphs",icon:"🦁",tagline:"Read the graphs and write the zoo news!",store:"zooReporter.v1",
     coin:{e:"🥜",n:"peanuts"},heart:"💚",leave:"Leave the zoo",levelWord:"report",doneWord:"Reports done",ownedWord:"In your zoo",
@@ -196,8 +304,20 @@
           {id:"penguin",e:"🐧",n:"Penguin",p:25},{id:"monkey",e:"🐒",n:"Monkey",p:30},{id:"panda",e:"🐼",n:"Panda",p:40},{id:"parrot",e:"🦜",n:"Parrot",p:45},
           {id:"hippo",e:"🦛",n:"Hippo",p:55},{id:"crocodile",e:"🐊",n:"Crocodile",p:70}],
     shopTitle:"Zoo shop: peanuts bring new animals",shopCn:"用花生请新动物来动物园",emptyOwned:"🌴",
-    kinds:{pic:"Read a picture graph (with a key)",bar:"Read a scaled bar graph",most:"Most and fewest",more:"How many more (compare)",lp:"Read a line plot",key:"Make a picture graph key (÷)"},
-    fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss});
+    kinds:{pic:"Draw a picture graph row (with a key)",bar:"Draw a scaled bar",most:"Order from most to fewest",more:"How many more (make the bars level)",lp:"Make a line plot",key:"Find the picture graph key"},
+    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+      '.go{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.8}.go:disabled{opacity:.45}'+
+      '.pg{max-width:440px;margin:8px auto 0;border:3px solid #2f8f8a;border-radius:16px;overflow:hidden;background:#fff}.pgT{background:#2f8f8a;color:#fff;font-weight:900;padding:6px 10px;text-align:center}'+
+      '.pgR{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid #d7ecea;min-height:44px}.pgR.me{background:#fff6cc}.pgN{width:92px;flex:none;font-weight:900;font-size:.9rem}.pgI{font-size:1.25rem;letter-spacing:2px;display:flex;flex-wrap:wrap;gap:2px;align-items:center}'+
+      '.pgI .paw{border:0;background:none;font-size:1.35rem;padding:2px;cursor:pointer;animation:pop .3s}.pgI .add{border:2px dashed #2f8f8a;background:#eef8f7;border-radius:12px;font:inherit;font-weight:900;font-size:.95rem;padding:4px 8px;cursor:pointer;color:#1f4a47;letter-spacing:0}'+
+      '.pgK{border-top:2px solid #2f8f8a;padding:6px 10px;font-weight:900;text-align:center;background:#eef8f7}.keySlot .hole{display:inline-block;min-width:44px;border:3px dashed #2f8f8a;border-radius:10px;padding:0 8px;background:#fff}.keySlot .hole.in{border-style:solid}.keySlot .hole.fix{border-color:#2f9e5b;color:#1f6b3a}'+
+      '.cards{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}.card{border:3px solid #d7ecea;background:#fff;border-radius:16px;padding:6px 10px;font-size:2rem;line-height:1.1;cursor:pointer;min-width:76px;font-family:inherit}.card small{display:block;font-size:.75rem;font-weight:800;color:var(--muted)}.card.used{opacity:.35}'+
+      '.podium{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.spot{background:#eef8f7;border-radius:14px;text-align:center;padding:6px 2px}.spot .em{font-size:1.9rem;display:block;line-height:1.2}.spot .em.empty{opacity:.3}.spot b{font-size:.8rem;color:var(--muted)}'+
+      '.spot:nth-child(1){background:#fff1c2}.addRow{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:8px}.rock{width:56px;height:56px;border-radius:50%;border:0;background:#2f8f8a;color:#fff;font-size:2rem;font-weight:900;box-shadow:0 4px 0 #1f6662;cursor:pointer}.addN{font-weight:800;color:var(--muted);font-size:.9rem}'+
+      '.leaves{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:4px 0 6px;min-height:10px}.leaf{border:3px dashed #9fd3b0;background:#effaf2;border-radius:14px;padding:4px 8px;font-size:1.4rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;display:flex;align-items:center;gap:4px}'+
+      '.leaf b{font-size:.9rem;color:#1f4a47}.leaf.lift{border-style:solid;box-shadow:0 10px 18px rgba(0,0,0,.2);position:relative;z-index:5}.leaf.sel{border-color:#f5b301;border-style:solid;box-shadow:0 0 0 4px #ffe9a8}.leaf.bad{border-color:#e0475b;border-style:solid}'+
+      '.kcard{border:3px solid #2f8f8a;background:#fff;border-radius:14px;padding:8px 14px;font-weight:900;font-size:1.15rem;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}.kcard.lift{box-shadow:0 10px 18px rgba(0,0,0,.2);position:relative;z-index:5}.kcard.sel{box-shadow:0 0 0 4px #ffe9a8;border-color:#f5b301}.kcard.done{opacity:.35}',
+    fromKey:fromKey,render:render,right:right,rightText:rightText,wrongText:wrongText,explain:explain,teach:teach,after:after,miss:miss});
 })();
 </script>
 </body></html>

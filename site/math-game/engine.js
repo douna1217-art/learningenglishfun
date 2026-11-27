@@ -389,6 +389,23 @@
     for (var t = 1; out.length < 4; t++) [right + t, right - t].forEach(function (v) { if (out.length < 4 && v >= min && !seen[v]) { seen[v] = 1; out.push(v); } });
     return out.sort(function () { return Math.random() - .5; });
   }
-  root.MathGame = { run: run, rnd: rnd, pickOne: pickOne, between: function (a, b) { return a + rnd(b - a + 1); }, inWords: inWords, numChoices: numChoices,
+  // ---------- shared helpers for hands-on questions ----------
+  // drag(el, end): el follows the finger or the mouse; end(x, y) where it was let go (a tap without moving is left to click handlers)
+  function drag(el, end) {
+    var sx = 0, sy = 0, on = false, moved = false;
+    el.addEventListener("pointerdown", function (e) { if (el.classList.contains("done")) return; on = true; moved = false; sx = e.clientX; sy = e.clientY; try { el.setPointerCapture(e.pointerId); } catch (x) {} });
+    el.addEventListener("pointermove", function (e) { if (!on) return; var dx = e.clientX - sx, dy = e.clientY - sy; if (!moved && Math.abs(dx) + Math.abs(dy) < 8) return; moved = true; el.classList.add("lift"); el.style.transform = "translate(" + dx + "px," + dy + "px) scale(1.1)"; });
+    el.addEventListener("pointerup", function (e) { if (!on) return; on = false; el.classList.remove("lift"); if (moved) end(e.clientX, e.clientY); });
+    el.addEventListener("pointercancel", function () { on = false; el.classList.remove("lift"); el.style.transform = ""; });
+  }
+  // hit(el, x, y, selector): the element matching selector under the point, looking past el
+  function hit(el, x, y, sel) { el.style.visibility = "hidden"; var t = document.elementFromPoint(x, y); el.style.visibility = ""; return t && t.closest ? t.closest(sel) : null; }
+  var actx = null;
+  function blip(fr, len) {
+    if (!root.MathGame.sound || !root.MathGame.sound()) return;
+    try { actx = actx || new (root.AudioContext || root.webkitAudioContext)(); var t = actx.currentTime, o = actx.createOscillator(), g = actx.createGain();
+      o.type = "sine"; o.frequency.value = fr; g.gain.setValueAtTime(.12, t); g.gain.exponentialRampToValueAtTime(.001, t + len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + len + .02); } catch (e) {}
+  }
+  root.MathGame = { run: run, drag: drag, hit: hit, blip: blip, rnd: rnd, pickOne: pickOne, between: function (a, b) { return a + rnd(b - a + 1); }, inWords: inWords, numChoices: numChoices,
     shuffle: function (a) { for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; } return a; } };
 })(window);
