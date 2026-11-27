@@ -2,7 +2,7 @@
    the crystals the child earns there). They are drawn like the other accessories and registered in ITEMS once pet-art.js has made
    PetKit and ITEMS, so the pet wears them on the home page, in the shop and in every game.
    Which ones are won is kept in localStorage "lef_gameprizes_v1" = {won: {id: time}} (synced with the account like the games).
-   Sweet Shop (Grade 2) sells its own four for the candies earned there.
+   Sweet Shop and Block Factory (Grade 2) sell their own four each.
    GamePrizes.ids(), .forGame(game), .get(id), .isPrize(id), .won(id), .win(id), .thumb(id)
    Written for old Android WebViews: no optional chaining, no spread, no Object.assign. */
 (function (root) {
@@ -83,6 +83,34 @@
         return G(a, '<path d="M-21 2L-23 -20L-12 -11L0 -27L12 -11L23 -20L21 2Z" fill="#FFE8A3" stroke="' + INK + '" stroke-width="3" stroke-linejoin="round"/>' +
           '<path d="M-27 -20a5 6 0 0 1 9 0z" fill="#E53950" stroke="' + INK + '" stroke-width="1.8"/><path d="M-5 -28a5 6 0 0 1 10 0z" fill="#7CD67C" stroke="' + INK + '" stroke-width="1.8"/><path d="M18 -20a5 6 0 0 1 9 0z" fill="#B678FF" stroke="' + INK + '" stroke-width="1.8"/>' +
           '<circle cx="-11" cy="-4" r="3" fill="#FF8FB8"/><circle cx="0" cy="-6" r="3" fill="#6AB8FF"/><circle cx="11" cy="-4" r="3" fill="#FFD84A"/>');
+      } }
+,
+    // Block Factory (Grade 2, place value)
+    { id: "gp-hardhat", game: "blocks", price: 15, slot: "hat", name: "Builder's hard hat", cn: "工程帽", vb: "18 0 84 56", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        return G(a, '<path d="M-27 2H27Q28 -2 22 -4H-22Q-28 -2 -27 2Z" fill="#F5B301" stroke="' + INK + '" stroke-width="3" stroke-linejoin="round"/>' +
+          '<path d="M-21 -4Q-21 -28 0 -29Q21 -28 21 -4Z" fill="#FFC93C" stroke="' + INK + '" stroke-width="3" stroke-linejoin="round"/><path d="M-4 -28V-5M4 -28V-5" stroke="#E08A1E" stroke-width="3"/>' +
+          '<path d="M-14 -20q4 -5 9 -6" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>');
+      } },
+    { id: "gp-squareglasses", game: "blocks", price: 25, slot: "face", name: "Block glasses", cn: "方块眼镜", vb: "16 18 88 44", a: { ey: 40, edx: 20, er: 10 },
+      draw: function (a) {
+        var x1 = 60 - a.edx, x2 = 60 + a.edx, y = a.ey, r = a.er + 5;
+        return '<g><rect x="' + (x1 - r) + '" y="' + (y - r) + '" width="' + (2 * r) + '" height="' + (2 * r) + '" rx="3" fill="rgba(120,190,255,.35)" stroke="#2F7FC8" stroke-width="4.5"/>' +
+          '<rect x="' + (x2 - r) + '" y="' + (y - r) + '" width="' + (2 * r) + '" height="' + (2 * r) + '" rx="3" fill="rgba(255,190,90,.35)" stroke="#E08A1E" stroke-width="4.5"/>' +
+          '<path d="M' + (x1 + r) + ' ' + (y - 3) + 'H' + (x2 - r) + '" stroke="' + INK + '" stroke-width="3.5"/></g>';
+      } },
+    { id: "gp-bandana", game: "blocks", price: 35, slot: "neck", name: "Builder's bandana", cn: "工程领巾", vb: "28 94 64 40", a: { ny: 104 },
+      draw: function (a) {
+        var y = a.ny;
+        return '<g><path d="M34 ' + (y - 3) + 'Q60 ' + (y + 6) + ' 86 ' + (y - 3) + 'L60 ' + (y + 22) + 'Z" fill="#E53950" stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round"/>' +
+          '<circle cx="52" cy="' + (y + 6) + '" r="1.8" fill="#fff"/><circle cx="62" cy="' + (y + 10) + '" r="1.8" fill="#fff"/><circle cx="68" cy="' + (y + 4) + '" r="1.8" fill="#fff"/><circle cx="58" cy="' + (y + 15) + '" r="1.6" fill="#fff"/></g>';
+      } },
+    { id: "gp-blockcrown", game: "blocks", price: 50, slot: "hat", name: "Block crown", cn: "积木王冠", vb: "20 2 80 52", a: { hx: 60, hy: 46, hs: 1 },
+      draw: function (a, G) {
+        var c = ["#5FB7D4", "#F5B301", "#E8916D", "#7CC47F", "#A493D6"], h = "";
+        for (var i = 0; i < 5; i++) h += '<rect x="' + (-22 + i * 9) + '" y="-8" width="8" height="8" fill="' + c[i] + '" stroke="' + INK + '" stroke-width="1.6"/>';
+        h += '<rect x="-22" y="-17" width="8" height="8" fill="#F5B301" stroke="' + INK + '" stroke-width="1.6"/><rect x="-4" y="-26" width="8" height="8" fill="#E53950" stroke="' + INK + '" stroke-width="1.6"/><rect x="-4" y="-17" width="8" height="8" fill="#5FB7D4" stroke="' + INK + '" stroke-width="1.6"/><rect x="14" y="-17" width="8" height="8" fill="#7CC47F" stroke="' + INK + '" stroke-width="1.6"/>';
+        return G(a, h);
       } }
   ];
   var BY_ID = {};

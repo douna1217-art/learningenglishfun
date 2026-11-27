@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Block Factory</title>
+<meta name="theme-color" content="#e08a1e">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Block Factory: build numbers with hundreds, tens and ones, bundle ten ones into a ten, compare numbers with the crocodile, skip count and add 10 or 100. Grade 2 place value in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128b"></script>
+<script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="engine.js?v=20261128a"></script>
+<script>
+(function(){
+  "use strict";
+  // Block Factory (Grade 2, place value): the child builds numbers on a place-value mat with hundred flats, ten rods and one cubes,
+  // reads blocks on the number wheels, bundles loose cubes into tens, feeds the crocodile the bigger number, hops along a skip-counting
+  // path and runs the 10-more / 100-less machine. Nothing is picked from a list of answers.
+  var M=MathGame, pickOne=M.pickOne, rnd=M.rnd, between=M.between;
+  function Q(kind,d){ d.kind=kind; d.key=kind+"|"+JSON.stringify(d); return d; }
+  function fromKey(k){ var i=k.indexOf("|"); var d=JSON.parse(k.slice(i+1)); d.key=k; return d; }
+  function digits(n){ return [Math.floor(n/100),Math.floor(n/10)%10,n%10]; }
+  var ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],
+      TENS=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+  function words(n){ if(n<20) return ONES[n]; if(n<100) return TENS[Math.floor(n/10)]+(n%10?"-"+ONES[n%10]:""); return ONES[Math.floor(n/100)]+" hundred"+(n%100?" "+words(n%100):""); }
+
+  // ---------- the blocks ----------
+  var VAL={h:100,t:10,o:1}, NAME={h:"hundred",t:"ten",o:"one"};
+  function blockSvg(k,s){
+    s=s||1;
+    if(k==="h"){ var h='<svg class="blk" viewBox="0 0 42 42" width="'+(40*s)+'" height="'+(40*s)+'"><rect x="1" y="1" width="40" height="40" rx="2" fill="#5fb7d4" stroke="#1f5f7a" stroke-width="2"/>';
+      for(var i=1;i<10;i++) h+='<path d="M'+(1+i*4)+' 1V41M1 '+(1+i*4)+'H41" stroke="#3d93b3" stroke-width=".8"/>'; return h+'</svg>'; }
+    if(k==="t"){ var t='<svg class="blk" viewBox="0 0 10 42" width="'+(9*s)+'" height="'+(40*s)+'"><rect x="1" y="1" width="8" height="40" rx="1.5" fill="#7cc47f" stroke="#2f6b33" stroke-width="1.6"/>';
+      for(var j=1;j<10;j++) t+='<path d="M1 '+(1+j*4)+'H9" stroke="#4f9a53" stroke-width=".8"/>'; return t+'</svg>'; }
+    return '<svg class="blk" viewBox="0 0 10 10" width="'+(9*s)+'" height="'+(9*s)+'"><rect x="1" y="1" width="8" height="8" rx="1.5" fill="#f5b301" stroke="#9a6b00" stroke-width="1.6"/></svg>';
+  }
+  function matHtml(c,opts){
+    // a place-value mat: hundreds | tens | ones
+    opts=opts||{};
+    return '<div class="mat'+(opts.small?" small":"")+'">'+["h","t","o"].map(function(k){
+      var bl=""; for(var i=0;i<c[k];i++) bl+=(opts.tap?'<button type="button" class="pb" data-k="'+k+'" aria-label="Take away a '+NAME[k]+'">':'<span class="pb">')+blockSvg(k,opts.small?.8:1)+(opts.tap?'</button>':'</span>');
+      return '<div class="col '+k+'"><div class="colT">'+{h:"Hundreds 百位",t:"Tens 十位",o:"Ones 个位"}[k]+'</div><div class="colIn">'+bl+'</div></div>'; }).join("")+'</div>';
+  }
+  function valueOf(c){ return c.h*100+c.t*10+c.o; }
+  function blocksOf(n){ var d=digits(n); return {h:d[0],t:d[1],o:d[2]}; }
+
+  // ---------- the questions ----------
+  function build2(){ return Q("build",{n:between(11,99),s:1}); }                 // s: show the number built (first level only)
+  function build3(){ var n; do{ n=between(101,999); }while(n%10===0&&Math.random()<.5); return Q("build",{n:n,s:0}); }
+  function read(){ var n=between(105,989); return Q("read",{n:n}); }
+  function bundle(){ return Q("bundle",{n:between(13,48)}); }
+  function cmp(){ var a=between(100,999), b;
+    var r=Math.random(); if(r<.15) b=a; else if(r<.55){ var d=digits(a); b=d[0]*100+((d[2]*10+d[1])%100); if(b===a) b=a+pickOne([10,-10,1]); } else b=between(100,999);
+    b=Math.max(100,Math.min(999,b)); return Q("cmp",{a:a,b:b}); }
+  function skip(){ var by=pickOne([5,10,10,100]), start=by===100?between(1,6)*100+pickOne([0,0,50,20]):by===10?between(10,90)*10:between(1,150)*5; return Q("skip",{by:by,s:start}); }
+  function more(){ var by=pickOne([10,100]), up=Math.random()<.55, n=up?between(100,999-by):between(100+by,999); return Q("more",{n:n,by:by,up:up?1:0}); }
+  function expand(){ var n=between(101,999), d=digits(n), parts=[]; if(d[0]) parts.push(d[0]*100); if(d[1]) parts.push(d[1]*10); if(d[2]) parts.push(d[2]);
+    if(Math.random()<.5) parts=M.shuffle(parts); return Q("expand",{n:n,p:parts}); }
+  var LEVELS=[
+    {id:"b1",n:"Build It!",ic:"🧱",gen:build2},
+    {id:"b2",n:"Big Builds",ic:"🏗️",gen:build3},
+    {id:"b3",n:"Read the Blocks",ic:"🔎",gen:read},
+    {id:"b4",n:"Bundle Ten",ic:"📦",gen:bundle},
+    {id:"b5",n:"Hungry Crocodile",ic:"🐊",gen:cmp},
+    {id:"b6",n:"Skip Count Hop",ic:"🐸",gen:skip},
+    {id:"b7",n:"10 More, 100 Less",ic:"⚙️",gen:more},
+    {id:"b8",n:"Expanded Form",ic:"🧩",gen:expand}
+  ];
+
+  // ---------- one question on the screen ----------
+  var tick=function(){ M.blip&&M.blip(560,.05); }, snap=function(){ M.blip&&M.blip(880,.07); setTimeout(function(){ M.blip&&M.blip(1180,.08); },70); };
+  function goBtn(t,cn){ return '<button type="button" class="go" id="goBtn">'+t+' <small>'+cn+'</small></button>'; }
+  function keeper(say){ var p=MathPet.get(); return '<div class="kbar">'+(p?'<span class="keeper">'+MathPet.pic(p,"happy",50)+'</span>':'<span class="keeper em">👷</span>')+'<span class="kbub">'+(say||"Let\'s build! 一起来搭！")+'</span></div>'; }
+  function answerOf(q){
+    if(q.kind==="build"||q.kind==="read"||q.kind==="bundle") return q.n;
+    if(q.kind==="cmp") return q.a>q.b?">":q.a<q.b?"<":"=";
+    if(q.kind==="more") return q.up?q.n+q.by:q.n-q.by;
+    if(q.kind==="skip") return q.s+4*q.by;
+    return q.n;
+  }
+  function right(q){ return q.kind==="cmp"?answerOf(q):String(q.kind==="skip"?"ok":answerOf(q)); }
+  function wheels(id){ return '<div class="wheels" id="'+id+'">'+["Hundreds 百位","Tens 十位","Ones 个位"].map(function(l,i){ return '<span class="wh"><small>'+l+'</small><button type="button" data-i="'+i+'" data-d="1">▲</button><b data-i="'+i+'">0</b><button type="button" data-i="'+i+'" data-d="-1">▼</button></span>'; }).join("")+'</div>'; }
+  function wireWheels(box,ui){ var d=[0,0,0]; box.addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest("button"):null; if(!b) return; var i=+b.dataset.i; d[i]=(d[i]+ +b.dataset.d+10)%10; tick();
+      [].forEach.call(box.querySelectorAll("b"),function(x){ x.textContent=d[+x.dataset.i]; }); }); return function(){ return d[0]*100+d[1]*10+d[2]; }; }
+  // build: tap blocks from the tray onto the mat (tap one on the mat to take it back)
+  function buildGame(q,ui){
+    var c={h:0,t:0,o:0};
+    if(q.kind==="expand") ui.task("Build <b>"+q.p.join(" + ")+"</b> on the mat! <small>按照展开式摆积木</small>");
+    else ui.task("Build the number <b>"+q.n+"</b>! <small>用积木摆出 "+q.n+"</small>");
+    var f=ui.stage('<div class="fac">'+keeper("Tap the blocks to put them on the mat. 点积木放到垫子上")+'<div id="matBox"></div><div class="tot" id="tot"></div><div class="tray">'+["h","t","o"].filter(function(k){ return q.n>=100||k!=="h"; }).map(function(k){ return '<button type="button" class="tb" data-k="'+k+'">'+blockSvg(k,1)+'<small><b class="bv">'+VAL[k]+'</b>a '+NAME[k]+'</small></button>'; }).join("")+'</div>'+goBtn("Ship it! ✓","完成")+'</div>');
+    function draw(){ f.querySelector("#matBox").innerHTML=matHtml(c,{tap:true}); f.querySelector("#tot").textContent=q.s?"You built "+valueOf(c):""; }
+    f.querySelector(".tray").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".tb"):null; if(!b) return; var k=b.dataset.k; if(c[k]>=19) return; c[k]++; snap(); draw(); });
+    f.querySelector("#matBox").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".pb"):null; if(!b) return; c[b.dataset.k]--; tick(); draw(); });
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()){ var v=valueOf(c); ui.answer(v===q.n?String(q.n):"x:"+v); } };
+    draw();
+  }
+  // read: blocks on the mat, the number on the wheels
+  function readGame(q,ui){
+    ui.task("What number do the blocks show? Set the wheels! <small>积木表示多少？转数字轮</small>");
+    var f=ui.stage('<div class="fac">'+keeper("Count the flats, rods and cubes! 数一数")+matHtml(blocksOf(q.n),{})+wheels("rw")+goBtn("That's it ✓","就是这个数")+'</div>');
+    var get=wireWheels(f.querySelector("#rw"),ui);
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(get())); };
+  }
+  // bundle: tap 10 loose cubes; they snap into a ten rod. Then read the number on the wheels
+  function bundleGame(q,ui){
+    var loose=q.n, rods=0, sel=0;
+    ui.task("The factory has <b>"+q.n+"</b> loose cubes. Tap 10 cubes to snap them into a ten! Then set the number. <small>每点 10 个小方块就合成一根十，再写出这个数</small>");
+    var f=ui.stage('<div class="fac">'+keeper("Ten cubes make one rod! 十个小方块合成一根")+'<div class="bun" id="bun"></div><div class="tot" id="tot"></div>'+wheels("bw")+goBtn("That's it ✓","就是这个数")+'</div>');
+    function draw(){
+      var h='<div class="rods">'; for(var i=0;i<rods;i++) h+='<span class="rod">'+blockSvg("t",1.1)+'</span>'; h+='</div><div class="cubes">';
+      for(var j=0;j<loose;j++) h+='<button type="button" class="cube'+(j<sel?" sel":"")+'" data-j="'+j+'">'+blockSvg("o",1.6)+'</button>';
+      f.querySelector("#bun").innerHTML=h+'</div>';
+      f.querySelector("#tot").textContent=loose>=10?"Picked "+sel+" of 10 选了 "+sel+" 个":"Fewer than 10 left: they stay ones. 剩下不到 10 个，就是一";
+    }
+    f.querySelector("#bun").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".cube"):null; if(!b||loose<10) return;
+      sel++; tick(); if(sel===10){ loose-=10; rods++; sel=0; snap(); } draw(); });
+    var get=wireWheels(f.querySelector("#bw"),ui);
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(get())); };
+    draw();
+  }
+  // compare: turn the crocodile's mouth to the bigger number (or "=")
+  function cmpGame(q,ui){
+    var sym=["<",">","="], at=-1;
+    ui.task("The hungry crocodile always eats the <b>bigger</b> number! Tap it to turn its mouth. <small>鳄鱼的大嘴总是朝着大的数</small>");
+    var f=ui.stage('<div class="fac"><div class="cmp"><div class="side"><b>'+q.a+'</b>'+matHtml(blocksOf(q.a),{small:true})+'</div><button type="button" class="croc" id="croc">🐊<span id="sym">?</span></button><div class="side"><b>'+q.b+'</b>'+matHtml(blocksOf(q.b),{small:true})+'</div></div>'+
+      '<div class="tot">Compare the hundreds first, then the tens, then the ones. 先比百位，再比十位，再比个位</div>'+goBtn("Chomp! ✓","咬下去")+'</div>');
+    f.querySelector("#croc").onclick=function(){ if(ui.locked()) return; at=(at+1)%3; f.querySelector("#sym").textContent=sym[at]; f.querySelector("#croc").className="croc "+["l","r","e"][at]; tick(); };
+    f.querySelector("#goBtn").onclick=function(){ if(ui.locked()||at<0) return; ui.answer(sym[at]); };
+  }
+  // skip count: hop on the stones in order
+  function skipGame(q,ui){
+    var want=[1,2,3,4].map(function(i){ return q.s+i*q.by; }), got=0;
+    var bad=[q.s+q.by+1, q.s+q.by*2+(q.by===5?10:q.by===10?1:10), q.s+q.by*5, q.s-q.by].filter(function(v,i,arr){ return v>0&&want.indexOf(v)<0&&arr.indexOf(v)===i; }).slice(0,3);
+    var stones=M.shuffle(want.concat(bad));
+    ui.task("Count by <b>"+q.by+"s</b> from <b>"+q.s+"</b>: hop on the next 4 stones in order! <small>从 "+q.s+" 开始，"+q.by+" 个 "+q.by+" 个地数，按顺序跳</small>");
+    var f=ui.stage('<div class="fac"><div class="path" id="path"><span class="start">'+q.s+'</span>'+'<span class="hopper" id="hopper">'+(MathPet.get()?MathPet.pic(MathPet.get(),"happy",40):"🐸")+'</span><span class="trail" id="trail"></span></div><div class="pond">'+stones.map(function(v){ return '<button type="button" class="stone" data-v="'+v+'">'+v+'</button>'; }).join("")+'</div></div>');
+    f.querySelector(".pond").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".stone"):null; if(!b||b.disabled) return; var v=+b.dataset.v;
+      if(v!==want[got]){ b.classList.add("bad"); ui.answer("x:"+v); return; }
+      got++; b.disabled=true; b.classList.add("ok"); snap(); f.querySelector("#trail").textContent+=" → "+v;
+      if(got===4) ui.answer("ok"); });
+  }
+  // 10 more / 100 less: change the blocks with the machine's lever, then set the new number
+  function moreGame(q,ui){
+    var c=blocksOf(q.n), k=q.by===100?"h":"t";
+    ui.task("The machine says <b>"+(q.up?"+":"−")+" "+q.by+"</b>! Start with <b>"+q.n+"</b>. What number comes out? <small>机器："+(q.up?"加":"减")+" "+q.by+"，结果是多少？</small>");
+    var f=ui.stage('<div class="fac">'+keeper("Pull the lever, then read the number! 拉一下，再读数")+'<div class="mach">⚙️ <b>'+q.n+' '+(q.up?"+":"−")+' '+q.by+'</b></div><div id="matBox"></div><div class="lever"><button type="button" class="tb" id="lev">'+blockSvg(k,1)+'<small><b class="bv">'+(q.up?"+":"−")+VAL[k]+'</b>'+(q.up?"Add":"Take away")+' a '+NAME[k]+'</small></button></div>'+wheels("mw")+goBtn("That's it ✓","就是这个数")+'</div>');
+    function draw(){ f.querySelector("#matBox").innerHTML=matHtml(c,{}); }
+    var used=false;
+    f.querySelector("#lev").onclick=function(){ if(ui.locked()||used) return; used=true; if(q.up) c[k]++; else c[k]--; snap(); draw(); f.querySelector("#lev").disabled=true; };
+    var get=wireWheels(f.querySelector("#mw"),ui);
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(get())); };
+    draw();
+  }
+  function render(q,ui){
+    if(q.kind==="build"||q.kind==="expand") return buildGame(q,ui);
+    if(q.kind==="read") return readGame(q,ui);
+    if(q.kind==="bundle") return bundleGame(q,ui);
+    if(q.kind==="cmp") return cmpGame(q,ui);
+    if(q.kind==="skip") return skipGame(q,ui);
+    return moreGame(q,ui);
+  }
+  function after(q,ok){
+    [].forEach.call(document.querySelectorAll("#field button"),function(x){ x.disabled=true; });
+    if(ok){ MathPet.feed(2); addToCity(); }
+    else if(q.kind==="build"||q.kind==="expand"){ var mb=document.getElementById("matBox"); if(mb) mb.innerHTML='<div class="oneWay">'+q.n+' looks like this 应该是这样:</div>'+matHtml(blocksOf(q.n),{}); }
+    else if(q.kind==="skip"){ [].forEach.call(document.querySelectorAll(".stone"),function(s){ var v=+s.dataset.v, i=[1,2,3,4].map(function(j){ return q.s+j*q.by; }).indexOf(v); if(i>=0){ s.classList.add("ok"); s.textContent=v+" ("+(i+1)+")"; } }); }
+  }
+  function explain(q){
+    var d=digits(answerOf(q)), a=answerOf(q);
+    if(q.kind==="cmp") return q.a+" "+a+" "+q.b+".";
+    if(q.kind==="skip") return q.s+", "+[1,2,3,4].map(function(i){ return q.s+i*q.by; }).join(", ")+": +"+q.by+" each hop.";
+    if(q.kind==="more") return q.n+" "+(q.up?"+":"−")+" "+q.by+" = "+a+".";
+    return a+" = "+d[0]+" hundreds, "+d[1]+" tens and "+d[2]+" ones ("+words(a)+").";
+  }
+  function rightText(q){ return pickOne(["🧱 Built!","🏗️ Great building!","🚚 Shipped!","⭐ Perfect!"]); }
+  function wrongText(q,v){
+    if(q.kind==="cmp") return "Not that way: "+q.a+" "+answerOf(q)+" "+q.b+".";
+    if(q.kind==="skip") return v.slice(2)+" is not next. Count by "+q.by+"s!";
+    var g=String(v).indexOf("x:")===0?+String(v).slice(2):+v;
+    return "That is "+g+", not "+answerOf(q)+".";
+  }
+  function teach(q,given){
+    var a=answerOf(q), d=digits(typeof a==="number"?a:0), steps=[], cn;
+    if(q.kind==="cmp"){
+      var x=digits(q.a), y=digits(q.b), place=x[0]!==y[0]?0:x[1]!==y[1]?1:2, nm=["hundreds","tens","ones"][place];
+      steps.push("Look at the <b>hundreds</b> first: "+x[0]+" and "+y[0]+"."+(place>0?" The same, so look at the "+(place===1?"tens":"tens, then the ones")+".":""));
+      if(q.a!==q.b) steps.push("The "+nm+": "+x[place]+" and "+y[place]+". "+Math.max(x[place],y[place])+" is bigger, so <b>"+Math.max(q.a,q.b)+"</b> is the bigger number.");
+      steps.push("The crocodile's open mouth faces the bigger number: <b>"+q.a+" "+a+" "+q.b+"</b>."+(q.a===q.b?" They are the same: =":""));
+      cn="比大小：先比百位，百位一样再比十位，再比个位。鳄鱼的嘴巴张向大的数。";
+    }else if(q.kind==="skip"){
+      steps.push("Count by "+q.by+"s means <b>+"+q.by+"</b> each hop: "+q.s+" → "+[1,2,3,4].map(function(i){ return q.s+i*q.by; }).join(" → ")+".");
+      steps.push(q.by===100?"Only the hundreds digit changes.":q.by===10?"The tens digit goes up by 1 each hop (and the hundreds when the tens pass 9).":"The ones go 0, 5, 0, 5 …");
+      cn=q.by+" 个 "+q.by+" 个地数：每次加 "+q.by+"。";
+    }else if(q.kind==="more"){
+      steps.push((q.up?"Adding ":"Taking away ")+q.by+" changes only the <b>"+(q.by===100?"hundreds":"tens")+"</b> digit by 1 (the other digits stay the same).");
+      steps.push(q.n+" "+(q.up?"+":"−")+" "+q.by+" = <b>"+a+"</b>.");
+      cn="加减 10 或 100：只有十位（或百位）变 1，其他数位不变。";
+    }else{
+      if(q.kind==="bundle") steps.push(q.n+" cubes make <b>"+Math.floor(q.n/10)+" tens</b> (ten cubes each) and <b>"+(q.n%10)+" ones</b> left over.");
+      if(q.kind==="expand") steps.push(q.p.join(" + ")+": "+(d[0]?d[0]+" hundreds ("+d[0]*100+"), ":"")+(d[1]?d[1]+" tens ("+d[1]*10+"), ":"")+(d[2]?d[2]+" ones":"")+". Put each part in its column, whatever order it is written in.");
+      steps.push("<b>"+a+"</b> has <b>"+d[0]+"</b> hundreds, <b>"+d[1]+"</b> tens and <b>"+d[2]+"</b> ones.");
+      steps.push("A flat is 100, a rod is 10, a cube is 1. Count the flats, the rods, the cubes.");
+      cn="百位、十位、个位：一块大方板是 100，一根长条是 10，一个小方块是 1。";
+    }
+    return {steps:steps,cn:cn};
+  }
+  function miss(q){
+    if(q.kind==="cmp") return q.a+" "+answerOf(q)+" "+q.b;
+    if(q.kind==="skip") return "by "+q.by+"s from "+q.s;
+    if(q.kind==="more") return q.n+" "+(q.up?"+":"−")+" "+q.by+" = "+answerOf(q);
+    if(q.kind==="expand") return q.p.join(" + ")+" = "+q.n;
+    return String(answerOf(q));
+  }
+
+  // ---------- Block City: every good answer adds a block ----------
+  var CITY="blockFactory.city.v1", city=0;
+  try{ city=+localStorage.getItem(CITY)||0; }catch(e){ city=0; }
+  function addToCity(){ city++; try{ localStorage.setItem(CITY,String(city)); }catch(e){} }
+  function cityHtml(){
+    var cols=["#5fb7d4","#7cc47f","#f5b301","#e8916d","#a493d6"], towers=Math.ceil(city/10), h='<div style="font-weight:900;margin-bottom:8px">'+city+' blocks in your city 你的积木城有 '+city+' 块</div><div style="display:flex;align-items:flex-end;gap:6px;min-height:40px;flex-wrap:wrap">';
+    for(var t=0;t<Math.min(towers,30);t++){ var n=Math.min(10,city-t*10); h+='<div style="display:flex;flex-direction:column-reverse;gap:1px">'; for(var i=0;i<n;i++) h+='<span style="width:16px;height:9px;border-radius:2px;background:'+cols[t%5]+'"></span>'; h+='</div>'; }
+    if(!city) h+='<span style="color:var(--muted);font-weight:800">Build numbers to grow your city! 答对就能给城市加积木</span>';
+    return h+'</div><div style="color:var(--muted);font-weight:800;font-size:.8rem;margin-top:6px">Every tower is 10 blocks. 每座塔 10 块</div>';
+  }
+
+  var PS=MathPet.shop("blocks");
+  M.run({title:"Block Factory",icon:"🧱",tagline:MathPet.name("Your pet")+" runs a block factory! Build hundreds, tens and ones.",store:"blockFactory.v1",gameId:"place-value",cheer:true,perLevel:6,bossCount:8,
+    hero:function(){ return MathPet.hero("🧱",function(n){ return n+" is your factory helper! Earn bolts and win prizes for "+n+" in the shop."; }); },
+    coin:{e:"🔩",n:"bolts"},heart:"🧡",leave:"Leave the factory",levelWord:"job",doneWord:"Jobs done",ownedWord:"Prizes",fastMs:20000,
+    theme:{brand:"#e08a1e",dark:"#a8620c",bg:"#fff6ea",line:"#f5dfc0",ink:"#3a2a14",muted:"#86704f",hero:"linear-gradient(180deg,#ffb347,#ffd98a)",choice:["#fff1d6","#e4f1fb","#e6f6df","#fde6ee"]},
+    levels:LEVELS,boss:{n:"Big Factory Day",ic:"🏭",desc:"Every kind of job in the factory!"},practice:{n:"Practice Bench",ic:"🧰"},
+    shop:PS.shop,isOwned:PS.isOwned,onBuy:PS.onBuy,useOwned:PS.useOwned,ownedText:PS.ownedText,
+    shopTitle:"Prize shop: bolts win prizes for your pet",shopCn:"用螺栓给宠物换奖品",emptyOwned:"🎁",
+    panel:{title:"🏙️ Block City",cn:"积木城：答对一题加一块积木",html:cityHtml},
+    kinds:{build:"Build a number (hundreds, tens, ones)",read:"Read a number from blocks",bundle:"Bundle 10 ones into a ten",cmp:"Compare three-digit numbers (> < =)",skip:"Skip count by 5s, 10s, 100s",more:"10 or 100 more or less",expand:"Expanded form"},
+    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+      '.fac{max-width:460px;margin:0 auto;position:relative}.kbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}.keeper{flex:none;width:50px;height:50px;display:flex;align-items:center;justify-content:center}.keeper.em{font-size:2.3rem}.keeper svg{overflow:hidden}.kbub{background:#fff;border:3px solid var(--line);border-radius:16px;padding:6px 10px;font-weight:900;font-size:.85rem;flex:1}'+
+      '.mat{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px;background:#f5e3c8;border-radius:18px;padding:6px;min-height:120px}.mat.small{min-height:70px;padding:4px;gap:3px}'+
+      '.col{background:#fff;border-radius:12px;padding:4px;display:flex;flex-direction:column}.col.h .colT{color:#1f5f7a}.col.t .colT{color:#2f6b33}.col.o .colT{color:#9a6b00}'+
+      '.colT{font-weight:900;font-size:.72rem;text-align:center}.mat.small .colT{font-size:.6rem}.colIn{display:flex;flex-wrap:wrap;gap:3px;align-content:flex-start;justify-content:center;flex:1;padding-top:3px}'+
+      '.pb{border:0;background:none;padding:0;cursor:pointer;line-height:0;animation:pop .25s}span.pb{cursor:default}.oneWay{font-weight:900;font-size:.85rem;text-align:center;margin-bottom:4px}'+
+      '.tot{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;color:var(--muted);min-height:1.3em;margin-top:6px}'+
+      '.tray{display:flex;justify-content:center;gap:10px;margin-top:8px}.tb{border:0;background:#fff;border-radius:18px;padding:8px 12px;cursor:pointer;box-shadow:0 4px 0 var(--line);display:flex;flex-direction:column;align-items:center;gap:4px;min-width:84px;min-height:84px;justify-content:center}'+
+      '.tb:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}.tb small{font-weight:800;font-size:.72rem;color:var(--muted);line-height:1.2;text-align:center}.tb .bv{display:block;font-family:Fredoka,sans-serif;font-size:1.25rem;color:var(--ink)}.tb:disabled{opacity:.5}'+
+      '.go{display:block;margin:12px auto 0;border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.85}.go:disabled{opacity:.45}'+
+      '.wheels{display:flex;justify-content:center;gap:8px;margin-top:10px}.wh{display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:14px;box-shadow:0 3px 0 var(--line);padding:4px 2px 2px;min-width:72px}'+
+      '.wh small{font-weight:900;font-size:.62rem;color:var(--muted)}.wh b{font-family:Fredoka,sans-serif;font-size:2.2rem;line-height:1.1}.wh button{border:0;background:none;color:var(--brand);font-size:1.1rem;padding:2px 16px;cursor:pointer}'+
+      '.bun{background:#f5e3c8;border-radius:18px;padding:8px;min-height:120px}.rods{display:flex;gap:4px;justify-content:center;min-height:6px}.rod{animation:pop .3s}.cubes{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:6px}'+
+      '.cube{border:0;background:none;padding:2px;cursor:pointer;line-height:0;border-radius:6px}.cube.sel{background:#ffe08a;box-shadow:0 0 0 2px #e08a1e}'+
+      '.cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}.side{text-align:center}.side>b{font-family:Fredoka,sans-serif;font-size:2rem;display:block}'+
+      '.croc{border:0;background:#e6f6df;border-radius:22px;padding:8px 6px;font-size:2.4rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;box-shadow:0 4px 0 #b9ddb0;min-width:76px}.croc span{font-family:Fredoka,sans-serif;font-size:2rem;font-weight:700;color:#2f6b33}'+
+      
+      '.path{background:#e4f1fb;border-radius:18px;padding:10px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.2rem;display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:60px}.start{background:#fff;border-radius:12px;padding:4px 10px}.hopper{width:40px;height:40px;line-height:0;font-size:2rem}'+
+      '.pond{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.stone{border:0;border-radius:50% 50% 45% 55%;background:#c9d6e3;padding:16px 4px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.3rem;cursor:pointer;box-shadow:0 5px 0 #9fb1c4;color:var(--ink)}'+
+      '.stone.ok{background:#7cc47f;color:#fff;box-shadow:0 5px 0 #4f9a53}.stone.bad{background:#f3a1a8;box-shadow:0 5px 0 #d06a74}.stone:disabled{cursor:default}'+
+      '.mach{text-align:center;font-family:Fredoka,sans-serif;font-size:1.6rem;background:#fff1d6;border-radius:16px;padding:6px;margin-bottom:8px}.lever{display:flex;justify-content:center;margin-top:8px}',
+    fromKey:fromKey,render:render,right:right,rightText:rightText,wrongText:wrongText,explain:explain,teach:teach,after:after,miss:miss});
+})();
+</script>
+</body></html>
