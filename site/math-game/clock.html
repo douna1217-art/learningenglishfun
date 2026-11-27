@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Farm Clock</title>
+<meta name="theme-color" content="#3f8fd8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Farm Clock: one day on the farm, from the rooster in the morning to the owl at night. Set the clock hands, read the clock to the nearest five minutes, and choose a.m. or p.m. Grade 2 telling time.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#2b2a3f;--muted:#6f6a86;--bg:#eef6ff}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 20px;position:relative}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tbtn{background:#fff;border:1px solid #d5e3f5;border-radius:13px;padding:8px 12px;color:var(--ink);text-decoration:none;font:inherit;font-weight:900;cursor:pointer}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #d5e3f5}
+.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.35rem}
+.stage{position:relative;height:max(440px,calc(100vh - 380px));border-radius:22px;overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:0 4px 0 #d5e3f5;touch-action:none}
+/* the farm: the sky follows the time of day */
+.farm{position:relative;height:124px;flex:none;overflow:hidden;transition:background 1.2s}
+.hill{position:absolute;left:-10%;right:-10%;bottom:-40px;height:80px;border-radius:50% 50% 0 0;background:#7cc96a;transition:filter 1.2s}
+.sun{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;transition:left 1.2s,top 1.2s,background 1.2s,box-shadow 1.2s}
+.star{position:absolute;color:#fff;font-size:.7rem;transition:opacity 1.2s}
+.barn{position:absolute;right:6%;bottom:14px;font-size:2.8rem;line-height:1}
+.decor{position:absolute;bottom:12px;font-size:1.6rem;line-height:1}
+.actor{position:absolute;left:44%;bottom:12px;font-size:2.6rem;line-height:1;z-index:3}
+.actor.go{animation:act 1.6s ease-in-out}@keyframes act{20%{transform:translateY(-22px) scale(1.2)}40%{transform:translateY(0)}60%{transform:translateY(-12px) rotate(-8deg)}100%{transform:translateY(0)}}
+.actor .say{position:absolute;bottom:100%;left:50%;transform:translateX(-30%);background:#fff;border-radius:10px;padding:2px 8px;font-size:.75rem;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.helper{position:absolute;left:8px;top:8px;display:flex;align-items:flex-start;gap:5px;z-index:4;max-width:62%}
+.pet{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;font-size:2rem}.pet.cheer{animation:bob .5s 2}@keyframes bob{50%{transform:translateY(-8px)}}
+.bub{background:#fff;border-radius:12px;padding:4px 8px;font-weight:900;font-size:.74rem;line-height:1.2;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+/* the clock */
+.clockArea{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#fffdf6,#f3ead6)}
+#clock{touch-action:none;cursor:pointer}
+#clock .hand{transition:transform .25s}#clock.drag .hand{transition:none}
+#clock.wig .hand{animation:wig .4s 2}@keyframes wig{25%{transform:rotate(var(--a)) translateX(2px)}75%{transform:rotate(var(--a)) translateX(-2px)}}
+.dig{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);background:#1d2b3a;color:#7dffb0;font-family:Fredoka,sans-serif;font-size:1.3rem;padding:2px 12px;border-radius:10px;display:none}
+.task{background:#fff;border-radius:18px;padding:9px 12px;margin-top:8px;text-align:center;font-weight:900;font-size:1.08rem;box-shadow:0 3px 0 #d5e3f5}
+.task .cn{display:block;font-size:.8rem;color:var(--muted);font-weight:800;margin-top:2px}.task b{font-family:Fredoka,sans-serif;font-size:1.3em;color:#2f6fc8}
+.btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.btns button{border:0;border-radius:16px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;padding:10px 4px;box-shadow:0 5px 0 #d5e3f5;cursor:pointer;color:var(--ink)}
+.btns button small{display:block;font-family:Nunito,sans-serif;font-size:.7rem;font-weight:900;color:var(--muted)}
+.btns button.bad{background:#ffd6d0;animation:shake .4s}.btns.one{grid-template-columns:1fr}.btns.two{grid-template-columns:1fr 1fr}
+.btns button.main{background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;font-family:Nunito,sans-serif;font-weight:900;font-size:1.2rem}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.hand2{position:absolute;font-size:2rem;z-index:9;pointer-events:none;transition:left 1.2s ease-in-out,top 1.2s ease-in-out}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);pointer-events:none;animation:up 1.1s forwards;z-index:9}@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.over{position:absolute;inset:0;background:rgba(27,45,80,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:16px;z-index:10}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.9rem}.over p{margin:4px 0;font-weight:800}
+.go{border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin-top:12px}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.92rem;text-align:left;margin-top:8px;max-width:400px}.how div{margin:4px 0}
+.shop{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:380px;margin-top:10px}
+.shop button{border:0;border-radius:14px;background:#fff;padding:6px 2px;font:inherit;font-weight:900;font-size:.75rem;color:var(--ink);cursor:pointer}.shop button i{display:block;font-style:normal;font-size:1.8rem}
+.shop button.own{background:#d6f5e6}.shop button:disabled{opacity:.45;cursor:default}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+.wrap.fitted{max-width:none;display:flex;flex-direction:column;overflow:hidden}
+.wrap.fitted .stage{flex:1;height:auto;min-height:330px}
+.wrap.fitted .farm{height:150px}.wrap.fitted .actor{font-size:3.4rem}.wrap.fitted .barn{font-size:3.6rem}.wrap.fitted .pet{width:60px;height:60px}.wrap.fitted .bub{font-size:.92rem}.wrap.fitted .decor{font-size:2.1rem}
+@media(min-width:900px){.wrap.fitted .top,.wrap.fitted .hud,.wrap.fitted .bottom{width:100%;max-width:820px;margin-left:auto;margin-right:auto}}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script>
+<div class="wrap" id="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.25rem">🕰️ Farm Clock</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Farm jobs 农场活</small><b id="score">0/8</b></div><div><small>Level 关</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="stage" id="stage">
+    <div class="farm" id="farm"><div id="stars"></div><div class="sun" id="sun"></div><div class="hill" id="hill"></div><div id="decor"></div><div class="barn">🏡</div><div class="actor" id="actor"></div>
+      <div class="helper"><div class="pet" id="pet"></div><div class="bub" id="bub">Good morning, farm! 农场早上好！</div></div></div>
+    <div class="clockArea" id="clockArea"><svg id="clock" viewBox="-125 -125 250 250"></svg><div class="dig" id="dig"></div></div>
+  </div>
+  <div class="bottom">
+    <div class="task" id="task"></div>
+    <div class="btns" id="btns"></div>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Farm Clock (Grade 2, Unit 6: time). One level is one day on the farm, from the rooster in the morning to the owl at night; the sky,
+  // the sun and the moon follow the time. Each farm job is a question, and when it is answered the job happens on the farm:
+  //   set    "The cows are milked at 7:15. Set the clock!"  drag the hands: the long minute hand clicks to every 5 minutes and turns
+  //          the hour hand with it (past 12 the hour goes on); the short hour hand can be dragged too
+  //   read   the clock shows the time: which is it? (the mistakes children make: the hour after :30, the number the minute hand points to)
+  //   words  "half past 4", "quarter past 7", "quarter to 9"
+  //   ampm   the time and the job: a.m. or p.m.?
+  // Level 1 o'clock and half past (the minute numbers 5, 10 ... round the clock), level 2 quarter past / quarter to and reading to 5
+  // minutes, level 3 setting to 5 minutes without the minute numbers, level 4 also a.m. and p.m., level 5+ all of it.
+  // Inside a level the first jobs are easier, a miss makes the next one easier, a run of right answers brings harder ones.
+  // 8 jobs a level, 6 right (in two tries) opens the next level; any level opened can be played again. Coins buy animals for the farm.
+  var $=function(id){ return document.getElementById(id); };
+  var STORE="farmClock.v1", S={day:1,coins:0,farm:{},tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var L=S.day, D=null, Q=null, busy=false, GOAL=8, CK={h:12,m:0};
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function pad(m){ return (m<10?"0":"")+m; }
+  function fmt(h,m){ return h+":"+pad(m); }
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").onclick=function(){ S.sound=!S.sound; $("soundBtn").textContent=S.sound?"🔔":"🔕"; save(); };
+  $("soundBtn").textContent=S.sound?"🔔":"🔕";
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var pet=window.MathPet?MathPet.get():null;
+  $("pet").innerHTML=pet?MathPet.pic(pet,"happy",60):"🐣";
+  function say(t){ $("bub").innerHTML=t; var p=$("pet"); p.classList.remove("cheer"); void p.offsetWidth; p.classList.add("cheer"); }
+  function Z(){ return parseFloat($("wrap").style.zoom)||1; }
+  // ---------- the farm's day ----------
+  var JOBS=[[5,6,"🐓","The rooster wakes the farm","公鸡叫醒农场","Cock-a-doodle-doo!"],[6,7,"🐄","Time to milk the cows","挤牛奶","Moo!"],[7,8,"🐔","Feed the chickens","喂小鸡","Cluck cluck!"],
+    [8,9,"🚌","The school bus comes","校车来了","Beep beep!"],[9,10,"🐑","The sheep go to the meadow","羊去草地","Baa!"],[10,11,"🍎","Pick the apples","摘苹果","Crunch!"],
+    [12,12,"🥪","Lunch time","吃午饭","Yum!"],[13,15,"🚜","The tractor plows the field","拖拉机耕地","Vroom!"],[15,16,"🐖","The pigs splash in the mud","小猪玩泥巴","Oink!"],
+    [16,17,"🥚","Collect the eggs","捡鸡蛋","Eggs!"],[17,18,"🍲","Dinner time","吃晚饭","Yum yum!"],[19,20,"🛁","Bath time","洗澡","Splash!"],[20,21,"🦉","The owl wakes up","猫头鹰醒了","Hoo hoo!"],[21,21,"🌙","Bedtime on the farm","农场睡觉了","Good night!"]];
+  function skyFor(h24){
+    if(h24<5||h24>=21) return {bg:"linear-gradient(180deg,#0f1a3d,#2a3a78)",night:1};
+    if(h24<7) return {bg:"linear-gradient(180deg,#ffb38a,#ffe0b0)",night:0};
+    if(h24<17) return {bg:"linear-gradient(180deg,#7cc8ff,#cdeeff)",night:0};
+    if(h24<19) return {bg:"linear-gradient(180deg,#ff8f6b,#ffd2a0)",night:0};
+    return {bg:"linear-gradient(180deg,#3a3f8f,#8a6fb0)",night:1};
+  }
+  function setSky(h24,m){
+    var f=$("farm"), sk=skyFor(h24), w=f.clientWidth, hh=f.clientHeight, t=h24+m/60;
+    f.style.background=sk.bg; $("hill").style.filter=sk.night?"brightness(.55)":"none";
+    var sun=$("sun"), day=t>=6&&t<=19, p=day?(t-6)/13:((t>=19?t-19:t+5)/11), x=w*(.08+.84*p), y=hh*(.85-.6*Math.sin(Math.PI*p));
+    sun.style.left=x+"px"; sun.style.top=y+"px";
+    sun.style.background=day?"#ffd84a":"#f4f1d0"; sun.style.boxShadow=day?"0 0 0 8px rgba(255,216,74,.3)":"inset -9px -4px 0 #c9c4a0";
+    var st=""; if(sk.night) for(var i=0;i<12;i++) st+='<span class="star" style="left:'+(5+i*8)+'%;top:'+(8+((i*37)%50))+'%">✦</span>'; $("stars").innerHTML=st;
+  }
+  var FARM=[{id:"flower",e:"🌻",p:5},{id:"duck",e:"🦆",p:8},{id:"sheep",e:"🐑",p:12},{id:"pig",e:"🐖",p:16},{id:"horse",e:"🐎",p:22},{id:"tractor",e:"🚜",p:28},{id:"windmill",e:"🌾",p:34},{id:"rainbow",e:"🌈",p:45}];
+  function drawFarm(){ $("decor").innerHTML=FARM.filter(function(f){ return S.farm[f.id]; }).map(function(f,i){ return '<span class="decor" style="left:'+(8+i*8)+'%">'+f.e+'</span>'; }).join(""); }
+  // ---------- the clock ----------
+  var showNums=true;
+  function drawClock(){
+    var s='<circle r="104" fill="#fff" stroke="#2b2a3f" stroke-width="5"/>';
+    for(var i=0;i<60;i++){ var a=i*6*Math.PI/180, r1=i%5?96:90; s+='<line x1="'+(Math.sin(a)*r1).toFixed(1)+'" y1="'+(-Math.cos(a)*r1).toFixed(1)+'" x2="'+(Math.sin(a)*100).toFixed(1)+'" y2="'+(-Math.cos(a)*100).toFixed(1)+'" stroke="#2b2a3f" stroke-width="'+(i%5?1.5:3)+'"/>'; }
+    for(var n=1;n<=12;n++){ var b=n*30*Math.PI/180; s+='<text x="'+(Math.sin(b)*74).toFixed(1)+'" y="'+(-Math.cos(b)*74+8).toFixed(1)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="24" fill="#2b2a3f">'+n+'</text>';
+      if(showNums) s+='<text x="'+(Math.sin(b)*115).toFixed(1)+'" y="'+(-Math.cos(b)*115+5).toFixed(1)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="13" fill="#2f8fd8">'+(n*5%60===0?"00":n*5)+'</text>'; }
+    s+='<g class="hand" id="hh"><line x1="0" y1="10" x2="0" y2="-52" stroke="#2b2a3f" stroke-width="10" stroke-linecap="round"/></g>';
+    s+='<g class="hand" id="mh"><line x1="0" y1="12" x2="0" y2="-84" stroke="#e0457b" stroke-width="6" stroke-linecap="round"/></g>';
+    s+='<circle r="7" fill="#2b2a3f"/>';
+    $("clock").innerHTML=s; sizeClock(); showHands();
+  }
+  function sizeClock(){ var a=$("clockArea"); $("clock").setAttribute("width",10); $("clock").setAttribute("height",10); var z=Math.max(140,Math.min(a.clientWidth-16,a.clientHeight-10,420)); $("clock").setAttribute("width",z); $("clock").setAttribute("height",z); }
+  function showHands(){ var ma=CK.m*6, ha=(CK.h%12)*30+CK.m*.5; var mh=$("mh"), hh=$("hh");
+    mh.style.transform="rotate("+ma+"deg)"; hh.style.transform="rotate("+ha+"deg)"; mh.style.setProperty("--a",ma+"deg"); hh.style.setProperty("--a",ha+"deg"); }
+  // dragging: far from the middle moves the minute hand (it clicks to 5 minutes and turns the hour hand), near the middle the hour hand
+  (function(){
+    var c=$("clock"), grab=null, lastM=0;
+    function ang(e){ var r=c.getBoundingClientRect(), x=e.clientX-(r.left+r.width/2), y=e.clientY-(r.top+r.height/2); return {a:(Math.atan2(x,-y)*180/Math.PI+360)%360, d:Math.sqrt(x*x+y*y)/(r.width/2)}; }
+    function move(e){
+      var p=ang(e);
+      if(grab==="m"){ var m=Math.round(p.a/30)*5%60; if(m!==CK.m){ if(lastM>=45&&m<=10) CK.h=CK.h%12+1; else if(lastM<=10&&m>=45) CK.h=(CK.h+10)%12+1; lastM=m; CK.m=m; tone([900],.02,"square"); showHands(); } }
+      else { var h=Math.round((p.a-CK.m*.5)/30); h=((h%12)+12)%12; if(h===0) h=12; if(h!==CK.h){ CK.h=h; tone([500],.03,"square"); showHands(); } }
+    }
+    c.addEventListener("pointerdown",function(e){ if(busy||!Q||(Q.t!=="set"&&Q.t!=="words")) return; var p=ang(e); grab=p.d>.58?"m":"h"; lastM=CK.m; c.classList.add("drag"); try{ c.setPointerCapture(e.pointerId); }catch(er){} var hd=$("tutHand"); if(hd) hd.remove(); move(e); e.preventDefault(); });
+    c.addEventListener("pointermove",function(e){ if(grab) move(e); });
+    function up(){ if(!grab) return; grab=null; c.classList.remove("drag"); if(Q&&Q.tut) guide(); }
+    c.addEventListener("pointerup",up); c.addEventListener("pointercancel",up);
+  })();
+  // ---------- a job ----------
+  function minutesFor(kind){
+    if(kind==="half") return [0,30][rnd(2)];
+    if(kind==="quarter") return [0,15,30,45][rnd(4)];
+    return rnd(12)*5;
+  }
+  function gen(job,i){
+    var easy=i<2||D.bad, hard=!easy&&D.streak>=3;
+    var types=L===1?["set","read"]:L===2?["set","read","words"]:L===3?["set","read","set"]:L===4?["set","read","ampm","ampm"]:["set","read","words","ampm"];
+    if(easy&&L>=2) types=["set","read"];
+    var t=types[rnd(types.length)], mk=L===1?"half":L===2?(t==="read"&&!easy?"five":"quarter"):(easy?"quarter":"five");
+    if(hard&&L>=2) mk="five";
+    if(t==="words") mk="quarter";
+    if(t==="ampm"&&job[0]===12) t="set";   // 12 noon is a.m. or p.m.? too tricky for grade 2
+    var h24=job[0]+rnd(job[1]-job[0]+1), m=minutesFor(mk);
+    if(t==="words"&&m===0) m=[15,30,45][rnd(3)];
+    if(job[0]===job[1]&&job[0]>=21) m=m>30?30:m;
+    var h=h24%12||12;
+    return {t:t,h:h,m:m,h24:h24,job:job,tries:0};
+  }
+  function words(h,m){ return m===30?"half past "+h:m===15?"quarter past "+h:m===45?"quarter to "+(h%12+1):h+" o'clock"; }
+  function wordsCn(h,m){ return m===30?h+" 点半":m===15?h+" 点一刻（"+h+":15）":m===45?"差一刻 "+(h%12+1)+" 点（"+h+":45）":h+" 点整"; }
+  function ampm(h24){ return h24<12?"a.m.":"p.m."; }
+  function next(){
+    busy=false;
+    if(D.i>=D.jobs.length) return endLevel();
+    var job=D.jobs[D.i]; Q=gen(job,D.i); D.i++;
+    if(!S.tut&&L===1&&D.i===1){ Q={t:"set",h:3,m:0,h24:15,job:JOBS[7],tries:0,tut:true}; }
+    $("actor").innerHTML=Q.job[2]; $("actor").className="actor";
+    var start=Q.t==="read"||Q.t==="ampm"?{h:Q.h,m:Q.m}:{h:12,m:0};
+    if((Q.t==="set"||Q.t==="words")&&start.h===Q.h&&start.m===Q.m) start={h:6,m:0};
+    CK={h:start.h,m:start.m}; showHands(); $("dig").style.display="none";
+    var j=Q.job, tm=fmt(Q.h,Q.m), h;
+    if(Q.t==="set") h=j[3]+' at <b>'+tm+'</b>. Set the clock!<span class="cn">'+j[4]+'：'+tm+'。拨一拨钟表的指针！</span>';
+    else if(Q.t==="words") h=j[3]+' at <b>'+words(Q.h,Q.m)+'</b>. Set the clock!<span class="cn">'+j[4]+'：'+wordsCn(Q.h,Q.m)+'。拨一拨钟表！</span>';
+    else if(Q.t==="read") h=j[3]+'! What time does the clock show?<span class="cn">'+j[4]+'！钟表上是几点？</span>';
+    else h=j[3]+' at <b>'+tm+'</b>. Is it <b>a.m.</b> or <b>p.m.</b>?<span class="cn">'+j[4]+'：'+tm+'。是上午 (a.m.) 还是下午/晚上 (p.m.)？</span>';
+    $("task").innerHTML=h; drawButtons();
+    if(Q.t!=="ampm") setSky(D.lastH24,D.lastM);
+    say(Q.tut?"Drag the <b>short hour hand</b> to 3! 把短短的时针拖到 3！":Q.t==="set"||Q.t==="words"?"Long hand = minutes, short hand = hours. 长针是分，短针是时。":Q.t==="read"?"Short hand first: the hour! 先看短针：几点！":"a.m. = morning, p.m. = afternoon and night. a.m. 上午，p.m. 下午和晚上。");
+    sizeClock();   // the buttons below are in: the clock gets the room that is left
+    if(Q.tut) tutHand();
+    hud();
+  }
+  function drawButtons(){
+    var b=$("btns"), h="";
+    if(Q.t==="set"||Q.t==="words"){ b.className="btns one"; h='<button type="button" class="main" id="done">✓ Done! 拨好了</button>'; }
+    else if(Q.t==="ampm"){ b.className="btns two"; h='<button type="button" data-v="a.m.">a.m.<small>midnight → noon 上午</small></button><button type="button" data-v="p.m.">p.m.<small>noon → midnight 下午/晚上</small></button>'; }
+    else { b.className="btns";
+      var right=fmt(Q.h,Q.m), opts=[right], nextH=Q.h%12+1, prevH=(Q.h+10)%12+1;
+      var cand=[fmt(Q.m>=30?nextH:prevH,Q.m), fmt(Q.h,(Q.m/5)||12), fmt(Q.h,(Q.m+5)%60), fmt((Q.m/5)||12,Q.h*5%60)];
+      cand.forEach(function(c){ if(opts.length<3&&opts.indexOf(c)<0) opts.push(c); });
+      opts.sort(function(){ return Math.random()-.5; });
+      h=opts.map(function(o){ return '<button type="button" data-v="'+o+'">'+o+'</button>'; }).join(""); }
+    b.innerHTML=h;
+    [].forEach.call(b.querySelectorAll("button"),function(x){ x.onclick=function(){ if(busy) return; if(x.id==="done") checkSet(); else checkPick(x); }; });
+  }
+  function checkSet(){
+    if(CK.h===Q.h&&CK.m===Q.m) return win();
+    Q.tries++; tone([200,150],.12,"sawtooth"); var c=$("clock"); c.classList.remove("wig"); void c.offsetWidth; c.classList.add("wig");
+    if(Q.tries>=2){ busy=true; CK={h:Q.h,m:Q.m}; showHands(); say("This is "+fmt(Q.h,Q.m)+": the long hand on "+((Q.m/5)||12)+", the short hand "+(Q.m?"just after "+Q.h:"on "+Q.h)+". 长针指着 "+((Q.m/5)||12)+"，短针"+(Q.m?"在 "+Q.h+" 后面一点":"指着 "+Q.h)+"。"); setTimeout(function(){ miss(); },2200); return; }
+    say(CK.m!==Q.m?"Check the long minute hand: count by 5s! 看长针：五个五个地数！":"The minutes are right. Check the short hour hand! 分钟对了，看看短针！");
+  }
+  function checkPick(btn){
+    var v=btn.dataset.v, right=Q.t==="ampm"?ampm(Q.h24):fmt(Q.h,Q.m);
+    if(v===right) return win();
+    Q.tries++; btn.classList.add("bad"); btn.disabled=true; tone([200,150],.12,"sawtooth");
+    if(Q.tries>=2||Q.t==="ampm"){ busy=true; say("It's "+right+". 答案是 "+right+"。"); setTimeout(miss,1800); return; }
+    say(Q.m>=30?"The short hand hasn't reached the next number yet! 短针还没走到下一个数！":"The long hand: count by 5s from 12. 长针：从 12 开始五个五个地数。");
+  }
+  function miss(){ D.miss++; D.bad=true; D.streak=0; happen(false); }
+  function win(){
+    var coins=Q.tries?1:3; D.ok++; D.streak=Q.tries?0:D.streak+1; D.bad=!!Q.tries; D.coins+=coins; S.coins+=coins; save();
+    tone([660,880,1100],.08);
+    var r=$("clock").getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/3);
+    var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"; fx.style.left="45%"; fx.style.top="25%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
+    if(pet) MathPet.feed(1);
+    happen(true);
+  }
+  // the job happens: the sky moves to that time, the animal does its thing
+  function happen(good){
+    busy=true; D.lastH24=Q.h24; D.lastM=Q.m; setSky(Q.h24,Q.m);
+    $("dig").textContent=fmt(Q.h,Q.m)+" "+ampm(Q.h24); $("dig").style.display="block";
+    var a=$("actor"); a.className="actor"; void a.offsetWidth; a.className="actor go"; a.innerHTML=Q.job[2]+'<span class="say">'+Q.job[5]+'</span>';
+    if(good) say(["Right on time! 正好准时！","Great clock reading! 认钟高手！","The farm is happy! 农场很开心！"][rnd(3)]);
+    if(Q.tut){ S.tut=1; save(); }
+    hud(); setTimeout(next,2300);
+  }
+  function tutHand(){
+    var st=$("stage").getBoundingClientRect(), c=$("clock").getBoundingClientRect(), z=Z(), cx=(c.left-st.left)/z+c.width/z/2, cy=(c.top-st.top)/z+c.height/z/2, R=c.width/z/2*.3;
+    $("stage").insertAdjacentHTML("beforeend",'<div class="hand2" id="tutHand" style="left:'+(cx-10)+'px;top:'+(cy-R-10)+'px">👆</div>');
+    var t=$("tutHand"); setTimeout(function(){ if(t.parentNode){ t.style.left=(cx+R-6)+"px"; t.style.top=(cy-10)+"px"; } },400);
+    var loop=setInterval(function(){ if(!t.parentNode){ clearInterval(loop); return; } t.style.transition="none"; t.style.left=(cx-10)+"px"; t.style.top=(cy-R-10)+"px"; void t.offsetWidth; t.style.transition=""; setTimeout(function(){ if(t.parentNode){ t.style.left=(cx+R-6)+"px"; t.style.top=(cy-10)+"px"; } },100); },1800);
+  }
+  function guide(){ if(Q.tut&&CK.h===3&&CK.m===0){ say("3 o'clock! Now tap <b>Done</b>. 3 点整！点“拨好了”。"); $("done").style.outline="4px solid #ffe36e"; } }
+  function hud(){ $("score").textContent=(D?D.ok:0)+"/"+GOAL; $("day").textContent=L; $("coins").textContent=S.coins; }
+  // ---------- levels ----------
+  function startLevel(){
+    // a day: 8 jobs in the order of the day (morning to night)
+    var pool=JOBS.slice(), jobs=[]; while(jobs.length<GOAL){ var j=pool.splice(rnd(pool.length),1)[0]; jobs.push(j); }
+    jobs.sort(function(a,b){ return a[0]-b[0]; });
+    D={i:0,jobs:jobs,ok:0,miss:0,coins:0,streak:0,bad:false,lastH24:6,lastM:0};
+    showNums=L<=2; drawClock();
+    if(window.GameProgress) GameProgress.start("clock","day"+L);
+    closeOver(); setSky(5,30); next();
+  }
+  function endLevel(){
+    var won=D.ok>=6, d=L;
+    if(window.GameProgress) GameProgress.report({game:"clock",level:"day"+d,name:"Farm Clock Level "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:GOAL,best:D.ok});
+    if(won){ if(L===S.day) S.day++; L++; save(); }
+    tone(won?[523,659,784,1047]:[392,330,262],.2);
+    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！农场的一天结束了。":"再试一次，做对 6 件就过关！")+'</p><p style="font-size:1.3rem">✅ '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+levelPick()+'<button type="button" class="go" id="nextDay">'+playLabel()+'</button>');
+    wireShop(); wirePick(); $("nextDay").onclick=startLevel;
+  }
+  function shopHtml(){
+    return '<p style="margin-top:10px">🛒 Farm shop 农场商店 · 🪙 '+S.coins+'</p><div class="shop" id="shop">'+FARM.map(function(d){
+      var own=S.farm[d.id]; return '<button type="button" data-id="'+d.id+'" class="'+(own?"own":"")+'"'+(!own&&S.coins<d.p?" disabled":"")+'><i>'+d.e+'</i>'+(own?"✓":d.p+" 🪙")+'</button>'; }).join("")+'</div>';
+  }
+  function wireShop(){
+    [].forEach.call(document.querySelectorAll("#shop button"),function(b){ b.onclick=function(){
+      var d=FARM.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!d||S.farm[d.id]||S.coins<d.p) return;
+      S.coins-=d.p; S.farm[d.id]=1; save(); drawFarm(); $("coins").textContent=S.coins; tone([660,880,1100],.08);
+      $("shop").outerHTML=shopHtml().replace(/^<p[^>]*>.*?<\/p>/,""); wireShop();
+    }; });
+  }
+  function levelPick(){ return window.LevelPick?LevelPick.html("clock",S.day,L):""; }
+  function playLabel(){ return S.day>1||L>1?"Level "+L+" ▶ 开始第 "+L+" 关":"Play! 开始"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; $("day").textContent=L; var b=$("play")||$("nextDay"); if(b) b.textContent=playLabel(); }); }
+  function over(html){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  var HOW='<div class="how"><div>🐓 One level is one day on the farm. Each job has a time.</div><div>🕰️ Drag the <b>long hand</b> for minutes (it clicks every 5 minutes) and the <b>short hand</b> for the hour. Then tap <b>Done</b>.</div><div>👀 Or read the clock and pick the time, or say a.m. (morning) or p.m. (afternoon, night).</div><div style="color:var(--muted)">一关就是农场的一天。拖长针拨分钟（每格 5 分钟），拖短针拨小时，再点“拨好了”。也有看钟选时间、判断上午还是下午的题。</div></div>';
+  function intro(){ over('<h2>🕰️ Farm Clock</h2><p>Telling Time Practice 认识时间</p>'+HOW+levelPick()+'<button type="button" class="go" id="play">'+playLabel()+'</button>'); wirePick(); $("play").onclick=startLevel; }
+  $("helpBtn").onclick=function(){ var o=document.createElement("div"); o.className="over"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go">Got it! 明白了</button>'; $("wrap").appendChild(o); o.querySelector(".go").onclick=function(){ o.remove(); }; };
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
+  function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<16;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:32,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
+  if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
+  var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ sizeClock(); if(D) setSky(D.lastH24,D.lastM); },150); });
+  drawFarm(); drawClock(); setSky(7,0); hud(); $("task").innerHTML="🕰️ A day on the farm! 农场的一天！";
+  window.__clock={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },ck:function(){ return CK; },start:startLevel};
+  intro();
+})();
+</script>
+</body></html>
