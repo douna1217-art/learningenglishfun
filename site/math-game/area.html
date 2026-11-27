@@ -80,6 +80,22 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .counter{text-align:center;font-weight:900;margin-top:8px;font-size:1.05rem}
 .rect{position:relative;left:30px;margin:40px auto 10px;background:repeating-linear-gradient(45deg,#7cc35a 0 10px,#6db34a 10px 20px);border:4px solid #3e7426;border-radius:4px}
 .rect.fence{border:6px dashed #8a5f36;background:#cfe8b8}
+.hcount{text-align:center;font-weight:900;color:var(--ink);margin:8px 0 0}.hrow{display:flex;justify-content:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.hbtn{border:0;border-radius:999px;padding:10px 16px;font:inherit;font-weight:900;background:#fff;box-shadow:0 4px 0 #cfe0c4;cursor:pointer;color:var(--ink)}.hbtn.big{background:#6db34a;color:#fff;box-shadow:0 4px 0 #3e7426}.hbtn:disabled{opacity:.5}
+.hgo{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--good,#2f9e5b);color:#fff;box-shadow:0 4px 0 #1f7041;cursor:pointer}.hgo small{font-weight:800;opacity:.85}.hgo:disabled{opacity:.45}
+.cell.counted{background:#6db34a;color:#fff;font-family:Fredoka,sans-serif;font-weight:700}
+.rect.rows{background:#e9d3b5}.rowsIn{position:absolute;inset:0;display:grid;align-content:start}.rowsIn .fl{display:flex;align-items:center;justify-content:center;aspect-ratio:1;font-size:.85rem;background:#7cc35a;outline:1px solid #6aa84b;animation:sprout .35s ease-out}
+@keyframes sprout{from{transform:scale(.3)}to{transform:none}}
+.fenceBox{display:flex;justify-content:center;margin-top:8px}.fenceBox svg{display:block;touch-action:manipulation}
+.edge{cursor:pointer}.edge line{stroke:rgba(0,0,0,0);stroke-width:7;stroke-linecap:round}.edge:hover line{stroke:rgba(138,95,54,.3)}.edge.on line{stroke:#8a5f36;stroke-dasharray:none}.edge.bad line{stroke:#e0475b;stroke-dasharray:none}
+.cutl{stroke:#c0392b;stroke-width:6;stroke-dasharray:8 6;pointer-events:none}.cuthit{cursor:pointer}.dim{font-family:Fredoka,sans-serif;font-weight:700;font-size:15px;fill:#1f3a1a;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:4px}
+.wh2{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px}.wh2 .wh{display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:14px;box-shadow:0 3px 0 #cfe0c4}
+.wh2 .wh b{font-family:Fredoka,sans-serif;font-size:2rem;line-height:1.1}.wh2 .wh button{border:0;background:none;color:#3e7426;font-size:1.1rem;padding:2px 16px;cursor:pointer}.wh2 .u{font-weight:900;color:var(--muted)}
+.jobRow{display:flex;justify-content:center;min-height:60px;margin-top:6px}.job{background:#fff;border:3px solid #8a5f36;border-radius:16px;padding:10px 14px;font-weight:900;max-width:320px;text-align:center;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.job.lift{box-shadow:0 10px 18px rgba(0,0,0,.2);position:relative;z-index:5}.job.sel{border-color:#f5b301;box-shadow:0 0 0 4px #ffe9a8}.job.done{font-size:.85rem;margin-top:6px;cursor:default}
+.zones{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.zone{min-height:150px;border-radius:20px;border:3px solid #cfe0c4;background:#f1f8ec;padding:10px;text-align:center;cursor:pointer}.zone:nth-child(2){background:#f8efe4;border-color:#e4cfb2}
+.zone .big{font-size:2rem;display:block}.zone b{display:block;font-size:1.1rem}.zone small{display:block;font-weight:800;color:var(--muted);font-size:.78rem}.zone.good{border-color:#2f9e5b;background:#e3f6e8}.zone.faded{opacity:.5}
+.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}
 .rect .side{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.05rem;white-space:nowrap;color:var(--ink)}
 .rect .top{left:50%;top:-12px;transform:translate(-50%,-100%)}
 .rect .left{top:50%;left:-14px;transform:translate(-100%,-50%)}
@@ -370,6 +386,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   // ---------- playing ----------
   var G=null, pending=0, planted={};
+  window.__area={cur:function(){ return G&&G.q; }};   // for the browser tests
   function start(P){
     if(window.GameProgress) GameProgress.start(GID,P.id);
     var pool=null;
@@ -430,11 +447,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     $("setbtns").hidden=true; [].forEach.call(document.querySelectorAll("#setbtns button"),function(b){ b.disabled=false; });
     var ch=$("choices"); ch.innerHTML=""; var fd=$("field"); fd.innerHTML="";
     if(q.kind==="count"){
-      var W=Math.max(q.a+2,6), H=Math.max(q.b+2,5), ox=rnd(W-q.a+1), oy=rnd(H-q.b+1);
-      $("task").innerHTML="How many <b>square units</b> does the flower bed cover?";
-      fd.innerHTML=gridHtml(W,H,function(x,y){ return x>=ox&&x<ox+q.a&&y>=oy&&y<oy+q.b; },{icon:G.icon});
-      numChoices(q.a*q.b,[q.a*q.b+1,q.a*q.b-1,q.a+q.b,2*(q.a+q.b),q.a*q.b+q.a]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>square units</small>",String(v))); });
-      $("hint").textContent="Count every green square. Or count the rows and the squares in each row.";
+      countGame(q,fd);
     }else if(q.kind==="plant"){
       $("task").innerHTML="Plant a flower bed with an area of <b>"+units(q.a,true)+"</b>.";
       fd.innerHTML=gridHtml(8,5,null,{pick:true}); wirePlanting();
@@ -443,30 +456,99 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       $("task").innerHTML="Plant a rectangle <b>"+q.a+" squares long</b> and <b>"+q.b+" rows</b>.";
       fd.innerHTML=gridHtml(8,5,null,{pick:true}); wirePlanting();
       $("words").textContent=inWords(q.a)+" squares in each row, "+inWords(q.b)+" rows.";
-    }else if(q.kind==="area"){
-      $("task").innerHTML="What is the <b>area</b> of the flower bed?";
-      fd.innerHTML=rectHtml(q.a,q.b,false);
-      numChoices(q.a*q.b,[2*(q.a+q.b),q.a+q.b,q.a*q.b+q.a,q.a*q.b-q.b]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>square units</small>",String(v))); });
-      $("hint").textContent="Area = length × width.";
-    }else if(q.kind==="perim"){
-      $("task").innerHTML="How long is the <b>fence</b> all the way around the garden?";
-      fd.innerHTML=rectHtml(q.a,q.b,true);
-      numChoices(2*(q.a+q.b),[q.a*q.b,q.a+q.b,2*q.a+q.b,q.a+2*q.b]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>units</small>",String(v))); });
-      $("hint").textContent="Add all four sides. The sides across from each other are the same.";
-    }else if(q.kind==="L"){
-      $("task").innerHTML="What is the <b>area</b> of this L-shaped garden?";
-      fd.innerHTML=gridHtml(q.a,q.b,lFilled(q),{icon:G.icon});
-      var A=q.a*q.b-q.c*q.d;
-      numChoices(A,[q.a*q.b,A+q.c,A-q.d,2*(q.a+q.b)]).forEach(function(v){ ch.appendChild(choiceBtn(v+"<small>square units</small>",String(v))); });
-      $("hint").textContent="Split it into two rectangles, find each area, then add.";
-    }else{
-      var job=JOBS[q.a], who=NAMES[q.b];
-      $("task").innerHTML=who+" wants to <b>"+job[0]+"</b>.";
-      fd.innerHTML='<div class="which">🤔</div>';   // the answer's picture is shown after
-      ch.appendChild(choiceBtn("Area<small>the space inside</small>","a"));
-      ch.appendChild(choiceBtn("Perimeter<small>the distance around</small>","p"));
-      $("words").textContent="Does "+(who.indexOf("Grand")===0?"they":who)+" need the area or the perimeter?";
+    }else if(q.kind==="area") rowsGame(q,fd);
+    else if(q.kind==="perim") fenceGame(q,fd);
+    else if(q.kind==="L") lGame(q,fd);
+    else whichGame(q,fd);
+  }
+  // ---------- hands-on: count by tapping, plant row by row, build the fence piece by piece, cut the L, sort the jobs ----------
+  function doneBtn(t,cn){ return '<button type="button" class="hgo" id="hgo">'+t+' <small>'+cn+'</small></button>'; }
+  function wheel2(id){ return '<div class="wh2" id="'+id+'"><span class="wh"><button type="button" data-i="0" data-d="1">▲</button><b data-i="0">0</b><button type="button" data-i="0" data-d="-1">▼</button></span>'+
+    '<span class="wh"><button type="button" data-i="1" data-d="1">▲</button><b data-i="1">0</b><button type="button" data-i="1" data-d="-1">▼</button></span><span class="u">square units</span></div>'; }
+  function wireWheel(box){ var d=[0,0]; box.addEventListener("click",function(e){ if(!G||G.locked) return; var b=e.target.closest?e.target.closest("button"):null; if(!b) return;
+      var i=+b.dataset.i; d[i]=(d[i]+ +b.dataset.d+10)%10; SFX.plant(); [].forEach.call(box.querySelectorAll("b"),function(x){ x.textContent=d[+x.dataset.i]; }); });
+    return function(){ return d[0]*10+d[1]; }; }
+  // count: tap every square of the bed; each one gets its number
+  function countGame(q,fd){
+    var W=Math.max(q.a+2,6), H=Math.max(q.b+2,5), ox=rnd(W-q.a+1), oy=rnd(H-q.b+1), n=0;
+    $("task").innerHTML="How many <b>square units</b> does the flower bed cover? Tap each square to count it! <small>点一点，数一数</small>";
+    fd.innerHTML=gridHtml(W,H,function(x,y){ return x>=ox&&x<ox+q.a&&y>=oy&&y<oy+q.b; },{icon:""})+'<div class="hcount" id="hcount">Counted: 0</div>'+doneBtn("That's all ✓","都数完了");
+    [].forEach.call(fd.querySelectorAll("#grid .cell.bed"),function(c){ c.disabled=false; c.classList.add("pick");
+      c.onclick=function(){ if(!G||G.locked||c.dataset.n) return; n++; c.dataset.n=n; c.textContent=n; c.classList.add("counted","flash"); SFX.plant(); $("hcount").textContent="Counted: "+n; }; });
+    $("hgo").onclick=function(){ answer(String(n),null); };
+    $("hint").textContent="Tip: count the squares in one row, then count by that number for each row.";
+  }
+  // area: plant the bed row by row (each row is as long as the bed); the counter counts on by the row
+  function rowsGame(q,fd){
+    var rows=0;
+    $("task").innerHTML="What is the <b>area</b> of the flower bed? Plant it row by row! <small>一行一行种满它</small>";
+    var unit=Math.min(26,Math.floor(250/Math.max(q.a,q.b)));
+    fd.innerHTML='<div class="rect rows" style="width:'+(q.a*unit)+'px;height:'+(q.b*unit)+'px"><span class="side top">'+units(q.a)+'</span><span class="side left">'+units(q.b)+'</span><div class="rowsIn" id="rowsIn" style="grid-template-columns:repeat('+q.a+',1fr)"></div></div>'+
+      '<div class="hcount" id="hcount">Planted: 0 rows</div><div class="hrow"><button type="button" class="hbtn" id="rowMinus">− row</button><button type="button" class="hbtn big" id="rowPlus">＋ Plant a row of '+q.a+'</button></div>'+doneBtn("The bed is full ✓","种满了");
+    function draw(){ var h=""; for(var i=0;i<rows*q.a;i++) h+='<span class="fl">'+G.icon+'</span>'; $("rowsIn").innerHTML=h;
+      var sums=[]; for(var r=1;r<=rows;r++) sums.push(r*q.a); $("hcount").textContent=rows?"Planted: "+rows+" row"+(rows>1?"s":"")+" · "+sums.join(", ")+" squares":"Planted: 0 rows"; }
+    $("rowPlus").onclick=function(){ if(!G||G.locked||rows>=q.b+3) return; rows++; SFX.plant(); draw(); };
+    $("rowMinus").onclick=function(){ if(!G||G.locked||!rows) return; rows--; SFX.plant(); draw(); };
+    $("hgo").onclick=function(){ answer(String(rows*q.a),null); };
+    $("hint").textContent="How many rows fit? Look at the side.";
+  }
+  // perimeter: tap the edges to build the fence all the way around
+  function fenceGame(q,fd){
+    var s=Math.min(44,Math.floor(300/Math.max(q.a,q.b+1))), P=10, Wd=q.a*s+2*P, Ht=q.b*s+2*P, on={}, n=0;
+    $("task").innerHTML="Build the <b>fence</b> all the way around the garden: tap each side of every square on the edge! How long is it? <small>沿着花园外边一段一段建篱笆</small>";
+    var h='<svg viewBox="0 0 '+Wd+' '+Ht+'" class="fenceSvg" style="width:'+Wd+'px;max-width:100%">';
+    for(var y=0;y<q.b;y++) for(var x=0;x<q.a;x++) h+='<rect x="'+(P+x*s+1)+'" y="'+(P+y*s+1)+'" width="'+(s-2)+'" height="'+(s-2)+'" rx="3" fill="#7cc35a"/>';
+    // each side is a wide invisible tap area with the fence line drawn in it
+    function edge(k,x1,y1,x2,y2){ var hz=y1===y2; return '<g class="edge" data-k="'+k+'"><rect x="'+(hz?x1:x1-9)+'" y="'+(hz?y1-9:y1)+'" width="'+(hz?x2-x1:18)+'" height="'+(hz?18:y2-y1)+'" fill="rgba(0,0,0,0)"/><line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'"/></g>'; }
+    for(y=0;y<=q.b;y++) for(x=0;x<q.a;x++) h+=edge("h"+x+"_"+y,P+x*s+3,P+y*s,P+(x+1)*s-3,P+y*s);
+    for(y=0;y<q.b;y++) for(x=0;x<=q.a;x++) h+=edge("v"+x+"_"+y,P+x*s,P+y*s+3,P+x*s,P+(y+1)*s-3);
+    fd.innerHTML='<div class="fenceBox">'+h+'</svg></div><div class="hcount" id="hcount">Fence: 0 units</div>'+doneBtn("The fence is closed ✓","围好了");
+    [].forEach.call(fd.querySelectorAll(".edge"),function(e){ e.addEventListener("click",function(){ if(!G||G.locked) return; var k=e.getAttribute("data-k"); on[k]=!on[k]; e.classList.toggle("on",on[k]); n+=on[k]?1:-1; SFX.plant();
+      $("hcount").textContent="Fence: "+n+" unit"+(n===1?"":"s"); }); });
+    function outer(k){ var t=k.charAt(0), xy=k.slice(1).split("_"), x=+xy[0], y=+xy[1]; return t==="h"?(y===0||y===q.b):(x===0||x===q.a); }
+    $("hgo").onclick=function(){ var ks=Object.keys(on).filter(function(k){ return on[k]; }), all=ks.length===2*(q.a+q.b)&&ks.every(outer);
+      answer(all?String(2*(q.a+q.b)):(ks.every(outer)?String(ks.length):ks.length+" (some inside)"),null); };
+    $("hint").textContent="The fence goes only around the outside, not between the squares.";
+  }
+  // L-shaped: cut it into two rectangles, then add the two areas on the wheels
+  function lGame(q,fd){
+    $("task").innerHTML="What is the <b>area</b> of this L-shaped garden? Tap a dashed line to cut it into two rectangles! <small>点虚线，把它分成两个长方形</small>";
+    var s=Math.min(34,Math.floor(300/Math.max(q.a,q.b))), P=8, Wd=q.a*s+2*P, Ht=q.b*s+2*P, cut=null, cx=q.a-q.c;
+    function svg(){
+      var h='<svg viewBox="0 0 '+Wd+' '+Ht+'" style="width:'+Wd+'px;max-width:100%">';
+      for(var y=0;y<q.b;y++) for(var x=0;x<q.a;x++){ if(x>=cx&&y<q.d) continue;
+        var part=cut==="v"?(x<cx?0:1):cut==="h"?(y<q.d?0:1):-1;
+        h+='<rect x="'+(P+x*s+1)+'" y="'+(P+y*s+1)+'" width="'+(s-2)+'" height="'+(s-2)+'" rx="3" fill="'+(part===0?"#7cc35a":part===1?"#f5b301":"#7cc35a")+'"/>'; }
+      if(!cut){ h+='<line class="cutl" x1="'+(P+cx*s)+'" y1="'+(P+q.d*s)+'" x2="'+(P+cx*s)+'" y2="'+(P+q.b*s)+'"/><rect class="cuthit" data-c="v" x="'+(P+cx*s-12)+'" y="'+(P+q.d*s)+'" width="24" height="'+((q.b-q.d)*s)+'" fill="rgba(0,0,0,0)"/>'+
+        '<line class="cutl" x1="'+P+'" y1="'+(P+q.d*s)+'" x2="'+(P+cx*s)+'" y2="'+(P+q.d*s)+'"/><rect class="cuthit" data-c="h" x="'+P+'" y="'+(P+q.d*s-12)+'" width="'+(cx*s)+'" height="24" fill="rgba(0,0,0,0)"/>'; }
+      else{ var a1,a2; if(cut==="v"){ a1=[cx,q.b]; a2=[q.c,q.b-q.d]; } else { a1=[cx,q.d]; a2=[q.a,q.b-q.d]; }
+        var c1=cut==="v"?[P+cx*s/2,P+q.b*s/2]:[P+cx*s/2,P+q.d*s/2], c2=cut==="v"?[P+cx*s+q.c*s/2,P+q.d*s+(q.b-q.d)*s/2]:[P+q.a*s/2,P+q.d*s+(q.b-q.d)*s/2];
+        h+='<text x="'+c1[0]+'" y="'+(c1[1]+6)+'" class="dim">'+a1[0]+' × '+a1[1]+'</text><text x="'+c2[0]+'" y="'+(c2[1]+6)+'" class="dim">'+a2[0]+' × '+a2[1]+'</text>'; }
+      return h+'</svg>';
     }
+    fd.innerHTML='<div class="fenceBox" id="lBox">'+svg()+'</div><div id="lAsk" hidden><div class="hcount">Add the two areas: 两块面积加起来</div>'+wheel2("lW")+'</div>'+doneBtn("That's the area ✓","这就是面积");
+    $("hgo").disabled=true;
+    var get=null;
+    $("lBox").addEventListener("click",function(e){ if(!G||G.locked||cut) return; var c=e.target.getAttribute&&e.target.getAttribute("data-c"); if(!c) return;
+      cut=c; SFX.plant(); $("lBox").innerHTML=svg(); $("lAsk").hidden=false; $("hgo").disabled=false; get=wireWheel($("lW")); });
+    $("hgo").onclick=function(){ if(get) answer(String(get()),null); };
+    $("hint").textContent="Each rectangle: length × width. Then add the two areas.";
+  }
+  // area or perimeter: drag the job card to "inside" or "around"
+  function whichGame(q,fd){
+    var job=JOBS[q.a], who=NAMES[q.b];
+    $("task").innerHTML=who+" wants to <b>"+job[0]+"</b>. Drag the job to the right box! <small>把任务卡拖到对的格子</small>";
+    fd.innerHTML='<div class="jobRow"><div class="job" id="job" tabindex="0" role="button">📝 '+job[0]+'</div></div><div class="zones"><div class="zone" data-v="a"><span class="big">🟩</span><b>Area</b><small>the space inside 里面有多大</small></div>'+
+      '<div class="zone" data-v="p"><span class="big">🚧</span><b>Perimeter</b><small>the distance around 外面一圈多长</small></div></div>';
+    var el=$("job"), sel=false;
+    function put(z){ if(!G||G.locked) return; el.style.transform=""; z.appendChild(el); el.classList.add("done"); answer(z.dataset.v,null); }
+    var sx=0,sy=0,on=false,moved=false;
+    el.addEventListener("pointerdown",function(e){ if(!G||G.locked) return; on=true; moved=false; sx=e.clientX; sy=e.clientY; try{ el.setPointerCapture(e.pointerId); }catch(x){} });
+    el.addEventListener("pointermove",function(e){ if(!on) return; var dx=e.clientX-sx, dy=e.clientY-sy; if(!moved&&Math.abs(dx)+Math.abs(dy)<8) return; moved=true; el.classList.add("lift"); el.style.transform="translate("+dx+"px,"+dy+"px)"; });
+    el.addEventListener("pointerup",function(e){ if(!on) return; on=false; el.classList.remove("lift"); if(!moved){ sel=true; el.classList.add("sel"); return; }
+      el.style.visibility="hidden"; var t=document.elementFromPoint(e.clientX,e.clientY); el.style.visibility=""; var z=t&&t.closest?t.closest(".zone"):null; if(z) put(z); else el.style.transform=""; });
+    [].forEach.call(fd.querySelectorAll(".zone"),function(z){ z.addEventListener("click",function(){ if(sel) put(z); }); });
+    $("words").textContent="Does "+(who.indexOf("Grand")===0?"they":who)+" need the area or the perimeter?";
   }
   function rightAnswer(q){
     if(q.kind==="count"||q.kind==="area") return String(q.a*q.b);
@@ -545,7 +627,11 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(x.dataset.v===right) x.classList.add("right"); });
     [].forEach.call(document.querySelectorAll("#setbtns button, #grid .cell"),function(b){ b.disabled=true; });
     if(!ok&&btn) btn.classList.add("wrong");
-    if(q.kind==="which") $("field").firstChild.textContent=JOBS[q.a][1]==="p"?"🚧":"🟩";
+    var hg=$("hgo"); if(hg) hg.disabled=true;
+    [].forEach.call(document.querySelectorAll("#field .hbtn"),function(b){ b.disabled=true; });
+    if(q.kind==="which") [].forEach.call(document.querySelectorAll("#field .zone"),function(z){ z.classList.add(z.dataset.v===right?"good":"faded"); });
+    if(q.kind==="perim"&&!ok) [].forEach.call(document.querySelectorAll("#field .edge"),function(e){ var k=e.getAttribute("data-k"), t=k.charAt(0), xy=k.slice(1).split("_");
+      var o=t==="h"?(+xy[1]===0||+xy[1]===q.b):(+xy[0]===0||+xy[0]===q.a); e.classList.toggle("on",o); e.classList.toggle("bad",!o&&e.classList.contains("on")); });
     if(!ok&&(q.kind==="plant"||q.kind==="rect")){
       // show one right way to do it
       var w=q.kind==="rect"?q.a:Math.min(q.a,8), h=q.kind==="rect"?q.b:Math.ceil(q.a/8);
@@ -565,7 +651,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       f.miss++; ks.miss++; G.streak=0; G.miss[q.key]=q; G.again.push(q.key);
       SFX.oops();
       if(G.hearts!==Infinity) G.hearts--;
-      say(q.kind==="plant"?"Count again: you planted "+val+".":q.kind==="rect"?"Not quite that rectangle.":"Oops! The right answer is green.","bad");
+      say(q.kind==="plant"?"Count again: you planted "+val+".":q.kind==="rect"?"Not quite that rectangle.":q.kind==="count"?"You counted "+val+": some squares were missed.":q.kind==="area"?"That makes "+val+" squares: count the rows on the side.":
+          q.kind==="perim"?"Not quite: the fence must go all the way around, only on the outside. Look at the brown fence.":q.kind==="L"?"Not quite: "+val+". Find each rectangle's area, then add.":"Not this box: look again at the job.","bad");
     }
     save(); renderHearts();
     var cont=G.hearts<=0?function(){ finish(false); }:G.left<=0?function(){ SFX.win(); finish(true); }:next;
