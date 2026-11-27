@@ -55,8 +55,8 @@
     var s='<svg viewBox="0 0 360 175" style="width:100%;display:block"><polyline points="'+pts.join(" ")+'" fill="none" stroke="#d1477a" stroke-width="6" stroke-linecap="round"/>';
     for(i=0;i<=10;i++){ x=30+i*30; y=140-90*Math.sin(Math.PI*i/10);
       s+='<line x1="'+x+'" y1="'+(y+4)+'" x2="'+x+'" y2="160" stroke="#c9a3b6" stroke-width="2"/>';
-      if(i===0||i===10||i===5) s+='<text x="'+x+'" y="173" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="'+(i===5?12:16)+'" fill="'+(i===5?"#9a6a80":"#3a2030")+'">'+(lo+i*step)+'</text>'; }
-    s+='<text x="180" y="40" text-anchor="middle" font-size="12" font-weight="800" fill="#9a6a80">halfway</text></svg>';
+      if(i===0||i===10||i===5) s+='<text x="'+x+'" y="173" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="'+(i===5?12:16)+'" fill="'+(i===5?"#9a6a80":"#3a2030")+'">'+(lo+i*step)+(i===5?" (halfway)":"")+'</text>'; }
+    s+='</svg>';
     var cx=(30+pos*30)/360*100, cy=(140-90*Math.sin(Math.PI*pos/10))/175*100;
     return '<div style="position:relative;max-width:460px;margin:8px auto 0">'+s+'<span id="car" style="position:absolute;left:'+cx+'%;top:'+cy+'%;transform:translate(-50%,-92%);font-size:2rem;transition:left 1s ease-in,top 1s ease-in">🚃</span></div>';
   }
@@ -86,8 +86,8 @@
 
   function roundGame(q,ui){
     var tens=q.kind==="r10", step=tens?1:10, to=step*10, lo=Math.floor(q.a/to)*to, want=(q.a-lo)/step, pos=tens?0:want, placed=!tens, guess=null;
-    ui.task(tens?"Put the car at <b>"+q.a+"</b> on the hill. Then tap the station it will roll to! <small>先把小车放到 "+q.a+"，再点它会滑到哪个站</small>"
-                :"The car is at <b>"+q.a+"</b>. Round to the nearest hundred: tap the station it will roll to! <small>点小车会滑到的站</small>");
+    ui.task(tens?"Round <b>"+q.a+"</b> to the nearest <b>ten</b>. Put the car at "+q.a+" on the hill, then tap the station it will roll to! <small>把 "+q.a+" 四舍五入到最近的整十：先把小车放到 "+q.a+"，再点它会滑到哪个站</small>"
+                :"Round <b>"+q.a+"</b> to the nearest <b>hundred</b>. The car is at "+q.a+": tap the station it will roll to! <small>把 "+q.a+" 四舍五入到最近的整百：点小车会滑到哪个站</small>");
     var f=ui.stage(hill(lo,step,pos,"h1")+'<div class="tip" id="tip">'+(tens?"Drag the car along the track. 拖动小车":"Is "+q.a+" past the halfway mark? 过了一半吗？")+'</div>');
     var box=f.querySelector("#h1"), car=box.querySelector(".car"), on=false;
     if(tens){
@@ -132,7 +132,7 @@
   // estimate: send both cars to their hundreds, then the sum is made from the stations
   function estGame(q,ui){
     var picks={};
-    ui.task("<b>About</b> how much is "+q.a+" + "+q.b+"? Round each number: tap the station each car rolls to! <small>先把两个数四舍五入到整百</small>");
+    ui.task("<b>About</b> how much is "+q.a+" + "+q.b+"? Round each number to the nearest <b>hundred</b>: tap the station each car rolls to! <small>先把两个数四舍五入到整百</small>");
     var la=Math.floor(q.a/100)*100, lb=Math.floor(q.b/100)*100;
     var f=ui.stage(hill(la,10,(q.a-la)/10,"ea")+hill(lb,10,(q.b-lb)/10,"eb")+'<div class="sum" id="sum">? + ? ≈ ?</div>');
     function upd(){ f.querySelector("#sum").textContent=(picks.ea!=null?picks.ea:"?")+" + "+(picks.eb!=null?picks.eb:"?")+" ≈ "+(picks.ea!=null&&picks.eb!=null?picks.ea+picks.eb:"?"); }
