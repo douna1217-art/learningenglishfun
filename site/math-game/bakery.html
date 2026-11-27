@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Party Bakery</title>
+<meta name="theme-color" content="#c2306a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Party Bakery: make shape cookies on a peg board, count sides and angles, cut brownie trays into rows and columns, and share pizzas and cakes in halves, thirds and fourths. Grade 2 geometry.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#2b2a3f;--muted:#6f6a86;--bg:#fff6ec}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 20px;position:relative}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tbtn{background:#fff;border:1px solid #f3dcc4;border-radius:13px;padding:8px 12px;color:var(--ink);text-decoration:none;font:inherit;font-weight:900;cursor:pointer}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #f3dcc4}
+.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.35rem}
+.stage{position:relative;height:max(440px,calc(100vh - 380px));border-radius:22px;overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:0 4px 0 #f3dcc4;touch-action:none}
+/* the shop counter: the customers come here */
+.shop{position:relative;height:112px;flex:none;background:linear-gradient(180deg,#ffe3ec 0 62%,#c98a4b 62% 70%,#a8703a 70%);overflow:hidden}
+.awn{position:absolute;left:0;right:0;top:0;height:16px;background:repeating-linear-gradient(90deg,#e0457b 0 22px,#fff 22px 44px);border-radius:0 0 10px 10px}
+.decor{position:absolute;top:22px;font-size:1.4rem;line-height:1;pointer-events:none}
+.helper{position:absolute;left:8px;top:22px;display:flex;align-items:flex-start;gap:5px;z-index:4;max-width:55%}
+.pet{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;font-size:2rem}.pet.cheer{animation:bob .5s 2}@keyframes bob{50%{transform:translateY(-8px)}}
+.bub{background:#fff;border-radius:12px;padding:4px 8px;font-weight:900;font-size:.72rem;line-height:1.2;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.critter{position:absolute;bottom:38px;width:56px;margin-left:-28px;line-height:0;z-index:3;transition:left 1s linear}
+.critter svg{width:100%;height:auto;overflow:visible}.critter b{display:block;animation:idle 1.6s ease-in-out infinite}.critter.walk b{animation:walk .3s ease-in-out infinite}
+@keyframes idle{50%{transform:translateY(-3px)}}@keyframes walk{50%{transform:translateY(-7px) rotate(5deg)}}
+.order{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:2px;background:#fff;border:2px solid #f0c26a;border-radius:10px;padding:2px 7px;font-size:.72rem;font-weight:900;white-space:nowrap;line-height:1.3}
+.heart{position:absolute;font-size:1.2rem;z-index:9;pointer-events:none;animation:heart 1.1s ease-out forwards}@keyframes heart{to{transform:translateY(-40px) scale(1.4);opacity:0}}
+/* the work table */
+.table{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(45deg,#fffaf2 0 14px,#fff3e3 14px 28px)}
+#work{touch-action:none;overflow:visible}
+#work .peg{cursor:pointer}#work .hit{fill:transparent;cursor:pointer}
+#work .tick{cursor:pointer}
+#work.bake .cookie{animation:bake 1s ease-in-out}@keyframes bake{30%{filter:brightness(1.4)}60%{transform:scale(1.06)}}
+.oven{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:5rem;animation:ovn .9s ease-in-out;pointer-events:none;z-index:5}@keyframes ovn{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}40%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.3)}}
+.task{background:#fff;border-radius:18px;padding:9px 12px;margin-top:8px;text-align:center;font-weight:900;font-size:1.06rem;box-shadow:0 3px 0 #f3dcc4}
+.task .cn{display:block;font-size:.8rem;color:var(--muted);font-weight:800;margin-top:2px}.task b{font-family:Fredoka,sans-serif;font-size:1.2em;color:#c2306a}
+.btns{display:grid;grid-template-columns:1fr 1fr 2fr;gap:8px;margin-top:8px}
+.btns button{border:0;border-radius:16px;background:#fff;font:inherit;font-weight:900;font-size:1.05rem;padding:11px 4px;box-shadow:0 5px 0 #f3dcc4;cursor:pointer;color:var(--ink)}
+.btns button.main{background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;font-size:1.15rem}
+.btns.pick{grid-template-columns:repeat(2,1fr)}.btns.pick3{grid-template-columns:repeat(3,1fr)}.btns.pick4{grid-template-columns:repeat(4,1fr)}
+.btns button.bad{background:#ffd6d0;animation:shake .4s}.btns button svg{display:block;margin:0 auto;width:100%;max-width:90px;height:auto}
+.ans{display:none;grid-template-columns:auto 1fr;gap:8px;margin-top:8px}
+.show{background:#fff;border-radius:16px;box-shadow:0 3px 0 #f3dcc4;min-width:86px;display:flex;align-items:center;justify-content:center;padding:4px 10px;font-family:Fredoka,sans-serif;font-size:2rem}.show.blank{color:#ecd8c2}
+.keys{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.k{border:0;border-radius:12px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.35rem;padding:7px 0;box-shadow:0 4px 0 #f3dcc4;cursor:pointer;color:var(--ink)}.k.ok{background:#f5b301;color:#3b2a00;box-shadow:0 4px 0 #b88a00;font-size:1.1rem}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}.shake{animation:shake .4s}
+.glow{animation:glow 1s ease-in-out infinite}@keyframes glow{50%{opacity:.35}}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);pointer-events:none;animation:up 1.1s forwards;z-index:9}@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.fly{position:absolute;z-index:8;pointer-events:none;transition:left .5s ease-in,top .5s ease-in,transform .5s}
+.over{position:absolute;inset:0;background:rgba(80,30,20,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:16px;z-index:10}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.9rem}.over p{margin:4px 0;font-weight:800}
+.go{border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin-top:12px}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.9rem;text-align:left;margin-top:8px;max-width:420px}.how div{margin:4px 0}
+.shopg{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:380px;margin-top:10px}
+.shopg button{border:0;border-radius:14px;background:#fff;padding:6px 2px;font:inherit;font-weight:900;font-size:.75rem;color:var(--ink);cursor:pointer}.shopg button i{display:block;font-style:normal;font-size:1.8rem}
+.shopg button.own{background:#d6f5e6}.shopg button:disabled{opacity:.45;cursor:default}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+.wrap.fitted{max-width:none;display:flex;flex-direction:column;overflow:hidden}
+.wrap.fitted .stage{flex:1;height:auto;min-height:330px}
+.wrap.fitted .shop{height:132px}.wrap.fitted .critter{width:70px;margin-left:-35px}.wrap.fitted .pet{width:60px;height:60px}.wrap.fitted .bub{font-size:.9rem}.wrap.fitted .order{font-size:.9rem}.wrap.fitted .decor{font-size:1.9rem}
+@media(min-width:900px){.wrap.fitted .top,.wrap.fitted .hud,.wrap.fitted .bottom{width:100%;max-width:820px;margin-left:auto;margin-right:auto}.wrap.fitted .keys{grid-template-columns:repeat(12,1fr)}}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script><script src="critters.js?v=20261130a"></script>
+<div class="wrap" id="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.25rem">🧁 Party Bakery</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Orders 订单</small><b id="score">0/6</b></div><div><small>Level 关</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="stage" id="stage">
+    <div class="shop" id="shop"><div class="awn"></div><div id="decor"></div>
+      <div class="helper"><div class="pet" id="pet"></div><div class="bub" id="bub">Welcome to the bakery! 欢迎来烘焙坊！</div></div>
+      <div id="actor"></div></div>
+    <div class="table" id="table"><svg id="work"></svg></div>
+  </div>
+  <div class="bottom">
+    <div class="task" id="task"></div>
+    <div class="btns" id="btns"></div>
+    <div class="ans" id="ans"><div class="show blank" id="show">?</div><div class="keys" id="keys"></div></div>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Party Bakery (Grade 2, Unit 6: geometry). Animals order party treats; 6 orders a level, 5 done (in two tries) opens the next.
+  //   level 1  shape cookies on a peg board: "a cookie with 5 sides" - tap pegs to stretch the dough band, back to the first peg to close;
+  //            corners are counted (pegs in a straight line are not corners); then it is baked
+  //   level 2  name it and count: how many sides? how many angles? which shape is it? how many faces does a cube have?
+  //   level 3  brownie trays: tap the marks on the edges to cut rows and columns of same-size squares, then count the brownies
+  //   level 4  share a pizza or a cake: tap the marks on the edge to cut it into 2, 3 or 4 equal shares; then name a piece (half, third, fourth)
+  //   level 5+ all of these, and "which one is cut into equal shares?"
+  // Inside a level the first orders are easier, a miss makes the next one easier, a run of right answers brings harder ones.
+  var $=function(id){ return document.getElementById(id); };
+  var STORE="partyBakery.v1", S={day:1,coins:0,deco:{},tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var L=S.day, D=null, Q=null, busy=false, val="", GOAL=6;
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=rnd(i+1), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").onclick=function(){ S.sound=!S.sound; $("soundBtn").textContent=S.sound?"🔔":"🔕"; save(); };
+  $("soundBtn").textContent=S.sound?"🔔":"🔕";
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var pet=window.MathPet?MathPet.get():null;
+  $("pet").innerHTML=pet?MathPet.pic(pet,"happy",60):"🐣";
+  function say(t){ $("bub").innerHTML=t; var p=$("pet"); p.classList.remove("cheer"); void p.offsetWidth; p.classList.add("cheer"); }
+  function Z(){ return parseFloat($("wrap").style.zoom)||1; }
+  var DECO=[{id:"balloon",e:"🎈",p:5},{id:"gift",e:"🎁",p:8},{id:"cake",e:"🎂",p:12},{id:"ribbon",e:"🎀",p:16},{id:"party",e:"🎉",p:22},{id:"lantern",e:"🏮",p:28},{id:"crown",e:"👑",p:36},{id:"star",e:"🌟",p:45}];
+  function drawDeco(){ $("decor").innerHTML=DECO.filter(function(d){ return S.deco[d.id]; }).map(function(d,i){ return '<span class="decor" style="right:'+(4+i*8)+'%">'+d.e+'</span>'; }).join(""); }
+  var NAMES={3:["triangle","三角形"],4:["quadrilateral","四边形"],5:["pentagon","五边形"],6:["hexagon","六边形"]};
+  // ---------- the work area: one svg, its size fits the table ----------
+  function sizeWork(vw,vh){ var t=$("table"), w=t.clientWidth-16, h=t.clientHeight-12, s=Math.min(w/vw,h/vh); var sv=$("work"); sv.setAttribute("viewBox","0 0 "+vw+" "+vh); sv.setAttribute("width",Math.max(60,vw*s)); sv.setAttribute("height",Math.max(60,vh*s)); }
+  function svgPt(e){ var sv=$("work"), r=sv.getBoundingClientRect(), vb=sv.viewBox.baseVal; return {x:(e.clientX-r.left)/r.width*vb.width, y:(e.clientY-r.top)/r.height*vb.height}; }
+  // ---------- level 1: the peg board ----------
+  var G=5, GS=60, GP=30;   // 5 x 5 pegs, 60 apart, 30 from the edge
+  function pegXY(i){ return [GP+(i%G)*GS, GP+Math.floor(i/G)*GS]; }
+  function corners(path){   // the corners of a closed path of peg numbers: pegs on a straight line are not corners
+    var pts=path.map(pegXY), n=pts.length, out=[];
+    for(var i=0;i<n;i++){ var a=pts[(i+n-1)%n], b=pts[i], c=pts[(i+1)%n]; if((b[0]-a[0])*(c[1]-b[1])-(b[1]-a[1])*(c[0]-b[0])!==0) out.push(b); }
+    return out;
+  }
+  function crosses(pts){   // do any two sides that don't meet at a corner cross?
+    var n=pts.length; function cr(p,q,r){ return (q[0]-p[0])*(r[1]-p[1])-(q[1]-p[1])*(r[0]-p[0]); }
+    for(var i=0;i<n;i++) for(var j=i+1;j<n;j++){ if(j===i+1||(i===0&&j===n-1)) continue; var a=pts[i], b=pts[(i+1)%n], c=pts[j], d=pts[(j+1)%n];
+      var d1=cr(c,d,a), d2=cr(c,d,b), d3=cr(a,b,c), d4=cr(a,b,d); if(((d1>0&&d2<0)||(d1<0&&d2>0))&&((d3>0&&d4<0)||(d3<0&&d4>0))) return true; }
+    return false;
+  }
+  function area(pts){ var s=0; for(var i=0;i<pts.length;i++){ var a=pts[i], b=pts[(i+1)%pts.length]; s+=a[0]*b[1]-b[0]*a[1]; } return Math.abs(s)/2; }
+  function drawBoard(){
+    var vw=GP*2+(G-1)*GS, h='<rect x="4" y="4" width="'+(vw-8)+'" height="'+(vw-8)+'" rx="18" fill="#e9c891" stroke="#b5874b" stroke-width="4"/>';
+    var pts=Q.path.map(pegXY);
+    if(Q.closed) h+='<polygon class="cookie" points="'+pts.map(function(p){ return p.join(","); }).join(" ")+'" fill="'+(Q.baked?"#d9954a":"#f6d9a4")+'" stroke="#8a5a2b" stroke-width="5" stroke-linejoin="round"/>';
+    else if(pts.length) h+='<polyline points="'+pts.map(function(p){ return p.join(","); }).join(" ")+'" fill="none" stroke="#e0457b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>';
+    if(Q.baked) corners(Q.path).forEach(function(c){ h+='<circle cx="'+c[0]+'" cy="'+c[1]+'" r="6" fill="#ff4f8a"/>'; });
+    for(var i=0;i<G*G;i++){ var p=pegXY(i), on=Q.path.indexOf(i), first=on===0&&!Q.closed&&Q.path.length>2;
+      h+='<circle class="peg" cx="'+p[0]+'" cy="'+p[1]+'" r="'+(on>=0?9:7)+'" fill="'+(first?"#ffd84a":on>=0?"#e0457b":"#7a5230")+'"'+(first?' class="peg glow"':'')+'/><circle class="hit" data-peg="'+i+'" cx="'+p[0]+'" cy="'+p[1]+'" r="24"/>'; }
+    $("work").innerHTML=h; sizeWork(vw,vw);
+  }
+  function tapPeg(i){
+    if(busy||Q.closed) return;
+    var at=Q.path.indexOf(i);
+    if(at===0&&Q.path.length>=3){ Q.closed=true; tone([660,880],.07); drawBoard(); say("Closed! Tap <b>Bake</b>. 围好了！点“烤”。"); return; }
+    if(at>=0){ tone([200],.05); return; }
+    Q.path.push(i); tone([500+Q.path.length*40],.04); drawBoard();
+    if(Q.path.length===1) say("Now the next corner… and back to the first peg to close! 再点下一个角，最后回到第一颗钉子！");
+  }
+  $("work").addEventListener("click",function(e){
+    var t=e.target; if(!Q||busy) return;
+    if(t.dataset&&t.dataset.peg!=null) return tapPeg(+t.dataset.peg);
+    if(t.dataset&&t.dataset.cut!=null) return tapCut(t.dataset.cut);
+  });
+  function bake(){
+    if(busy) return;
+    if(!Q.closed){ say("Close the shape: tap the first peg again! 回到第一颗钉子把形状围起来！"); return; }
+    var pts=Q.path.map(pegXY), c=corners(Q.path);
+    if(crosses(pts)||area(pts)===0||c.length<3){ Q.tries++; tone([200,150],.12,"sawtooth"); say("The sides cross! A cookie can't have crossing sides. Start over. 边交叉了，重新围一个！"); Q.path=[]; Q.closed=false; drawBoard(); return checkMiss(); }
+    if(c.length!==Q.n){ Q.tries++; tone([200,150],.12,"sawtooth"); Q.baked=true; drawBoard(); say("That cookie has "+c.length+" sides. We need "+Q.n+"! 这个有 "+c.length+" 条边，要 "+Q.n+" 条！");
+      setTimeout(function(){ if(Q.t==="board"&&!Q.fixedDone){ Q.path=[]; Q.closed=false; Q.baked=false; drawBoard(); } },1400); return checkMiss(); }
+    Q.baked=true; busy=true; $("table").insertAdjacentHTML("beforeend",'<div class="oven" id="oven">♨️</div>'); setTimeout(function(){ var o=$("oven"); if(o) o.remove(); },900);
+    tone([300,400,500],.12,"sine"); var sv=$("work"); sv.classList.remove("bake"); void sv.offsetWidth; sv.classList.add("bake");
+    setTimeout(function(){ drawBoard(); say(c.length+" sides, "+c.length+" angles: a "+NAMES[c.length][0]+"! "+c.length+" 条边、"+c.length+" 个角："+NAMES[c.length][1]+"！"); setTimeout(function(){ done(true); },1300); },700);
+  }
+  function checkMiss(){ if(Q.tries>=2){ busy=true; Q.fixedDone=true; Q.path=Q.example; Q.closed=true; Q.baked=true; setTimeout(function(){ drawBoard(); say("Like this: "+Q.n+" sides! 像这样："+Q.n+" 条边！"); setTimeout(function(){ done(false); },1800); },900); } }
+  var EXAMPLES={3:[0,4,22],4:[5,8,23,20],5:[2,9,23,21,5],6:[1,3,14,23,21,10]};
+  // ---------- level 2: name and count ----------
+  var SHAPES=[[3,[2,20,24]],[3,[0,4,20]],[3,[1,23,10]],[4,[6,8,18,16]],[4,[5,9,24,20]],[4,[1,3,19,15]],[4,[2,14,22,10]],[5,[2,14,24,20,10]],[5,[2,9,18,16,5]],[6,[1,3,14,23,21,10]],[6,[2,8,18,22,16,6]]];
+  function drawShape(path,fill){ var pts=path.map(pegXY), vw=GP*2+(G-1)*GS; return '<polygon points="'+pts.map(function(p){ return p.join(","); }).join(" ")+'" fill="'+(fill||"#d9954a")+'" stroke="#8a5a2b" stroke-width="5" stroke-linejoin="round"/>'; }
+  function drawCube(){ return '<g stroke="#8a5a2b" stroke-width="5" stroke-linejoin="round"><polygon points="80,110 180,110 180,210 80,210" fill="#f6c77d"/><polygon points="80,110 130,70 230,70 180,110" fill="#ffe0a8"/><polygon points="180,110 230,70 230,170 180,210" fill="#d9954a"/></g>'; }
+  // ---------- level 3: the brownie tray ----------
+  var TU=60, TP=34;
+  function drawTray(){
+    var vw=TP*2+Q.c*TU, vh=TP*2+Q.r*TU, h='<rect x="'+(TP-8)+'" y="'+(TP-8)+'" width="'+(Q.c*TU+16)+'" height="'+(Q.r*TU+16)+'" rx="10" fill="#b0b8c4"/><rect x="'+TP+'" y="'+TP+'" width="'+(Q.c*TU)+'" height="'+(Q.r*TU)+'" fill="#7a4a2a"/>';
+    for(var i=0;i<Q.c*Q.r;i++){ var x=TP+(i%Q.c)*TU, y=TP+Math.floor(i/Q.c)*TU; h+='<circle cx="'+(x+18+(i*7)%24)+'" cy="'+(y+16+(i*11)%28)+'" r="3" fill="#5a3418"/>'; }
+    for(var c=1;c<Q.c;c++){ var x2=TP+c*TU, on=Q.cuts["c"+c]; if(on) h+='<line x1="'+x2+'" y1="'+TP+'" x2="'+x2+'" y2="'+(TP+Q.r*TU)+'" stroke="#fff3e3" stroke-width="5"/>';
+      h+='<path class="tick" d="M'+(x2-9)+' 6L'+(x2+9)+' 6L'+x2+' 24Z" fill="'+(on?"#e0457b":"#2b2a3f")+'"/><rect class="hit" data-cut="c'+c+'" x="'+(x2-20)+'" y="0" width="40" height="34"/>'; }
+    for(var r=1;r<Q.r;r++){ var y2=TP+r*TU, on2=Q.cuts["r"+r]; if(on2) h+='<line x1="'+TP+'" y1="'+y2+'" x2="'+(TP+Q.c*TU)+'" y2="'+y2+'" stroke="#fff3e3" stroke-width="5"/>';
+      h+='<path class="tick" d="M6 '+(y2-9)+'L6 '+(y2+9)+'L24 '+y2+'Z" fill="'+(on2?"#e0457b":"#2b2a3f")+'"/><rect class="hit" data-cut="r'+r+'" x="0" y="'+(y2-20)+'" width="34" height="40"/>'; }
+    $("work").innerHTML=h; sizeWork(vw,vh);
+  }
+  // ---------- level 4: pizza and cake ----------
+  var PR=120, PC=140;
+  function drawShare(){
+    var h="";
+    if(Q.food==="pizza"){
+      h+='<circle cx="'+PC+'" cy="'+PC+'" r="'+(PR+8)+'" fill="#e0a35a"/><circle cx="'+PC+'" cy="'+PC+'" r="'+PR+'" fill="#ffcf5a"/>';
+      for(var i=0;i<9;i++){ var a=i*40*Math.PI/180, rr=40+(i*23)%60; h+='<circle cx="'+(PC+Math.sin(a)*rr).toFixed(1)+'" cy="'+(PC-Math.cos(a)*rr).toFixed(1)+'" r="9" fill="#d9453a"/>'; }
+      for(var k=0;k<12;k++){ var b=k*30*Math.PI/180, on=Q.cuts[k], x=PC+Math.sin(b)*PR, y=PC-Math.cos(b)*PR;
+        if(on) h+='<line x1="'+PC+'" y1="'+PC+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#fff" stroke-width="5" stroke-linecap="round"/>';
+        var nx=PC+Math.sin(b)*(PR+20), ny=PC-Math.cos(b)*(PR+20);
+        h+='<circle class="tick" cx="'+nx.toFixed(1)+'" cy="'+ny.toFixed(1)+'" r="8" fill="'+(on?"#e0457b":"#2b2a3f")+'"/><circle class="hit" data-cut="'+k+'" cx="'+nx.toFixed(1)+'" cy="'+ny.toFixed(1)+'" r="19"/>'; }
+      $("work").innerHTML=h; sizeWork(PC*2,PC*2); return;
+    }
+    var w=300, ht=150, x0=20, y0=40;
+    h+='<rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="'+ht+'" rx="10" fill="#f6a5c0" stroke="#c2306a" stroke-width="4"/><rect x="'+x0+'" y="'+y0+'" width="'+w+'" height="30" rx="10" fill="#fff3f7"/>';
+    for(var j=1;j<12;j++){ var xx=x0+w*j/12, on3=Q.cuts[j];
+      if(on3) h+='<line x1="'+xx+'" y1="'+y0+'" x2="'+xx+'" y2="'+(y0+ht)+'" stroke="#fff" stroke-width="5"/>';
+      h+='<path class="tick" d="M'+(xx-8)+' 8L'+(xx+8)+' 8L'+xx+' 26Z" fill="'+(on3?"#e0457b":"#2b2a3f")+'"/><rect class="hit" data-cut="'+j+'" x="'+(xx-12)+'" y="0" width="24" height="34"/>'; }
+    $("work").innerHTML=h; sizeWork(340,210);
+  }
+  function tapCut(k){
+    if(busy||Q.locked) return;
+    Q.cuts[k]=!Q.cuts[k]; tone([Q.cuts[k]?700:400],.05);
+    if(Q.t==="tray") drawTray(); else drawShare();
+  }
+  // equal shares: the cuts are spaced evenly (pizza: the gaps between cuts; cake: the pieces between the cuts and the ends)
+  function shareCheck(){
+    var on=[]; for(var k in Q.cuts) if(Q.cuts[k]) on.push(+k); on.sort(function(a,b){ return a-b; });
+    if(Q.food==="pizza"){
+      if(on.length<2) return {pieces:on.length?1:1,equal:false};
+      var gaps=on.map(function(v,i){ return ((on[(i+1)%on.length]-v)+12)%12||12; });
+      return {pieces:on.length,equal:gaps.every(function(g){ return g===gaps[0]; })};
+    }
+    var pos=[0].concat(on,[12]), parts=[]; for(var i=1;i<pos.length;i++) parts.push(pos[i]-pos[i-1]);
+    return {pieces:parts.length,equal:parts.every(function(p){ return p===parts[0]; })};
+  }
+  var FR={2:["halves","half","二等份","二分之一"],3:["thirds","third","三等份","三分之一"],4:["fourths","fourth","四等份","四分之一"]};
+  // ---------- one order ----------
+  function gen(){
+    var easy=D.n<=2||D.bad, hard=!easy&&D.streak>=3;
+    var types=L===1?["board"]:L===2?["count","name","count","cube"]:L===3?["tray"]:L===4?["share"]:["board","count","name","tray","share","equal","equal"];
+    if(L>=5&&easy) types=["board","tray","share","count"];
+    var t=types[rnd(types.length)], q={t:t,tries:0};
+    if(t==="board"){ q.n=easy?3+rnd(2):hard?5+rnd(2):3+rnd(4); q.path=[]; q.closed=false; q.example=EXAMPLES[q.n]; q.named=L>=5&&!easy&&Math.random()<.5; }
+    else if(t==="count"||t==="name"){ var sh=SHAPES.filter(function(s){ return easy?s[0]<=4:true; }); var p=sh[rnd(sh.length)]; q.n=p[0]; q.shape=p[1]; q.what=t==="name"?"name":Math.random()<.5?"sides":"angles"; }
+    else if(t==="cube"){ q.what="faces"; q.n=6; }
+    else if(t==="tray"){ q.r=2+rnd(easy?2:3); q.c=2+rnd(easy?2:hard?4:3); q.cuts={}; q.stage="cut"; }
+    else if(t==="share"||t==="equal"){ q.food=Math.random()<.5?"pizza":"cake"; q.parts=easy?2+rnd(2):2+rnd(3); q.cuts={}; q.stage="cut"; }
+    if(!S.tut&&L===1&&D.first) q={t:"board",n:3,path:[],closed:false,example:EXAMPLES[3],tries:0,tut:true};
+    return q;
+  }
+  function next(){
+    busy=false; $("ans").style.display="none";
+    if(D.n>=GOAL) return endLevel();
+    D.n++; Q=gen(); D.first=false;
+    // a customer walks in with the order
+    var ck=Critters.list[rnd(Critters.list.length)], sw=$("shop").clientWidth, ord=orderText();
+    $("actor").innerHTML='<div class="critter walk" id="crit" style="left:-40px"><b>'+Critters.svg(ck)+'</b><div class="order">'+ord+'</div></div>';
+    var cr=$("crit"); void cr.offsetWidth; cr.style.left=Math.round(sw*.78)+"px"; setTimeout(function(){ cr.classList.remove("walk"); },1000);
+    setup(); hud();
+  }
+  function orderText(){
+    if(Q.t==="board") return Q.named?"a "+NAMES[Q.n][0]+" 🍪":Q.n+" sides 🍪";
+    if(Q.t==="tray") return Q.r+" rows × "+Q.c+" columns 🟫";
+    if(Q.t==="share") return (Q.food==="pizza"?"🍕":"🍰")+" "+FR[Q.parts][0];
+    if(Q.t==="equal") return (Q.food==="pizza"?"🍕":"🍰")+" "+FR[Q.parts][0]+" ?";
+    return "🍪 ?";
+  }
+  function btns(html,cls){ var b=$("btns"); b.className="btns"+(cls?" "+cls:""); b.innerHTML=html; b.style.display=html?"grid":"none"; }
+  function setup(){
+    var t=Q.t;
+    if(t==="board"){
+      drawBoard();
+      $("task").innerHTML=Q.named?'Make a <b>'+NAMES[Q.n][0]+'</b> cookie on the peg board!<span class="cn">在钉板上做一个'+NAMES[Q.n][1]+'饼干！</span>':'Make a cookie with <b>'+Q.n+' sides</b>! Tap the pegs, then the first peg again.<span class="cn">做一个有 '+Q.n+' 条边的饼干！依次点钉子，最后再点第一颗。</span>';
+      btns('<button type="button" id="undo">↩ Undo</button><button type="button" id="clr">↺ Clear</button><button type="button" class="main" id="go">♨️ Bake! 烤</button>');
+      $("undo").onclick=function(){ if(busy) return; if(Q.closed){ Q.closed=false; } else Q.path.pop(); drawBoard(); };
+      $("clr").onclick=function(){ if(busy) return; Q.path=[]; Q.closed=false; drawBoard(); };
+      $("go").onclick=bake;
+      say(Q.tut?"Tap 3 pegs, then the first one again: a triangle! 点 3 颗钉子，再点第一颗：三角形！":"Count the sides as you go! 边做边数！");
+    } else if(t==="count"||t==="name"||t==="cube"){
+      var vw=GP*2+(G-1)*GS;
+      $("work").innerHTML=t==="cube"?drawCube():drawShape(Q.shape); sizeWork(vw,vw);
+      if(Q.what==="name"){ $("task").innerHTML='What shape is this cookie?<span class="cn">这块饼干是什么形状？</span>';
+        btns([3,4,5,6].map(function(n){ return '<button type="button" data-v="'+n+'">'+NAMES[n][0]+'<br><small>'+NAMES[n][1]+'</small></button>'; }).join(""),"pick4");
+        [].forEach.call($("btns").querySelectorAll("button"),function(b){ b.onclick=function(){ if(!busy) pick(+b.dataset.v===Q.n,b); }; });
+        say("Count its sides! 数一数有几条边！");
+      } else { $("task").innerHTML=Q.what==="faces"?'How many <b>faces</b> does a cube have?<span class="cn">正方体有几个面？（后面看不到的也要算）</span>':'How many <b>'+Q.what+'</b> does this cookie have?<span class="cn">这块饼干有几个'+(Q.what==="sides"?"边":"角")+'？</span>';
+        btns(""); $("ans").style.display="grid"; setVal("");
+        say(Q.what==="faces"?"Don't forget the faces you can't see! 别忘了看不见的面！":Q.what==="angles"?"An angle is where two sides meet. 两条边相交的地方是角。":"Count each straight side once. 每条直边数一次。"); }
+    } else if(t==="tray"){
+      drawTray();
+      $("task").innerHTML='Cut the brownies into <b>'+Q.r+' rows</b> and <b>'+Q.c+' columns</b> of same-size squares! Tap the marks.<span class="cn">切成 '+Q.r+' 行、'+Q.c+' 列一样大的小方块！点边上的记号。</span>';
+      btns('<button type="button" id="clr">↺ Clear</button><span></span><button type="button" class="main" id="go">🔪 Cut! 切</button>');
+      $("clr").onclick=function(){ if(busy) return; Q.cuts={}; drawTray(); };
+      $("go").onclick=checkTray;
+      say("Rows go across ↔, columns go up and down ↕. 行是横的，列是竖的。");
+    } else if(t==="share"){
+      drawShare();
+      $("task").innerHTML='Cut the '+(Q.food==="pizza"?"pizza":"cake")+' into <b>'+FR[Q.parts][0]+'</b>: '+Q.parts+' equal shares! Tap the marks.<span class="cn">把'+(Q.food==="pizza"?"披萨":"蛋糕")+'平均分成 '+Q.parts+' 份（'+FR[Q.parts][2]+'）！点边上的记号。</span>';
+      btns('<button type="button" id="clr">↺ Clear</button><span></span><button type="button" class="main" id="go">🔪 Share! 分</button>');
+      $("clr").onclick=function(){ if(busy) return; Q.cuts={}; drawShare(); };
+      $("go").onclick=checkShare;
+      say(Q.food==="pizza"?"Each cut goes from the middle to a mark. 每一刀从中心切到记号。":"Each cut goes across the cake. 每一刀切过整个蛋糕。");
+    } else if(t==="equal"){ showEqual(); }
+  }
+  function setVal(v){ val=v; $("show").textContent=v||"?"; $("show").className="show"+(v?"":" blank"); }
+  var kh=""; for(var d=1;d<=9;d++) kh+='<button type="button" class="k" data-k="'+d+'">'+d+'</button>'; kh+='<button type="button" class="k" data-k="0">0</button><button type="button" class="k" data-k="x">⌫</button><button type="button" class="k ok" data-k="ok">✓</button>';
+  $("keys").innerHTML=kh;
+  [].forEach.call(document.querySelectorAll(".k"),function(b){ b.onclick=function(){
+    if(busy) return; var k=b.dataset.k;
+    if(k==="ok"){ if(val) typed(+val); return; }
+    tone([600],.04); if(k==="x") setVal(val.slice(0,-1)); else if(val.length<2) setVal(val==="0"?k:val+k);
+  }; });
+  function typed(v){
+    var right=Q.t==="tray"?Q.r*Q.c:Q.n;
+    if(v===right) return done(!Q.fixed);
+    Q.tries++; tone([200,150],.12,"sawtooth"); $("show").classList.remove("shake"); void $("show").offsetWidth; $("show").classList.add("shake"); setVal("");
+    if(Q.tries>=2){ busy=true; say("It's "+right+". 答案是 "+right+"。"); setTimeout(function(){ done(false); },1600); return; }
+    say(Q.t==="tray"?"Count by rows: "+Q.c+" in each row. 一行一行数：每行 "+Q.c+" 个。":Q.what==="faces"?"Top, bottom, front, back, and two sides. 上、下、前、后、左、右。":"Start at one corner and go around. 从一个角开始绕一圈数。");
+  }
+  function pick(ok,btn){
+    if(ok) return done(true);
+    Q.tries++; btn.classList.add("bad"); btn.disabled=true; tone([200,150],.12,"sawtooth");
+    if(Q.tries>=2){ busy=true; say("It's a "+NAMES[Q.n][0]+": "+Q.n+" sides. 是"+NAMES[Q.n][1]+"："+Q.n+" 条边。"); setTimeout(function(){ done(false); },1600); return; }
+    say("Count the sides: 3 triangle, 4 quadrilateral, 5 pentagon, 6 hexagon. 3 三角形，4 四边形，5 五边形，6 六边形。");
+  }
+  function checkTray(){
+    if(busy) return;
+    var all=true; for(var c=1;c<Q.c;c++) if(!Q.cuts["c"+c]) all=false; for(var r=1;r<Q.r;r++) if(!Q.cuts["r"+r]) all=false;
+    if(!all){ Q.tries++; tone([200,150],.12,"sawtooth"); say("Some pieces are too big! Cut at every mark to make same-size squares. 有的块太大，每个记号都要切！");
+      if(Q.tries>=2){ busy=true; for(var c2=1;c2<Q.c;c2++) Q.cuts["c"+c2]=1; for(var r2=1;r2<Q.r;r2++) Q.cuts["r"+r2]=1; drawTray(); Q.fixed=true; setTimeout(askCount,1300); } return; }
+    tone([660,880],.08); say(Q.r+" rows of "+Q.c+"! Now: how many brownies? "+Q.r+" 行，每行 "+Q.c+" 块！一共几块？"); askCount();
+  }
+  function askCount(){ busy=false; Q.tries=Q.fixed?1:0; btns(""); $("ans").style.display="grid"; setVal(""); $("task").innerHTML='How many brownies in all?<span class="cn">一共有几块布朗尼？</span>'; }
+  function checkShare(){
+    if(busy) return;
+    var r=shareCheck();
+    if(r.pieces===Q.parts&&r.equal){ tone([660,880],.08); Q.locked=true; return askName(); }
+    Q.tries++; tone([200,150],.12,"sawtooth");
+    say(r.pieces!==Q.parts?"That's "+r.pieces+" piece"+(r.pieces===1?"":"s")+". We need "+Q.parts+"! 这是 "+r.pieces+" 块，要 "+Q.parts+" 块！":"The pieces are not the same size! Equal shares must match. 每块不一样大！要平均分。");
+    if(Q.tries>=2){ busy=true; Q.cuts={}; var step=12/Q.parts;
+      if(Q.food==="pizza"){ for(var i=0;i<Q.parts;i++) Q.cuts[i*step]=1; } else { for(var j=1;j<Q.parts;j++) Q.cuts[j*step]=1; }
+      drawShare(); Q.locked=true; Q.fixed=true; setTimeout(function(){ busy=false; askName(); },1300); }
+  }
+  // what is each piece called?
+  function askName(){
+    $("task").innerHTML='Each piece is one <b>___</b> of the '+(Q.food==="pizza"?"pizza":"cake")+'.<span class="cn">每一块是整个的几分之一？</span>';
+    btns([2,3,4].map(function(n){ return '<button type="button" data-v="'+n+'">one '+FR[n][1]+'<br><small>'+FR[n][3]+'</small></button>'; }).join(""),"pick3");
+    [].forEach.call($("btns").querySelectorAll("button"),function(b){ b.onclick=function(){ if(busy) return;
+      if(+b.dataset.v===Q.parts){ return done(!Q.fixed); }
+      Q.tries++; b.classList.add("bad"); b.disabled=true; tone([200,150],.12,"sawtooth"); say("Count the pieces: 2 halves, 3 thirds, 4 fourths. 数一数有几块：2 块是二分之一，3 块是三分之一，4 块是四分之一。");
+      if(Q.tries>=2){ busy=true; setTimeout(function(){ done(false); },1400); } }; });
+    say("How many equal pieces are there? 一共几块一样大的？");
+  }
+  // which one is cut into equal shares? (one right, two wrong)
+  function showEqual(){
+    var n=Q.parts, food=Q.food, opts=[{ok:1}, {ok:0,kind:"unequal"}, {ok:0,kind:"count"}]; shuffle(opts); Q.opts=opts;
+    function pic(o){
+      var h='<svg viewBox="0 0 120 120">';
+      if(food==="pizza"){ h+='<circle cx="60" cy="60" r="52" fill="#ffcf5a" stroke="#e0a35a" stroke-width="6"/>';
+        var cuts=o.ok?[0,1,2,3].slice(0,n).map(function(i){ return i*360/n; }):o.kind==="count"?[0,1,2,3,4].slice(0,n===4?3:n+1).map(function(i,_,a){ return i*360/a.length; }):(n===2?[0,140]:n===3?[0,90,180]:[0,60,180,250]);
+        if(n===2&&o.ok) cuts=[0,180];
+        cuts.forEach(function(a){ var r=a*Math.PI/180; h+='<line x1="60" y1="60" x2="'+(60+Math.sin(r)*52).toFixed(1)+'" y2="'+(60-Math.cos(r)*52).toFixed(1)+'" stroke="#fff" stroke-width="4"/>'; });
+      } else { h+='<rect x="8" y="30" width="104" height="60" rx="6" fill="#f6a5c0" stroke="#c2306a" stroke-width="3"/>';
+        var xs=o.ok?[1,2,3].slice(0,n-1).map(function(i){ return 8+104*i/n; }):o.kind==="count"?[1,2,3,4].slice(0,n===4?2:n).map(function(i,_,a){ return 8+104*i/(a.length+1); }):(n===2?[40]:n===3?[30,52]:[22,40,80]);
+        xs.forEach(function(x){ h+='<line x1="'+x+'" y1="30" x2="'+x+'" y2="90" stroke="#fff" stroke-width="4"/>'; }); }
+      return h+'</svg>';
+    }
+    $("work").innerHTML='<text x="150" y="120" text-anchor="middle" font-size="90">'+(food==="pizza"?"🍕":"🍰")+'</text>'; sizeWork(300,160);
+    $("task").innerHTML='Which '+(food==="pizza"?"pizza":"cake")+' is cut into <b>'+FR[n][0]+'</b>?<span class="cn">哪一个是平均分成 '+n+' 份（'+FR[n][2]+'）的？</span>';
+    btns(opts.map(function(o,i){ return '<button type="button" data-i="'+i+'">'+pic(o)+'</button>'; }).join(""),"pick3");
+    [].forEach.call($("btns").querySelectorAll("button"),function(b){ b.onclick=function(){ if(busy) return; var o=opts[+b.dataset.i];
+      if(o.ok) return done(true);
+      Q.tries++; b.classList.add("bad"); b.disabled=true; tone([200,150],.12,"sawtooth"); say(o.kind==="count"?"Count the pieces! 数一数有几块！":"Those pieces are not the same size! 那些块不一样大！");
+      if(Q.tries>=2){ busy=true; setTimeout(function(){ done(false); },1400); } }; });
+    say("Equal shares are all the same size! 平均分：每一块一样大！");
+  }
+  // ---------- the order is ready ----------
+  function done(good){
+    busy=true; $("ans").style.display="none";
+    if(good){ var coins=Q.tries?1:3; D.ok++; D.coins+=coins; S.coins+=coins; D.streak=Q.tries?0:D.streak+1; D.bad=!!Q.tries; save();
+      tone([660,880,1100],.08); var r=$("work").getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/3); if(pet) MathPet.feed(1);
+      var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"; fx.style.left="45%"; fx.style.top="35%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
+      say(["Delicious! 好吃！","Perfect order! 订单完成！","Super baker! 烘焙高手！"][rnd(3)]); }
+    else { D.miss++; D.bad=true; D.streak=0; }
+    if(Q.tut){ S.tut=1; save(); }
+    // the treat flies to the customer, who hops and walks off
+    var cr=$("crit"), st=$("stage").getBoundingClientRect(), z=Z();
+    if(cr){ var a=$("work").getBoundingClientRect(), b=cr.getBoundingClientRect(), f=document.createElement("span"); f.className="fly"; f.style.fontSize="2.4rem";
+      f.textContent=Q.t==="share"||Q.t==="equal"?(Q.food==="pizza"?"🍕":"🍰"):Q.t==="tray"?"🟫":"🍪";
+      f.style.left=((a.left-st.left)/z+a.width/z/2)+"px"; f.style.top=((a.top-st.top)/z+a.height/z/3)+"px"; $("stage").appendChild(f); void f.offsetWidth;
+      f.style.left=((b.left-st.left)/z+10)+"px"; f.style.top=((b.top-st.top)/z)+"px"; f.style.transform="scale(.5)"; setTimeout(function(){ f.remove(); },550);
+      setTimeout(function(){ for(var i=0;i<3;i++){ var hh=document.createElement("span"); hh.className="heart"; hh.textContent=good?"💖":"🙂"; hh.style.left=((b.left-st.left)/z+i*12)+"px"; hh.style.top=((b.top-st.top)/z-10)+"px"; $("stage").appendChild(hh); (function(e){ setTimeout(function(){ e.remove(); },1100); })(hh); }
+        cr.classList.add("walk"); cr.style.left=($("shop").clientWidth+60)+"px"; },600); }
+    hud(); setTimeout(next,2000);
+  }
+  function hud(){ $("score").textContent=(D?D.ok:0)+"/"+GOAL; $("day").textContent=L; $("coins").textContent=S.coins; }
+  // ---------- levels ----------
+  function startLevel(){
+    D={n:0,ok:0,miss:0,coins:0,streak:0,bad:false,first:true};
+    if(window.GameProgress) GameProgress.start("shapes2","day"+L);
+    closeOver(); next();
+  }
+  function endLevel(){
+    var won=D.ok>=5, d=L;
+    if(window.GameProgress) GameProgress.report({game:"shapes2",level:"day"+d,name:"Party Bakery Level "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:GOAL,best:D.ok});
+    if(won){ if(L===S.day) S.day++; L++; save(); }
+    tone(won?[523,659,784,1047]:[392,330,262],.2);
+    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！":"再试一次，完成 5 个订单就过关！")+'</p><p style="font-size:1.3rem">🧁 '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+levelPick()+'<button type="button" class="go" id="nextDay">'+playLabel()+'</button>');
+    wireShop(); wirePick(); $("nextDay").onclick=startLevel;
+  }
+  function shopHtml(){
+    return '<p style="margin-top:10px">🎉 Party shop 派对商店 · 🪙 '+S.coins+'</p><div class="shopg" id="shopg">'+DECO.map(function(d){
+      var own=S.deco[d.id]; return '<button type="button" data-id="'+d.id+'" class="'+(own?"own":"")+'"'+(!own&&S.coins<d.p?" disabled":"")+'><i>'+d.e+'</i>'+(own?"✓":d.p+" 🪙")+'</button>'; }).join("")+'</div>';
+  }
+  function wireShop(){
+    [].forEach.call(document.querySelectorAll("#shopg button"),function(b){ b.onclick=function(){
+      var d=DECO.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!d||S.deco[d.id]||S.coins<d.p) return;
+      S.coins-=d.p; S.deco[d.id]=1; save(); drawDeco(); $("coins").textContent=S.coins; tone([660,880,1100],.08);
+      $("shopg").outerHTML=shopHtml().replace(/^<p[^>]*>.*?<\/p>/,""); wireShop();
+    }; });
+  }
+  function levelPick(){ return window.LevelPick?LevelPick.html("shapes2",S.day,L):""; }
+  function playLabel(){ return S.day>1||L>1?"Level "+L+" ▶ 开始第 "+L+" 关":"Play! 开始"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; $("day").textContent=L; var b=$("play")||$("nextDay"); if(b) b.textContent=playLabel(); }); }
+  function over(html){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  var HOW='<div class="how"><div>🍪 Shape cookies: tap pegs to stretch the dough, then the first peg again to close it. Bake!</div><div>🔢 Count sides and angles, and name the shape.</div><div>🟫 Brownies: tap the marks on the edges to cut rows and columns.</div><div>🍕 Share pizzas and cakes in equal pieces: halves, thirds, fourths.</div><div style="color:var(--muted)">点钉子围出形状再烤成饼干；数边和角、说出形状名称；点边上的记号把布朗尼切成几行几列；把披萨和蛋糕平均分成 2、3、4 份。</div></div>';
+  function intro(){ over('<h2>🧁 Party Bakery</h2><p>Shapes &amp; Equal Shares Practice 图形和平均分</p>'+HOW+levelPick()+'<button type="button" class="go" id="play">'+playLabel()+'</button>'); wirePick(); $("play").onclick=startLevel; }
+  $("helpBtn").onclick=function(){ var o=document.createElement("div"); o.className="over"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go">Got it! 明白了</button>'; $("wrap").appendChild(o); o.querySelector(".go").onclick=function(){ o.remove(); }; };
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
+  function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<16;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:32,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
+  if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
+  // the panel below changes size (buttons, keypad): the work area is sized again
+  function resize(){ if(!Q) return; if(Q.t==="board") drawBoard(); else if(Q.t==="tray") drawTray(); else if(Q.t==="share") drawShare(); else { var sv=$("work"), vb=sv.viewBox.baseVal; if(vb&&vb.width) sizeWork(vb.width,vb.height); } }
+  var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(resize,150); });
+  new MutationObserver(function(){ requestAnimationFrame(function(){ if(Q){ var sv=$("work"), vb=sv.viewBox.baseVal; if(vb&&vb.width) sizeWork(vb.width,vb.height); } }); }).observe($("wrap").querySelector(".bottom"),{childList:true,subtree:true,attributes:true,attributeFilter:["style","class"]});
+  drawDeco(); hud(); $("task").innerHTML="🧁 Welcome to the Party Bakery! 欢迎来派对烘焙坊！";
+  window.__bake={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },start:startLevel,peg:pegXY};
+  intro();
+})();
+</script>
+</body></html>
