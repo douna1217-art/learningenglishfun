@@ -45,10 +45,10 @@
 canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
 </style>
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="fit.js?v=20261129a"></script><script src="../game-progress.js?v=20261127a"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="fit.js?v=20261129a"></script><script src="levels.js?v=20261130a"></script><script src="../game-progress.js?v=20261127a"></script>
 <div class="wrap">
   <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.15rem">🏗️ Block City <span id="dayN"></span></b><span><button class="tbtn" type="button" id="helpBtn">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
-  <div class="hud"><div><small>Coins today 今天赚的</small><b id="cash">0</b></div><div><small>Time 时间</small><b id="clock">2:30</b></div><div><small>Trucks 卡车</small><b id="done">0</b></div></div>
+  <div class="hud"><div><small>Coins earned 赚的金币</small><b id="cash">0</b></div><div><small>Time 时间</small><b id="clock">2:30</b></div><div><small>Trucks 卡车</small><b id="done">0</b></div></div>
   <div class="goal"><i id="goalBar"></i></div>
   <div class="tipbar" id="tip" hidden></div>
   <div class="main"><div class="left"><div class="yard"><div class="sky2" aria-hidden="true"><span>☀️</span><span>☁️</span><span>☁️</span></div><div class="skyline" id="skyline"></div><div class="bays" id="bays"></div></div><div class="dockrow"><span class="keeper" id="keeper"></span><span class="cmsg" id="cmsg">Tap a truck to load it! 点卡车来装货</span></div></div><div id="dock"></div></div>
@@ -66,6 +66,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   function pick(a){ return a[rnd(a.length)]; }
   var STORE="blockCity.v1", S={day:1,coins:0,city:{},tut:0,sound:true};
   try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  var L=S.day;   // the level being played (S.day: the highest level opened; any opened level can be played again)
   function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
   var actx=null;
   function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
@@ -82,9 +83,10 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   }
   // ---------- orders ----------
   function newOrder(){
-    var d=S.day, n, kind="plain", label, cn;
+    var d=L, n, kind="plain", label, cn;
     if(d===1) n=11+rnd(89); else n=101+rnd(899);
-    var r=Math.random();
+    // the first trucks of a level, and the one after a truck drove off, bring plain numbers; the new kinds of order come after
+    var r=Math.random(); if(D&&(D.made<2||D.easy)){ r=1; D.easy=false; } if(D) D.made++;
     if(d>=2&&r<.3){ kind="expand"; var dg=[Math.floor(n/100),Math.floor(n/10)%10,n%10], parts=[]; if(dg[0]) parts.push(dg[0]*100); if(dg[1]) parts.push(dg[1]*10); if(dg[2]) parts.push(dg[2]); if(Math.random()<.5) parts.reverse(); label=parts.join(" + "); cn="按展开式装货"; }
     else if(d>=3&&r<.6){ kind="more"; var by=pick([10,100]), up=Math.random()<.6; var base=up?101+rnd(899-by):101+by+rnd(899-by); n=up?base+by:base-by; label=(up?by+" more than ":by+" less than ")+base; cn=up?"比 "+base+" 多 "+by:"比 "+base+" 少 "+by; }
     else if(d>=2&&r<.75){ kind="words"; label=words(n); cn="读英文数字"; }
@@ -98,9 +100,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   var DAY=150, D=null, raf=0, tt=0;
   function goalFor(d){ return 4+d; }
   function startDay(){
-    D={t:DAY,cash:0,done:0,lost:0,q:[],next:1,cur:null,c:null,tut:!S.tut,paused:false};
+    D={t:DAY,cash:0,done:0,lost:0,q:[],next:1,cur:null,c:null,tut:!S.tut,paused:false,made:0,easy:false};
     if(D.tut){ var o=newOrder(); o.n=23; o.kind="plain"; o.label="23"; o.cn="装 23 块"; D.q.push(o); D.next=999; }
-    $("dayN").textContent="· Day "+S.day; drawSkyline(); drawBays(); hud(); $("dock").innerHTML=""; say("Factory open! 开工啦！");
+    $("dayN").textContent="· Level "+L; drawSkyline(); drawBays(); hud(); $("dock").innerHTML=""; say("Factory open! 开工啦！");
     tone([523,659,784],.12); cancelAnimationFrame(raf); tt=0; raf=requestAnimationFrame(loop); guide();
   }
   function loop(t){
@@ -114,14 +116,14 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
     }
     raf=requestAnimationFrame(loop);
   }
-  function hud(){ if(!D) return; $("cash").textContent=D.cash; var s=Math.max(0,Math.ceil(D.t)); $("clock").textContent=Math.floor(s/60)+":"+(s%60<10?"0":"")+(s%60); $("done").textContent=D.done+" / "+goalFor(S.day); $("goalBar").style.width=Math.min(100,D.done/goalFor(S.day)*100)+"%"; }
+  function hud(){ if(!D) return; $("cash").textContent=D.cash; var s=Math.max(0,Math.ceil(D.t)); $("clock").textContent=Math.floor(s/60)+":"+(s%60<10?"0":"")+(s%60); $("done").textContent=D.done+" / "+goalFor(L); $("goalBar").style.width=Math.min(100,D.done/goalFor(L)*100)+"%"; }
   function say(t){ $("cmsg").textContent=t; }
   function drawBays(){ var h=""; for(var i=0;i<3;i++){ var o=D.q[i]; h+=o?'<button type="button" class="truck" data-i="'+i+'"><span class="order">'+o.label+'</span><span class="t">🚚</span><span class="pat"><i style="width:'+(o.left/o.pat*100)+'%"></i></span></button>':'<span></span>'; } $("bays").innerHTML=h; }
   function driveOff(o){ var i=D.q.indexOf(o); if(i<0) return; D.q.splice(i,1); D.lost++; if(D.cur===o){ D.cur=null; $("dock").innerHTML=""; } say("A truck drove off empty! 🚚💨 卡车等太久开走了"); tone([300,220],.15,"sawtooth"); drawBays(); }
   $("bays").addEventListener("click",function(e){ if(!D) return; var b=e.target.closest?e.target.closest(".truck"):null; if(!b) return; var o=D.q[+b.dataset.i]; if(o) load(o); });
   function load(o){
     D.cur=o; D.c={h:0,t:0,o:0}; var fresh=null; tone([660],.05);
-    $("dock").innerHTML='<div class="dock"><h3>Load <b>'+o.label+'</b>'+(o.kind==="plain"?" blocks":"")+'!<small>'+o.cn+(o.kind!=="plain"?" · Load the number 装这个数":"")+'</small></h3><div id="mat"></div><div class="tray" id="tray">'+(S.day>1?'<button type="button" class="tb" data-k="h">'+blockSvg("h",.8)+'<b>100</b><small>hundred</small></button>':'')+
+    $("dock").innerHTML='<div class="dock"><h3>Load <b>'+o.label+'</b>'+(o.kind==="plain"?" blocks":"")+'!<small>'+o.cn+(o.kind!=="plain"?" · Load the number 装这个数":"")+'</small></h3><div id="mat"></div><div class="tray" id="tray">'+(L>1?'<button type="button" class="tb" data-k="h">'+blockSvg("h",.8)+'<b>100</b><small>hundred</small></button>':'')+
       '<button type="button" class="tb" data-k="t">'+blockSvg("t",.8)+'<b>10</b><small>ten</small></button><button type="button" class="tb" data-k="o">'+blockSvg("o",1.4)+'<b>1</b><small>one</small></button></div><div class="fb" id="fb"></div><div class="btns"><button type="button" class="go light" id="clear">Clear 清空</button><button type="button" class="go" id="ship">Load it! 🚚</button></div></div>';
     function draw(){ var c=D.c; $("mat").innerHTML='<div class="mat">'+["h","t","o"].map(function(k){ var b=""; for(var i=0;i<c[k];i++) b+='<button type="button" class="pb'+(fresh===k&&i===c[k]-1?" fresh":"")+'" data-k="'+k+'">'+blockSvg(k,k==="o"?1.8:.9)+'</button>';
       return '<div class="col '+k+'"><div class="colT">'+{h:"Hundreds 百位",t:"Tens 十位",o:"Ones 个位"}[k]+'</div><div class="colIn">'+b+'</div></div>'; }).join("")+'</div>'; }
@@ -142,13 +144,13 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   }
   function endDay(){
     cancelAnimationFrame(raf); var d=D; D=null; $("dock").innerHTML="";
-    var met=d.done>=goalFor(S.day);
-    S.coins+=d.cash; if(met) S.day++; save();
-    if(window.GameProgress) GameProgress.report({game:"place-value",level:"day"+(met?S.day-1:S.day),name:"Block City Day "+(met?S.day-1:S.day),won:met,stars:met?(d.lost?2:3):0,correct:d.done,total:d.done+d.lost,best:d.done});
+    var lv=L, met=d.done>=goalFor(lv);
+    S.coins+=d.cash; if(met){ if(L===S.day) S.day++; L++; } save();
+    if(window.GameProgress) GameProgress.report({game:"place-value",level:"day"+lv,name:"Block City Level "+lv,won:met,stars:met?(d.lost?2:3):0,correct:d.done,total:d.done+d.lost,best:d.done});
     tone(met?[523,659,784,1047]:[392,330,262],.16);
-    over('<h2>'+(met?"🎉 Great day!":"⏰ Closing time!")+'</h2><p>'+(met?"今天的目标达成了！":"还差一点，再试一次！")+'</p><p style="font-size:1.4rem;font-family:Fredoka,sans-serif">'+d.done+' / '+goalFor(met?S.day-1:S.day)+' trucks loaded · 🚚</p><p>+'+d.cash+' coins · '+d.lost+' drove off</p><p>🪙 Coins: <b>'+S.coins+'</b></p>'+
-      '<div class="btns"><button type="button" class="go light" id="cityBtn">🏙️ Build my city 建城</button><button type="button" class="go" id="nextBtn">'+(met?"Day "+S.day+" ▶":"Try again ▶")+'</button></div>');
-    $("cityBtn").onclick=cityScreen; $("nextBtn").onclick=function(){ closeOver(); startDay(); };
+    over('<h2>'+(met?"🎉 Level "+lv+" done!":"⏰ Closing time!")+'</h2><p>'+(met?"第 "+lv+" 关完成啦！":"还差一点，再试一次！")+'</p><p style="font-size:1.4rem;font-family:Fredoka,sans-serif">'+d.done+' / '+goalFor(lv)+' trucks loaded · 🚚</p><p>+'+d.cash+' coins · '+d.lost+' drove off</p><p>🪙 Coins: <b>'+S.coins+'</b></p>'+levelPick()+
+      '<div class="btns"><button type="button" class="go light" id="cityBtn">🏙️ Build my city 建城</button><button type="button" class="go" id="nextBtn">'+playLabel()+'</button></div>');
+    wirePick(); $("cityBtn").onclick=cityScreen; $("nextBtn").onclick=function(){ closeOver(); startDay(); };
   }
   // ---------- the city: 6 x 5 lots; buy a building, then tap the lot for it ----------
   var BUILD=[["🌳",10,"Tree 树"],["🏠",30,"House 房子"],["🛣️",15,"Road 路"],["⛲",50,"Park 公园"],["🏪",60,"Shop 商店: +2 coins a truck"],["🏫",80,"School 学校: trucks wait longer"],["🏥",100,"Hospital 医院"],["🏢",120,"Tower 大楼"],["🎡",150,"Big wheel 摩天轮"],["🏰",250,"Castle 城堡"]];
@@ -181,12 +183,15 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   }
   function over(h){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML='<div class="card">'+h+'</div>'; document.body.appendChild(o); }
   function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  function levelPick(){ return window.LevelPick?LevelPick.html("place-value",S.day,L):""; }
+  function playLabel(){ return "Level "+L+" ▶"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; if($("openBtn")){ intro(); return; } $("dayN").textContent="· Level "+L; ["lvN","lvN2"].forEach(function(id){ if($(id)) $(id).textContent=L; }); if($("lvGoal")) $("lvGoal").textContent=goalFor(L); if($("nextBtn")) $("nextBtn").textContent=playLabel(); }); }
   function intro(){
-    $("dayN").textContent="· Day "+S.day; drawSkyline(); $("bays").innerHTML="";
-    over('<h2>🏗️ Day '+S.day+' at your block factory</h2><p>第 '+S.day+' 天开工</p><p>Goal 目标: <b>'+goalFor(S.day)+' trucks</b> in 2½ minutes</p>'+
-      '<div style="text-align:left;font-weight:800;font-size:.9rem;line-height:1.5;margin-top:6px">🚚 Tap a truck to load it. 点卡车装货<br>🧱 Build its number with 100s, 10s and 1s. 用百、十、一搭出它的数<br>⏳ Be quick: trucks drive off! 卡车会开走<br>🏙️ Spend your coins on your own city! 用金币建你的城市<br>'+(S.day>=2?"🧩 New orders: 300 + 40 + 7, and numbers in words! 新订单：展开式和英文数字<br>":"")+(S.day>=3?"⚙️ New orders: 10 more than 256! 新订单：比 256 多 10<br>":"")+'</div>'+
-      '<p>🪙 Coins: '+S.coins+'</p><div class="btns"><button type="button" class="go light" id="cityBtn">🏙️ My city</button><button type="button" class="go" id="openBtn">Open! 开工 ▶</button></div>');
-    $("cityBtn").onclick=cityScreen; $("openBtn").onclick=function(){ closeOver(); startDay(); };
+    $("dayN").textContent="· Level "+L; drawSkyline(); $("bays").innerHTML="";
+    over('<h2>🏗️ Block City · Level <span id="lvN">'+L+'</span></h2><p>Place Value Practice 第 <span id="lvN2">'+L+'</span> 关</p><p>Goal 目标: <b><span id="lvGoal">'+goalFor(L)+'</span> trucks</b> in 2½ minutes</p>'+
+      '<div style="text-align:left;font-weight:800;font-size:.9rem;line-height:1.5;margin-top:6px">🚚 Tap a truck to load it. 点卡车装货<br>🧱 Build its number with 100s, 10s and 1s. 用百、十、一搭出它的数<br>⏳ Be quick: trucks drive off! 卡车会开走<br>🏙️ Spend your coins on your own city! 用金币建你的城市<br>'+(L>=2?"🧩 New orders: 300 + 40 + 7, and numbers in words! 新订单：展开式和英文数字<br>":"")+(L>=3?"⚙️ New orders: 10 more than 256! 新订单：比 256 多 10<br>":"")+'</div>'+
+      '<p>🪙 Coins: '+S.coins+'</p>'+levelPick()+'<div class="btns"><button type="button" class="go light" id="cityBtn">🏙️ My city</button><button type="button" class="go" id="openBtn">Open! 开工 ▶</button></div>');
+    wirePick(); $("cityBtn").onclick=cityScreen; $("openBtn").onclick=function(){ closeOver(); startDay(); };
   }
   $("helpBtn").onclick=function(){ if(D) D.paused=true; over('<h2>❓ How to play 怎么玩</h2><div style="text-align:left;font-weight:800;line-height:1.6">🚚 Tap a truck. 点卡车<br>🧱 Tap 100, 10 and 1 to build its number on the mat (tap a block on the mat to take it back). 点积木搭出卡车上的数（点垫子上的积木可以拿回）<br>✅ Press <b>Load it!</b> 按 Load it!<br>⏳ The bar under a truck is its patience. 卡车下面的条是耐心<br>🏙️ Coins build your city. 金币用来建城市</div><div class="btns"><button type="button" class="go" id="okH">Got it! 明白了</button></div>'); $("okH").onclick=function(){ closeOver(); if(D) D.paused=false; else intro(); }; };
   var cv=$("fx"), cx=cv.getContext("2d"), parts=[], an=0;

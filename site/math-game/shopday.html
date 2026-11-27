@@ -58,10 +58,10 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
 .float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;color:#2f9e5b;font-size:1.3rem;animation:up 1s forwards;pointer-events:none;z-index:5}@keyframes up{to{transform:translateY(-40px);opacity:0}}
 </style>
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="fit.js?v=20261129a"></script><script src="../game-progress.js?v=20261127a"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="fit.js?v=20261129a"></script><script src="levels.js?v=20261130a"></script><script src="../game-progress.js?v=20261127a"></script>
 <div class="wrap">
   <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.2rem">🍭 Shop Day <span id="dayN"></span></b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
-  <div class="hud"><div><small>Money today 今天赚的</small><b id="cash">$0.00</b></div><div><small>Time 时间</small><b id="clock">2:30</b></div><div><small>Happy 满意</small><b id="stars">⭐⭐⭐</b></div></div>
+  <div class="hud"><div><small>Money earned 赚的钱</small><b id="cash">$0.00</b></div><div><small>Time 时间</small><b id="clock">2:30</b></div><div><small>Happy 满意</small><b id="stars">⭐⭐⭐</b></div></div>
   <div class="goal"><i id="goalBar"></i></div>
   <div class="tipbar" id="tip" hidden></div>
   <div class="main"><div class="shop" id="shop"><div class="awning"></div><div class="shelves" aria-hidden="true"><div class="shelfrow">🍭🍬🍫🍩🧁🍪🍭🍬</div><div class="shelfrow">🍪🧁🍩🍫🍬🍭🍪🧁</div></div><div id="decor"></div><div class="queue" id="queue"></div><div class="counter"><span class="keeper" id="keeper"></span><span class="jarS" id="jar">🫙 0</span><span class="cmsg" id="cmsg">Tap a customer to serve them! 点顾客来招待</span></div></div>
@@ -85,6 +85,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   var STORE="shopDay.v1", S={day:1,bank:0,ups:{},best:{}};
   try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0&&typeof s0==="object"){ S.day=s0.day||1; S.bank=s0.bank||0; S.ups=s0.ups||{}; S.best=s0.best||{}; S.sound=s0.sound; } }catch(e){}
   function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var L=S.day;   // the level being played (S.day: the highest level opened; any opened level can be played again)
   var sound=S.sound!==false;
   $("soundBtn").textContent=sound?"🔔":"🔕";
   $("soundBtn").onclick=function(){ sound=!sound; S.sound=sound; save(); $("soundBtn").textContent=sound?"🔔":"🔕"; };
@@ -111,24 +112,26 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   var DAY_SECONDS=150, D=null, tickT=0, raf=0;
   var GUESTS=["🐻","🐰","🐼","🦊","🐨","🐯","🐷","🐸","🐵","🐶","🐱","🦁","🐮","🐹","🐧","🦄"];
   var TREATS=[["🍭",8,30],["🍬",3,20],["🍫",25,60],["🍩",30,70],["🧁",35,80],["🍪",10,45]];
-  function kinds(){ return S.day>=2?[1,5,10,25]:[1,5,10]; }
+  function kinds(){ return L>=2?[1,5,10,25]:[1,5,10]; }
   function goalFor(day){ return 150+day*60; }
   function newCustomer(){
     var treats=TREATS.slice(); if(has("icecream")) treats.push(["🍦",50,95]); if(has("cake")) treats.push(["🎂",110,190]);
     var t=pick(treats), price=t[1]+rnd(t[2]-t[1]+1);
     if(price>=100&&!has("cake")) price=99;
-    var vip=Math.random()<.12, r=Math.random(), change=S.day>=3&&price<100&&r<.3, two=null, few=false;
+    // the first customers of a level, and the one after a customer walked off, are plain; the new kinds come after
+    var r=Math.random(); if(D&&(D.made<2||D.easy)){ r=1; D.easy=false; } if(D) D.made++;
+    var vip=Math.random()<.12, change=L>=3&&price<100&&r<.3, two=null, few=false;
     // from day 2: some buy two treats (add the prices first), some ask for the fewest coins (a bonus if you manage it)
-    if(!change&&S.day>=2&&price<100&&r<.55){ var t2=pick(TREATS), a=5+rnd(40), b=t2[1]+rnd(Math.max(1,Math.min(45,t2[2])-t2[1]+1)); if(a+b<100){ two={e1:t[0],e2:t2[0],a:a,b:b}; price=a+b; } }
-    else if(!change&&S.day>=2&&price<100&&r<.72) few=true;
+    if(!change&&L>=2&&price<100&&r<.55){ var t2=pick(TREATS), a=5+rnd(40), b=t2[1]+rnd(Math.max(1,Math.min(45,t2[2])-t2[1]+1)); if(a+b<100){ two={e1:t[0],e2:t2[0],a:a,b:b}; price=a+b; } }
+    else if(!change&&L>=2&&price<100&&r<.72) few=true;
     var pat=(change?30:two?30:22)+(has("chairs")?10:0)+(price>=100?8:0);
     return {who:pick(GUESTS),e:t[0],price:price,vip:vip,change:change,paid:change?100:0,two:two,few:few,pat:pat,left:pat,id:Math.random()};
   }
   function startDay(){
     setTimeout(drawJar,0);
-    D={t:DAY_SECONDS,cash:0,served:0,lost:0,stars:3+(has("cat")?1:0),q:[],next:2,cur:null,tray:[],goal:goalFor(S.day),tut:!S.tut,paused:false,jar:[]};
+    D={t:DAY_SECONDS,cash:0,served:0,lost:0,stars:3+(has("cat")?1:0),q:[],next:2,cur:null,tray:[],goal:goalFor(L),tut:!S.tut,paused:false,jar:[],made:0,easy:false};
     if(D.tut){ var first=newCustomer(); first.price=11; first.e="🍭"; first.vip=false; first.change=false; D.q.push(first); D.next=999; }
-    $("dayN").textContent="· Day "+S.day; drawDecor(); drawQueue(); drawHud(); $("reg").innerHTML="";
+    $("dayN").textContent="· Level "+L; drawDecor(); drawQueue(); drawHud(); $("reg").innerHTML="";
     say("Open! 开门营业！"); tone([523,659,784],.12);
     cancelAnimationFrame(raf); tickT=0; raf=requestAnimationFrame(loop);
     guide();
@@ -158,7 +161,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   }
   function walkOff(c){
     var i=D.q.indexOf(c); if(i<0) return;
-    D.q.splice(i,1); D.lost++; D.stars--;
+    D.q.splice(i,1); D.lost++; D.stars--; D.easy=true;
     if(D.cur===c){ D.cur=null; $("reg").innerHTML=""; }
     say(c.who+" got tired of waiting! 😠 顾客等太久走了"); tone([300,220],.15,"sawtooth"); drawQueue();
   }
@@ -249,15 +252,15 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
       d.tips=sum; summary(d,sum+(ok?10:0),ok,v); };
   }
   function summary(d,tips,counted,given){
-    var met=d.cash>=d.goal&&d.stars>0;
-    S.bank+=d.cash+tips; if(met){ S.best[S.day]=Math.max(S.best[S.day]||0,d.cash); S.day++; } save();
-    try{ if(window.parent&&window.parent!==window&&window.parent.__trackEvent) window.parent.__trackEvent("game_level_end",{game:"shop-day",level:"day"+(met?S.day-1:S.day),won:met,cash:d.cash,served:d.served,lost:d.lost}); }catch(e){}
-    if(window.GameProgress) GameProgress.report({game:"shop-day",level:"day"+(met?S.day-1:S.day),name:"Shop Day "+(met?S.day-1:S.day),won:met,stars:met?Math.max(1,Math.min(3,d.stars)):0,correct:d.served,total:d.served+d.lost,best:d.served});
+    var met=d.cash>=d.goal&&d.stars>0, lv=L;
+    S.bank+=d.cash+tips; if(met){ S.best[lv]=Math.max(S.best[lv]||0,d.cash); if(L===S.day) S.day++; L++; } save();
+    try{ if(window.parent&&window.parent!==window&&window.parent.__trackEvent) window.parent.__trackEvent("game_level_end",{game:"shop-day",level:"day"+lv,won:met,cash:d.cash,served:d.served,lost:d.lost}); }catch(e){}
+    if(window.GameProgress) GameProgress.report({game:"shop-day",level:"day"+lv,name:"Shop Day Level "+lv,won:met,stars:met?Math.max(1,Math.min(3,d.stars)):0,correct:d.served,total:d.served+d.lost,best:d.served});
     tone(met?[523,659,784,1047]:[392,330,262],.16);
-    overlay('<h2>'+(met?"🎉 Great day!":d.stars<=0?"😟 Too many unhappy customers":"⏰ Closing time!")+'</h2><p>'+(met?"今天的目标达成了！":"目标还差一点，再试一次！")+'</p>'+
+    overlay('<h2>'+(met?"🎉 Level "+lv+" done!":d.stars<=0?"😟 Too many unhappy customers":"⏰ Closing time!")+'</h2><p>'+(met?"第 "+lv+" 关完成啦！":"目标还差一点，再试一次！")+'</p>'+
       '<p style="font-size:1.6rem;font-family:Fredoka,sans-serif">'+dollars(d.cash)+' <small style="font-size:.9rem;color:var(--muted)">/ goal '+dollars(d.goal)+'</small></p><p>'+d.served+' customers served · '+d.lost+' walked off</p>'+(d.tips!=null?'<p>🫙 Tips: '+money(d.tips)+(counted?' ✓ counted right! +10¢':' (you counted '+money(given)+')')+'</p>':'')+''+
-      '<p>🏦 Bank 存款: <b>'+dollars(S.bank)+'</b></p><div class="btns"><button type="button" class="go light" id="upBtn">🛠️ Upgrade shop 升级店铺</button><button type="button" class="go" id="nextBtn">'+(met?"Day "+S.day+" ▶":"Try again ▶")+'</button></div>');
-    $("upBtn").onclick=upgrades; $("nextBtn").onclick=function(){ closeOverlay(); startDay(); };
+      '<p>🏦 Bank 存款: <b>'+dollars(S.bank)+'</b></p>'+levelPick()+'<div class="btns"><button type="button" class="go light" id="upBtn">🛠️ Upgrade shop 升级店铺</button><button type="button" class="go" id="nextBtn">'+playLabel()+'</button></div>');
+    wirePick(); $("upBtn").onclick=upgrades; $("nextBtn").onclick=function(){ closeOverlay(); startDay(); };
   }
   // the pet's prizes (the four candy prizes), bought with the bank's money
   var PRIZE_PRICE={"gp-cupcake":100,"gp-heartglasses":150,"gp-candybeads":200,"gp-gumcrown":300};
@@ -283,13 +286,16 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   function overlay(h){ closeOverlay(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML='<div class="card">'+h+'</div>'; document.body.appendChild(o); }
   function closeOverlay(){ var o=$("over"); if(o) o.remove(); }
   function intro(){
-    $("dayN").textContent="· Day "+S.day; drawDecorIdle();
-    overlay('<h2>🍭 Day '+S.day+' at your shop</h2><p>第 '+S.day+' 天营业</p><p style="font-size:1.1rem">Goal 目标: <b>'+dollars(goalFor(S.day))+'</b> in 2½ minutes</p>'+
+    $("dayN").textContent="· Level "+L; drawDecorIdle();
+    overlay('<h2>🍭 Shop Day · Level <span id="lvN">'+L+'</span></h2><p>Money Practice 第 <span id="lvN2">'+L+'</span> 关</p><p style="font-size:1.1rem">Goal 目标: <b id="lvGoal">'+dollars(goalFor(L))+'</b> in 2½ minutes</p>'+
       '<div style="text-align:left;font-weight:800;font-size:.9rem;margin-top:8px;line-height:1.5">👆 Tap a customer to serve them. 点顾客来招待<br>🪙 Put the right coins in the till. 放对硬币<br>⏳ Be quick: watch their patience bar! 注意耐心条<br>'+
-      (S.day>=3?"💵 Some pay with $1: give the change! 有的付 1 美元，要找零<br>":"")+(S.day>=2?"🪙 Quarters (25¢) today! 今天有 25 美分<br>":"")+'</div>'+
-      '<p>🏦 Bank 存款: '+dollars(S.bank)+'</p><div class="btns"><button type="button" class="go light" id="upBtn">🛠️ Upgrades</button><button type="button" class="go" id="openBtn">Open the shop! 开门 ▶</button></div>');
-    $("upBtn").onclick=upgrades; $("openBtn").onclick=function(){ closeOverlay(); startDay(); };
+      (L>=3?"💵 Some pay with $1: give the change! 有的付 1 美元，要找零<br>":"")+(L>=2?"🪙 Quarters (25¢) in this level! 这一关有 25 美分<br>":"")+'</div>'+
+      '<p>🏦 Bank 存款: '+dollars(S.bank)+'</p>'+levelPick()+'<div class="btns"><button type="button" class="go light" id="upBtn">🛠️ Upgrades</button><button type="button" class="go" id="openBtn">Open the shop! 开门 ▶</button></div>');
+    wirePick(); $("upBtn").onclick=upgrades; $("openBtn").onclick=function(){ closeOverlay(); startDay(); };
   }
+  function levelPick(){ return window.LevelPick?LevelPick.html("shop-day",S.day,L):""; }
+  function playLabel(){ return "Level "+L+" ▶"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; if($("openBtn")){ intro(); return; } $("dayN").textContent="· Level "+L; ["lvN","lvN2"].forEach(function(id){ if($(id)) $(id).textContent=L; }); if($("lvGoal")) $("lvGoal").textContent=dollars(goalFor(L)); if($("nextBtn")) $("nextBtn").textContent=playLabel(); }); }
   function drawDecorIdle(){ var tmp=D; D={}; drawDecor(); D=tmp; $("queue").innerHTML='<div class="spot"></div><div class="idle">Closed 打烊</div><div class="spot"></div>'; }
   // ---------- confetti ----------
   var cv=$("fx"), cx=cv.getContext("2d"), parts=[], an=0;

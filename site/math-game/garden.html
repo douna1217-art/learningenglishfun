@@ -76,10 +76,10 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   .wrap.fitted .ans{grid-template-columns:auto 1fr}.wrap.fitted .keys{grid-template-columns:repeat(12,1fr)}}
 </style>
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script>
 <div class="wrap" id="wrap">
   <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.25rem">🥕 Veggie Garden</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
-  <div class="hud"><div><small>Orders 订单</small><b id="orders">0/6</b></div><div><small>Day 天</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="hud"><div><small>Orders 订单</small><b id="orders">0/6</b></div><div><small>Level 关</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
   <div class="stage" id="stage">
     <div class="sky" id="sky"><div class="sun"></div><div id="decor"></div>
       <div class="helper"><div class="pet" id="pet"></div><div class="bub" id="bub">Let's grow veggies! 一起种菜吧！</div></div>
@@ -103,13 +103,14 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   //          rows and columns; water it and the veggies grow; then "4 + 4 + 4 = ?" (repeated addition) and the animal takes them.
   //   patch  a block is already growing: which addition matches its rows? and how many in all?
   //   pairs  a pile of veggies: tap two at a time to put them in pairs; one left over means odd, none means even.
-  // Day 1 plant (up to 4 rows of 4), day 2 adds patch, day 3 adds pairs, day 4 bigger (5 rows, 20 in a pile).
-  // 6 orders a day; 5 done (in two tries) opens the next day. Coins buy things for the garden.
+  // Level 1 plant (up to 4 rows of 4), level 2 adds patch, level 3 adds pairs, level 4 bigger (5 rows, 20 in a pile).
+  // Inside a level: the first orders are small, a miss makes the next one small again, a run of right answers brings bigger ones.
+  // 6 orders a level; 5 done (in two tries) opens the next level (any level opened can be played again). Coins buy things for the garden.
   var $=function(id){ return document.getElementById(id); };
   var STORE="veggieGarden.v1", S={day:1,coins:0,deco:{},tut:0,sound:true};
   try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
   function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
-  var GOAL=6, D=null, Q=null, busy=false, val="", R=5, C=6;
+  var GOAL=6, D=null, Q=null, busy=false, val="", R=5, C=6, L=S.day;   // L: the level being played
   function rnd(n){ return Math.floor(Math.random()*n); }
   var actx=null;
   function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
@@ -126,11 +127,12 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   // ---------- an order ----------
   var CUST=[["🐰","🥕"],["🐻","🍓"],["🐷","🌽"],["🐮","🥬"],["🐹","🍅"],["🦊","🍆"],["🐨","🥦"],["🐭","🧀"]];
   function gen(){
-    var types=["plant"]; if(S.day>=2) types.push("patch"); if(S.day>=3) types.push("pairs","plant");
-    var t=types[rnd(types.length)], big=S.day>=4, cu=CUST[rnd(CUST.length)];
+    var types=["plant"]; if(L>=2) types.push("patch"); if(L>=3) types.push("pairs","plant");
+    var easy=D.n<=2||D.bad, hard=!easy&&D.streak>=3;
+    var t=types[rnd(types.length)], big=L>=4&&!easy||hard, cu=CUST[rnd(CUST.length)];
     var q={type:t,who:cu[0],veg:cu[1]==="🧀"?"🌽":cu[1],tries:0};
-    if(t==="plant"||t==="patch"){ do{ q.rows=2+rnd(big?4:3); q.cols=2+rnd(big?5:3); }while(q.rows===q.cols&&Math.random()<.6||q.rows>R||q.cols>C); q.total=q.rows*q.cols; }
-    else { q.n=(big?6:5)+rnd(big?15:10); q.total=q.n; }
+    if(t==="plant"||t==="patch"){ do{ q.rows=2+rnd(easy?2:big?4:3); q.cols=2+rnd(easy?2:big?5:3); }while(q.rows===q.cols&&Math.random()<.6||q.rows>R||q.cols>C); q.total=q.rows*q.cols; }
+    else { q.n=easy?4+rnd(7):(big?6:5)+rnd(big?15:10); q.total=q.n; }
     if(!S.tut&&D.first) q={type:"plant",who:"🐰",veg:"🥕",tries:0,rows:2,cols:3,total:6,tut:true};
     return q;
   }
@@ -298,6 +300,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
       var good=!Q.fixed, coins=good?3+(Q.tries?0:2):0;
       $("who").classList.add("happy"); tone(good?[523,659,784,1047]:[440,523],.1);
       for(var i=0;i<4;i++){ (function(i){ setTimeout(function(){ var h=document.createElement("span"); h.className="heart"; h.textContent="💖"; h.style.left=(tx+i*8-10)+"px"; h.style.top=(ty-10)+"px"; $("stage").appendChild(h); setTimeout(function(){ h.remove(); },1200); },i*140); })(i); }
+      if(good&&!Q.tries) D.streak++; else D.streak=0; D.bad=!good;
       if(good){ D.ok++; D.coins+=coins; S.coins+=coins; save();
         var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"; fx.style.left=(tx-20)+"px"; fx.style.top=(ty+40)+"px"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
         burst(who.left+who.width/2,who.top); if(pet) MathPet.feed(1); }
@@ -309,7 +312,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
       setTimeout(next,2100);
     },dur);
   }
-  function hud(){ $("orders").textContent=D.ok+"/"+GOAL; $("day").textContent=S.day; $("coins").textContent=S.coins; }
+  function hud(){ $("orders").textContent=D.ok+"/"+GOAL; $("day").textContent=L; $("coins").textContent=S.coins; }
   function next(){
     busy=false;
     if(D.n>=GOAL) return endDay();
@@ -333,17 +336,17 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     } else say(Q.who+" wants "+Q.rows+" rows of "+Q.cols+"! Rows go across ↔ 行是横着的");
   }
   function startDay(){
-    D={n:0,ok:0,first:true,miss:0,coins:0};
-    if(window.GameProgress) GameProgress.start("equal-groups","day"+S.day);
+    D={n:0,ok:0,first:true,miss:0,coins:0,streak:0,bad:false};
+    if(window.GameProgress) GameProgress.start("equal-groups","day"+L);
     closeOver(); next();
   }
   function endDay(){
-    var won=D.ok>=5, d=S.day;
-    if(window.GameProgress) GameProgress.report({game:"equal-groups",level:"day"+d,name:"Veggie Garden Day "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:GOAL,best:D.ok});
-    if(won){ S.day++; save(); }
+    var won=D.ok>=5, d=L;
+    if(window.GameProgress) GameProgress.report({game:"equal-groups",level:"day"+d,name:"Veggie Garden Level "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:GOAL,best:D.ok});
+    if(won){ if(L===S.day) S.day++; L++; save(); }
     tone(won?[523,659,784,1047]:[392,330,262],.2);
-    over('<h2>'+(won?"🎉 Day "+d+" done!":"Day "+d)+'</h2><p>'+(won?"今天完成啦！":"再试一次，完成 5 个订单就过关！")+'</p><p style="font-size:1.3rem">🧺 '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+'<button type="button" class="go" id="nextDay">'+(won?"Day "+S.day+" ▶ 下一天":"Try again 再来一次")+'</button>');
-    wireShop(); $("nextDay").onclick=startDay;
+    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！":"再试一次，完成 5 个订单就过关！")+'</p><p style="font-size:1.3rem">🧺 '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+levelPick()+'<button type="button" class="go" id="nextDay">'+playLabel()+'</button>');
+    wireShop(); wirePick(); $("nextDay").onclick=startDay;
   }
   function shopHtml(){
     return '<p style="margin-top:10px">🛒 Garden shop 菜园商店 · 🪙 '+S.coins+'</p><div class="shop" id="shop">'+DECO.map(function(d){
@@ -359,14 +362,17 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function over(html){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
   function closeOver(){ var o=$("over"); if(o) o.remove(); }
   var HOW='<div class="how"><div>🌱 Read the order: "3 rows of 4". Drag across the soil from one corner to the other (or tap two corners).</div><div>↔ Rows go across. Then tap <b>Grow!</b></div><div>➕ Add the rows: 4 + 4 + 4 = ?</div><div>🥕🥕 Pairs: tap two at a time. One left over = <b>odd</b>, none = <b>even</b>.</div><div style="color:var(--muted)">按订单种菜：在地里从一个角拖到另一个角，横着的是“行”。再把每行加起来。配对时剩下一个就是单数，没有剩下就是双数。</div></div>';
-  function intro(){ over('<h2>🥕 Veggie Garden</h2><p>Equal Groups Practice 相等的组</p>'+HOW+'<button type="button" class="go" id="play">'+(S.day>1?"Day "+S.day+" ▶ 开始":"Play! 开始")+'</button>'); $("play").onclick=startDay; }
+  function levelPick(){ return window.LevelPick?LevelPick.html("equal-groups",S.day,L):""; }
+  function playLabel(){ return S.day>1||L>1?"Level "+L+" ▶ 开始第 "+L+" 关":"Play! 开始"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; $("day").textContent=L; var b=$("play")||$("nextDay"); if(b) b.textContent=playLabel(); }); }
+  function intro(){ over('<h2>🥕 Veggie Garden</h2><p>Equal Groups Practice 相等的组</p>'+HOW+levelPick()+'<button type="button" class="go" id="play">'+playLabel()+'</button>'); wirePick(); $("play").onclick=startDay; }
   $("helpBtn").onclick=function(){ var o=document.createElement("div"); o.className="over"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go">Got it! 明白了</button>'; $("wrap").appendChild(o); o.querySelector(".go").onclick=function(){ o.remove(); }; };
   var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
   function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<16;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:32,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
   function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
   if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
   var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(fitGrid,150); });
-  drawDeco(); $("day").textContent=S.day; $("coins").textContent=S.coins;
+  drawDeco(); $("day").textContent=L; $("coins").textContent=S.coins;
   Q={type:"plant",rows:0,cols:0,who:"🐰",veg:"🥕"}; drawGrid(); $("who").textContent="🐰"; $("order").innerHTML="🥕🥕🥕"; $("task").innerHTML="🥕 Grow veggies for the animals! 给小动物种菜！"; $("tools").style.display="none";
   window.__gar={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },start:startDay};
   intro();

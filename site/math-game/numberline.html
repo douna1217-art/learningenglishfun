@@ -81,10 +81,10 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
 @media(max-height:620px){.stage{height:260px}.lineBox{height:170px}}
 </style>
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script>
 <div class="wrap" id="wrap">
   <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.3rem">🐸 Frog Hop</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
-  <div class="hud"><div><small>Flies 虫子</small><b id="flies">0/8</b></div><div><small>Day 天</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="hud"><div><small>Flies 虫子</small><b id="flies">0/8</b></div><div><small>Level 关</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
   <div class="stage" id="stage">
     <div id="decor"></div>
     <div class="petBox"><div class="pet" id="pet"></div><div class="bub" id="bub">Let's hop! 一起跳吧！</div></div>
@@ -111,13 +111,14 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   //   sub    "The fly is at 62 − 27"
   //   gap    the fly is shown at 72; hop to it, then say how far the frog hopped (47 + ? = 72)
   //   where  only the tens are labelled; what number is the fly on?
-  // Fewest hops (using 30 − 1 for 29, say) and right the first time wins a golden fly. 8 flies a day; 6 or more and the next day opens.
-  // The coins buy things for the pond. Day 2 adds subtracting, day 3 the gap and where-is-it flies, day 4 numbers to 1,000 (hops of 100 and 10).
+  // Fewest hops (using 30 − 1 for 29, say) and right the first time wins a golden fly. 8 flies a level; 6 or more opens the next level (any level opened can be played again).
+  // The coins buy things for the pond. Level 2 adds subtracting, level 3 the gap and where-is-it flies, level 4 numbers to 1,000 (hops of 100 and 10).
+  // Inside a level: the first flies are easy, a miss makes the next one easier, a run of right answers brings bigger jumps.
   var $=function(id){ return document.getElementById(id); };
   var STORE="frogHop.v1", S={day:1,coins:0,pond:{},tut:0,sound:true};
   try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
   function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
-  var GOAL=8, D=null, Q=null, busy=false, lastMiss=false;
+  var GOAL=8, D=null, Q=null, busy=false, lastMiss=false, L=S.day;   // L: the level being played (S.day: the highest level opened)
   function rnd(n){ return Math.floor(Math.random()*n); }
   // ---------- sound ----------
   var actx=null;
@@ -139,12 +140,13 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   // ---------- a fly (a question) ----------
   function opt(d){ d=Math.abs(d); var t=Math.floor(d/10), o=d%10; return Math.min(t+o, o?t+1+(10-o):t); }   // fewest hops of 10 and 1 for a distance d
   function gen(){
-    var types=["add"]; if(S.day>=2) types.push("sub"); if(S.day>=3) types.push("gap","where");
-    if(S.day>=2&&D.n<2) types=["add","sub"].slice(0,S.day>=2?2:1);
-    var t=types[rnd(types.length)], step=(S.day>=4&&Math.random()<.4)?10:1, easy=lastMiss||(S.day===1&&D.n<3), a, d;
+    var types=["add"]; if(L>=2) types.push("sub"); if(L>=3) types.push("gap","where");
+    if(L>=2&&D.n<3) types=["add","sub"];
+    var easy=lastMiss||D.n<3, hard=!easy&&D.streak>=3;
+    var t=types[rnd(types.length)], step=(L>=4&&!easy&&Math.random()<.45)?10:1, a, d;
     var q={type:t,step:step,hops:0,tries:0,path:[]};
-    if(t==="add"){ d=easy?11+rnd(12):11+rnd(36); a=3+rnd(Math.min(55,96-d)); q.start=a; q.target=a+d; }
-    else if(t==="sub"){ d=easy?11+rnd(12):11+rnd(36); a=d+3+rnd(96-d-3); q.start=a; q.target=a-d; }
+    if(t==="add"){ d=easy?11+rnd(12):hard?25+rnd(22):11+rnd(36); a=3+rnd(Math.min(55,96-d)); q.start=a; q.target=a+d; }
+    else if(t==="sub"){ d=easy?11+rnd(12):hard?25+rnd(22):11+rnd(36); a=d+3+rnd(96-d-3); q.start=a; q.target=a-d; }
     else if(t==="gap"){ d=12+rnd(easy?14:30); a=3+rnd(96-d-3); q.start=a; q.target=a+d; }
     else { do{ q.target=12+rnd(80); }while(q.target%10===0); q.start=Math.floor(q.target/10)*10-10+rnd(5); if(q.target-q.start<6) q.start-=5; }
     if(!S.tut&&D.first){ q={type:"add",step:1,hops:0,tries:0,path:[],start:20,target:32,tut:true}; }
@@ -309,7 +311,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function win(){
     Q.done=true; busy=true; eatFly();
     var hopQ=Q.type!=="where", gold=hopQ&&!Q.tries&&Q.hops<=opt(Q.target-Q.start), coins=3+(gold?2:0);
-    D.caught++; if(gold) D.gold++; D.coins+=coins; S.coins+=coins; lastMiss=false; save();
+    D.caught++; D.streak++; if(gold) D.gold++; D.coins+=coins; S.coins+=coins; lastMiss=false; save();
     tone(gold?[660,880,1100,1320]:[660,880,1100],.09);
     setTimeout(function(){ var r=$("frog").getBoundingClientRect(); burst(r.left+r.width/2,r.top); },1150);   // after the gulp
     setTimeout(function(){ var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"+(gold?" ⭐":""); fx.style.left="45%"; fx.style.top="30%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100); },1150);
@@ -320,12 +322,12 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     hud(); setTimeout(nextFly,2100);
   }
   function reveal(){
-    Q.done=true; busy=true; D.miss++; lastMiss=true; flyAway();
+    Q.done=true; busy=true; D.miss++; D.streak=0; lastMiss=true; flyAway();
     var eq=Q.type==="add"?num(Q.start)+" + "+num(Q.target-Q.start)+" = "+num(Q.target):Q.type==="sub"?num(Q.start)+" − "+num(Q.start-Q.target)+" = "+num(Q.target):Q.type==="gap"?num(Q.start)+" + "+num(Q.target-Q.start)+" = "+num(Q.target):"It was "+num(Q.target)+".";
     say("The fly got away! 虫子飞走了！<br>"+eq);
     setTimeout(nextFly,2800);
   }
-  function hud(){ $("flies").textContent=D.caught+"/"+GOAL; $("day").textContent=S.day; $("coins").textContent=S.coins; }
+  function hud(){ $("flies").textContent=D.caught+"/"+GOAL; $("day").textContent=L; $("coins").textContent=S.coins; }
   function nextFly(){
     busy=false;
     if(D.n>=GOAL) return endDay();
@@ -333,19 +335,19 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if(!Q.tut) say(Q.type==="where"?"Look at the tens! 看整十数！":Q.step===10?"Big pond! Hops of 100 and 10. 大池塘：一跳 100 或 10！":["Ready, set, hop! 预备，跳！","Find the fly! 找虫子！","Big hops first! 先跳大步！"][rnd(3)]);
   }
   function startDay(){
-    D={n:0,caught:0,gold:0,miss:0,coins:0,first:true}; lastMiss=false;
-    if(window.GameProgress) GameProgress.start("number-line","day"+S.day);
+    D={n:0,caught:0,gold:0,miss:0,coins:0,first:true,streak:0}; lastMiss=false;
+    if(window.GameProgress) GameProgress.start("number-line","day"+L);
     closeOver(); nextFly();
   }
   // ---------- the end of a day: the result, the pond shop ----------
   function endDay(){
-    var won=D.caught>=6, d=S.day;
-    if(window.GameProgress) GameProgress.report({game:"number-line",level:"day"+d,name:"Frog Hop Day "+d,won:won,stars:won?(D.miss?(D.miss<=1?2:1):3):0,correct:D.caught,total:GOAL,best:D.caught});
-    if(won){ S.day++; save(); }
+    var won=D.caught>=6, d=L;
+    if(window.GameProgress) GameProgress.report({game:"number-line",level:"day"+d,name:"Frog Hop Level "+d,won:won,stars:won?(D.miss?(D.miss<=1?2:1):3):0,correct:D.caught,total:GOAL,best:D.caught});
+    if(won){ if(L===S.day) S.day++; L++; save(); }
     tone(won?[523,659,784,1047]:[392,330,262],.2);
-    over('<h2>'+(won?"🎉 Day "+d+" done!":"Day "+d)+'</h2><p>'+(won?"今天完成啦！":"再试一次，抓到 6 只就过关！")+'</p><p style="font-size:1.3rem">🪰 '+D.caught+' / '+GOAL+' · ⭐ '+D.gold+' · +'+D.coins+' 🪙</p>'+shopHtml()+
-      '<button type="button" class="go" id="nextDay">'+(won?"Day "+S.day+" ▶ 下一天":"Try again 再来一次")+'</button>');
-    wireShop(); $("nextDay").onclick=startDay;
+    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！":"再试一次，抓到 6 只就过关！")+'</p><p style="font-size:1.3rem">🪰 '+D.caught+' / '+GOAL+' · ⭐ '+D.gold+' · +'+D.coins+' 🪙</p>'+shopHtml()+
+      levelPick()+'<button type="button" class="go" id="nextDay">'+playLabel()+'</button>');
+    wireShop(); wirePick(); $("nextDay").onclick=startDay;
   }
   function shopHtml(){
     return '<p style="margin-top:10px">🛒 Pond shop 池塘商店 · 🪙 '+S.coins+'</p><div class="shop" id="shop">'+DECOR.map(function(d){
@@ -361,9 +363,13 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function over(html){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
   function closeOver(){ var o=$("over"); if(o) o.remove(); }
   var HOW='<div class="how"><div>🐸 Tap <b>+10</b> for a big hop, <b>+1</b> for a little hop (and <b>−10</b>, <b>−1</b> to hop back).</div><div>🪰 Hop to where the fly is, then tap <b>Catch!</b></div><div>⭐ Fewest hops = a golden fly! (29 is 3 big hops and 1 hop back.)</div><div>🪙 Coins buy things for your pond.</div><div style="color:var(--muted)">点 +10 跳一大步，+1 跳一小步，−10、−1 往回跳。跳到虫子那里点“吃虫”。跳的次数最少能得到金色虫子！</div></div>';
+  // the level buttons: any level opened so far
+  function levelPick(){ return window.LevelPick?LevelPick.html("number-line",S.day,L):""; }
+  function playLabel(){ return S.day>1||L>1?"Level "+L+" ▶ 开始第 "+L+" 关":"Play! 开始"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; $("day").textContent=L; var b=$("play")||$("nextDay"); if(b) b.textContent=playLabel(); }); }
   function intro(){
-    over('<h2>🐸 Frog Hop</h2><p>Number Line Practice 数轴加减法</p>'+HOW+'<button type="button" class="go" id="play">'+(S.day>1?"Day "+S.day+" ▶ 开始":"Play! 开始")+'</button>');
-    $("play").onclick=startDay;
+    over('<h2>🐸 Frog Hop</h2><p>Number Line Practice 数轴加减法</p>'+HOW+levelPick()+'<button type="button" class="go" id="play">'+playLabel()+'</button>');
+    wirePick(); $("play").onclick=startDay;
   }
   $("helpBtn").onclick=function(){
     var o=document.createElement("div"); o.className="over"; o.id="helpOver"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go" id="okHelp">Got it! 明白了</button>';
@@ -375,7 +381,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
   if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
   var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ if(Q){ drawLine(); } },150); });
-  drawDecor(); $("day").textContent=S.day; $("coins").textContent=S.coins; $("flies").textContent="0/"+GOAL;
+  drawDecor(); $("day").textContent=L; $("coins").textContent=S.coins; $("flies").textContent="0/"+GOAL;
   Q={type:"add",step:1,start:0,target:0,pos:0,path:[],hops:0}; drawLine(); $("task").innerHTML="🐸 Hop on the number line! 在数轴上跳！";
   window.__frog={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },hop:hop,start:startDay};
   intro();
