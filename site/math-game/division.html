@@ -135,6 +135,11 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 @media(max-width:620px){.days{grid-template-columns:repeat(4,1fr);gap:8px}.day .ic{font-size:1.9rem}.day .tag{font-size:1.05rem}.day .name{font-size:.66rem}
  .counter{height:250px}.cust{font-size:3.4rem}.bubble{left:78px;font-size:.95rem}.choice{font-size:1.9rem;padding:14px 4px}.cell{font-size:.58rem}.deco{font-size:1.6rem}}
+.dealbox{display:block!important}.dealer{display:flex;align-items:center;justify-content:center;gap:14px}
+.dl{width:62px;height:62px;border-radius:50%;border:0;background:#c8613f;color:#fff;font-size:2.2rem;font-weight:900;box-shadow:0 5px 0 #8f3f25;cursor:pointer}.dl:active{transform:translateY(3px);box-shadow:0 2px 0 #8f3f25}.dl:disabled{opacity:.5}
+.dn{background:#fff;border-radius:20px;padding:6px 18px;text-align:center;min-width:120px;box-shadow:0 4px 0 #ead7c9}.dn b{display:block;font-family:Fredoka,sans-serif;font-size:2.6rem;line-height:1.05}.dn small{font-weight:800;color:var(--muted);font-size:.75rem}
+.pileNote{text-align:center;font-weight:900;margin:10px 0 0;color:var(--muted)}.pileNote.good{color:#2f9e5b}.pileNote.bad{color:#d9443b}.pileDone{font-weight:900;color:#2f9e5b}
+.serveBtn{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:13px 30px;font:inherit;font-weight:900;font-size:1.15rem;background:#2f9e5b;color:#fff;box-shadow:0 5px 0 #1f7041;cursor:pointer}.serveBtn:disabled{opacity:.5}
 </style><script src="../game-progress.js?v=20261127a"></script>
 </head>
 <body>
@@ -384,15 +389,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     for(;i<pool.length;i++){ r-=ws[i]; if(r<=0) break; }
     return pool[Math.min(i,pool.length-1)].slice();
   }
-  function choicesFor(a,b){
-    var q=a/b, seen={}, out=[q]; seen[q]=1;
-    var cand=[q+1,q-1,q+2,q-2,b,a-b,Math.round(a/(b+1)),Math.round(a/Math.max(1,b-1)),q*2];
-    cand.sort(function(){return Math.random()-.5;});
-    cand.forEach(function(v){ if(out.length<4&&v>0&&v<=81&&!seen[v]){ seen[v]=1; out.push(v); } });
-    while(out.length<4){ var v=1+Math.floor(Math.random()*12); if(!seen[v]){ seen[v]=1; out.push(v); } }
-    return out.sort(function(){return Math.random()-.5;});
-  }
 
+  window.__div={cur:function(){ return S&&S.f; }};   // for the browser tests
   function startDay(D){
     if(window.GameProgress) GameProgress.start(GID,D.id);
     var pool=buildPool(D); if(!pool.length) return;
@@ -427,11 +425,13 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     $("plates").innerHTML=pl;
     $("question").innerHTML=a+" ÷ "+b+' = <span class="ans">?</span>';
     $("qWords").textContent=sayFact(a,b);
-    var box=$("choices"); box.innerHTML="";
-    choicesFor(a,b).forEach(function(v){
-      var bt=document.createElement("button"); bt.type="button"; bt.className="choice"; bt.textContent=v; bt.dataset.v=v;
-      bt.onclick=function(){ answer(bt); }; box.appendChild(bt);
-    });
+    // hands-on: choose how many go on each plate; the plates fill and the pile shrinks as you go, and the plates are served when the pile is empty
+    var box=$("choices"); box.innerHTML='<div class="dealer"><button type="button" class="dl" id="dMinus">−</button><div class="dn"><b id="dN">0</b><small>on each plate 每盘几个</small></div><button type="button" class="dl" id="dPlus">+</button></div>'+
+      '<div class="pileNote" id="pileNote"></div><button type="button" class="serveBtn" id="serveBtn">🍽️ Serve 上菜</button>';
+    box.className="choices dealbox"; S.n=0; deal();
+    $("dPlus").onclick=function(){ if(S.locked||S.n>=12) return; S.n++; SFX.pop?SFX.pop():SFX.ding(); deal(); };
+    $("dMinus").onclick=function(){ if(S.locked||S.n<=0) return; S.n--; SFX.pop?SFX.pop():SFX.ding(); deal(); };
+    $("serveBtn").onclick=function(){ answer(S.n); };
     S.t0=performance.now(); tick();
   }
   function tick(){
@@ -443,6 +443,15 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       if(left<=0){ answer(null); return; }
       raf=requestAnimationFrame(loop);
     })();
+  }
+  function deal(){
+    var a=S.f[0], b=S.f[1], n=S.n, left=a-b*n, dn=$("dN"); if(dn) dn.textContent=n;
+    $("pile").innerHTML=left>0?treatGrid(S.tr[0],left,left>40?12:left>20?10:9):left===0?'<span class="pileDone">✨ empty</span>':'';
+    var pl=""; for(var i=0;i<b;i++) pl+='<div class="plate'+(n?" full":"")+'"><div class="t" style="font-size:'+(n>6?".85rem":"1.05rem")+'">'+(n?treatGrid(S.tr[0],n,n>4?Math.ceil(n/2):n):"&nbsp;")+'</div></div>';
+    $("plates").innerHTML=pl;
+    var note=$("pileNote");
+    note.className="pileNote"+(left<0?" bad":left===0?" good":"");
+    note.textContent=left>0?left+" left in the pile 还剩 "+left+" 个":left===0?"The pile is empty! 正好分完":"Not enough! "+(-left)+" more needed 不够分了";
   }
   function share(){
     // the treats move from the pile onto the plates, the same number on each
@@ -480,7 +489,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   function say(text,cls){ var m=$("msg"); m.className="msg "+cls; void m.offsetWidth; m.textContent=text; m.classList.add("pop"); }
   function later(fn,ms){ clearTimeout(pending); pending=setTimeout(fn,ms); }
 
-  function answer(btn){
+  function answer(v){   // v: how many on each plate (null when the customer ran out of patience)
     if(!S||S.locked) return; S.locked=true; cancelAnimationFrame(raf);
     var a=S.f[0], b=S.f[1], q=a/b, k=key(a,b), f=fact(k), ms=performance.now()-S.t0;
     [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(+x.dataset.v===q) x.classList.add("right"); });
@@ -489,9 +498,10 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     share();
     var c=$("cust");
     S.left--;
-    if(btn&&+btn.dataset.v===q){
+    [].forEach.call(document.querySelectorAll("#choices button"),function(x){ x.disabled=true; });
+    if(v===q){
       f.ok++; S.correct++; S.streak++; S.best=Math.max(S.best,S.streak);
-      var fast=ms<4000, gain=fast?2:1;
+      var fast=ms<6000, gain=fast?2:1;
       S.coins+=gain; $("sCoins").textContent=S.coins;
       c.className="cust happy";
       $("bubble").innerHTML=THANKS[Math.floor(Math.random()*THANKS.length)]+" "+q+" on each plate. "+(fast?"Here is a tip! 🪙🪙":"🪙");
@@ -499,18 +509,17 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
       if(S.streak>=3) say("🔥 "+S.streak+" happy customers in a row!","combo");
       else say(fast?"⚡ Super fast! You got a tip!":["Great job!","Nice sharing!","You got it!","Awesome!"][Math.floor(Math.random()*4)],"good");
     }else{
-      if(btn) btn.classList.add("wrong");
       f.miss++; S.streak=0; S.miss[k]=1;
       S.pool.push([a,b],[a,b]);   // a missed fact comes back soon
       c.className="cust sad";
       $("bubble").innerHTML="Hmm… "+a+" shared on "+b+" plates is <b>"+q+"</b> on each plate.";
       SFX.oops();
       if(S.hearts!==Infinity) S.hearts--;
-      say((btn?"Oops! ":"Too slow! ")+a+" ÷ "+b+" = "+q,"bad");
+      say((v==null?"Too slow! ":v*b>a?"Not enough treats! ":"Treats were left over! ")+a+" ÷ "+b+" = "+q,"bad");
     }
     save(); renderHearts();
     var cont=S.hearts<=0?function(){ finish(false); }:S.left<=0?function(){ SFX.win(); finish(true); }:nextGuest;
-    if(btn&&+btn.dataset.v===q) later(cont,1500); else teachShow(teachDiv(a,b),cont);
+    if(v===q) later(cont,1500); else teachShow(teachDiv(a,b),cont);
   }
 
   function finish(won){
@@ -543,8 +552,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   $("againBtn").onclick=function(){ var D=S.D; if(D===KITCHEN&&!missList().length){ quit(); return; } startDay(D); };
   document.addEventListener("keydown",function(e){
     if($("serve").hidden) return;
-    var i="1234".indexOf(e.key); if(i<0) return;
-    var b=document.querySelectorAll(".choice")[i]; if(b&&!b.disabled) b.click();
+    var id=(e.key==="ArrowUp"||e.key==="+"||e.key==="=")?"dPlus":(e.key==="ArrowDown"||e.key==="-")?"dMinus":e.key==="Enter"?"serveBtn":null;   // ↑ ↓ to choose, Enter to serve
+    var b=id&&document.getElementById(id); if(b&&!b.disabled){ e.preventDefault(); b.click(); }
   });
 
   // ---------- confetti ----------
