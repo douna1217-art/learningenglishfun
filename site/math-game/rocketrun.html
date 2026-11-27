@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rocket Run</title>
+<meta name="theme-color" content="#1b1f4a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Rocket Run: steer your rocket into the space rock with the right answer. Make ten, add and take away tens and ones, doubles and halves. Grade 2 adding and subtracting in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#1f2347;--muted:#9aa3d6;--brand:#3a4fa8}
+*{box-sizing:border-box}html,body{margin:0;height:100%}body{background:#0f1230;color:#fff;font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;overflow:hidden}
+.wrap{max-width:min(520px,calc((100vh - 20px) * .62));margin:0 auto;height:100vh;display:flex;flex-direction:column;padding:8px 10px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:6px}.tbtn{background:rgba(255,255,255,.12);border:0;border-radius:12px;padding:7px 11px;font:inherit;font-weight:900;color:#fff;text-decoration:none;cursor:pointer}
+.hud{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:6px 0}.hud div{background:rgba(255,255,255,.1);border-radius:12px;text-align:center;padding:3px}.hud small{display:block;font-weight:800;color:var(--muted);font-size:.65rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.15rem}
+.fuel{height:12px;border-radius:7px;background:rgba(255,255,255,.15);overflow:hidden}.fuel i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff7a8a,#f5b301,#7cc47f);transition:width .2s}
+.q{margin:6px 0;background:#fff;color:var(--ink);border-radius:16px;text-align:center;padding:6px 8px;font-family:Fredoka,sans-serif;font-size:1.7rem;font-weight:700;position:relative}.q small{display:block;font-family:Nunito,sans-serif;font-size:.75rem;font-weight:800;color:#626a99}
+.zone{position:absolute;left:8px;top:-9px;background:#f5b301;color:#3b2a00;border-radius:999px;padding:1px 9px;font-family:Nunito,sans-serif;font-size:.7rem;font-weight:900}
+.sky{position:relative;flex:1;border-radius:20px;overflow:hidden;background:radial-gradient(circle at 50% 120%,#3a4fa8 0,#1b1f4a 55%,#0b0d24 100%);touch-action:none;min-height:240px}
+.stars{position:absolute;inset:-100% 0 0 0;background-image:radial-gradient(1.5px 1.5px at 20% 30%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 70% 60%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 40% 80%,#cfd8ff 50%,transparent 51%),radial-gradient(1px 1px at 85% 15%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 10% 70%,#fff 50%,transparent 51%);background-size:120px 120px;animation:fly 6s linear infinite}
+@keyframes fly{to{transform:translateY(50%)}}.lane{position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.07)}
+.rock{position:absolute;width:30%;aspect-ratio:1;max-width:110px;display:flex;align-items:center;justify-content:center;transform:translate(-50%,-50%);border-radius:46% 54% 50% 50%;background:radial-gradient(circle at 35% 30%,#a9a4c8,#6d6894 60%,#4a4570);box-shadow:inset -6px -8px 0 rgba(0,0,0,.25);font-family:Fredoka,sans-serif;font-weight:700;font-size:clamp(1.4rem,6vw,2.1rem);color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.rock.good{background:radial-gradient(circle at 35% 30%,#bff0c2,#4f9a53)}.rock.bad{background:radial-gradient(circle at 35% 30%,#ffb3ba,#c8414e)}.rock.glow{box-shadow:0 0 0 5px #ffe36e,inset -6px -8px 0 rgba(0,0,0,.25);animation:pulse .8s infinite}@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.08)}}
+.ship{position:absolute;bottom:4%;width:30%;max-width:110px;text-align:center;transform:translateX(-50%);transition:left .15s ease-out;font-size:clamp(2.4rem,10vw,3.6rem);line-height:1}.ship .r{display:inline-block;transform:rotate(-45deg)}.ship .pilot{position:absolute;left:78%;bottom:2px;width:32px;height:32px}.ship .pilot svg{overflow:hidden}
+.ship.hit{animation:shake .4s}@keyframes shake{25%{transform:translateX(-60%)}75%{transform:translateX(-40%)}}
+.flame{position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);font-size:1.2rem;animation:fl .2s infinite alternate}@keyframes fl{to{transform:translateX(-50%) scaleY(1.3)}}
+.ctrl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px}.ctrl button{border:0;border-radius:14px;padding:12px 0;font-size:1.4rem;font-weight:900;background:rgba(255,255,255,.14);color:#fff;cursor:pointer}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;pointer-events:none;animation:up 1s forwards;transform:translateX(-50%)}@keyframes up{to{margin-top:-50px;opacity:0}}
+.over{position:absolute;inset:0;background:rgba(11,13,36,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px;z-index:5;overflow:auto}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.8rem}.over p{margin:4px 0;font-weight:800}.big{font-family:Fredoka,sans-serif;font-size:2.4rem}
+.go{border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin:10px 4px 0}.go.light{background:#fff;color:var(--ink);box-shadow:0 5px 0 #9aa3d6}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.88rem;text-align:left;max-width:320px;margin-top:6px}.how div{margin:3px 0}
+.skins{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px}.skin{background:rgba(255,255,255,.12);border:2px solid transparent;border-radius:14px;padding:4px 8px;font-size:1.6rem;cursor:pointer;color:#fff;font:inherit}.skin.on{border-color:#f5b301}.skin small{display:block;font-size:.6rem;font-weight:800;color:var(--muted)}.skin:disabled{opacity:.4;cursor:default}
+.prz{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;max-width:330px}.pz{background:#fff;color:var(--ink);border:0;border-radius:14px;padding:6px;font:inherit;font-weight:900;font-size:.8rem;cursor:pointer}.pz span{display:block;width:60px;height:40px;margin:0 auto}.pz span svg{width:100%;height:100%}.pz:disabled{opacity:.45}.pz.own{background:#e3f6e8}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script>
+<div class="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.15rem">🚀 Rocket Run</b><span><button class="tbtn" type="button" id="helpBtn">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Distance 距离</small><b id="dist">0</b></div><div><small>Stars 星星</small><b id="starN">0</b></div><div><small>Best 最远</small><b id="best">0</b></div></div>
+  <div class="fuel"><i id="fuel"></i></div>
+  <div class="q" id="q"><span class="zone" id="zone">Make Ten</span><span id="qt">Ready?</span><small id="qs">Steer into the rock with the answer! 撞向写着答案的陨石</small></div>
+  <div class="sky" id="sky"><div class="stars"></div><div class="lane" style="left:33.3%"></div><div class="lane" style="left:66.6%"></div><div class="ship" id="ship"><span class="r" id="skinE">🚀</span><span class="flame">🔥</span></div></div>
+  <div class="ctrl"><button type="button" data-l="0" aria-label="Left lane">◀</button><button type="button" data-l="1" aria-label="Middle lane">●</button><button type="button" data-l="2" aria-label="Right lane">▶</button></div>
+</div>
+<script>
+(function(){
+  "use strict";
+  // Rocket Run: the rocket flies up through space in 3 lanes. Each row of 3 space rocks carries 3 numbers; the question is at the top
+  // (8 + 5, 37 + 10, double 7 …). Steer into the rock with the right answer before the row reaches the rocket: right = fuel and a star,
+  // wrong = a lot less fuel. Fuel also burns as you fly; when it runs out the run is over. The rocks come faster and faster, and the
+  // questions change zone every 6 rows (make ten, tens and ones, doubles and halves, bigger tens). Every row has a rock in every lane, so
+  // every row is answered. The first run waits on the first row until the rocket is in the right lane.
+  var $=function(id){ return document.getElementById(id); };
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function pick(a){ return a[rnd(a.length)]; }
+  var STORE="rocketRun.v1", S={best:0,stars:0,skin:"🚀",tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  $("best").textContent=S.best;
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").textContent=S.sound?"🔔":"🔕"; $("soundBtn").onclick=function(){ S.sound=!S.sound; save(); $("soundBtn").textContent=S.sound?"🔔":"🔕"; };
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var pet=window.MathPet?MathPet.get():null;
+  // ---------- rocket skins: unlocked by the best distance ----------
+  var SKINS=[["🚀",0],["🛸",300],["🛰️",600],["🦄",1000],["🐉",1500]];
+  function setSkin(){ $("skinE").textContent=S.skin; $("skinE").className=S.skin==="🚀"?"r":""; var sh=$("ship"); var pl=sh.querySelector(".pilot"); if(pl) pl.remove(); if(pet){ var d=document.createElement("span"); d.className="pilot"; d.innerHTML=MathPet.pic(pet,"happy",34); sh.appendChild(d); } }
+  setSkin();
+  // ---------- the questions ----------
+  var ZONES=[["Make Ten","凑十法"],["Tens & Ones","加减十和一"],["Doubles & Halves","加倍和减半"],["Big Tens","整十加减"],["Hundreds","整百加减"]];
+  function question(z){
+    var a,b,ans,txt,cn;
+    if(z===0){ a=6+rnd(4); b=2+rnd(8); while(a+b<=10) b++; if(Math.random()<.5){ var t=a; a=b; b=t; } ans=a+b; txt=a+" + "+b; cn="先凑十：想 10 + ?";
+      if(Math.random()<.3){ a=1+rnd(9); ans=10-a; txt=a+" + ? = 10"; cn="几加几等于 10"; } }
+    else if(z===1){ a=12+rnd(80); var k=pick([10,-10,1,-1,10,10]); if(a+k<1) k=10; ans=a+k; txt=a+(k>0?" + ":" − ")+Math.abs(k); cn=Math.abs(k)===10?"只有十位变":"只有个位变";
+      if(Math.random()<.35){ b=11+rnd(30); a=10+rnd(99-b-10); ans=a+b; txt=a+" + "+b; cn="先加十，再加一"; } }
+    else if(z===2){ if(Math.random()<.55){ a=2+rnd(11); ans=a*2; txt="double "+a; cn=a+" + "+a; } else { a=2+rnd(10); ans=a; txt="half of "+(a*2); cn="一半：两份一样多"; } }
+    else if(z===4){ // within 1000: hundreds, and adding 100 or 10 to a three-digit number
+      if(Math.random()<.5){ a=(1+rnd(7))*100; b=(1+rnd(9-a/100))*100; if(Math.random()<.4){ txt=(a+b)+" − "+b; ans=a; } else { txt=a+" + "+b; ans=a+b; } cn="几个百加几个百"; }
+      else { a=101+rnd(780); b=pick([100,10,100]); ans=a+b; txt=a+" + "+b; cn=b===100?"只有百位变":"只有十位变"; } }
+    else { a=(1+rnd(8))*10; b=(1+rnd(9-a/10))*10; if(Math.random()<.4&&a>b){ ans=a-b; txt=a+" − "+b; } else { ans=a+b; txt=a+" + "+b; } cn="几个十加几个十"; }
+    var wrong={}, list=[ans];
+    (ans>=100?[ans+100,ans-100,ans+10,ans-10,ans+1]:[ans+1,ans-1,ans+10,ans-10,ans+2,ans-2]).forEach(function(v){ if(list.length<3&&v>=0&&v!==ans&&!wrong[v]&&Math.random()<.7){ wrong[v]=1; list.push(v); } });
+    while(list.length<3){ var v=ans+1+rnd(9); if(list.indexOf(v)<0) list.push(v); }
+    for(var i=list.length-1;i>0;i--){ var j=rnd(i+1), t2=list[i]; list[i]=list[j]; list[j]=t2; }
+    return {txt:txt,cn:cn,ans:ans,opts:list};
+  }
+  // ---------- the run ----------
+  var R=null, raf=0, last=0;
+  function laneX(l){ return (l*33.33+16.66)+"%"; }
+  function startRun(){
+    closeOver();
+    R={lane:1,fuel:100,dist:0,stars:0,rows:0,zone:0,row:null,speed:22,tut:!S.tut,over:false,streak:0};
+    $("ship").style.left=laneX(1);
+    nextRow(); last=0; cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
+    if(window.GameProgress) GameProgress.start("add-subtract","run");
+  }
+  function nextRow(){
+    if(R.rows>0&&R.rows%6===0) R.zone=(R.zone+1)%ZONES.length;
+    var q=question(R.zone); R.rows++;
+    $("zone").textContent=ZONES[R.zone][0]+" · "+ZONES[R.zone][1];
+    $("qt").textContent=q.txt+(q.txt.indexOf("=")<0?" = ?":""); $("qs").textContent=R.tut?"👆 Move to the rock with the answer! 移到写着答案的陨石":q.cn;
+    [].forEach.call(document.querySelectorAll(".rock"),function(r){ r.remove(); });
+    R.row={q:q,y:-10,els:q.opts.map(function(v,i){ var d=document.createElement("div"); d.className="rock"; d.textContent=v; d.style.left=laneX(i); d.style.top="-10%"; $("sky").appendChild(d); return d; })};
+    if(R.tut) R.row.els[q.opts.indexOf(q.ans)].classList.add("glow");
+  }
+  function loop(t){
+    if(!R||R.over) return;
+    if(!last) last=t; var dt=Math.min(.05,(t-last)/1000); last=t;
+    if(!R.paused){
+      var row=R.row, sp=R.speed;
+      if(R.tut&&row.y>=45&&R.lane!==row.q.opts.indexOf(row.q.ans)) sp=0;   // the first row waits until the rocket is in the right lane
+      row.y+=sp*dt; row.els.forEach(function(e){ e.style.top=row.y+"%"; });
+      if(!R.tut){ R.fuel-=dt*2.2; R.dist+=dt*(R.speed/2); }
+      if(row.y>=82) hit();
+      $("fuel").style.width=Math.max(0,R.fuel)+"%"; $("dist").textContent=Math.floor(R.dist);
+      if(R.fuel<=0) return gameOver();
+    }
+    raf=requestAnimationFrame(loop);
+  }
+  function hit(){
+    var row=R.row, v=row.q.opts[R.lane], ok=v===row.q.ans, el=row.els[R.lane];
+    el.classList.add(ok?"good":"bad"); row.els[row.q.opts.indexOf(row.q.ans)].classList.add("good");
+    var f=document.createElement("span"); f.className="float"; f.style.left=laneX(R.lane); f.style.top="70%";
+    if(ok){ R.fuel=Math.min(100,R.fuel+14); R.stars++; R.streak++; f.textContent="⭐ +1"; f.style.color="#ffe36e"; tone([660,880,1100],.08);
+      R.speed=Math.min(60,R.speed+1.1);
+      if(R.streak%5===0){ R.fuel=Math.min(100,R.fuel+10); f.textContent="🔥 "+R.streak+" in a row!"; } }
+    else{ R.fuel-=24; R.streak=0; f.textContent=row.q.txt.replace(" = ?","")+(row.q.txt.indexOf("=")<0?" = ":" → ")+row.q.ans; f.style.color="#ffb3ba"; tone([220,160],.15,"sawtooth"); var sh=$("ship"); sh.classList.remove("hit"); void sh.offsetWidth; sh.classList.add("hit"); }
+    $("sky").appendChild(f); setTimeout(function(){ f.remove(); },1000);
+    $("starN").textContent=R.stars;
+    if(R.tut){ R.tut=false; S.tut=1; save(); }
+    R.paused=true; setTimeout(function(){ if(!R||R.over) return; R.paused=false; nextRow(); },ok?350:900);
+  }
+  function move(l){ if(!R||R.over) return; R.lane=Math.max(0,Math.min(2,l)); $("ship").style.left=laneX(R.lane); tone([440],.03,"sine"); }
+  document.querySelector(".ctrl").addEventListener("click",function(e){ var b=e.target.closest?e.target.closest("button"):null; if(b) move(+b.dataset.l); });
+  $("sky").addEventListener("pointerdown",function(e){ var r=$("sky").getBoundingClientRect(); move(Math.floor((e.clientX-r.left)/r.width*3)); });
+  document.addEventListener("keydown",function(e){ if(!R) return; if(e.key==="ArrowLeft") move(R.lane-1); else if(e.key==="ArrowRight") move(R.lane+1); });
+  function gameOver(){
+    R.over=true; cancelAnimationFrame(raf);
+    var d=Math.floor(R.dist), nb=d>S.best; if(nb) S.best=d; S.stars+=R.stars; save(); $("best").textContent=S.best;
+    if(pet&&R.stars) MathPet.feed(Math.min(10,R.stars));
+    if(window.GameProgress) GameProgress.report({game:"add-subtract",level:"run",name:"Rocket Run",won:R.stars>=8,stars:R.stars>=20?3:R.stars>=14?2:R.stars>=8?1:0,correct:R.stars,total:R.rows,best:R.stars});
+    tone([392,330,262],.25,"sine");
+    var next=SKINS.filter(function(s){ return s[1]>S.best; })[0];
+    over('<h2>'+(nb?"🏆 New record!":"⛽ Out of fuel!")+'</h2><p>'+(nb?"新纪录！":"燃料用完了！")+'</p><div class="big">'+d+' km</div><p>⭐ '+R.stars+' stars this run · 本次 '+R.stars+' 颗星</p>'+(next?'<p>Fly '+next[1]+' km to unlock '+next[0]+'! 飞到 '+next[1]+' 解锁新飞船</p>':'')+
+      '<div><button type="button" class="go light" id="hangar">🛠️ Hangar 机库</button><button type="button" class="go" id="again">Fly again 再飞一次</button></div>');
+    $("again").onclick=startRun; $("hangar").onclick=hangar;
+  }
+  // the hangar: rocket skins (by best distance) and the pet's space prizes (bought with stars)
+  var PRICE={"gp-antenna":15,"gp-visor":25,"gp-starscarf":35,"gp-planethat":50};
+  function hangar(){
+    var pz=(window.GamePrizes?GamePrizes.forGame("rocket"):[]).filter(function(p){ return PRICE[p.id]&&window.ITEMS&&window.ITEMS[p.id]; });
+    over('<h2>🛠️ Hangar 机库</h2><p>⭐ '+S.stars+' stars · Best '+S.best+' km</p><div class="skins">'+SKINS.map(function(s){ var got=S.best>=s[1]; return '<button type="button" class="skin'+(S.skin===s[0]?" on":"")+'" data-s="'+s[0]+'"'+(got?"":" disabled")+'>'+s[0]+'<small>'+(got?"✓":s[1]+" km")+'</small></button>'; }).join("")+'</div>'+
+      (pz.length?'<p style="margin-top:10px">🎁 Prizes for your pet 宠物奖品</p><div class="prz">'+pz.map(function(p){ var own=GamePrizes.won(p.id); return '<button type="button" class="pz'+(own?" own":"")+'" data-p="'+p.id+'"'+(!own&&S.stars<PRICE[p.id]?" disabled":"")+'><span>'+GamePrizes.thumb(p.id)+'</span>'+p.name+'<br>'+(own?(MathPet.wearing(p.id)?"✓ Wearing":"Tap to wear"):"⭐ "+PRICE[p.id])+'</button>'; }).join("")+'</div>':'')+
+      '<div><button type="button" class="go" id="again">Fly! 起飞</button></div>');
+    [].forEach.call(document.querySelectorAll(".skin"),function(b){ b.onclick=function(){ S.skin=b.dataset.s; save(); setSkin(); hangar(); }; });
+    [].forEach.call(document.querySelectorAll(".pz"),function(b){ b.onclick=function(){ var id=b.dataset.p;
+      if(GamePrizes.won(id)){ if(MathPet.get()) MathPet.wear(id); }
+      else { if(S.stars<PRICE[id]) return; S.stars-=PRICE[id]; save(); GamePrizes.win(id); if(MathPet.get()) MathPet.wear(id); tone([659,880,1047],.12); }
+      pet=MathPet.get(); setSkin(); hangar(); }; });
+    $("again").onclick=startRun;
+  }
+  function over(h){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=h; $("sky").appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  function help(first){
+    if(R&&!R.over) R.paused=true;
+    over('<h2>🚀 Rocket Run</h2><div class="how"><div>❓ Read the question at the top: 8 + 5, double 7 …</div><div>👈👉 Move your rocket into the rock with the <b>answer</b> (tap a lane, or ◀ ● ▶).</div><div>⛽ Right = fuel and a star. Wrong = less fuel. Fly as far as you can!</div><div style="color:#626a99">看上面的题，把火箭移到写着答案的陨石那条道。答对加燃料和星星，答错掉燃料，看你能飞多远！</div></div>'+
+      '<div><button type="button" class="go light" id="hangar">🛠️ Hangar 机库</button><button type="button" class="go" id="again">'+(first?"Fly! 起飞":"Back 继续")+'</button></div>');
+    $("hangar").onclick=hangar;
+    $("again").onclick=function(){ if(first||!R||R.over) startRun(); else { closeOver(); R.paused=false; } };
+  }
+  $("helpBtn").onclick=function(){ help(!R||R.over); };
+  window.__run={state:function(){ return R; },move:move};
+  help(true);
+})();
+</script>
+</body></html>

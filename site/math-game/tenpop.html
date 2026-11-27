@@ -155,7 +155,8 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     playing=false; cancelAnimationFrame(raf);
     var nb=score>best; if(nb){ best=score; $("best").textContent=best; } save();
     tone([392,330,262],.25,"sine");
-    try{ if(window.parent&&window.parent!==window&&window.parent.__trackEvent) window.parent.__trackEvent("game_level_end",{game:"ten-pop",level:"endless",won:false,score:score,pops:popped,level_reached:level}); }catch(e){}
+    // the end of a game: the site's log, today's bonus game (8 pops or more counts as a win) and the crowns
+    if(window.GameProgress) GameProgress.report({game:"ten-pop",level:"endless",name:"Ten Pop",won:popped>=8,stars:popped>=25?3:popped>=15?2:popped>=8?1:0,correct:popped,total:popped,best:popped});
     if(pet&&popped) MathPet.feed(Math.min(10,popped));
     draw();
     var o=document.createElement("div"); o.className="over";
