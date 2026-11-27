@@ -96,7 +96,6 @@
     for(var v=0;v<=top;v+=d.k){ var y=y0-v/top*H; s+='<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+W-10)+'" y2="'+y+'" stroke="#d7ecea" stroke-width="1.5"/><text x="'+(x0-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="12" font-weight="800" fill="#1f4a47">'+v+'</text>'; }
     s+='<line x1="'+x0+'" y1="'+(y0-H-4)+'" x2="'+x0+'" y2="'+y0+'" stroke="#1f4a47" stroke-width="2"/><line x1="'+x0+'" y1="'+y0+'" x2="'+(x0+W-10)+'" y2="'+y0+'" stroke="#1f4a47" stroke-width="2"/>';
     d.a.forEach(function(ai,i){ var bw=44, x=x0+18+i*76, bh=vals[i]/top*H;
-      if(o.hide===i&&!vals[i]) s+='<rect x="'+x+'" y="'+(y0-H)+'" width="'+bw+'" height="'+H+'" rx="5" fill="none" stroke="#b9d6d3" stroke-width="2" stroke-dasharray="6 5"/>';
       s+='<rect x="'+x+'" y="'+(y0-bh)+'" width="'+bw+'" height="'+bh+'" rx="5" fill="'+(o.hl===i?"#f5b301":BARC[i])+'"/>';
       if(o.ghost&&o.ghost.i===i&&o.ghost.add>0){ var gh=o.ghost.add/top*H; s+='<rect x="'+x+'" y="'+(y0-bh-gh)+'" width="'+bw+'" height="'+gh+'" rx="5" fill="'+BARC[i]+'" fill-opacity=".35" stroke="'+BARC[i]+'" stroke-width="3" stroke-dasharray="6 4"/>'; }
       if(o.handle===i){ var ty=y0-bh, gy=ty-24;   // a dashed guide from the top of the bar to the scale, and a small grip above the bar (it never hides the top)
@@ -113,13 +112,13 @@
   // Picture Graphs: draw the paws of one row
   function drawPaws(q,ui){
     var ai=q.a[q.ask], n=0;
-    ui.task("News: the <b>"+emo(ai)+" "+name(ai)+"</b> got <b>"+q.v[q.ask]+" votes</b>. Draw their row! <small>画出这一行的 🐾</small>");
+    ui.task("News: the <b>"+emo(ai)+" "+name(ai)+"</b> got <b>"+q.v[q.ask]+" votes</b>. Draw their row! <small>画出这一行的 🐾 · tap a 🐾 to take it away 点 🐾 可以去掉</small>");
     var f=ui.stage('<div><div id="pg"></div>'+goBtn("Print it ✓","完成")+'</div>').firstElementChild;   // listeners on a new element each question
     function draw(){
       var h='<div class="pg"><div class="pgT">Our favorite zoo animals</div>';
       q.a.forEach(function(a,r){
         var row=r===q.ask, k=row?n:q.v[r]/q.k, ic=""; for(var i=0;i<k;i++) ic+=row?'<button type="button" class="paw" data-i="'+i+'" aria-label="Take away a paw">🐾</button>':"🐾";
-        h+='<div class="pgR'+(row?" me":"")+'"><span class="pgN">'+emo(a)+" "+name(a)+'</span><span class="pgI">'+ic+(row&&k<12?'<button type="button" class="add" aria-label="Add a paw">＋🐾</button>':"")+'</span></div>';
+        h+='<div class="pgR'+(row?" me":"")+'"><span class="pgN">'+emo(a)+" "+name(a)+'</span><span class="pgI">'+ic+(row&&k<12?'<button type="button" class="add" aria-label="Add a paw">＋ Add <small>加一个</small></button>':"")+(row&&!k?'<span class="none">none yet</span>':"")+'</span></div>';
       });
       f.querySelector("#pg").innerHTML=h+'<div class="pgK">Key: each 🐾 = '+q.k+' votes</div></div>';
     }
@@ -312,7 +311,7 @@
       '.go{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.8}.go:disabled{opacity:.45}'+
       '.pg{max-width:440px;margin:8px auto 0;border:3px solid #2f8f8a;border-radius:16px;overflow:hidden;background:#fff}.pgT{background:#2f8f8a;color:#fff;font-weight:900;padding:6px 10px;text-align:center}'+
       '.pgR{display:flex;align-items:center;gap:8px;padding:6px 10px;border-top:1px solid #d7ecea;min-height:44px}.pgR.me{background:#fff6cc}.pgN{width:92px;flex:none;font-weight:900;font-size:.9rem}.pgI{font-size:1.25rem;letter-spacing:2px;display:flex;flex-wrap:wrap;gap:2px;align-items:center}'+
-      '.pgI .paw{border:0;background:none;font-size:1.35rem;padding:2px;cursor:pointer;animation:pop .3s}.pgI .add{border:2px dashed #2f8f8a;background:#eef8f7;border-radius:12px;font:inherit;font-weight:900;font-size:.95rem;padding:4px 8px;cursor:pointer;color:#1f4a47;letter-spacing:0}'+
+      '.pgI .paw{border:0;background:none;font-size:1.35rem;padding:2px;cursor:pointer;animation:pop .3s}.pgI .add{border:0;background:#2f8f8a;border-radius:999px;font:inherit;font-weight:900;font-size:.9rem;padding:6px 12px;cursor:pointer;color:#fff;letter-spacing:0;box-shadow:0 3px 0 #1f6662;margin-left:4px}.pgI .add small{font-weight:800;opacity:.85}.pgI .none{font-size:.8rem;font-weight:800;color:var(--muted);letter-spacing:0;order:-1;margin-right:4px}'+
       '.pgK{border-top:2px solid #2f8f8a;padding:6px 10px;font-weight:900;text-align:center;background:#eef8f7}.keySlot .hole{display:inline-block;min-width:44px;border:3px dashed #2f8f8a;border-radius:10px;padding:0 8px;background:#fff}.keySlot .hole.in{border-style:solid}.keySlot .hole.fix{border-color:#2f9e5b;color:#1f6b3a}'+
       '.cards{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:10px}.card{border:3px solid #d7ecea;background:#fff;border-radius:16px;padding:6px 10px;font-size:2rem;line-height:1.1;cursor:pointer;min-width:76px;font-family:inherit}.card small{display:block;font-size:.75rem;font-weight:800;color:var(--muted)}.card.used{opacity:.35}'+
       '.podium{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}.spot{background:#eef8f7;border-radius:14px;text-align:center;padding:6px 2px}.spot .em{font-size:1.9rem;display:block;line-height:1.2}.spot .em.empty{opacity:.3}.spot b{font-size:.8rem;color:var(--muted)}'+
