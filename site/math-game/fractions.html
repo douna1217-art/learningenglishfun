@@ -79,6 +79,11 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .task{font-weight:900;font-size:1.1rem;text-align:center;min-height:1.6em;line-height:1.4}
 .task .fr{font-size:1.5em}
 .nl{position:relative;height:118px;margin:4px 14px 0}
+.fbar{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px}.fb{border:0;border-radius:999px;padding:11px 16px;font:inherit;font-weight:900;font-size:1rem;background:#fff;box-shadow:0 4px 0 #cfe3d2;cursor:pointer;color:var(--ink)}
+.fb.big{background:#5cb85c;color:#fff;box-shadow:0 4px 0 #3d8b3d;font-size:1.15rem}.fb.go{background:var(--good,#2f9e5b);color:#fff;box-shadow:0 4px 0 #1f7041}.fb:disabled{opacity:.45;cursor:default}.fb.trophy{font-size:1.1rem}
+.fcard{display:flex;flex-direction:column;align-items:center;margin:4px auto 0;background:#fff;border-radius:18px;padding:6px 18px;width:max-content;box-shadow:0 4px 0 #cfe3d2}
+.fw{display:flex;flex-direction:column;align-items:center}.fw b{font-family:Fredoka,sans-serif;font-size:2.2rem;line-height:1.05}.fw button{border:0;background:none;color:#3d8b3d;font-size:1.1rem;padding:0 18px;cursor:pointer}.fw small{font-weight:800;color:var(--muted);font-size:.7rem;text-align:center;max-width:170px}
+.fline{width:70px;border-top:4px solid var(--ink);margin:4px 0}.rl{font-weight:900;margin:6px 0 0 6px}.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}
 .nl.small{height:96px}
 .nl .axis{position:absolute;left:0;right:0;top:70px;height:5px;border-radius:3px;background:#2e5a4a}
 .nl.small .axis{top:56px}
@@ -402,6 +407,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   // ---------- playing ----------
   var G=null, pending=0;
+  window.__frac={cur:function(){ return G&&G.q; }};   // for the browser tests
   function start(P){
     if(window.GameProgress) GameProgress.start(GID,P.id);
     var pool=null;
@@ -449,35 +455,64 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     G.locked=false; var q=G.q=makeQ(); G.t0=Date.now();
     $("msg").textContent=""; $("msg").className="msg"; $("words").textContent=""; $("hint").textContent="";
     var lines=$("lines"), ch=$("choices"); ch.innerHTML=""; ch.className="choices";
-    if(q.kind==="place"){
-      $("task").innerHTML="Jump to "+frHtml(q.p,q.q)+" !";
-      lines.innerHTML=lineHtml(q.q,q.W,{pick:true});
-      var nl=lines.firstChild; putFrog(nl,0,q.q*q.W);
-      [].forEach.call(nl.querySelectorAll(".tick"),function(t){ t.onclick=function(){ answer(+t.dataset.i,t); }; });
-      $("words").textContent="Where is "+frWords(q.p,q.q)+"?";
-      $("hint").textContent="Tap the spot on the line. Each little jump is one "+DEN[q.q][0]+".";
-    }else if(q.kind==="name"){
-      $("task").textContent="Where did the frog land?";
-      lines.innerHTML=lineHtml(q.q,q.W,{});
-      putFrog(lines.firstChild,q.p,q.q*q.W,"",0);
-      nameChoices(q.p,q.q).forEach(function(c){ ch.appendChild(choiceBtn(frHtml(c[0],c[1]),c[0]+"/"+c[1])); });
-      $("hint").textContent="Count the little jumps from 0.";
-    }else if(q.kind==="equiv"){
-      var W=Math.max(1,Math.ceil(q.a/q.b));
-      $("task").innerHTML="Which fraction is at the same spot as "+frHtml(q.a,q.b)+" ?";
-      lines.innerHTML=lineHtml(q.b,W,{small:true});
-      putFrog(lines.firstChild,q.a,q.b*W,"",0);
-      equivChoices(q.a,q.b,q.c,q.d).forEach(function(c){ ch.appendChild(choiceBtn(frHtml(c[0],c[1]),c[0]+"/"+c[1])); });
-      $("words").textContent="Same spot as "+frWords(q.a,q.b)+"?";
-    }else{
-      $("task").textContent="Which frog jumps farther?";
-      lines.innerHTML="";
-      ch.className="choices two";
-      ch.appendChild(choiceBtn(frHtml(q.a,q.b),"L","🐸 green frog"));
-      ch.appendChild(choiceBtn(frHtml(q.c,q.d),"R","🐸 blue frog"));
-      $("words").textContent=frWords(q.a,q.b)+" or "+frWords(q.c,q.d)+"?";
-      $("hint").textContent=q.b===q.d?"Same bottom number: the pieces are the same size. Who has more pieces?":"Same top number: who has the bigger pieces?";
-    }
+    if(q.kind==="place") hopGame(q);
+    else if(q.kind==="name") cardGame(q);
+    else if(q.kind==="equiv") sameGame(q);
+    else raceGame(q);
+  }
+  // ---------- hands-on: hop the frog, build the fraction card, put the second frog on the same spot, race two frogs ----------
+  function moveFrog(fr,i,n){ fr.classList.remove("jump"); void fr.offsetWidth; fr.classList.add("jump"); fr.style.left=(i/n*100)+"%"; }
+  function fbar(html){ return '<div class="fbar">'+html+'</div>'; }
+  // Jump to p/q: hop one piece at a time, then land
+  function hopGame(q){
+    var lines=$("lines"), n=q.q*q.W, at=0;
+    $("task").innerHTML="Jump to "+frHtml(q.p,q.q)+" ! <small>每跳一下是 1/"+q.q+"</small>";
+    lines.innerHTML=lineHtml(q.q,q.W,{})+fbar('<button type="button" class="fb" id="back">⟵ back</button><button type="button" class="fb big" id="hop">🐸 Hop ➜</button><button type="button" class="fb go" id="land">Land here ✓</button>');
+    var nl=lines.firstChild, fr=putFrog(nl,0,n);
+    $("hop").onclick=function(){ if(G.locked||at>=n) return; at++; moveFrog(fr,at,n); SFX.boing(); };
+    $("back").onclick=function(){ if(G.locked||at<=0) return; at--; moveFrog(fr,at,n); SFX.boing(); };
+    $("land").onclick=function(){ answer(at,null); };
+    $("words").textContent="Where is "+frWords(q.p,q.q)+"?";
+    $("hint").textContent="Each hop is one "+DEN[q.q][0]+". The top number says how many hops.";
+  }
+  // Where did the frog land?: build the fraction card (parts from 0 to 1 on the bottom, hops on the top)
+  function cardGame(q){
+    var lines=$("lines"), top=0, bot=1;
+    $("task").innerHTML="Where did the frog land? Make the fraction card! <small>做出青蛙落点的分数卡</small>";
+    lines.innerHTML=lineHtml(q.q,q.W,{})+'<div class="fcard"><div class="fw"><button type="button" data-w="t" data-d="1">▲</button><b id="ft">0</b><button type="button" data-w="t" data-d="-1">▼</button><small>hops 跳了几下</small></div>'+
+      '<div class="fline"></div><div class="fw"><button type="button" data-w="b" data-d="1">▲</button><b id="fb">1</b><button type="button" data-w="b" data-d="-1">▼</button><small>equal parts from 0 to 1 · 0 到 1 分成几份</small></div></div>'+fbar('<button type="button" class="fb go" id="land">That\'s it ✓</button>');
+    putFrog(lines.firstChild,q.p,q.q*q.W,"",0);
+    lines.querySelector(".fcard").addEventListener("click",function(e){ if(G.locked) return; var b=e.target.closest?e.target.closest("button"):null; if(!b) return;
+      if(b.dataset.w==="t") top=Math.max(0,Math.min(16,top+ +b.dataset.d)); else bot=Math.max(1,Math.min(8,bot+ +b.dataset.d)); SFX.boing();
+      $("ft").textContent=top; $("fb").textContent=bot; });
+    // the same amount written another way (2/4 for 1/2) is right too
+    $("land").onclick=function(){ answer(top*q.q===q.p*bot?q.p+"/"+q.q:top+"/"+bot,null); };
+    $("hint").textContent="Count the equal parts from 0 to 1, then count the hops from 0.";
+  }
+  // The Same Spot: put the blue frog on the second line at the same spot
+  function sameGame(q){
+    var lines=$("lines"), W=Math.max(1,Math.ceil(q.a/q.b));
+    $("task").innerHTML="The green frog is at "+frHtml(q.a,q.b)+". Put the blue frog on the <b>same spot</b> on the other line! <small>把蓝青蛙放到一样的位置</small>";
+    lines.innerHTML=lineHtml(q.b,W,{small:true})+lineHtml(q.d,W,{small:true,pick:true});
+    putFrog(lines.children[0],q.a,q.b*W,"",0);
+    var bl=putFrog(lines.children[1],0,q.d*W,"b");
+    [].forEach.call(lines.children[1].querySelectorAll(".tick"),function(t){ t.onclick=function(){ if(G.locked) return; var i=+t.dataset.i; moveFrog(bl,i,q.d*W); SFX.boing(); setTimeout(function(){ answer(i+"/"+q.d,null); },450); }; });
+    $("words").textContent="Which "+DEN[q.d][0]+" is the same spot as "+frWords(q.a,q.b)+"?";
+    $("hint").textContent="The bottom line is cut into "+q.d+" parts. Tap the spot right under the green frog.";
+  }
+  // Farther Jump: send each frog to its fraction, then give the trophy to the one that went farther
+  function raceGame(q){
+    var lines=$("lines"), done=[false,false];
+    $("task").innerHTML="Frog race! Tap where each frog lands, then give the 🏆 to the frog that jumped farther. <small>先让两只青蛙跳到各自的位置，再把奖杯给跳得远的</small>";
+    lines.innerHTML='<div class="rl">🐸 green: '+frHtml(q.a,q.b)+'</div>'+lineHtml(q.b,1,{small:true,pick:true})+'<div class="rl">🐸 blue: '+frHtml(q.c,q.d)+'</div>'+lineHtml(q.d,1,{small:true,pick:true})+
+      fbar('<button type="button" class="fb trophy" data-v="L" disabled>🏆 green</button><button type="button" class="fb trophy" data-v="R" disabled>🏆 blue</button>');
+    var L=lines.querySelectorAll(".nl"), frogs=[putFrog(L[0],0,q.b),putFrog(L[1],0,q.d,"b")], want=[q.a,q.c], dens=[q.b,q.d];
+    [0,1].forEach(function(k){ [].forEach.call(L[k].querySelectorAll(".tick"),function(t){ t.onclick=function(){ if(G.locked||done[k]) return; var i=+t.dataset.i;
+      moveFrog(frogs[k],i,dens[k]); SFX.boing();
+      if(i!==want[k]){ setTimeout(function(){ frogs[k].classList.add("splash"); moveFrog(frogs[k],0,dens[k]); $("hint").textContent="Not there: count "+want[k]+" "+(want[k]===1?"jump":"jumps")+" of one "+DEN[dens[k]][0]+". 再数一数"; },500); return; }
+      done[k]=true; if(done[0]&&done[1]){ [].forEach.call(lines.querySelectorAll(".trophy"),function(b){ b.disabled=false; }); $("hint").textContent="Who is farther from 0? 谁离 0 更远？"; } }; }); });
+    [].forEach.call(lines.querySelectorAll(".trophy"),function(b){ b.onclick=function(){ answer(b.dataset.v,null); }; });
+    $("words").textContent=frWords(q.a,q.b)+" or "+frWords(q.c,q.d)+"?";
   }
   // ---------- the explanation after a wrong answer ----------
   function teachShow(t,cont){
@@ -567,6 +602,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     var ks=data.kinds[q.kind]||(data.kinds[q.kind]={ok:0,miss:0});
     [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(x.dataset.v===String(right)) x.classList.add("right"); });
     if(!ok&&btn) btn.classList.add("wrong");
+    [].forEach.call(document.querySelectorAll("#lines button"),function(b){ b.disabled=true; });
     showAfter(q,ok);
     $("words").textContent=explain(q)+".";
     $("hint").textContent="";
