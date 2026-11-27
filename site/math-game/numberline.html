@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Frog Hop</title>
+<meta name="theme-color" content="#2f9e8f">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Frog Hop: hop the frog along the number line by tens and ones to catch the flies. Grade 2 adding and subtracting on the number line in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#1f3b3a;--muted:#5d7f7c;--brand:#2f9e8f;--bg:#eaf7f3;--line:#6b4a2b}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 20px;position:relative}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tbtn{background:#fff;border:1px solid #cde9e2;border-radius:13px;padding:8px 12px;color:var(--ink);text-decoration:none;font:inherit;font-weight:900;cursor:pointer}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #cde9e2}
+.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.35rem}
+/* the pond: sky, water, the number line (a log) with the frog on it */
+.stage{position:relative;height:max(290px,calc(100vh - 440px));border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#bfe8ff 0 34%,#5cc4b4 34% 100%);box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}
+.decor{position:absolute;font-size:1.9rem;line-height:1;pointer-events:none}
+.petBox{position:absolute;left:10px;top:8px;display:flex;align-items:flex-start;gap:6px;z-index:3;max-width:75%}
+.pet{width:58px;height:58px;flex:none;display:flex;align-items:center;justify-content:center;font-size:2.4rem}.pet.cheer{animation:bob .5s 2}
+@keyframes bob{50%{transform:translateY(-10px)}}
+.bub{background:#fff;border-radius:14px;padding:6px 9px;font-weight:900;font-size:.8rem;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.lineBox{position:absolute;left:0;right:0;bottom:0;height:190px;overflow:hidden}
+.strip{position:absolute;left:0;top:0;bottom:0;transition:transform .38s ease}
+.log{position:absolute;bottom:46px;height:12px;border-radius:6px;background:linear-gradient(180deg,#9a6b3d,#6b4a2b)}
+.tk{position:absolute;bottom:46px;width:2px;margin-left:-1px;height:8px;background:var(--line);transform:translateY(100%)}
+.tk.m5{height:13px}.tk.m10{height:19px;width:3px;margin-left:-1.5px}
+.lb{position:absolute;bottom:12px;transform:translateX(-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:.85rem;color:#123}
+.lb.m10{font-size:1.05rem}
+.arcs{position:absolute;left:0;bottom:58px;overflow:visible;pointer-events:none}
+.arcs text{font-family:Fredoka,sans-serif;font-weight:700;font-size:15px}
+.frog{position:absolute;bottom:54px;width:56px;margin-left:-28px;text-align:center;font-size:2.7rem;line-height:1;transition:left .38s ease;z-index:2}
+.frog span{display:inline-block}.frog.hop span{animation:hop .38s ease}
+@keyframes hop{50%{transform:translateY(-46px) scale(1.08)}}
+.frog.splash span{animation:shake .4s}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fly{position:absolute;bottom:58px;width:40px;margin-left:-20px;text-align:center;font-size:1.8rem;line-height:1;animation:buzz 1.2s ease-in-out infinite;transition:left .3s,bottom .3s,opacity .3s,transform .3s}
+.fly .pin{display:block;margin:2px auto 0;width:2px;height:40px;background:repeating-linear-gradient(180deg,#123 0 4px,transparent 4px 8px);opacity:.35}
+@keyframes buzz{50%{transform:translateY(-5px) rotate(6deg)}}
+.fly.eaten{opacity:0;transform:translateY(30px) scale(.3);animation:none}
+.here{position:absolute;bottom:20px;transform:translateX(-50%);background:#ffe36e;border-radius:9px;padding:0 6px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1rem;transition:left .38s ease;z-index:1}
+.task{background:#fff;border-radius:18px;padding:9px 12px;margin-top:8px;text-align:center;font-weight:900;font-size:1.15rem;box-shadow:0 3px 0 #cde9e2}
+.task .cn{display:block;font-size:.8rem;color:var(--muted);font-weight:800;margin-top:2px}.task b{font-family:Fredoka,sans-serif;font-size:1.35em;color:#1a7f72}
+.pad{display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;gap:7px;margin-top:8px;align-items:stretch}
+.hb{border:0;border-radius:16px;padding:12px 4px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.45rem;cursor:pointer;color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.2)}
+.hb:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.2)}
+.hb.plus{background:#2fae6a}.hb.minus{background:#e0685a}.hb.big.plus{background:#1f8a52}.hb.big.minus{background:#c24f42}
+.count{background:#fff;border-radius:16px;text-align:center;padding:4px 8px;box-shadow:0 3px 0 #cde9e2;min-width:62px}.count small{display:block;font-weight:800;color:var(--muted);font-size:.65rem}.count b{font-family:Fredoka,sans-serif;font-size:1.4rem}
+.row2{display:grid;grid-template-columns:1fr 2fr;gap:7px;margin-top:7px}
+.undo{border:0;border-radius:16px;background:#fff;font:inherit;font-weight:900;font-size:.95rem;white-space:nowrap;color:var(--ink);box-shadow:0 4px 0 #cde9e2;cursor:pointer;padding:10px}
+.catch{border:0;border-radius:16px;background:#f5b301;color:#3b2a00;font:inherit;font-weight:900;font-size:1.2rem;box-shadow:0 5px 0 #b88a00;cursor:pointer;padding:10px}
+.choices{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.choices button{border:0;border-radius:16px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.7rem;padding:12px 4px;box-shadow:0 5px 0 #cde9e2;cursor:pointer;color:var(--ink)}
+.choices button.bad{background:#ffd6d0;animation:shake .4s}
+.glow{animation:glow 1s ease-in-out infinite;outline:4px solid #ffe36e;outline-offset:2px}@keyframes glow{50%{transform:scale(.94)}}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);pointer-events:none;animation:up 1.1s forwards;z-index:5}@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.over{position:absolute;inset:0;background:rgba(18,59,56,.84);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:16px;z-index:10;border-radius:0}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.9rem}.over p{margin:4px 0;font-weight:800}
+.go{border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin-top:12px}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.92rem;text-align:left;margin-top:8px;max-width:380px}.how div{margin:4px 0}
+.shop{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:380px;margin-top:10px}
+.shop button{border:0;border-radius:14px;background:#fff;padding:6px 2px;font:inherit;font-weight:900;font-size:.75rem;color:var(--ink);cursor:pointer}.shop button i{display:block;font-style:normal;font-size:1.8rem}
+.shop button.own{background:#d6f5e6}.shop button:disabled{opacity:.45;cursor:default}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+/* fitted to the window (fit.js): the pond stretches to fill the screen */
+.wrap.fitted{max-width:none;display:flex;flex-direction:column;overflow:hidden}
+.wrap.fitted .stage{flex:1;height:auto;min-height:250px}
+.wrap.fitted .lineBox{height:230px}.wrap.fitted .frog{font-size:3.3rem;width:70px;margin-left:-35px}.wrap.fitted .fly{font-size:2.2rem}.wrap.fitted .arcs text{font-size:20px}.wrap.fitted .fly .pin{height:52px}
+.wrap.fitted .decor{font-size:2.6rem}.wrap.fitted .pet{width:76px;height:76px}.wrap.fitted .bub{font-size:.95rem}
+@media(min-width:900px){.wrap.fitted .top,.wrap.fitted .hud,.wrap.fitted .bottom{width:100%;max-width:820px;margin-left:auto;margin-right:auto}.wrap.fitted .stage{width:100%}}
+@media(max-height:620px){.stage{height:260px}.lineBox{height:170px}}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script>
+<div class="wrap" id="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.3rem">🐸 Frog Hop</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Flies 虫子</small><b id="flies">0/8</b></div><div><small>Day 天</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="stage" id="stage">
+    <div id="decor"></div>
+    <div class="petBox"><div class="pet" id="pet"></div><div class="bub" id="bub">Let's hop! 一起跳吧！</div></div>
+    <div class="lineBox" id="lineBox"><div class="strip" id="strip"></div></div>
+  </div>
+  <div class="bottom">
+    <div class="task" id="task"></div>
+    <div class="pad" id="pad">
+      <button type="button" class="hb minus big" data-h="-10">−10</button><button type="button" class="hb minus" data-h="-1">−1</button>
+      <div class="count"><small>Hops 跳了</small><b id="hops">0</b></div>
+      <button type="button" class="hb plus" data-h="1">+1</button><button type="button" class="hb plus big" data-h="10">+10</button>
+    </div>
+    <div class="row2" id="row2"><button type="button" class="undo" id="undo">↩ Undo 撤回</button><button type="button" class="catch" id="catch">👅 Catch! 吃虫</button></div>
+    <div class="choices" id="choices"></div>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Frog Hop (Grade 2, Unit 4: addition and subtraction on the number line). The frog sits on a number line and a fly hides on it.
+  // The child hops the frog by tens and ones (later hundreds and tens) to where the fly is, then catches it:
+  //   add    "The fly is at 34 + 25": hop there (the fly is hidden until the frog catches it on the right number)
+  //   sub    "The fly is at 62 − 27"
+  //   gap    the fly is shown at 72; hop to it, then say how far the frog hopped (47 + ? = 72)
+  //   where  only the tens are labelled; what number is the fly on?
+  // Fewest hops (using 30 − 1 for 29, say) and right the first time wins a golden fly. 8 flies a day; 6 or more and the next day opens.
+  // The coins buy things for the pond. Day 2 adds subtracting, day 3 the gap and where-is-it flies, day 4 numbers to 1,000 (hops of 100 and 10).
+  var $=function(id){ return document.getElementById(id); };
+  var STORE="frogHop.v1", S={day:1,coins:0,pond:{},tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var GOAL=8, D=null, Q=null, busy=false, lastMiss=false;
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  // ---------- sound ----------
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").onclick=function(){ S.sound=!S.sound; $("soundBtn").textContent=S.sound?"🔔":"🔕"; save(); };
+  $("soundBtn").textContent=S.sound?"🔔":"🔕";
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  // ---------- the pet ----------
+  var pet=window.MathPet?MathPet.get():null;
+  $("pet").innerHTML=pet?MathPet.pic(pet,"happy",76):"🐣";
+  function say(t){ $("bub").innerHTML=t; var p=$("pet"); p.classList.remove("cheer"); void p.offsetWidth; p.classList.add("cheer"); }
+  // ---------- the pond's things, bought with coins ----------
+  var DECOR=[{id:"lotus",e:"🪷",n:"Lotus",p:6,x:"62%",y:"27%"},{id:"duck",e:"🦆",n:"Duck",p:10,x:"78%",y:"25%"},{id:"turtle",e:"🐢",n:"Turtle",p:14,x:"46%",y:"27%"},{id:"fish",e:"🐟",n:"Fish",p:18,x:"92%",y:"28%"},
+    {id:"butterfly",e:"🦋",n:"Butterfly",p:22,x:"70%",y:"8%"},{id:"tree",e:"🌳",n:"Tree",p:26,x:"88%",y:"6%"},{id:"rainbow",e:"🌈",n:"Rainbow",p:32,x:"52%",y:"5%"},{id:"swan",e:"🦢",n:"Swan",p:40,x:"30%",y:"25%"}];
+  function drawDecor(){
+    $("decor").innerHTML='<span class="decor" style="left:84%;top:10%">☀️</span><span class="decor" style="left:36%;top:12%;opacity:.85">☁️</span>'+
+      DECOR.filter(function(d){ return S.pond[d.id]; }).map(function(d){ return '<span class="decor" style="left:'+d.x+';top:'+d.y+'">'+d.e+'</span>'; }).join("");
+  }
+  // ---------- a fly (a question) ----------
+  function opt(d){ d=Math.abs(d); var t=Math.floor(d/10), o=d%10; return Math.min(t+o, o?t+1+(10-o):t); }   // fewest hops of 10 and 1 for a distance d
+  function gen(){
+    var types=["add"]; if(S.day>=2) types.push("sub"); if(S.day>=3) types.push("gap","where");
+    if(S.day>=2&&D.n<2) types=["add","sub"].slice(0,S.day>=2?2:1);
+    var t=types[rnd(types.length)], step=(S.day>=4&&Math.random()<.4)?10:1, easy=lastMiss||(S.day===1&&D.n<3), a, d;
+    var q={type:t,step:step,hops:0,tries:0,path:[]};
+    if(t==="add"){ d=easy?11+rnd(12):11+rnd(36); a=3+rnd(Math.min(55,96-d)); q.start=a; q.target=a+d; }
+    else if(t==="sub"){ d=easy?11+rnd(12):11+rnd(36); a=d+3+rnd(96-d-3); q.start=a; q.target=a-d; }
+    else if(t==="gap"){ d=12+rnd(easy?14:30); a=3+rnd(96-d-3); q.start=a; q.target=a+d; }
+    else { do{ q.target=12+rnd(80); }while(q.target%10===0); q.start=Math.floor(q.target/10)*10-10+rnd(5); if(q.target-q.start<6) q.start-=5; }
+    if(!S.tut&&D.first){ q={type:"add",step:1,hops:0,tries:0,path:[],start:20,target:32,tut:true}; }
+    q.pos=q.start; return q;
+  }
+  function num(v){ return v*Q.step; }
+  // ---------- drawing the number line ----------
+  var U=30, M=40;   // pixels for one step, and the margin at each end
+  function X(v){ return M+v*U; }
+  function drawLine(){
+    var box=$("lineBox"), w=box.clientWidth||360;
+    U=Math.max(18,Math.min(46,Math.round(w/22)));
+    if(Q.type==="gap"||Q.type==="where") U=Math.max(10,Math.min(U,Math.floor((w-120)/Math.max(1,Math.abs(Q.target-Q.start)))));   // the frog and the fly both fit on the screen
+    var all=U>=30, five=U>=16, h='<div class="log" style="left:'+(M-14)+'px;width:'+(100*U+28)+'px"></div>';
+    for(var v=0;v<=100;v++){
+      var m=v%10===0?" m10":v%5===0?" m5":"";
+      h+='<i class="tk'+m+'" style="left:'+X(v)+'px"></i>';
+      var lab=Q.type==="where"||!five?v%10===0:(all||v%5===0);
+      if(lab) h+='<span class="lb'+m+'" style="left:'+X(v)+'px">'+(v*Q.step)+'</span>';
+    }
+    h+='<svg class="arcs" id="arcs" width="'+(X(100)+M)+'" height="120" viewBox="0 -120 '+(X(100)+M)+' 120" style="height:120px"></svg>';
+    h+='<div class="frog" id="frog" style="left:'+X(Q.pos)+'px"><span>🐸</span></div>';
+    if(Q.type==="gap"||Q.type==="where") h+='<div class="fly" id="fly" style="left:'+X(Q.target)+'px">🪰<i class="pin"></i></div>';
+    $("strip").style.width=(X(100)+M)+"px"; $("strip").innerHTML=h;
+    drawArcs(); camera(true);
+  }
+  function drawArcs(){
+    var s="";
+    Q.path.forEach(function(p){
+      var x1=X(p[0]), x2=X(p[1]), mx=(x1+x2)/2, hh=Math.min(70,14+Math.abs(x2-x1)*.22), up=p[1]>p[0], c=up?"#1f8a52":"#c24f42";
+      s+='<path d="M'+x1+' 0 Q'+mx+' '+(-hh*2)+' '+x2+' 0" fill="none" stroke="'+c+'" stroke-width="3" stroke-dasharray="'+(up?"0":"0")+'"/><text x="'+mx+'" y="'+(-hh-6)+'" text-anchor="middle" fill="'+c+'">'+(up?"+":"−")+Math.abs(p[1]-p[0])*Q.step+'</text>';
+    });
+    var a=$("arcs"); if(a) a.innerHTML=s;
+  }
+  function camera(now){
+    var w=$("lineBox").clientWidth, full=X(100)+M, focus=Q.pos;
+    if(Q.type==="where"||Q.type==="gap"){   // the frog and the fly both on screen when they fit; else the frog near the edge, looking towards the fly
+      var gap=Q.target-Q.pos, room=(w-140)/U;
+      focus=Math.abs(gap)<=room?(Q.pos+Q.target)/2:Q.pos+(gap>0?1:-1)*room/2;
+    }
+    var tx=Math.min(0,Math.max(w-full,w/2-X(focus)));
+    var st=$("strip"); if(now){ st.style.transition="none"; } st.style.transform="translateX("+tx+"px)"; if(now){ void st.offsetWidth; st.style.transition=""; }
+  }
+  // ---------- the task card and the buttons ----------
+  function drawTask(){
+    var t=Q.type, a=num(Q.start), d=Math.abs(num(Q.target-Q.start)), h;
+    if(t==="add") h='The fly is at <b>'+a+' + '+d+'</b>. Hop there and catch it!<span class="cn">青蛙在 '+a+'，虫子在 '+a+' + '+d+' 的地方。跳过去吃掉它！</span>';
+    else if(t==="sub") h='The fly is at <b>'+a+' − '+d+'</b>. Hop there and catch it!<span class="cn">青蛙在 '+a+'，虫子在 '+a+' − '+d+' 的地方。跳过去吃掉它！</span>';
+    else if(t==="gap") h='Hop to the fly! Then: <b>'+a+' + ? = '+num(Q.target)+'</b><span class="cn">跳到虫子那里，再说说一共跳了多远</span>';
+    else h='What number is the fly on? <b>?</b><span class="cn">虫子停在哪个数上？</span>';
+    $("task").innerHTML=h;
+    var big=Q.step===10;
+    [].forEach.call(document.querySelectorAll(".hb"),function(b){ var v=+b.dataset.h; b.textContent=(v>0?"+":"−")+Math.abs(v)*(big?10:1); });
+    var hop=t!=="where";
+    $("pad").style.display=hop?"":"none"; $("row2").style.display=hop?"":"none";
+    $("catch").style.display=(t==="add"||t==="sub")?"":"none"; $("row2").style.gridTemplateColumns=(t==="add"||t==="sub")?"1fr 2fr":"1fr";
+    $("choices").style.display="none"; $("hops").textContent=Q.hops;
+    if(t==="where") showChoices();
+    guide();
+  }
+  // the first fly shows how: the button to press next glows
+  function guide(){
+    [].forEach.call(document.querySelectorAll(".glow"),function(e){ e.classList.remove("glow"); });
+    if(!Q.tut) return;
+    var r=Q.target-Q.pos, sel=r>=10?'[data-h="10"]':r>0?'[data-h="1"]':r<0?'[data-h="-1"]':"#catch";
+    var el=document.querySelector(sel); if(el) el.classList.add("glow");
+    say(r>=10?"Tap <b>+10</b>: a big hop! 点 +10，跳一大步！":r>0?"Now tap <b>+1</b>: a little hop. 再点 +1，跳一小步。":"20 + 12 = 32. Tap <b>Catch!</b> 点“吃虫”！");
+  }
+  function hop(h){
+    if(busy||!Q||Q.done) return;
+    var to=Q.pos+h;
+    if(to<0||to>100){ tone([180],.1,"sine"); say("That's the end of the log! 到头啦！"); return; }
+    busy=true; Q.path.push([Q.pos,to]); Q.pos=to; Q.hops++; $("hops").textContent=Q.hops;
+    var f=$("frog"); f.style.left=X(to)+"px"; f.classList.remove("hop","splash"); void f.offsetWidth; f.classList.add("hop");
+    tone([Math.abs(h)>=10?392:587,Math.abs(h)>=10?523:698],.07); drawArcs(); camera();
+    setTimeout(function(){ busy=false; if(Q.type==="gap"&&Q.pos===Q.target) askGap(); else guide(); },400);
+  }
+  [].forEach.call(document.querySelectorAll(".hb"),function(b){ b.onclick=function(){ hop(+b.dataset.h); }; });
+  $("undo").onclick=function(){
+    if(busy||!Q||Q.done||!Q.path.length) return;
+    var p=Q.path.pop(); Q.pos=p[0]; Q.hops--; $("hops").textContent=Q.hops;
+    $("frog").style.left=X(Q.pos)+"px"; drawArcs(); camera(); tone([330],.06); guide();
+  };
+  $("catch").onclick=function(){
+    if(busy||!Q||Q.done) return;
+    if(Q.pos===Q.target) return win();
+    Q.tries++; tone([200,150],.12,"sawtooth");
+    var f=$("frog"); f.classList.remove("hop","splash"); void f.offsetWidth; f.classList.add("splash");
+    if(Q.tries>=2) return reveal();
+    say("No fly at "+num(Q.pos)+". Count your hops again! 这里没有虫子，再数数跳了多少？");
+  };
+  // gap: how far did the frog hop?
+  function askGap(){
+    $("pad").style.display="none"; $("row2").style.display="none";
+    $("task").innerHTML='How far did you hop? <b>'+num(Q.start)+' + ? = '+num(Q.target)+'</b><span class="cn">一共跳了多远？把每一跳加起来</span>';
+    say("You reached the fly! How far was that? 跳到啦！一共跳了多远？");
+    showChoices();
+  }
+  function showChoices(){
+    var right=Q.type==="gap"?Q.target-Q.start:Q.target, opts=[right], c=[right+1,right-1,right+10,right-10,right+2];
+    c.forEach(function(v){ if(opts.length<3&&v>0&&v<100&&opts.indexOf(v)<0&&!(Q.type==="where"&&v%10===0)) opts.push(v); });
+    opts.sort(function(){ return Math.random()-.5; });
+    var box=$("choices"); box.style.display="grid";
+    box.innerHTML=opts.map(function(v){ return '<button type="button" data-v="'+v+'">'+num(v)+'</button>'; }).join("");
+    [].forEach.call(box.querySelectorAll("button"),function(b){ b.onclick=function(){
+      if(busy||Q.done) return;
+      if(+b.dataset.v===right){ if(Q.type==="where") return hopTo(); return win(); }
+      Q.tries++; b.classList.add("bad"); b.disabled=true; tone([200,150],.12,"sawtooth");
+      if(Q.tries>=2) return reveal();
+      say(Q.type==="gap"?"Add up the hops again. 再把每一跳加一加。":"Count on from the ten before it. 从前面的整十数往后数。");
+    }; });
+  }
+  // where: the right number makes the frog hop there (tens, then ones) and catch the fly
+  function hopTo(){
+    busy=true; Q.done=true; $("choices").style.display="none";
+    var seq=[], p=Q.pos; while(Q.target-p>=10){ seq.push(10); p+=10; } while(p<Q.target){ seq.push(1); p++; }
+    var i=0; (function next(){
+      if(i>=seq.length){ busy=false; Q.done=false; return win(); }
+      busy=false; Q.done=false; hop(seq[i++]); busy=true; Q.done=true; setTimeout(next,420);
+    })();
+  }
+  function eatFly(){
+    var fl=$("fly");
+    if(!fl){ $("strip").insertAdjacentHTML("beforeend",'<div class="fly" id="fly" style="left:'+X(Q.target)+'px">🪰</div>'); fl=$("fly"); void fl.offsetWidth; }
+    setTimeout(function(){ fl.classList.add("eaten"); },250);
+  }
+  function win(){
+    Q.done=true; busy=true; eatFly();
+    var hopQ=Q.type!=="where", gold=hopQ&&!Q.tries&&Q.hops<=opt(Q.target-Q.start), coins=3+(gold?2:0);
+    D.caught++; if(gold) D.gold++; D.coins+=coins; S.coins+=coins; lastMiss=false; save();
+    tone(gold?[660,880,1100,1320]:[660,880,1100],.09);
+    var r=$("frog").getBoundingClientRect(); burst(r.left+r.width/2,r.top);
+    var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"+(gold?" ⭐":""); fx.style.left="45%"; fx.style.top="30%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
+    var eq=Q.type==="add"?num(Q.start)+" + "+num(Q.target-Q.start)+" = "+num(Q.target):Q.type==="sub"?num(Q.start)+" − "+num(Q.start-Q.target)+" = "+num(Q.target):Q.type==="gap"?num(Q.start)+" + "+num(Q.target-Q.start)+" = "+num(Q.target):"The fly was on "+num(Q.target)+".";
+    say((gold?"⭐ Golden fly! Fewest hops! 金色虫子！跳得最少！<br>":"Yum! 好吃！<br>")+eq);
+    if(Q.tut){ S.tut=1; save(); }
+    if(pet) MathPet.feed(1);
+    hud(); setTimeout(nextFly,1500);
+  }
+  function reveal(){
+    Q.done=true; busy=true; D.miss++; lastMiss=true; eatFly();
+    var eq=Q.type==="add"?num(Q.start)+" + "+num(Q.target-Q.start)+" = "+num(Q.target):Q.type==="sub"?num(Q.start)+" − "+num(Q.start-Q.target)+" = "+num(Q.target):Q.type==="gap"?num(Q.start)+" + "+num(Q.target-Q.start)+" = "+num(Q.target):"It was "+num(Q.target)+".";
+    say("The fly got away! 虫子飞走了！<br>"+eq);
+    setTimeout(nextFly,2400);
+  }
+  function hud(){ $("flies").textContent=D.caught+"/"+GOAL; $("day").textContent=S.day; $("coins").textContent=S.coins; }
+  function nextFly(){
+    busy=false;
+    if(D.n>=GOAL) return endDay();
+    D.n++; Q=gen(); D.first=false; drawLine(); drawTask(); hud();
+    if(!Q.tut) say(Q.type==="where"?"Look at the tens! 看整十数！":Q.step===10?"Big pond! Hops of 100 and 10. 大池塘：一跳 100 或 10！":["Ready, set, hop! 预备，跳！","Find the fly! 找虫子！","Big hops first! 先跳大步！"][rnd(3)]);
+  }
+  function startDay(){
+    D={n:0,caught:0,gold:0,miss:0,coins:0,first:true}; lastMiss=false;
+    if(window.GameProgress) GameProgress.start("number-line","day"+S.day);
+    closeOver(); nextFly();
+  }
+  // ---------- the end of a day: the result, the pond shop ----------
+  function endDay(){
+    var won=D.caught>=6, d=S.day;
+    if(window.GameProgress) GameProgress.report({game:"number-line",level:"day"+d,name:"Frog Hop Day "+d,won:won,stars:won?(D.miss?(D.miss<=1?2:1):3):0,correct:D.caught,total:GOAL,best:D.caught});
+    if(won){ S.day++; save(); }
+    tone(won?[523,659,784,1047]:[392,330,262],.2);
+    over('<h2>'+(won?"🎉 Day "+d+" done!":"Day "+d)+'</h2><p>'+(won?"今天完成啦！":"再试一次，抓到 6 只就过关！")+'</p><p style="font-size:1.3rem">🪰 '+D.caught+' / '+GOAL+' · ⭐ '+D.gold+' · +'+D.coins+' 🪙</p>'+shopHtml()+
+      '<button type="button" class="go" id="nextDay">'+(won?"Day "+S.day+" ▶ 下一天":"Try again 再来一次")+'</button>');
+    wireShop(); $("nextDay").onclick=startDay;
+  }
+  function shopHtml(){
+    return '<p style="margin-top:10px">🛒 Pond shop 池塘商店 · 🪙 '+S.coins+'</p><div class="shop" id="shop">'+DECOR.map(function(d){
+      var own=S.pond[d.id]; return '<button type="button" data-id="'+d.id+'" class="'+(own?"own":"")+'"'+(!own&&S.coins<d.p?" disabled":"")+'><i>'+d.e+'</i>'+(own?"✓":d.p+" 🪙")+'</button>'; }).join("")+'</div>';
+  }
+  function wireShop(){
+    [].forEach.call(document.querySelectorAll("#shop button"),function(b){ b.onclick=function(){
+      var d=DECOR.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!d||S.pond[d.id]||S.coins<d.p) return;
+      S.coins-=d.p; S.pond[d.id]=1; save(); drawDecor(); hud(); tone([660,880,1100],.08);
+      var sh=$("shop"); sh.outerHTML=shopHtml().replace(/^<p[^>]*>.*?<\/p>/,""); wireShop();
+    }; });
+  }
+  function over(html){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  var HOW='<div class="how"><div>🐸 Tap <b>+10</b> for a big hop, <b>+1</b> for a little hop (and <b>−10</b>, <b>−1</b> to hop back).</div><div>🪰 Hop to where the fly is, then tap <b>Catch!</b></div><div>⭐ Fewest hops = a golden fly! (29 is 3 big hops and 1 hop back.)</div><div>🪙 Coins buy things for your pond.</div><div style="color:var(--muted)">点 +10 跳一大步，+1 跳一小步，−10、−1 往回跳。跳到虫子那里点“吃虫”。跳的次数最少能得到金色虫子！</div></div>';
+  function intro(){
+    over('<h2>🐸 Frog Hop</h2><p>Number Line Practice 数轴加减法</p>'+HOW+'<button type="button" class="go" id="play">'+(S.day>1?"Day "+S.day+" ▶ 开始":"Play! 开始")+'</button>');
+    $("play").onclick=startDay;
+  }
+  $("helpBtn").onclick=function(){
+    var o=document.createElement("div"); o.className="over"; o.id="helpOver"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go" id="okHelp">Got it! 明白了</button>';
+    $("wrap").appendChild(o); $("okHelp").onclick=function(){ o.remove(); };
+  };
+  // ---------- confetti bits ----------
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
+  function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<16;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:32,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
+  if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
+  var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ if(Q){ drawLine(); } },150); });
+  drawDecor(); $("day").textContent=S.day; $("coins").textContent=S.coins; $("flies").textContent="0/"+GOAL;
+  Q={type:"add",step:1,start:0,target:0,pos:0,path:[],hops:0}; drawLine(); $("task").innerHTML="🐸 Hop on the number line! 在数轴上跳！";
+  window.__frog={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },hop:hop,start:startDay};
+  intro();
+})();
+</script>
+</body></html>
