@@ -48,6 +48,7 @@
 .saw{position:absolute;font-size:1.8rem;z-index:6;animation:saw .18s linear infinite alternate}@keyframes saw{to{transform:translateY(8px) rotate(-12deg)}}
 .dust{position:absolute;width:5px;height:5px;border-radius:2px;background:#e6b77d;z-index:6;animation:dust .7s ease-out forwards}@keyframes dust{to{transform:translate(var(--x),var(--y));opacity:0}}
 .critter{position:absolute;font-size:2.3rem;line-height:1;z-index:5;transform:translateX(-50%);transition:left 1.5s linear}
+.critter i{display:inline-block;font-style:normal}.critter i.flip{transform:scaleX(-1)}   /* the emoji animals face left; they walk to the right */
 .critter b{display:inline-block;animation:idle 1.6s ease-in-out infinite}.critter.walk b{animation:walk .3s ease-in-out infinite}
 @keyframes idle{50%{transform:translateY(-3px)}}@keyframes walk{50%{transform:translateY(-8px) rotate(6deg)}}
 .critter .say{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#fff;border-radius:10px;padding:2px 7px;font-size:.75rem;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.1)}
@@ -168,7 +169,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     var h='<div class="cliff l" style="width:'+XL+'px;top:'+CT+'px"></div><div class="river" style="left:'+XL+'px;width:'+(XR-XL)+'px;top:'+(CT+30)+'px"></div><div class="cliff r" style="left:'+XR+'px;top:'+CT+'px"></div>';
     h+='<div class="post" style="left:'+(XL-5)+'px;top:'+(CT-28)+'px"></div><div class="post" style="left:'+(XR+5)+'px;top:'+(CT-28)+'px"></div>';
     h+='<div class="edge" style="left:'+XL+'px;top:'+(CT-30)+'px;height:84px"></div><div class="edge" style="left:'+XR+'px;top:'+(CT-30)+'px;height:84px"></div>';
-    h+='<div class="critter" id="crit" style="left:'+Math.max(fitted()?38:28,XL-34)+'px;top:'+(CT-(fitted()?48:38))+'px"><b>'+Q.crit+'</b></div>';
+    h+='<div class="critter" id="crit" style="left:'+Math.max(fitted()?38:28,XL-34)+'px;top:'+(CT-(fitted()?48:38))+'px"><i'+(Q.crit==="🐸"?'':' class="flip"')+'><b>'+Q.crit+'</b></i></div>';
     if(Q.type==="longer") h+='<div class="plank" id="have" style="left:'+(XL-6-Q.have*U)+'px;width:'+(Q.have*U)+'px;top:'+(CT-14)+'px"></div>';
     h+=townHtml()+'<div class="village" style="top:'+(CT+14)+'px">'+D.saved.join("")+'</div>';
     h+=rulerHtml();
