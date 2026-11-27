@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fair Day</title>
+<meta name="theme-color" content="#e0457b">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Fair Day: the animals vote for their favorite; put each vote on the bar graph or picture graph, build graphs from tally charts, make a line plot of worm lengths, and answer questions about the graphs. Grade 2 data.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#2b2a3f;--muted:#6f6a86;--bg:#fff3f7}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 20px;position:relative}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tbtn{background:#fff;border:1px solid #f5d3e0;border-radius:13px;padding:8px 12px;color:var(--ink);text-decoration:none;font:inherit;font-weight:900;cursor:pointer}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #f5d3e0}
+.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.35rem}
+.stage{position:relative;height:max(400px,calc(100vh - 420px));border-radius:22px;overflow:hidden;display:flex;flex-direction:column;background:#fff;box-shadow:0 4px 0 #f5d3e0;touch-action:none}
+/* the fairground lane at the top: the animals walk in here */
+.lane{position:relative;height:118px;flex:none;background:linear-gradient(180deg,#bfe6ff,#e7f6ff 70%,#9fdc86 70%,#7cc96a);overflow:hidden}
+.flag{position:absolute;top:0;left:0;right:0;height:16px;background:repeating-linear-gradient(90deg,transparent 0 6px,#ff7a8a 6px 20px,transparent 20px 26px,#ffd84a 26px 40px,transparent 40px 46px,#4aa3ff 46px 60px);clip-path:polygon(0 0,100% 0,100% 40%,0 40%);opacity:.9}
+.flags{position:absolute;top:0;left:0;right:0;height:18px;display:flex;justify-content:space-around;pointer-events:none}.flags i{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:15px solid #ff7a8a}.flags i:nth-child(3n+2){border-top-color:#ffd84a}.flags i:nth-child(3n){border-top-color:#4aa3ff}
+.decor{position:absolute;bottom:20px;font-size:1.6rem;line-height:1;pointer-events:none;opacity:.95}
+.helper{position:absolute;left:8px;top:20px;display:flex;align-items:flex-start;gap:5px;z-index:4;max-width:52%}
+.pet{width:46px;height:46px;flex:none;display:flex;align-items:center;justify-content:center;font-size:2rem}.pet.cheer{animation:bob .5s 2}@keyframes bob{50%{transform:translateY(-8px)}}
+.bub{background:#fff;border-radius:12px;padding:4px 8px;font-weight:900;font-size:.72rem;line-height:1.2;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.critter{position:absolute;bottom:6px;width:58px;margin-left:-29px;line-height:0;z-index:3;transition:left 1.1s linear}
+.critter svg{width:100%;height:auto;overflow:visible}.critter b{display:block;animation:idle 1.6s ease-in-out infinite}.critter.walk b{animation:walk .3s ease-in-out infinite}
+@keyframes idle{50%{transform:translateY(-3px)}}@keyframes walk{50%{transform:translateY(-7px) rotate(5deg)}}
+.critter.no b{animation:no .4s 2}@keyframes no{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.think{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#fff;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;line-height:1;box-shadow:0 3px 0 rgba(0,0,0,.12);animation:pop .3s}
+.think:after{content:"";position:absolute;bottom:-6px;left:14px;width:8px;height:8px;border-radius:50%;background:#fff}
+@keyframes pop{from{transform:translateX(-50%) scale(0)}}
+/* the worm on its ruler (line plots) and the tally chart */
+.wormbox{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);z-index:3}
+.wruler{position:relative;height:26px;background:linear-gradient(180deg,#ffe27a,#f5c84a);border:2px solid #c99a1c;border-radius:5px}
+.wruler i{position:absolute;top:0;width:2px;margin-left:-1px;height:10px;background:#4a3a10}.wruler span{position:absolute;top:10px;transform:translateX(-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:.72rem}
+.wruler b.ul{position:absolute;left:3px;top:9px;font-family:Fredoka,sans-serif;font-size:.62rem;color:#5a4300}
+.worm{position:absolute;bottom:100%;margin-bottom:2px;height:18px;animation:wig 1.2s ease-in-out infinite}@keyframes wig{50%{transform:scaleY(.85) translateY(2px)}}
+.tally{position:absolute;right:8px;bottom:6px;background:#fff;border-radius:12px;padding:3px 10px;z-index:3;box-shadow:0 3px 0 rgba(0,0,0,.1);display:grid;grid-template-columns:auto auto auto auto;gap:0 8px;align-items:center;font-weight:900;font-size:.8rem}
+.tally .e{font-size:1.2rem}
+/* the graph */
+.graph{position:relative;flex:1;min-height:0;background:#fffdf8}
+.gtitle{position:absolute;left:0;right:0;top:4px;text-align:center;font-weight:900;font-size:.85rem;color:var(--muted)}
+.axis{position:absolute;background:#2b2a3f}
+.grid{position:absolute;height:1px;background:#ece6f2}
+.ylab{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:.78rem;transform:translate(-100%,-50%);padding-right:5px;color:#55506a}
+.col{position:absolute;bottom:0;cursor:pointer;border-radius:8px 8px 0 0;transition:background .2s}
+.col:hover{background:rgba(255,216,74,.12)}.col.glow{background:rgba(255,216,74,.28)}
+.blk{position:absolute;left:0;right:0;border-radius:4px;border:2px solid rgba(0,0,0,.18)}
+.blk.new{animation:land .45s cubic-bezier(.3,1.6,.6,1) both;animation-delay:.3s}@keyframes land{from{transform:translateY(-40px);opacity:0}}
+.bar{position:absolute;left:0;right:0;bottom:0;border-radius:6px 6px 0 0;border:2px solid rgba(0,0,0,.2);transition:height .15s}
+.bar .grab{position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:34px;height:14px;border-radius:7px;background:#fff;border:2px solid #2b2a3f;cursor:ns-resize}
+.bar.bad{animation:shake .4s 2;outline:3px solid #ff6b6b}
+.cat{position:absolute;bottom:4px;text-align:center;font-size:1.6rem;line-height:1;cursor:pointer}
+.cat small{display:block;font-size:.6rem;font-weight:900;color:var(--muted)}
+.prow{position:absolute;left:0;right:0;cursor:pointer;border-bottom:1px solid #ece6f2;display:flex;align-items:center}
+.prow.glow{background:rgba(255,216,74,.25)}.prow .pl{width:64px;flex:none;text-align:center;font-size:1.6rem;border-right:2px solid #2b2a3f;align-self:stretch;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.prow .pl small{font-size:.58rem;font-weight:900;color:var(--muted)}.prow .pics{display:flex;align-items:center;padding-left:6px;gap:2px}
+.pic{line-height:1;display:inline-block}.pic.new{animation:land .45s cubic-bezier(.3,1.6,.6,1) both;animation-delay:.3s}
+.key{position:absolute;right:8px;bottom:4px;font-weight:900;font-size:.72rem;background:#fff;border:2px solid #ece6f2;border-radius:8px;padding:1px 6px}
+.lp{position:absolute;cursor:pointer;text-align:center}.lp.glow{background:rgba(255,216,74,.25);border-radius:8px}
+.lpn{position:absolute;bottom:4px;left:0;right:0;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.05rem}
+.xm{position:absolute;left:50%;transform:translateX(-50%);font-family:Fredoka,sans-serif;font-weight:700;color:#e0457b;line-height:1}.xm.new{animation:land .45s cubic-bezier(.3,1.6,.6,1) both;animation-delay:.2s}
+.fly{position:absolute;z-index:8;pointer-events:none;font-size:1.6rem;line-height:1;transition:left .35s ease-in,top .35s ease-in,transform .35s}
+/* the bottom: task, keypad, choices */
+.task{background:#fff;border-radius:18px;padding:9px 12px;margin-top:8px;text-align:center;font-weight:900;font-size:1.08rem;box-shadow:0 3px 0 #f5d3e0}
+.task .cn{display:block;font-size:.8rem;color:var(--muted);font-weight:800;margin-top:2px}.task b{font-family:Fredoka,sans-serif;font-size:1.2em;color:#c2306a}
+.ans{display:none;grid-template-columns:auto 1fr;gap:8px;margin-top:8px}
+.show{background:#fff;border-radius:16px;box-shadow:0 3px 0 #f5d3e0;min-width:86px;display:flex;align-items:center;justify-content:center;padding:4px 10px;font-family:Fredoka,sans-serif;font-size:2rem}.show.blank{color:#e7c9d6}
+.keys{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.k{border:0;border-radius:12px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.35rem;padding:7px 0;box-shadow:0 4px 0 #f5d3e0;cursor:pointer;color:var(--ink)}.k.ok{background:#f5b301;color:#3b2a00;box-shadow:0 4px 0 #b88a00;font-size:1.1rem}
+.k:active{transform:translateY(3px)}
+.choices{display:none;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}.choices button{border:0;border-radius:16px;background:#fff;font-size:1.9rem;padding:8px 2px;box-shadow:0 5px 0 #f5d3e0;cursor:pointer;line-height:1.1}
+.choices button small{display:block;font-size:.62rem;font-weight:900;color:var(--muted)}.choices button.bad{background:#ffd6d0;animation:shake .4s}
+.check{display:none;width:100%;margin-top:8px;border:0;border-radius:16px;background:#f5b301;color:#3b2a00;font:inherit;font-weight:900;font-size:1.15rem;padding:11px;box-shadow:0 5px 0 #b88a00;cursor:pointer}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}.shake{animation:shake .4s}
+.hand{position:absolute;font-size:2rem;z-index:9;pointer-events:none;animation:tap 1s ease-in-out infinite}@keyframes tap{50%{transform:translateY(10px)}}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);pointer-events:none;animation:up 1.1s forwards;z-index:9}@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.over{position:absolute;inset:0;background:rgba(80,24,52,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:16px;z-index:10}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.9rem}.over p{margin:4px 0;font-weight:800}
+.go{border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin-top:12px}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.92rem;text-align:left;margin-top:8px;max-width:400px}.how div{margin:4px 0}
+.shop{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:380px;margin-top:10px}
+.shop button{border:0;border-radius:14px;background:#fff;padding:6px 2px;font:inherit;font-weight:900;font-size:.75rem;color:var(--ink);cursor:pointer}.shop button i{display:block;font-style:normal;font-size:1.8rem}
+.shop button.own{background:#d6f5e6}.shop button:disabled{opacity:.45;cursor:default}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+.wrap.fitted{max-width:none;display:flex;flex-direction:column;overflow:hidden}
+.wrap.fitted .stage{flex:1;height:auto;min-height:320px}
+.wrap.fitted .lane{height:140px}.wrap.fitted .critter{width:72px;margin-left:-36px}.wrap.fitted .pet{width:60px;height:60px}.wrap.fitted .bub{font-size:.9rem}.wrap.fitted .think{width:56px;height:56px;font-size:2rem}
+.wrap.fitted .ylab{font-size:.95rem}.wrap.fitted .cat{font-size:2.1rem}.wrap.fitted .gtitle{font-size:1rem}
+@media(min-width:900px){.wrap.fitted .top,.wrap.fitted .hud,.wrap.fitted .bottom{width:100%;max-width:820px;margin-left:auto;margin-right:auto}.wrap.fitted .keys{grid-template-columns:repeat(12,1fr)}}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script><script src="critters.js?v=20261130a"></script>
+<div class="wrap" id="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.25rem">🎡 Fair Day</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Questions 答题</small><b id="score">0/6</b></div><div><small>Level 关</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="stage" id="stage">
+    <div class="lane" id="lane"><div class="flags"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div id="decor"></div>
+      <div class="helper"><div class="pet" id="pet"></div><div class="bub" id="bub">Welcome to the fair! 欢迎来游园会！</div></div>
+      <div id="actor"></div>
+    </div>
+    <div class="graph" id="graph"></div>
+  </div>
+  <div class="bottom">
+    <div class="task" id="task"></div>
+    <div class="ans" id="ans"><div class="show blank" id="show">?</div><div class="keys" id="keys"></div></div>
+    <div class="choices" id="choices"></div>
+    <button type="button" class="check" id="check">✓ Check my graph 检查</button>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Fair Day (Grade 2, Unit 1: working with data). Each level has 2 rounds; a round collects data, then asks 3 questions about the graph.
+  //   level 1  bar graph: animals walk in thinking of their favorite; tap its column and a block lands on the bar
+  //   level 2  picture graph: tap the row; a picture is added (key: each picture = 1 vote)
+  //   level 3  make a bar graph from a tally chart: drag each bar up to the right number, then check
+  //   level 4  line plot: a worm lies on a ruler; tap its length on the line plot and an X goes on top
+  //   level 5+ any of these, with harder questions
+  // Questions: how many chose ..., which is the most / least, how many more / fewer, how many in all, how many more to make them equal;
+  // for line plots: how many are ... long, the longest, the most common length. Round 1 asks the easier ones; a miss makes the next one easy.
+  // 6 questions a level; 5 right (in two tries) opens the next level; any level opened can be played again. Coins buy things for the fair.
+  var $=function(id){ return document.getElementById(id); };
+  var STORE="fairDay.v1", S={day:1,coins:0,fair:{},tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var L=S.day, D=null, R=null, Q=null, busy=false, val="", QN=3;
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=rnd(i+1), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").onclick=function(){ S.sound=!S.sound; $("soundBtn").textContent=S.sound?"🔔":"🔕"; save(); };
+  $("soundBtn").textContent=S.sound?"🔔":"🔕";
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var pet=window.MathPet?MathPet.get():null;
+  $("pet").innerHTML=pet?MathPet.pic(pet,"happy",60):"🐣";
+  function say(t){ $("bub").innerHTML=t; var p=$("pet"); p.classList.remove("cheer"); void p.offsetWidth; p.classList.add("cheer"); }
+  function Z(){ return parseFloat($("wrap").style.zoom)||1; }
+  function fitted(){ return $("wrap").classList.contains("fitted"); }
+  // ---------- the fair's things, bought with coins ----------
+  var FAIR=[{id:"balloon",e:"🎈",p:5},{id:"candy",e:"🍭",p:8},{id:"tent",e:"🎪",p:12},{id:"horse",e:"🎠",p:16},{id:"wheel",e:"🎡",p:22},{id:"coaster",e:"🎢",p:28},{id:"fireworks",e:"🎆",p:36},{id:"castle",e:"🏰",p:45}];
+  function drawFair(){ $("decor").innerHTML=FAIR.filter(function(f){ return S.fair[f.id]; }).map(function(f,i){ return '<span class="decor" style="right:'+(6+i*9)+'%">'+f.e+'</span>'; }).join(""); }
+  // ---------- the choices the animals vote for ----------
+  var THEMES=[{q:"favorite fruit",cn:"最喜欢的水果",items:[["🍓","strawberry","草莓"],["🍌","banana","香蕉"],["🍎","apple","苹果"],["🍇","grapes","葡萄"],["🍉","watermelon","西瓜"]]},
+    {q:"favorite ball game",cn:"最喜欢的球",items:[["⚽","soccer","足球"],["🏀","basketball","篮球"],["⚾","baseball","棒球"],["🎾","tennis","网球"],["🏐","volleyball","排球"]]},
+    {q:"favorite treat",cn:"最喜欢的零食",items:[["🍦","ice cream","冰淇淋"],["🍪","cookie","饼干"],["🧁","cupcake","纸杯蛋糕"],["🍩","donut","甜甜圈"],["🍿","popcorn","爆米花"]]}];
+  var COL=["#ff8fa3","#ffd84a","#7cc47f","#a98bff","#6ccaf2"];
+  // counts for k choices: every count different from its neighbours in size order, so "most" and "least" have one answer
+  function counts(k,lo,hi,cap){
+    var c, sum; do{ c=[]; for(var i=0;i<k;i++) c.push(lo+rnd(hi-lo+1)); var s=c.slice().sort(function(a,b){ return a-b; }); sum=c.reduce(function(a,b){ return a+b; },0); }while(s[0]===s[1]||s[k-1]===s[k-2]||sum>cap);
+    return c;
+  }
+  function newRound(){
+    var kind=L===1?"bar":L===2?"pic":L===3?"make":L===4?"line":["bar","pic","make","line"][rnd(4)];
+    var hard=L>=5, r={kind:kind,qi:0,vals:[],seq:[],i:0};
+    if(kind==="line"){   // worm lengths 1..6 inches, one most common length
+      var lens=[1,2,3,4,5,6], c; do{ c=lens.map(function(){ return rnd(hard?4:3); }); var s=c.slice().sort(function(a,b){ return b-a; }); }while(s[0]===s[1]||s[0]<2||c.reduce(function(a,b){ return a+b; },0)<6||c.reduce(function(a,b){ return a+b; },0)>(hard?12:9));
+      r.cats=lens.map(function(n){ return [String(n),n+" in",n+" 英寸"]; }); r.target=c; r.vals=c.map(function(){ return 0; });
+      c.forEach(function(n,i){ for(var j=0;j<n;j++) r.seq.push(i); }); shuffle(r.seq);
+      r.max=Math.max(4,Math.max.apply(null,c)+1);
+    } else {
+      var th=THEMES[rnd(THEMES.length)], k=L===1?3:4, items=shuffle(th.items.slice()).slice(0,k);
+      r.theme=th; r.cats=items; r.target=kind==="make"?counts(k,1,hard?9:8,40):counts(k,1,L===1?5:hard?8:6,L===1?11:hard?18:15);   // a survey is at most 11 to 18 animals
+      r.vals=items.map(function(){ return 0; });
+      r.target.forEach(function(n,i){ for(var j=0;j<n;j++) r.seq.push(i); }); shuffle(r.seq);
+      r.max=kind==="make"?10:Math.max(L===1?6:8,Math.max.apply(null,r.target)+1);
+      if(kind==="make"){ r.vals=items.map(function(){ return 0; }); }
+    }
+    return r;
+  }
+  // ---------- drawing the graph ----------
+  var G={};   // the geometry of the graph drawn last
+  function drawGraph(newCat){
+    var g=$("graph"), w=g.clientWidth||340, h=g.clientHeight||240, html="", r=R, k=r.cats.length;
+    if(r.kind==="pic"){
+      var rowH=Math.min(56,(h-40)/k), size=Math.max(16,Math.min(rowH*.72,(w-90)/r.max-2));
+      html+='<div class="gtitle">'+r.theme.q+' · '+r.theme.cn+'</div>';
+      r.cats.forEach(function(c,i){
+        var pics=""; for(var j=0;j<r.vals[i];j++) pics+='<span class="pic'+(newCat===i&&j===r.vals[i]-1?" new":"")+'" style="font-size:'+size+'px">🙂</span>';
+        html+='<div class="prow" data-i="'+i+'" style="top:'+(24+i*rowH)+'px;height:'+rowH+'px"><div class="pl">'+c[0]+'<small>'+c[1]+'</small></div><div class="pics">'+pics+'</div></div>';
+      });
+      html+='<div class="key">Key: 🙂 = 1 vote 每个 🙂 代表 1 票</div>';
+      g.innerHTML=html; G={kind:"pic",w:w,h:h}; return;
+    }
+    if(r.kind==="line"){
+      var left=20, right=w-20, step=(right-left)/6, base=h-34, xs=Math.min(26,(base-30)/r.max);
+      html+='<div class="gtitle">Worm lengths (inches) 虫子的长度（英寸）</div><div class="axis" style="left:'+left+'px;width:'+(right-left)+'px;top:'+base+'px;height:3px"></div>';
+      for(var i=0;i<6;i++){
+        var x=left+step*(i+.5), xm="";
+        for(var j=0;j<r.vals[i];j++) xm+='<span class="xm'+(newCat===i&&j===r.vals[i]-1?" new":"")+'" style="bottom:'+(34+j*xs)+'px;font-size:'+(xs*1.05)+'px">✕</span>';
+        html+='<div class="lp" data-i="'+i+'" style="left:'+(x-step/2)+'px;width:'+step+'px;top:20px;bottom:0">'+xm+'<div class="axis" style="left:50%;width:3px;margin-left:-1.5px;bottom:26px;height:12px"></div><div class="lpn">'+(i+1)+'</div></div>';
+      }
+      g.innerHTML=html; G={kind:"line",w:w,h:h}; return;
+    }
+    // bar graph (also "make": the bars are dragged)
+    var lp=34, bot=fitted()?62:52, top=28, unit=(h-bot-top)/r.max, cw=(w-lp-12)/k, bw=Math.min(70,cw*.62);
+    html+='<div class="gtitle">'+r.theme.q+' · '+r.theme.cn+'</div>';
+    for(var v=0;v<=r.max;v++){ var y=h-bot-v*unit; html+='<div class="grid" style="left:'+lp+'px;right:8px;top:'+y+'px"></div>'+(r.max<=10||v%2===0?'<div class="ylab" style="left:'+lp+'px;top:'+y+'px">'+v+'</div>':''); }
+    html+='<div class="axis" style="left:'+lp+'px;width:3px;top:'+top+'px;height:'+(h-bot-top)+'px"></div><div class="axis" style="left:'+lp+'px;right:8px;top:'+(h-bot)+'px;height:3px"></div>';
+    r.cats.forEach(function(c,i){
+      var x=lp+cw*i+cw/2, inner="";
+      if(r.kind==="make") inner='<div class="bar" id="bar'+i+'" style="height:'+(r.vals[i]*unit)+'px;background:'+COL[i]+'"><div class="grab"></div></div>';
+      else for(var j=0;j<r.vals[i];j++) inner+='<div class="blk'+(newCat===i&&j===r.vals[i]-1?" new":"")+'" style="bottom:'+(j*unit+1)+'px;height:'+(unit-2)+'px;background:'+COL[i]+'"></div>';
+      html+='<div class="col" data-i="'+i+'" style="left:'+(x-bw/2)+'px;width:'+bw+'px;top:'+top+'px;bottom:auto;height:'+(h-bot-top)+'px">'+inner+'</div>';
+      html+='<div class="cat" data-i="'+i+'" style="left:'+(x-cw/2)+'px;width:'+cw+'px;top:'+(h-bot+6)+'px;bottom:auto">'+c[0]+'<small>'+c[1]+'</small></div>';
+    });
+    g.innerHTML=html; G={kind:"bar",unit:unit,bot:bot,h:h,w:w};
+    if(r.kind==="make") wireBars();
+  }
+  // tapping the graph: a column, a category under it, a picture row, a line plot number
+  $("graph").addEventListener("click",function(e){
+    var el=e.target.closest?e.target.closest(".col,.cat,.prow,.lp"):null; if(!el||busy||!R||R.phase!=="collect"||R.kind==="make") return;
+    place(+el.dataset.i);
+  });
+  // ---------- collecting the data ----------
+  function nextItem(){
+    if(R.i>=R.seq.length){ return setTimeout(startQuestions,500); }
+    var c=R.seq[R.i];
+    if(R.kind==="line") return showWorm(c+1);
+    var ck=Critters.list[rnd(Critters.list.length)], lane=$("lane"), lw=lane.clientWidth;
+    $("actor").innerHTML='<div class="critter walk" id="crit" style="left:-40px"><b>'+Critters.svg(ck)+'</b></div>';
+    var cr=$("crit"); void cr.offsetWidth; cr.style.left=Math.round(lw*.62)+"px";
+    busy=true;
+    setTimeout(function(){ cr.classList.remove("walk"); cr.insertAdjacentHTML("beforeend",'<div class="think" id="think">'+R.cats[c][0]+'</div>'); busy=false; tone([660],.05);
+      if(D.tut&&R.i===0) tutHand(c); },1150);
+  }
+  function showWorm(n){
+    var lane=$("lane"), lw=lane.clientWidth, u=Math.min(fitted()?58:44,(lw-80)/7), rh='', ww=n*u;
+    for(var i=0;i<=6;i++) rh+='<i style="left:'+(16+i*u)+'px"></i><span style="left:'+(16+i*u)+'px">'+i+'</span>';
+    var worm='<svg class="worm" style="left:16px;width:'+ww+'px" viewBox="0 0 '+ww+' 18" preserveAspectRatio="none"><rect x="1" y="2" width="'+(ww-2)+'" height="14" rx="7" fill="#ff9fb6" stroke="#c2306a" stroke-width="2"/><circle cx="'+(ww-7)+'" cy="7" r="2" fill="#2b2a3f"/></svg>';
+    $("actor").innerHTML='<div class="wormbox"><div class="wruler" style="width:'+(32+6*u)+'px"><b class="ul">in</b>'+rh+worm+'</div></div>';
+    if(D.tut&&R.i===0) tutHand(n-1);
+  }
+  function tutHand(i){
+    var el=document.querySelector('.col[data-i="'+i+'"],.prow[data-i="'+i+'"],.lp[data-i="'+i+'"]'); if(!el) return;
+    var st=$("stage").getBoundingClientRect(), r=el.getBoundingClientRect(), z=Z();
+    $("stage").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+((r.left-st.left)/z+r.width/z/2-14)+'px;top:'+((r.top-st.top)/z+(R.kind==="line"?r.height/z-60:r.height/z/2))+'px">👆</div>');
+    say(R.kind==="line"?"How long is the worm? Tap that number! 虫子多长？点那个数！":"It likes "+R.cats[i][0]+"! Tap the "+R.cats[i][0]+" column. 它喜欢 "+R.cats[i][0]+"，点那一栏！");
+  }
+  function place(i){
+    var want=R.seq[R.i]; var hd=$("hand"); if(hd) hd.remove();
+    if(i!==want){
+      tone([200,150],.1,"sawtooth"); R.slips++;
+      if(R.kind==="line"){ say("Look where the worm's head is on the ruler! 看虫子的头对着几！"); return; }
+      var cr=$("crit"); cr.classList.remove("no"); void cr.offsetWidth; cr.classList.add("no"); say("No, I like "+R.cats[want][0]+"! 我喜欢 "+R.cats[want][0]+"！"); return;
+    }
+    busy=true; R.vals[i]++; R.i++;
+    // the vote flies from the animal to its place on the graph
+    var from=document.querySelector("#think,.worm"), st=$("stage").getBoundingClientRect(), z=Z();
+    drawGraph(i);
+    var to=document.querySelector(".blk.new,.pic.new,.xm.new");
+    if(from&&to){ var a=from.getBoundingClientRect(), b=to.getBoundingClientRect(), f=document.createElement("span"); f.className="fly"; f.textContent=R.kind==="line"?"✕":R.kind==="pic"?"🙂":R.cats[i][0];
+      f.style.left=((a.left-st.left)/z+4)+"px"; f.style.top=((a.top-st.top)/z)+"px"; $("stage").appendChild(f); void f.offsetWidth; f.style.left=((b.left-st.left)/z)+"px"; f.style.top=((b.top-st.top)/z)+"px"; f.style.transform="scale(.6)"; setTimeout(function(){ f.remove(); },380); }
+    tone([523+i*80,784],.07);
+    if(R.kind==="line"){ $("actor").innerHTML=""; busy=false; say(["An X for "+(i+1)+" inches! "+(i+1)+" 英寸画一个 ✕","Got it! 记下了！"][rnd(2)]); return setTimeout(nextItem,350); }
+    var cr=$("crit"), th=$("think"); if(th) th.remove();
+    cr.classList.add("walk"); cr.style.left=($("lane").clientWidth+60)+"px";
+    say(["Thank you! 谢谢！","One vote for "+R.cats[i][0]+"! "+R.cats[i][0]+" 一票！","Yay! 耶！"][rnd(3)]);
+    setTimeout(function(){ busy=false; nextItem(); },650);
+  }
+  // make a bar graph: drag a bar's top up or down; it snaps to whole numbers
+  function wireBars(){
+    [].forEach.call(document.querySelectorAll(".col"),function(col){
+      var i=+col.dataset.i, down=false;
+      function setFrom(e){ var r=col.getBoundingClientRect(), z=Z(), v=Math.round((r.bottom-e.clientY)/(G.unit*z)); v=Math.max(0,Math.min(R.max,v)); if(v!==R.vals[i]){ R.vals[i]=v; $("bar"+i).style.height=(v*G.unit)+"px"; tone([400+v*40],.03); } }
+      col.onpointerdown=function(e){ if(busy||R.phase!=="collect") return; down=true; try{ col.setPointerCapture(e.pointerId); }catch(er){} setFrom(e); e.preventDefault(); var hd=$("hand"); if(hd) hd.remove(); };
+      col.onpointermove=function(e){ if(down) setFrom(e); };
+      col.onpointerup=col.onpointercancel=function(){ down=false; };
+    });
+  }
+  function tallyHtml(n){
+    var s='<svg width="'+(Math.ceil(n/5)*30+4)+'" height="20" viewBox="0 0 '+(Math.ceil(n/5)*30+4)+' 20">';
+    for(var i=0;i<n;i++){ var g=Math.floor(i/5), m=i%5, x=4+g*30; s+=m<4?'<path d="M'+(x+m*5)+' 2V18" stroke="#2b2a3f" stroke-width="2.2" stroke-linecap="round"/>':'<path d="M'+(x-3)+' 15L'+(x+19)+' 5" stroke="#c2306a" stroke-width="2.2" stroke-linecap="round"/>'; }
+    return s+'</svg>';
+  }
+  function startMake(){
+    $("actor").innerHTML='<div class="tally"><b style="grid-column:1/-1;text-align:center;font-size:.75rem;color:#6f6a86">Tally chart 计数表</b>'+R.cats.map(function(c,i){ return '<span class="e">'+c[0]+'</span><span>'+tallyHtml(R.target[i])+'</span>'; }).join("")+'</div>';
+    $("check").style.display="block";
+    $("task").innerHTML='Make the bar graph! Drag each bar up to match the tally chart.<span class="cn">照着计数表，把每根柱子拖到正确的高度！</span>';
+    relayout();
+    say("A group with a line across is 5! 画斜线的一组是 5！");
+  }
+  $("check").onclick=function(){
+    if(busy||!R||R.kind!=="make"||R.phase!=="collect") return;
+    var bad=[]; R.target.forEach(function(t,i){ if(R.vals[i]!==t) bad.push(i); });
+    if(!bad.length){ tone([660,880,1100],.08); say("Your graph matches the tally chart! 和计数表一模一样！"); $("check").style.display="none"; burstAt($("graph")); return setTimeout(startQuestions,700); }
+    R.slips++; R.checks=(R.checks||0)+1; tone([200,150],.12,"sawtooth");
+    bad.forEach(function(i){ var b=$("bar"+i); b.classList.remove("bad"); void b.offsetWidth; b.classList.add("bad"); });
+    if(R.checks>=2){ say("Here is how they go. 柱子应该是这样的。"); R.target.forEach(function(t,i){ R.vals[i]=t; }); drawGraph(); $("check").style.display="none"; return setTimeout(startQuestions,1500); }
+    say("Some bars don't match. Count the tally marks again! 有的柱子不对，再数一数！");
+  };
+  // ---------- questions about the graph ----------
+  function startQuestions(){
+    R.phase="ask"; $("check").style.display="none"; $("actor").innerHTML=R.kind==="make"?$("actor").innerHTML:"";
+    if(R.kind==="make") $("actor").innerHTML="";
+    R.qs=makeQuestions(); R.qi=0; ask();
+  }
+  function makeQuestions(){
+    var c=R.vals, k=c.length, easy=D.round===0, list=[], idx=[]; for(var i=0;i<k;i++) idx.push(i);
+    if(R.kind==="line"){
+      var most=c.indexOf(Math.max.apply(null,c)), longest=0; c.forEach(function(n,i){ if(n) longest=i+1; });
+      var some=idx.filter(function(i){ return c[i]>0; }), a=some[rnd(some.length)];
+      var over=1+rnd(4), cnt=0; c.forEach(function(n,i){ if(i+1>over) cnt+=n; });
+      list=[{t:"lcount",a:a,ans:c[a]},{t:"lmost",ans:most+1},{t:easy?"llong":"lover",ans:easy?longest:cnt,over:over}];
+      return shuffle(list);
+    }
+    var mx=c.indexOf(Math.max.apply(null,c)), mn=c.indexOf(Math.min.apply(null,c)), p=shuffle(idx.slice()), x=p[0], y=p[1];
+    if(c[x]<c[y]){ var t=x; x=y; y=t; } if(c[x]===c[y]){ x=mx; y=mn; }
+    var all=c.reduce(function(s,v){ return s+v; },0);
+    if(easy) list=[{t:"count",a:p[2]!=null?p[2]:p[0],ans:c[p[2]!=null?p[2]:p[0]]},{t:"most",ans:mx},{t:"more",a:x,b:y,ans:c[x]-c[y]}];
+    else list=[{t:Math.random()<.5?"more":"fewer",a:x,b:y,ans:c[x]-c[y]},{t:"both",a:p[0],b:p[1],ans:c[p[0]]+c[p[1]]},L>=5?{t:"equal",a:mx,b:mn,ans:c[mx]-c[mn]}:Math.random()<.5?{t:"least",ans:mn}:{t:"all",ans:all}];
+    return list;
+  }
+  function nm(i){ return R.cats[i][0]; }
+  function ask(){
+    if(R.qi>=R.qs.length) return endRound();
+    Q=R.qs[R.qi]; Q.tries=0; setVal(""); glow([]);
+    var h, choice=Q.t==="most"||Q.t==="least";
+    if(Q.t==="count"){ h='How many chose <b>'+nm(Q.a)+'</b>?<span class="cn">有几只选了 '+nm(Q.a)+'？</span>'; glow([Q.a]); }
+    else if(Q.t==="most") h='Which got the <b>most</b> votes?<span class="cn">哪个得票最多？</span>';
+    else if(Q.t==="least") h='Which got the <b>fewest</b> votes?<span class="cn">哪个得票最少？</span>';
+    else if(Q.t==="more"){ h='How many <b>more</b> chose '+nm(Q.a)+' than '+nm(Q.b)+'?<span class="cn">选 '+nm(Q.a)+' 的比选 '+nm(Q.b)+' 的多几只？</span>'; glow([Q.a,Q.b]); }
+    else if(Q.t==="fewer"){ h='How many <b>fewer</b> chose '+nm(Q.b)+' than '+nm(Q.a)+'?<span class="cn">选 '+nm(Q.b)+' 的比选 '+nm(Q.a)+' 的少几只？</span>'; glow([Q.a,Q.b]); }
+    else if(Q.t==="both"){ h='How many chose '+nm(Q.a)+' or '+nm(Q.b)+' <b>in all</b>?<span class="cn">选 '+nm(Q.a)+' 和 '+nm(Q.b)+' 的一共几只？</span>'; glow([Q.a,Q.b]); }
+    else if(Q.t==="all") h='How many animals voted <b>in all</b>?<span class="cn">一共有几只动物投票？</span>';
+    else if(Q.t==="equal"){ h='How many more votes would '+nm(Q.b)+' need to <b>tie</b> with '+nm(Q.a)+'?<span class="cn">'+nm(Q.b)+' 还要几票才能和 '+nm(Q.a)+' 一样多？</span>'; glow([Q.a,Q.b]); }
+    else if(Q.t==="lcount"){ h='How many worms are <b>'+(Q.a+1)+' inches</b> long?<span class="cn">长 '+(Q.a+1)+' 英寸的虫子有几条？</span>'; glow([Q.a]); }
+    else if(Q.t==="lmost") h='Which length has the <b>most</b> worms? (inches)<span class="cn">哪个长度的虫子最多？（英寸）</span>';
+    else if(Q.t==="llong") h='How long is the <b>longest</b> worm? (inches)<span class="cn">最长的虫子有几英寸？</span>';
+    else if(Q.t==="lover") h='How many worms are <b>longer than '+Q.over+' inches</b>?<span class="cn">比 '+Q.over+' 英寸长的虫子有几条？</span>';
+    $("task").innerHTML=h;
+    $("ans").style.display=choice?"none":"grid";
+    var ch=$("choices"); ch.style.display=choice?"grid":"none"; ch.style.gridTemplateColumns="repeat("+R.cats.length+",1fr)";
+    if(choice){ ch.innerHTML=R.cats.map(function(c,i){ return '<button type="button" data-i="'+i+'">'+c[0]+'<small>'+c[1]+'</small></button>'; }).join("");
+      [].forEach.call(ch.querySelectorAll("button"),function(b){ b.onclick=function(){ if(busy) return; answer(+b.dataset.i,b); }; }); }
+    say(["Read the graph! 看图回答！","Look at the bars! 看柱子！","You can do it! 你能行！"][rnd(3)]);
+    relayout();
+  }
+  // the panel under the graph changed size (the keypad, the check button): draw the graph again for its new room
+  var lit=[];
+  function relayout(){ var g=$("graph"); if(R&&(g.clientHeight!==G.h||g.clientWidth!==G.w)){ drawGraph(); glow(lit); } }
+  function glow(list){ lit=list; [].forEach.call(document.querySelectorAll(".col,.prow,.lp"),function(e){ e.classList.toggle("glow",list.indexOf(+e.dataset.i)>=0); }); }
+  function setVal(v){ val=v; $("show").textContent=v||"?"; $("show").className="show"+(v?"":" blank"); }
+  var kh=""; for(var d=1;d<=9;d++) kh+='<button type="button" class="k" data-k="'+d+'">'+d+'</button>'; kh+='<button type="button" class="k" data-k="0">0</button><button type="button" class="k" data-k="x">⌫</button><button type="button" class="k ok" data-k="ok">✓</button>';
+  $("keys").innerHTML=kh;
+  [].forEach.call(document.querySelectorAll(".k"),function(b){ b.onclick=function(){
+    if(busy) return; var k=b.dataset.k;
+    if(k==="ok"){ if(val) answer(+val); return; }
+    tone([600],.04); if(k==="x") setVal(val.slice(0,-1)); else if(val.length<2) setVal(val==="0"?k:val+k);
+  }; });
+  function answer(v,btn){
+    if(v===Q.ans){ return right(); }
+    Q.tries++; tone([200,150],.12,"sawtooth");
+    if(btn){ btn.classList.add("bad"); btn.disabled=true; } else { $("show").classList.remove("shake"); void $("show").offsetWidth; $("show").classList.add("shake"); setVal(""); }
+    var hint={count:"Look at the top of the bar, then across to the number. 看柱子顶端对着几。",more:"Count up from the shorter one to the taller one. 从矮的数到高的。",fewer:"Count up from the shorter one to the taller one. 从矮的数到高的。",
+      both:"Add the two together. 把两个加起来。",all:"Add all of them. 全部加起来。",equal:"How many more to reach the same height? 还差几格一样高？",most:"Find the tallest one. 找最高的。",least:"Find the shortest one. 找最矮的。",
+      lcount:"Count the X marks above that number. 数那个数上面的 ✕。",lmost:"Find the tallest stack of X marks. 找 ✕ 最多的那一列。",llong:"Find the X farthest to the right. 找最右边的 ✕。",lover:"Count the X marks to the right of that number. 数它右边的 ✕。"}[Q.t];
+    if(R.kind==="pic") hint=hint.replace("the top of the bar, then across to the number. 看柱子顶端对着几","the pictures in the row. 数这一行的图").replace("the bar","the row");
+    if(Q.tries>=2){ D.miss++; D.bad=true; busy=true; say("It's "+(Q.t==="most"||Q.t==="least"?nm(Q.ans):Q.ans)+". 答案是 "+(Q.t==="most"||Q.t==="least"?nm(Q.ans):Q.ans)+"。"); setTimeout(function(){ busy=false; R.qi++; hud(); ask(); },1700); return; }
+    say(hint);
+  }
+  function right(){
+    busy=true; var coins=Q.tries?1:3; D.ok++; D.coins+=coins; S.coins+=coins; save();
+    tone([660,880,1100],.08); burstAt($("graph"));
+    var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"; fx.style.left="45%"; fx.style.top="40%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
+    say(["Right! 对啦！","Great graph reading! 读图高手！","Yes! 没错！"][rnd(3)]); if(pet) MathPet.feed(1);
+    hud(); setTimeout(function(){ busy=false; R.qi++; ask(); },1100);
+  }
+  function burstAt(el){ var r=el.getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/3); }
+  function hud(){ $("score").textContent=D.ok+"/"+(QN*2); $("day").textContent=L; $("coins").textContent=S.coins; }
+  // ---------- rounds and levels ----------
+  function startRound(){
+    R=newRound(); R.phase="collect"; R.slips=0; glow([]);
+    $("ans").style.display="none"; $("choices").style.display="none"; $("check").style.display="none";
+    drawGraph();
+    if(R.kind==="make") return startMake();
+    $("task").innerHTML=R.kind==="line"?'Measure the worms! Put an ✕ on the line plot for each one.<span class="cn">量一量虫子，在点线图上为每条虫子画一个 ✕！</span>':
+      'The animals vote for their <b>'+R.theme.q+'</b>. Put each vote on the '+(R.kind==="pic"?"picture graph":"bar graph")+'!<span class="cn">小动物在投票：'+R.theme.cn+'。把每一票放到'+(R.kind==="pic"?"象形图":"柱状图")+'上！</span>';
+    say(R.kind==="line"?"Here come the worms! 虫子来了！":"Here they come! 它们来啦！");
+    relayout(); nextItem();
+  }
+  function endRound(){
+    D.round++;
+    if(D.round<2){ say("Next survey! 下一个调查！"); return setTimeout(startRound,900); }
+    endLevel();
+  }
+  function startLevel(){
+    D={round:0,ok:0,miss:0,coins:0,bad:false,tut:!S.tut&&L===1};
+    if(window.GameProgress) GameProgress.start("data","day"+L);
+    closeOver(); hud(); startRound();
+    if(D.tut){ S.tut=1; save(); }
+  }
+  function endLevel(){
+    var won=D.ok>=5, d=L;
+    if(window.GameProgress) GameProgress.report({game:"data",level:"day"+d,name:"Fair Day Level "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:QN*2,best:D.ok});
+    if(won){ if(L===S.day) S.day++; L++; save(); }
+    tone(won?[523,659,784,1047]:[392,330,262],.2);
+    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！":"再试一次，答对 5 题就过关！")+'</p><p style="font-size:1.3rem">✅ '+D.ok+' / '+(QN*2)+' · +'+D.coins+' 🪙</p>'+shopHtml()+levelPick()+'<button type="button" class="go" id="nextDay">'+playLabel()+'</button>');
+    wireShop(); wirePick(); $("nextDay").onclick=startLevel;
+  }
+  function shopHtml(){
+    return '<p style="margin-top:10px">🎪 Fair shop 游园会商店 · 🪙 '+S.coins+'</p><div class="shop" id="shop">'+FAIR.map(function(d){
+      var own=S.fair[d.id]; return '<button type="button" data-id="'+d.id+'" class="'+(own?"own":"")+'"'+(!own&&S.coins<d.p?" disabled":"")+'><i>'+d.e+'</i>'+(own?"✓":d.p+" 🪙")+'</button>'; }).join("")+'</div>';
+  }
+  function wireShop(){
+    [].forEach.call(document.querySelectorAll("#shop button"),function(b){ b.onclick=function(){
+      var d=FAIR.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!d||S.fair[d.id]||S.coins<d.p) return;
+      S.coins-=d.p; S.fair[d.id]=1; save(); drawFair(); $("coins").textContent=S.coins; tone([660,880,1100],.08);
+      $("shop").outerHTML=shopHtml().replace(/^<p[^>]*>.*?<\/p>/,""); wireShop();
+    }; });
+  }
+  function levelPick(){ return window.LevelPick?LevelPick.html("data",S.day,L):""; }
+  function playLabel(){ return S.day>1||L>1?"Level "+L+" ▶ 开始第 "+L+" 关":"Play! 开始"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; $("day").textContent=L; var b=$("play")||$("nextDay"); if(b) b.textContent=playLabel(); }); }
+  function over(html){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  var HOW='<div class="how"><div>🐞 An animal walks in thinking of its favorite. Tap that column (or row) and its vote goes on the graph!</div><div>📊 Then read the graph and answer: how many? which is the most? how many more?</div><div>📏 Some levels: build a bar graph from a tally chart, or measure worms for a line plot.</div><div style="color:var(--muted)">小动物想着最喜欢的东西走过来，点对应的那一栏，它的票就放到图上。然后看图回答问题。有的关要照计数表画柱状图，或者量虫子画点线图。</div></div>';
+  function intro(){ over('<h2>🎡 Fair Day</h2><p>Graphs &amp; Data Practice 统计图和数据</p>'+HOW+levelPick()+'<button type="button" class="go" id="play">'+playLabel()+'</button>'); wirePick(); $("play").onclick=startLevel; }
+  $("helpBtn").onclick=function(){ var o=document.createElement("div"); o.className="over"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go">Got it! 明白了</button>'; $("wrap").appendChild(o); o.querySelector(".go").onclick=function(){ o.remove(); }; };
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
+  function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<16;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:32,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
+  if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
+  var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ if(R&&!busy){ drawGraph(); glow(lit); } },150); });
+  drawFair(); hud0();
+  function hud0(){ $("day").textContent=L; $("coins").textContent=S.coins; $("score").textContent="0/"+(QN*2); $("task").innerHTML="🎡 Welcome to Fair Day! 欢迎来游园会！"; }
+  window.__fair={r:function(){ return R; },q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },start:startLevel};
+  intro();
+})();
+</script>
+</body></html>

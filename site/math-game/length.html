@@ -101,7 +101,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   .wrap.fitted .ans{grid-template-columns:auto 1fr auto}.wrap.fitted .keys{grid-template-columns:repeat(11,1fr)}.wrap.fitted .build{grid-column:auto;margin-top:0;width:auto;padding:0 22px}}
 </style>
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script><script src="critters.js?v=20261130a"></script>
 <div class="wrap" id="wrap">
   <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.25rem">🌉 Bridge Builders</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
   <div class="hud"><div><small>Crossed 过河</small><b id="crossed">0/6</b></div><div><small>Level 关</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
@@ -162,20 +162,10 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   }
   function drawTown(){ if(Q&&D) drawScene(); }
   // ---------- a question ----------
-  // the animals, drawn facing right (emoji animals face different ways on different phones)
-  var INK='stroke="#2b2a3f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
-  var EYE=function(x,y){ return '<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2b2a3f"/><circle cx="'+(x+.9)+'" cy="'+(y-.9)+'" r=".9" fill="#fff"/>'; };
-  var CRITS={
-    ladybug:["ladybug",'<svg viewBox="0 0 64 46"><path d="M18 36l-3 7M29 37v7M40 36l3 7" fill="none" '+INK+'/><path d="M8 36Q9 11 30 11Q48 11 48 36Z" fill="#e8413c" '+INK+'/><path d="M28 11V36" '+INK+'/><circle cx="17" cy="23" r="3.6" fill="#2b2a3f"/><circle cx="37" cy="21" r="3.6" fill="#2b2a3f"/><circle cx="21" cy="31" r="2.6" fill="#2b2a3f"/><circle cx="40" cy="30" r="2.6" fill="#2b2a3f"/><circle cx="52" cy="29" r="8.5" fill="#2b2a3f"/><circle cx="55" cy="27" r="2.6" fill="#fff"/><circle cx="55.8" cy="27" r="1.2" fill="#2b2a3f"/><path d="M53 21Q56 13 61 12" fill="none" '+INK+'/></svg>'],
-    snail:["snail",'<svg viewBox="0 0 64 46"><path d="M3 42H50Q60 42 60 33Q60 25 52 25Q46 25 46 32V36H4Q1 39 3 42Z" fill="#f3c98b" '+INK+'/><circle cx="25" cy="23" r="15" fill="#c98a4b" '+INK+'/><path d="M25 23m-5 0a5 5 0 1 0 5-5a10 10 0 1 1-10 10" fill="none" '+INK+'/><path d="M52 26L54 13M57 27L61 15" fill="none" '+INK+'/><circle cx="54" cy="12" r="2.6" fill="#2b2a3f"/><circle cx="61" cy="14" r="2.6" fill="#2b2a3f"/><path d="M53 35q3 2 6 0" fill="none" '+INK+'/></svg>'],
-    turtle:["turtle",'<svg viewBox="0 0 66 46"><ellipse cx="16" cy="39" rx="6" ry="4" fill="#8fd16f" '+INK+'/><ellipse cx="40" cy="39" rx="6" ry="4" fill="#8fd16f" '+INK+'/><path d="M2 32L8 30" '+INK+'/><circle cx="56" cy="29" r="8" fill="#9edc7a" '+INK+'/>'+EYE(58,27)+'<path d="M55 33q3 2 6 0" fill="none" '+INK+'/><path d="M6 36Q9 9 29 9Q49 9 52 36Z" fill="#5aa83f" '+INK+'/><path d="M19 15L23 25L35 25L39 15M23 25L19 36M35 25L39 36M14 25H23M35 25H46" fill="none" stroke="#2f6b33" stroke-width="1.8"/></svg>'],
-    chick:["chick",'<svg viewBox="0 0 64 48"><path d="M24 40v6M34 40v6M24 46h-4M34 46h4" fill="none" stroke="#e08a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="28" cy="29" r="15" fill="#ffd84a" '+INK+'/><circle cx="44" cy="17" r="11" fill="#ffd84a" '+INK+'/><path d="M54 15L62 18L54 22Z" fill="#ff9f43" '+INK+'/>'+EYE(47,14)+'<path d="M20 28q6 7 12 0" fill="#ffc72c" '+INK+'/><path d="M41 6q2-5 5-1" fill="none" '+INK+'/></svg>'],
-    mouse:["mouse",'<svg viewBox="0 0 66 44"><path d="M12 32Q2 30 3 20" fill="none" '+INK+'/><ellipse cx="30" cy="30" rx="19" ry="11" fill="#c4bfd3" '+INK+'/><path d="M40 22Q48 16 56 22L63 27L55 31Q46 34 40 30Z" fill="#c4bfd3" '+INK+'/><circle cx="46" cy="15" r="6.5" fill="#f4b6c6" '+INK+'/>'+EYE(52,22)+'<circle cx="63" cy="27" r="2.2" fill="#e86a8a"/><path d="M22 40l-2 3M36 40l2 3" '+INK+'/></svg>'],
-    bunny:["bunny",'<svg viewBox="0 0 64 48"><ellipse cx="42" cy="9" rx="4" ry="10" transform="rotate(-12 42 9)" fill="#fff" '+INK+'/><ellipse cx="50" cy="9" rx="4" ry="10" transform="rotate(10 50 9)" fill="#fff" '+INK+'/><circle cx="10" cy="31" r="5" fill="#fff" '+INK+'/><ellipse cx="28" cy="34" rx="17" ry="11" fill="#fff" '+INK+'/><circle cx="47" cy="25" r="10" fill="#fff" '+INK+'/>'+EYE(50,23)+'<circle cx="57" cy="27" r="2" fill="#f28fa8"/><ellipse cx="38" cy="44" rx="6" ry="2.5" fill="#fff" '+INK+'/></svg>'],
-    hedgehog:["hedgehog",'<svg viewBox="0 0 66 46"><path d="M6 38L4 30L9 26L7 18L14 16L15 8L22 10L27 4L32 10L38 7L40 14L46 14L44 22L48 26" fill="#8a5a2b" '+INK+'/><path d="M6 38Q8 24 28 22Q46 21 52 28L62 33L52 38Z" fill="#e8c9a0" '+INK+'/>'+EYE(51,29)+'<circle cx="62" cy="33" r="2.4" fill="#2b2a3f"/><path d="M20 38l-1 5M36 38l1 5" '+INK+'/></svg>']
-  };
-  var CRIT=Object.keys(CRITS);
-  function critSvg(k){ return (CRITS[k]||CRITS.ladybug)[1]; }
+  // the animals: critters.js (drawn, all facing right)
+  var CRITS={}; Critters.list.forEach(function(k){ CRITS[k]=[Critters.name(k)]; });
+  var CRIT=Critters.list;
+  function critSvg(k){ return Critters.svg(k); }
   function gen(){
     var easy=D.n<=2||D.bad, hard=!easy&&D.streak>=3;
     var show=L===1?"in":L===2?"cm":"both", unit=L===1?"in":L===2?"cm":(Math.random()<.5?"in":"cm");
