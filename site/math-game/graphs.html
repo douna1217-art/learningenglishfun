@@ -92,14 +92,17 @@
   // o.ghost {i, add} (votes being added on top of bar i), o.hl (a bar in gold), o.hide (a bar left empty)
   function barSvg(d,vals,o){
     o=o||{}; var top=topOf(d), H=160, W=320, x0=44, y0=204;
-    var s='<svg viewBox="0 0 360 250" class="bars" style="width:100%;max-width:440px;display:block;margin:6px auto 0;touch-action:none"><text x="180" y="16" text-anchor="middle" font-weight="900" font-size="14" fill="#1f4a47">Votes for our favorite zoo animals</text>';
+    var s='<svg viewBox="0 -14 360 264" class="bars" style="width:100%;max-width:440px;display:block;margin:6px auto 0;touch-action:none"><text x="180" y="16" text-anchor="middle" font-weight="900" font-size="14" fill="#1f4a47">Votes for our favorite zoo animals</text>';
     for(var v=0;v<=top;v+=d.k){ var y=y0-v/top*H; s+='<line x1="'+x0+'" y1="'+y+'" x2="'+(x0+W-10)+'" y2="'+y+'" stroke="#d7ecea" stroke-width="1.5"/><text x="'+(x0-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="12" font-weight="800" fill="#1f4a47">'+v+'</text>'; }
     s+='<line x1="'+x0+'" y1="'+(y0-H-4)+'" x2="'+x0+'" y2="'+y0+'" stroke="#1f4a47" stroke-width="2"/><line x1="'+x0+'" y1="'+y0+'" x2="'+(x0+W-10)+'" y2="'+y0+'" stroke="#1f4a47" stroke-width="2"/>';
     d.a.forEach(function(ai,i){ var bw=44, x=x0+18+i*76, bh=vals[i]/top*H;
       if(o.hide===i&&!vals[i]) s+='<rect x="'+x+'" y="'+(y0-H)+'" width="'+bw+'" height="'+H+'" rx="5" fill="none" stroke="#b9d6d3" stroke-width="2" stroke-dasharray="6 5"/>';
       s+='<rect x="'+x+'" y="'+(y0-bh)+'" width="'+bw+'" height="'+bh+'" rx="5" fill="'+(o.hl===i?"#f5b301":BARC[i])+'"/>';
       if(o.ghost&&o.ghost.i===i&&o.ghost.add>0){ var gh=o.ghost.add/top*H; s+='<rect x="'+x+'" y="'+(y0-bh-gh)+'" width="'+bw+'" height="'+gh+'" rx="5" fill="'+BARC[i]+'" fill-opacity=".35" stroke="'+BARC[i]+'" stroke-width="3" stroke-dasharray="6 4"/>'; }
-      if(o.handle===i) s+='<g class="grip"><rect x="'+(x-8)+'" y="'+(y0-bh-11)+'" width="'+(bw+16)+'" height="22" rx="11" fill="#fff" stroke="#1f4a47" stroke-width="3"/><path d="M'+(x+bw/2-8)+' '+(y0-bh-3)+'l8 -6l8 6M'+(x+bw/2-8)+' '+(y0-bh+3)+'l8 6l8 -6" fill="none" stroke="#1f4a47" stroke-width="2.5" stroke-linecap="round"/></g>';
+      if(o.handle===i){ var ty=y0-bh, gy=ty-24;   // a dashed guide from the top of the bar to the scale, and a small grip above the bar (it never hides the top)
+        s+='<line x1="'+x0+'" y1="'+ty+'" x2="'+(x+bw)+'" y2="'+ty+'" stroke="#1f4a47" stroke-width="2" stroke-dasharray="5 4"/>'+
+          '<g class="grip"><line x1="'+(x+bw/2)+'" y1="'+(gy+9)+'" x2="'+(x+bw/2)+'" y2="'+ty+'" stroke="#1f4a47" stroke-width="2"/><circle cx="'+(x+bw/2)+'" cy="'+gy+'" r="11" fill="#fff" stroke="#1f4a47" stroke-width="3"/>'+
+          '<path d="M'+(x+bw/2-5)+' '+(gy-1)+'l5 -4l5 4M'+(x+bw/2-5)+' '+(gy+3)+'l5 4l5 -4" fill="none" stroke="#1f4a47" stroke-width="2" stroke-linecap="round"/></g>'; }
       s+='<text x="'+(x+bw/2)+'" y="'+(y0+24)+'" text-anchor="middle" font-size="20">'+emo(ai)+'</text>'; });
     return s+'<text x="12" y="'+(y0-H/2)+'" font-size="11" font-weight="800" fill="#4a6b68" transform="rotate(-90 12 '+(y0-H/2)+')" text-anchor="middle">votes</text></svg>';
   }
@@ -131,7 +134,7 @@
     ui.task("News: the <b>"+emo(ai)+" "+name(ai)+"</b> got <b>"+q.v[q.ask]+" votes</b>. Pull their bar up! <small>把柱子拉到 "+q.v[q.ask]+"</small>");
     var f=ui.stage('<div id="bg"></div>'+goBtn("Print it ✓","完成")), box=f.querySelector("#bg"), on=false;
     function draw(){ box.innerHTML=barSvg(q,vals,{handle:q.ask,hide:q.ask}); }
-    function set(e){ var svg=box.querySelector("svg"), r=svg.getBoundingClientRect(), y=(e.clientY-r.top)*250/r.height, v=Math.round((204-y)/160*top/step)*step;
+    function set(e){ var svg=box.querySelector("svg"), r=svg.getBoundingClientRect(), y=(e.clientY-r.top)*264/r.height-14, v=Math.round((204-y)/160*top/step)*step;
       v=Math.max(0,Math.min(top,v)); if(v!==vals[q.ask]){ vals[q.ask]=v; tick(); draw(); } }
     box.addEventListener("pointerdown",function(e){ if(ui.locked()) return; on=true; try{ box.setPointerCapture(e.pointerId); }catch(x){} set(e); e.preventDefault(); });
     box.addEventListener("pointermove",function(e){ if(on) set(e); });
