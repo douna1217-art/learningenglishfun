@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bridge Builders</title>
+<meta name="theme-color" content="#3f8fd8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Bridge Builders: measure the gap with a ruler, cut a plank that fits, and help the little animals cross the river. Grade 2 measuring length in inches and centimeters.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#2b2a3f;--muted:#6f6a86;--bg:#eef6ff;--wood:#c98a4b;--wood2:#8a5a2b}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 20px;position:relative}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tbtn{background:#fff;border:1px solid #d5e3f5;border-radius:13px;padding:8px 12px;color:var(--ink);text-decoration:none;font:inherit;font-weight:900;cursor:pointer}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #d5e3f5}
+.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.35rem}
+/* the scene: sky, two cliffs with a river between, posts at the edges of the gap */
+.stage{position:relative;height:max(300px,calc(100vh - 470px));border-radius:22px;overflow:hidden;touch-action:none;
+  background:radial-gradient(ellipse 30% 22% at 18% 60%,#a9dc94 98%,transparent 100%),radial-gradient(ellipse 34% 26% at 62% 62%,#bde6a6 98%,transparent 100%),radial-gradient(ellipse 26% 18% at 92% 60%,#a9dc94 98%,transparent 100%),linear-gradient(180deg,#9fd6ff,#d9f0ff 60%)}
+.sun{position:absolute;right:7%;top:7%;width:52px;height:52px;border-radius:50%;background:#ffd84a;box-shadow:0 0 0 10px rgba(255,216,74,.3),0 0 0 22px rgba(255,216,74,.15);animation:sun 4s ease-in-out infinite}@keyframes sun{50%{box-shadow:0 0 0 14px rgba(255,216,74,.3),0 0 0 28px rgba(255,216,74,.12)}}
+.bird{position:absolute;font-size:1rem;animation:fly 18s linear infinite;opacity:.8}@keyframes fly{from{transform:translateX(-40px)}to{transform:translateX(110vw) translateY(-30px)}}
+.cloud{position:absolute;font-size:2rem;opacity:.9;animation:drift 26s linear infinite}@keyframes drift{from{transform:translateX(-80px)}to{transform:translateX(110vw)}}
+.decor{position:absolute;z-index:3;font-size:1.7rem;line-height:1;pointer-events:none;transform:translate(-50%,-100%)}
+.cliff{position:absolute;bottom:0;background:linear-gradient(180deg,#6cc35a 0 12px,#a0703f 12px,#8a5a2b);z-index:2}
+.cliff.l{left:0;border-radius:0 6px 0 0}.cliff.r{right:0;border-radius:6px 0 0 0}
+.river{position:absolute;bottom:0;background:linear-gradient(180deg,#53a9e8,#2f7fc8);z-index:1;overflow:hidden}
+.river:before{content:"";position:absolute;left:-40px;right:-40px;top:6px;height:12px;background:radial-gradient(circle at 10px 0,transparent 8px,rgba(255,255,255,.55) 9px 11px,transparent 12px) 0 0/20px 12px repeat-x;animation:wave 2s linear infinite}
+@keyframes wave{to{transform:translateX(20px)}}
+.post{position:absolute;width:10px;margin-left:-5px;height:28px;background:linear-gradient(90deg,#6b4423,#8a5a2b);border-radius:4px 4px 0 0;z-index:4}
+.edge{position:absolute;width:0;border-left:2px dashed rgba(43,42,63,.55);z-index:6;pointer-events:none}
+.petBox{position:absolute;left:10px;top:8px;display:flex;align-items:flex-start;gap:6px;z-index:7;max-width:80%}
+.pet{width:54px;height:54px;flex:none;display:flex;align-items:center;justify-content:center;font-size:2.3rem}.pet.cheer{animation:bob .5s 2}
+@keyframes bob{50%{transform:translateY(-10px)}}
+.bub{background:#fff;border-radius:14px;padding:6px 9px;font-weight:900;font-size:.8rem;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+/* the ruler: drag it left and right */
+.ruler{position:absolute;height:46px;background:linear-gradient(180deg,#ffe27a,#f5c84a);border:2px solid #c99a1c;border-radius:6px;z-index:5;cursor:grab;box-shadow:0 4px 0 rgba(0,0,0,.15);transition:opacity .3s,transform .3s}
+.ruler.drag{cursor:grabbing;box-shadow:0 8px 12px rgba(0,0,0,.2)}.ruler.snap{animation:snap .3s}@keyframes snap{50%{transform:scaleY(1.12)}}
+.ruler.cm{background:linear-gradient(180deg,#a8e6ff,#6ccaf2);border-color:#3b9cc4}
+.ruler.broken{clip-path:polygon(0 0,100% 0,100% 100%,0 100%,6px 70%,0 55%,7px 35%,0 18%)}
+.ruler.hide{opacity:0;transform:translateY(30px);pointer-events:none}
+.ruler i{position:absolute;top:0;width:2px;margin-left:-1px;background:#4a3a10;height:16px}.ruler i.h{height:8px;width:1.5px}
+.ruler span{position:absolute;top:17px;transform:translateX(-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:.85rem;color:#3a2c00}
+.ruler.cm span{font-size:.72rem;color:#073246}.ruler.cm i{background:#073246}
+.ruler em{position:absolute;right:6px;bottom:2px;font-style:normal;font-weight:900;font-size:.65rem;opacity:.7}
+.hand{position:absolute;font-size:2rem;z-index:8;pointer-events:none;animation:handgo 1.4s ease-in-out infinite}@keyframes handgo{0%,100%{transform:translateX(0)}50%{transform:translateX(var(--dx,60px))}}
+/* planks, the saw, the critter */
+.plank{position:absolute;height:14px;background:repeating-linear-gradient(90deg,var(--wood) 0 22px,#b97a3c 22px 24px);border:2px solid var(--wood2);border-radius:4px;z-index:4;transition:top .35s cubic-bezier(.3,1.6,.6,1),transform .5s,left .4s}
+.plank.fall{transition:top .7s ease-in,transform .7s ease-in}
+.saw{position:absolute;font-size:1.8rem;z-index:6;animation:saw .18s linear infinite alternate}@keyframes saw{to{transform:translateY(8px) rotate(-12deg)}}
+.dust{position:absolute;width:5px;height:5px;border-radius:2px;background:#e6b77d;z-index:6;animation:dust .7s ease-out forwards}@keyframes dust{to{transform:translate(var(--x),var(--y));opacity:0}}
+.critter{position:absolute;font-size:2.3rem;line-height:1;z-index:5;transform:translateX(-50%);transition:left 1.5s linear}
+.critter b{display:inline-block;animation:idle 1.6s ease-in-out infinite}.critter.walk b{animation:walk .3s ease-in-out infinite}
+@keyframes idle{50%{transform:translateY(-3px)}}@keyframes walk{50%{transform:translateY(-8px) rotate(6deg)}}
+.critter .say{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#fff;border-radius:10px;padding:2px 7px;font-size:.75rem;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.1)}
+.heart{position:absolute;font-size:1.3rem;z-index:8;pointer-events:none;animation:heart 1.2s ease-out forwards}@keyframes heart{to{transform:translateY(-60px) scale(1.4);opacity:0}}
+.drop{position:absolute;width:7px;height:7px;border-radius:50%;background:#bfe6ff;z-index:6;animation:dust .6s ease-out forwards}
+.village{position:absolute;right:8px;z-index:3;font-size:1.3rem;letter-spacing:-2px;pointer-events:none}
+/* the bottom: the task, the keypad */
+.task{background:#fff;border-radius:18px;padding:9px 12px;margin-top:8px;text-align:center;font-weight:900;font-size:1.1rem;box-shadow:0 3px 0 #d5e3f5}
+.task .cn{display:block;font-size:.8rem;color:var(--muted);font-weight:800;margin-top:2px}.task b{font-family:Fredoka,sans-serif;font-size:1.25em;color:#2f6fc8}
+.ans{display:grid;grid-template-columns:auto 1fr;gap:8px;margin-top:8px;align-items:stretch}
+.show{background:#fff;border-radius:16px;box-shadow:0 3px 0 #d5e3f5;min-width:110px;display:flex;align-items:center;justify-content:center;gap:4px;padding:4px 10px;font-family:Fredoka,sans-serif;font-size:1.9rem}
+.show small{font-size:.9rem;color:var(--muted)}.show b.blank{color:#c9cfe0}
+.keys{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.k{border:0;border-radius:12px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.35rem;padding:7px 0;box-shadow:0 4px 0 #d5e3f5;cursor:pointer;color:var(--ink)}
+.k:active{transform:translateY(3px);box-shadow:0 1px 0 #d5e3f5}
+.build{grid-column:1/-1;border:0;border-radius:16px;background:#f5b301;color:#3b2a00;font:inherit;font-weight:900;font-size:1.2rem;box-shadow:0 5px 0 #b88a00;cursor:pointer;padding:11px;margin-top:8px;width:100%}
+.build:disabled{opacity:.5}
+.choices{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}.choices button{border:0;border-radius:16px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.4rem;padding:12px 4px;box-shadow:0 5px 0 #d5e3f5;cursor:pointer;color:var(--ink)}
+.glow{animation:glow 1s ease-in-out infinite;outline:4px solid #ffe36e;outline-offset:2px}@keyframes glow{50%{outline-color:#ffb000}}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);pointer-events:none;animation:up 1.1s forwards;z-index:9}@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.over{position:absolute;inset:0;background:rgba(27,45,80,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:16px;z-index:10}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.9rem}.over p{margin:4px 0;font-weight:800}
+.go{border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin-top:12px}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.92rem;text-align:left;margin-top:8px;max-width:400px}.how div{margin:4px 0}
+.shop{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:380px;margin-top:10px}
+.shop button{border:0;border-radius:14px;background:#fff;padding:6px 2px;font:inherit;font-weight:900;font-size:.75rem;color:var(--ink);cursor:pointer}.shop button i{display:block;font-style:normal;font-size:1.8rem}
+.shop button.own{background:#d6f5e6}.shop button:disabled{opacity:.45;cursor:default}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+/* fitted to the window (fit.js) */
+.wrap.fitted{max-width:none;display:flex;flex-direction:column;overflow:hidden}
+.wrap.fitted .stage{flex:1;height:auto;min-height:260px}
+.wrap.fitted .critter{font-size:3rem}.wrap.fitted .pet{width:72px;height:72px}.wrap.fitted .bub{font-size:.95rem}.wrap.fitted .decor{font-size:2.3rem}
+@media(min-width:900px){.wrap.fitted .top,.wrap.fitted .hud,.wrap.fitted .bottom{width:100%;max-width:820px;margin-left:auto;margin-right:auto}
+  .wrap.fitted .ans{grid-template-columns:auto 1fr auto}.wrap.fitted .keys{grid-template-columns:repeat(11,1fr)}.wrap.fitted .build{grid-column:auto;margin-top:0;width:auto;padding:0 22px}}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script>
+<div class="wrap" id="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.25rem">🌉 Bridge Builders</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Crossed 过河</small><b id="crossed">0/6</b></div><div><small>Day 天</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="stage" id="stage">
+    <span class="cloud" style="top:6%;animation-delay:-8s">☁️</span><span class="cloud" style="top:16%;animation-delay:-20s;font-size:1.5rem">☁️</span>
+    <div class="sun"></div><span class="bird" style="top:22%;animation-delay:-5s">🕊️</span>
+    <div class="petBox"><div class="pet" id="pet"></div><div class="bub" id="bub">Let's build bridges! 一起搭桥吧！</div></div>
+    <div id="scene"></div>
+  </div>
+  <div class="bottom">
+    <div class="task" id="task"></div>
+    <div class="ans" id="ans">
+      <div class="show" id="show"><b id="val" class="blank">?</b><small id="unit">in</small></div>
+      <div class="keys" id="keys"></div>
+      <button type="button" class="build" id="build">🪚 Cut the plank! 锯木板</button>
+    </div>
+    <div class="choices" id="choices"></div>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Bridge Builders (Grade 2, Unit 3: measuring length). A little animal has to cross a river. The child drags a ruler so that its 0
+  // is at the edge of the gap (it clicks into place on a mark), reads where the other edge is, types the length and cuts a plank.
+  // The plank must fit exactly between the two posts: too short and it falls in the river, too long and it bumps the post.
+  //   day 1  inches            day 2  inches and centimeters
+  //   day 3  "about how long?" first (an estimate, before the ruler comes), and broken rulers that don't start at 0
+  //   day 4  how much longer: the plank we have is 5 in, how much more do we need?
+  // 6 animals a day; 5 across (in two tries each) opens the next day. Coins buy houses and flowers for the animals' village.
+  var $=function(id){ return document.getElementById(id); };
+  var STORE="bridgeBuilders.v1", S={day:1,coins:0,town:{},tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var GOAL=6, D=null, Q=null, busy=false, val="";
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  // ---------- sound ----------
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").onclick=function(){ S.sound=!S.sound; $("soundBtn").textContent=S.sound?"🔔":"🔕"; save(); };
+  $("soundBtn").textContent=S.sound?"🔔":"🔕";
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var pet=window.MathPet?MathPet.get():null;
+  $("pet").innerHTML=pet?MathPet.pic(pet,"happy",72):"🐣";
+  function say(t){ $("bub").innerHTML=t; var p=$("pet"); p.classList.remove("cheer"); void p.offsetWidth; p.classList.add("cheer"); }
+  // ---------- the village on the far side, bought with coins ----------
+  var TOWN=[{id:"flowers",e:"🌷",p:5},{id:"mush",e:"🍄",p:8},{id:"tree",e:"🌳",p:12},{id:"tent",e:"⛺",p:16},{id:"house",e:"🏠",p:22},{id:"well",e:"⛲",p:28},{id:"barn",e:"🏡",p:34},{id:"castle",e:"🏰",p:45}];
+  // the village stands on the far cliff, as many things as there is room for
+  function townHtml(){
+    var own=TOWN.filter(function(t){ return S.town[t.id]; }), h='', step=fitted()?46:32;
+    own.forEach(function(t,i){ var x=W-22-i*step; if(x>XR+24) h+='<span class="decor" style="left:'+x+'px;top:'+(CT+2)+'px">'+t.e+'</span>'; });
+    return h;
+  }
+  function drawTown(){ if(Q&&D) drawScene(); }
+  // ---------- a question ----------
+  var CRIT=["🐞","🐌","🐛","🐜","🐢","🦔","🐇","🐿️","🐥","🐁","🐸","🦆"];
+  function gen(){
+    var types=["measure"]; if(S.day>=3) types.push("broken","measure"); if(S.day>=4) types.push("longer","longer");
+    var t=types[rnd(types.length)], unit=(S.day>=2&&Math.random()<.5)?"cm":"in", max=unit==="in"?10:15;
+    var q={type:t,unit:unit,max:max,tries:0,crit:CRIT[rnd(CRIT.length)]};
+    q.len=(unit==="in"?2:3)+rnd(max-(unit==="in"?1:2));
+    if(t==="broken") q.start=1+rnd(4);
+    if(t==="longer"){ q.len=4+rnd(max-5); q.have=1+rnd(Math.max(1,Math.min(q.len-2,max+1-q.len))); }   // the plank we have and the gap both fit on the screen
+    q.est=S.day>=3&&t!=="longer"&&Math.random()<.5;
+    if(!S.tut&&D.first) q={type:"measure",unit:"in",max:10,len:4,tries:0,crit:"🐞",tut:true};
+    q.start=q.start||0;
+    q.answer=t==="longer"?q.len-q.have:q.len;
+    return q;
+  }
+  // ---------- drawing the scene ----------
+  var W=360, H=300, U=30, CT=150, XL=100, XR=220, RP=12;   // stage size, pixels per unit, cliff top, the gap's edges, ruler padding
+  function Z(){ return parseFloat($("wrap").style.zoom)||1; }
+  function layout(){
+    var st=$("stage"); W=st.clientWidth||360; H=st.clientHeight||300;
+    U=Math.floor((W-70)/(Q.max+3)); CT=Math.round(H*.56);
+    var gap=Q.len*U, room=W-gap-120; XL=60+Math.round((Q.xr==null?(Q.xr=Math.random()):Q.xr)*Math.max(0,room)); XR=XL+gap;
+    if(Q.type==="longer"&&XL<Q.have*U+40){ XL=Math.min(W-gap-40,Q.have*U+50); XR=XL+gap; }
+  }
+  function drawScene(){
+    layout();
+    var h='<div class="cliff l" style="width:'+XL+'px;top:'+CT+'px"></div><div class="river" style="left:'+XL+'px;width:'+(XR-XL)+'px;top:'+(CT+30)+'px"></div><div class="cliff r" style="left:'+XR+'px;top:'+CT+'px"></div>';
+    h+='<div class="post" style="left:'+(XL-5)+'px;top:'+(CT-28)+'px"></div><div class="post" style="left:'+(XR+5)+'px;top:'+(CT-28)+'px"></div>';
+    h+='<div class="edge" style="left:'+XL+'px;top:'+(CT-30)+'px;height:84px"></div><div class="edge" style="left:'+XR+'px;top:'+(CT-30)+'px;height:84px"></div>';
+    h+='<div class="critter" id="crit" style="left:'+Math.max(fitted()?38:28,XL-34)+'px;top:'+(CT-(fitted()?48:38))+'px"><b>'+Q.crit+'</b></div>';
+    if(Q.type==="longer") h+='<div class="plank" id="have" style="left:'+(XL-6-Q.have*U)+'px;width:'+(Q.have*U)+'px;top:'+(CT-14)+'px"></div>';
+    h+=townHtml()+'<div class="village" style="top:'+(CT+14)+'px">'+D.saved.join("")+'</div>';
+    h+=rulerHtml();
+    $("scene").innerHTML=h;
+    if(Q.type==="longer"){ var c=$("crit"); c.style.left=Math.max(fitted()?38:28,XL-6-Q.have*U-24)+"px"; }
+    wireRuler();
+  }
+  function fitted(){ return $("wrap").classList.contains("fitted"); }
+  function rulerHtml(){
+    var n=Q.max+3, w=RP*2+n*U, h='', cm=Q.unit==="cm";
+    for(var i=0;i<=n;i++){
+      h+='<i style="left:'+(RP+i*U)+'px"></i><span style="left:'+(RP+i*U)+'px">'+(Q.start+i)+'</span>';
+      if(!cm&&i<n) h+='<i class="h" style="left:'+(RP+i*U+U/2)+'px"></i>';
+    }
+    // the ruler starts away from the edge: the child has to slide it so the start is at the edge of the gap
+    var left=Q.rl!=null?Q.rl:(Q.rl=Math.max(-RP-U*2,Math.min(W-w*.5,XL-RP-U*(1.6+rnd(3))+(Math.random()<.5?0:U*.4))));
+    return '<div class="ruler'+(cm?" cm":"")+(Q.start?" broken":"")+(Q.est&&!Q.estDone?" hide":"")+'" id="ruler" style="left:'+left+'px;top:'+(CT+2)+'px;width:'+w+'px">'+h+'<em>'+(cm?"cm":"inches")+'</em></div>';
+  }
+  function wireRuler(){
+    var r=$("ruler"), x0=0, l0=0, down=false;
+    r.onpointerdown=function(e){ if(busy) return; down=true; x0=e.clientX; l0=parseFloat(r.style.left); r.classList.add("drag"); try{ r.setPointerCapture(e.pointerId); }catch(er){} var hd=$("hand"); if(hd) hd.remove(); e.preventDefault(); };
+    r.onpointermove=function(e){ if(!down) return; var l=l0+(e.clientX-x0)/Z(); l=Math.max(-r.offsetWidth+60,Math.min(W-40,l)); r.style.left=l+"px"; };
+    r.onpointerup=r.onpointercancel=function(){
+      if(!down) return; down=false; r.classList.remove("drag");
+      var l=parseFloat(r.style.left), k=Math.round((XL-l-RP)/U), snapL=XL-RP-k*U;
+      if(Math.abs(snapL-l)<U*.3&&k>=0){ r.style.left=snapL+"px"; r.classList.remove("snap"); void r.offsetWidth; r.classList.add("snap"); tone([1200],.04,"square"); }
+      Q.rl=parseFloat(r.style.left);
+      if(Q.tut) guide();
+    };
+  }
+  // ---------- the task, the keypad ----------
+  function uname(){ return Q.unit==="in"?"inches":"centimeters"; }
+  function ucn(){ return Q.unit==="in"?"英寸":"厘米"; }
+  function drawTask(){
+    var h;
+    if(Q.est&&!Q.estDone){ h='First, guess! About how many '+uname()+' is the gap?<span class="cn">先估一估：缝隙大约有多少'+ucn()+'？</span>'; showEst(); }
+    else if(Q.type==="longer") h='Our plank is <b>'+Q.have+' '+Q.unit+'</b>. Measure the gap. How much <b>more</b> plank do we need?<span class="cn">我们的木板长 '+Q.have+' '+ucn()+'。量一量缝隙，还差多长？</span>';
+    else if(Q.type==="broken") h='Oh no, a <b>broken ruler</b>! It starts at '+Q.start+'. How long is the gap?<span class="cn">尺子断了，从 '+Q.start+' 开始！缝隙有多长？</span>';
+    else h='Slide the ruler to measure the gap. How long a plank do we need?<span class="cn">拖动尺子量一量缝隙，需要多长的木板？</span>';
+    $("task").innerHTML=h;
+    $("unit").textContent=Q.unit; setVal("");
+    var est=Q.est&&!Q.estDone; $("ans").style.display=est?"none":""; $("choices").style.display=est?"grid":"none";
+    guide();
+  }
+  function setVal(v){ val=v; $("val").textContent=v||"?"; $("val").className=v?"":"blank"; $("build").disabled=!v; }
+  var kh=""; for(var d=1;d<=9;d++) kh+='<button type="button" class="k" data-k="'+d+'">'+d+'</button>'; kh+='<button type="button" class="k" data-k="0">0</button><button type="button" class="k" data-k="x">⌫</button>';
+  $("keys").innerHTML=kh;
+  [].forEach.call(document.querySelectorAll(".k"),function(b){ b.onclick=function(){
+    if(busy) return; var k=b.dataset.k; tone([600],.04);
+    if(k==="x") setVal(val.slice(0,-1)); else if(val.length<2) setVal(val==="0"?k:val+k);
+    if(Q.tut) guide();
+  }; });
+  // estimate first: three choices far apart; the closest is right
+  function showEst(){
+    var L=Q.len, sp=Q.unit==="in"?3:5, opts=[L], cand=[L-sp,L+sp,L+2*sp,L-2*sp];
+    cand.forEach(function(v){ if(opts.length<3&&v>=1) opts.push(v); }); opts.sort(function(a,b){ return a-b; });
+    $("choices").innerHTML=opts.map(function(v){ return '<button type="button" data-v="'+v+'">about '+v+' '+Q.unit+'</button>'; }).join("");
+    [].forEach.call(document.querySelectorAll("#choices button"),function(b){ b.onclick=function(){
+      var good=+b.dataset.v===L; Q.estDone=true; Q.estGood=good; tone(good?[660,880]:[440],.08);
+      say(good?"Good guess! Now measure to check. 估得好！再量一量。":"Hmm, let's measure and see! 量一量看看！");
+      var r=$("ruler"); r.classList.remove("hide"); drawTask();
+    }; });
+  }
+  // the first animal shows how: a hand slides the ruler, then the keys glow
+  function guide(){
+    [].forEach.call(document.querySelectorAll(".glow"),function(e){ e.classList.remove("glow"); });
+    if(!Q.tut) return;
+    var r=$("ruler"), aligned=Math.abs(parseFloat(r.style.left)+RP-XL)<1;
+    if(!aligned){
+      if(!$("hand")){ var l=parseFloat(r.style.left)+RP+U*.5; $("scene").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+l+'px;top:'+(CT+30)+'px;--dx:'+(XL-RP-parseFloat(r.style.left))+'px">👆</div>'); }
+      say("Drag the ruler so <b>0</b> is at the edge! 拖动尺子，让 0 对准河边！"); return;
+    }
+    var hd=$("hand"); if(hd) hd.remove();
+    if(val!==String(Q.len)){ say("Where does the gap end? Type that number. 河的另一边对着几？输入这个数。"); return; }
+    $("build").classList.add("glow"); say("4 inches! Now cut the plank! 4 英寸！点“锯木板”！");
+  }
+  // ---------- building ----------
+  $("build").onclick=function(){
+    if(busy||!val) return;
+    var a=+val; busy=true; [].forEach.call(document.querySelectorAll(".glow"),function(e){ e.classList.remove("glow"); });
+    var r=$("ruler"); r.classList.add("hide");
+    var len=Q.type==="longer"?Q.have+a:a, piece=Q.type==="longer"?a:a;
+    cut(piece,function(pl){
+      if(Q.type==="longer"){   // the new piece joins the plank we had
+        var hv=$("have"); hv.style.left=(XL+2-Q.have*U)+"px"; pl.style.left=(XL+2)+"px"; pl.style.top=(CT-14)+"px";
+        setTimeout(function(){ hv.style.width=(len*U-4)+"px"; pl.remove(); place(hv,len); },450);
+      } else place(pl,len);
+    });
+  };
+  // the saw cuts a plank of n units above the gap (sawdust flies), then it is handed to place()
+  function cut(n,cb){
+    var w=n*U, top=Math.max(70,CT-110), left=Math.max(10,Math.min(W-w-10,(XL+XR)/2-w/2));
+    var pl=document.createElement("div"); pl.className="plank"; pl.style.cssText="left:"+left+"px;width:"+w+"px;top:"+top+"px";
+    var saw=document.createElement("div"); saw.className="saw"; saw.textContent="🪚"; saw.style.left=(left+w-14)+"px"; saw.style.top=(top-30)+"px";
+    $("scene").appendChild(pl); $("scene").appendChild(saw);
+    var k=0, t=setInterval(function(){ tone([140+rnd(60)],.05,"sawtooth"); dust(left+w,top+6); if(++k>5){ clearInterval(t); saw.remove(); cb(pl); } },110);
+  }
+  function dust(x,y){ for(var i=0;i<4;i++){ var d=document.createElement("i"); d.className="dust"; d.style.left=x+"px"; d.style.top=y+"px"; d.style.setProperty("--x",(Math.random()*40-20)+"px"); d.style.setProperty("--y",(Math.random()*30+10)+"px"); $("scene").appendChild(d); (function(e){ setTimeout(function(){ e.remove(); },700); })(d); } }
+  // the plank goes down into the gap: it fits, it is too short (falls in), or too long (bumps the post and springs back)
+  function place(pl,len){
+    var fit=len===Q.len, w=len*U;
+    if(Q.type!=="longer"){ pl.style.left=(XL+2)+"px"; pl.style.width=(w-4)+"px"; }
+    if(fit||len<Q.len) pl.style.top=(CT-14)+"px";
+    else { pl.style.top=(CT-46)+"px"; }
+    setTimeout(function(){
+      if(fit) return win(pl);
+      if(len<Q.len){   // too short: tips over and falls into the river
+        pl.classList.add("fall"); pl.style.transformOrigin="0 50%"; pl.style.transform="rotate(55deg)";
+        setTimeout(function(){ pl.style.top=(H+20)+"px"; splash((XL+XR)/2,CT+34); tone([300,120],.18,"sine"); },300);
+        miss("Too short! It fell in the river. 太短了，掉进河里啦！",Q.type==="longer");
+      } else {         // too long: it can't fit between the posts
+        pl.style.transform="rotate(-8deg)"; tone([160,140],.12,"square");
+        setTimeout(function(){ pl.style.transform="translateY(-40px) rotate(14deg)"; pl.style.opacity=".0"; pl.style.transition="transform .6s,opacity .6s"; },350);
+        miss("Too long! It doesn't fit between the posts. 太长了，放不进两根柱子中间！",Q.type==="longer");
+      }
+    },420);
+  }
+  function splash(x,y){ for(var i=0;i<12;i++){ var d=document.createElement("i"); d.className="drop"; d.style.left=x+"px"; d.style.top=y+"px"; d.style.setProperty("--x",(Math.random()*90-45)+"px"); d.style.setProperty("--y",(-Math.random()*60-10)+"px"); $("scene").appendChild(d); (function(e){ setTimeout(function(){ e.remove(); },650); })(d); } }
+  function crit(t){ var c=$("crit"); var s=c.querySelector(".say"); if(s) s.remove(); if(t){ c.insertAdjacentHTML("beforeend",'<span class="say">'+t+'</span>'); } }
+  function miss(t,longer){
+    Q.tries++; crit("😨");
+    if(Q.tries>=2){ setTimeout(function(){ reveal(); },1300); say(t); return; }
+    say(t+"<br>Measure again! 再量一次！");
+    setTimeout(function(){
+      busy=false; crit("");
+      if(longer){ var hv=$("have"); hv.style.width=(Q.have*U)+"px"; hv.style.left=(XL-6-Q.have*U)+"px"; }
+      var r=$("ruler"); r.classList.remove("hide"); setVal("");
+    },1500);
+  }
+  // two misses: the right plank is cut for them, the animal crosses, no coins
+  function reveal(){
+    D.miss++; [].forEach.call(document.querySelectorAll(".plank:not(#have)"),function(p){ p.remove(); });
+    var hv=$("have"); if(hv) hv.remove();
+    say("The gap is <b>"+Q.len+" "+Q.unit+"</b>"+(Q.type==="longer"?": "+Q.len+" − "+Q.have+" = "+Q.answer:"")+". Here's the right plank! 这才是对的木板！");
+    cut(Q.len,function(pl){ pl.style.left=(XL+2)+"px"; pl.style.width=(Q.len*U-4)+"px"; pl.style.top=(CT-14)+"px"; setTimeout(function(){ walk(false); },500); });
+  }
+  function win(pl){
+    tone([523,659,784],.1); dust(XL,CT); dust(XR,CT);
+    walk(true);
+  }
+  function walk(good){
+    var c=$("crit"); crit(""); c.classList.add("walk"); c.style.left=(XR+30)+"px"; tone([440,494,523,587],.12,"sine");
+    setTimeout(function(){
+      c.classList.remove("walk"); crit(good?"Thank you! 谢谢！":"Phew! 呼～");
+      for(var i=0;i<4;i++){ (function(i){ setTimeout(function(){ var hh=document.createElement("span"); hh.className="heart"; hh.textContent=good?"💖":"💧"; hh.style.left=(XR+20+i*10)+"px"; hh.style.top=(CT-60)+"px"; $("scene").appendChild(hh); setTimeout(function(){ hh.remove(); },1200); },i*150); })(i); }
+      if(good){
+        var coins=3+(Q.tries?0:1)+(Q.estGood?2:0); D.ok++; D.coins+=coins; S.coins+=coins; if(!Q.tries) D.firstOK++; save();
+        var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"; fx.style.left=(XR/W*100)+"%"; fx.style.top="30%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
+        var r=c.getBoundingClientRect(); burst(r.left+r.width/2,r.top);
+        var eq=Q.type==="longer"?Q.have+" + "+Q.answer+" = "+Q.len+" "+Q.unit:Q.type==="broken"?(Q.start+Q.len)+" − "+Q.start+" = "+Q.len+" "+Q.unit:Q.len+" "+Q.unit;
+        say((Q.tries?"It fits! 放进去了！":["Perfect fit! 正好！","Great measuring! 量得真准！","Super builder! 搭桥高手！"][rnd(3)])+" "+eq);
+        if(pet) MathPet.feed(1);
+      }
+      if(Q.tut){ S.tut=1; save(); }
+      D.saved.push(Q.crit); hud();
+      setTimeout(next,1700);
+    },1550);
+  }
+  function hud(){ $("crossed").textContent=D.ok+"/"+GOAL; $("day").textContent=S.day; $("coins").textContent=S.coins; }
+  function next(){
+    busy=false;
+    if(D.n>=GOAL) return endDay();
+    D.n++; Q=gen(); D.first=false; drawScene(); drawTask(); hud();
+    if(!Q.tut) say(Q.type==="broken"?"Count the spaces, not the start number! 数格子，不是看开头的数！":Q.unit==="cm"?"This ruler is in centimeters. 这把尺子用厘米。":Q.crit+" needs a bridge! "+Q.crit+" 要过河！");
+    crit(Q.tut?"Help! 帮帮我！":["Help! 帮帮我！","Hi! 你好！","Please? 拜托！"][rnd(3)]);
+  }
+  function startDay(){
+    D={n:0,ok:0,first:true,firstOK:0,miss:0,coins:0,saved:[]};
+    if(window.GameProgress) GameProgress.start("length","day"+S.day);
+    closeOver(); next();
+  }
+  // ---------- the end of a day ----------
+  function endDay(){
+    var won=D.ok>=5, d=S.day;
+    if(window.GameProgress) GameProgress.report({game:"length",level:"day"+d,name:"Bridge Builders Day "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:GOAL,best:D.ok});
+    if(won){ S.day++; save(); }
+    tone(won?[523,659,784,1047]:[392,330,262],.2);
+    over('<h2>'+(won?"🎉 Day "+d+" done!":"Day "+d)+'</h2><p>'+(won?"今天完成啦！":"再试一次，帮 5 只小动物过河就过关！")+'</p><p style="font-size:1.4rem">'+D.saved.join(" ")+'</p><p>🌉 '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+
+      '<button type="button" class="go" id="nextDay">'+(won?"Day "+S.day+" ▶ 下一天":"Try again 再来一次")+'</button>');
+    wireShop(); $("nextDay").onclick=startDay;
+  }
+  function shopHtml(){
+    return '<p style="margin-top:10px">🏘️ Animal village 小动物村 · 🪙 '+S.coins+'</p><div class="shop" id="shop">'+TOWN.map(function(d){
+      var own=S.town[d.id]; return '<button type="button" data-id="'+d.id+'" class="'+(own?"own":"")+'"'+(!own&&S.coins<d.p?" disabled":"")+'><i>'+d.e+'</i>'+(own?"✓":d.p+" 🪙")+'</button>'; }).join("")+'</div>';
+  }
+  function wireShop(){
+    [].forEach.call(document.querySelectorAll("#shop button"),function(b){ b.onclick=function(){
+      var d=TOWN.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!d||S.town[d.id]||S.coins<d.p) return;
+      S.coins-=d.p; S.town[d.id]=1; save(); drawTown(); $("coins").textContent=S.coins; tone([660,880,1100],.08);
+      $("shop").outerHTML=shopHtml().replace(/^<p[^>]*>.*?<\/p>/,""); wireShop();
+    }; });
+  }
+  function over(html){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  var HOW='<div class="how"><div>📏 Drag the ruler so <b>0</b> is right at the edge of the gap. It clicks into place.</div><div>👀 Read the number at the other edge. Type it in.</div><div>🪚 Cut the plank! Too short: it falls in. Too long: it won\'t fit.</div><div>🏘️ Coins build a village for the animals.</div><div style="color:var(--muted)">拖动尺子，让 0 对准河边；看另一边对着几，输入后锯木板。太短会掉进河里，太长放不进去！</div></div>';
+  function intro(){
+    over('<h2>🌉 Bridge Builders</h2><p>Measuring Length Practice 长度测量</p>'+HOW+'<button type="button" class="go" id="play">'+(S.day>1?"Day "+S.day+" ▶ 开始":"Play! 开始")+'</button>');
+    $("play").onclick=startDay;
+  }
+  $("helpBtn").onclick=function(){ var o=document.createElement("div"); o.className="over"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go">Got it! 明白了</button>'; $("wrap").appendChild(o); o.querySelector(".go").onclick=function(){ o.remove(); }; };
+  // ---------- confetti ----------
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
+  function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<16;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:32,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
+  if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
+  var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ if(Q&&!busy&&D){ Q.rl=null; drawScene(); } },150); });
+  drawTown(); $("day").textContent=S.day; $("coins").textContent=S.coins;
+  D={n:0,ok:0,saved:[]}; Q={type:"measure",unit:"in",max:10,len:5,start:0,crit:"🐞",est:false}; drawScene(); $("task").innerHTML="🌉 Help the animals cross the river! 帮小动物过河！";
+  window.__len={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },geo:function(){ return {XL:XL,XR:XR,U:U,RP:RP,CT:CT,W:W}; },start:startDay};
+  intro();
+})();
+</script>
+</body></html>
