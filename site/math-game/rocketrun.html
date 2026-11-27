@@ -47,7 +47,7 @@
   // Rocket Run: the rocket flies up through space in 3 lanes. Each row of 3 space rocks carries 3 numbers; the question is at the top
   // (8 + 5, 37 + 10, double 7 …). Steer into the rock with the right answer before the row reaches the rocket: right = fuel and a star,
   // wrong = a lot less fuel. Fuel also burns as you fly; when it runs out the run is over. The rocks come faster and faster, and the
-  // questions change zone every 6 rows (make ten, tens and ones, doubles and halves, bigger tens). Every row has a rock in every lane, so
+  // questions change zone every 6 rows (make ten, tens and ones, doubles and halves, bigger tens, hundreds, within 1000: Unit 7). Every row has a rock in every lane, so
   // every row is answered. The first run waits on the first row until the rocket is in the right lane.
   var $=function(id){ return document.getElementById(id); };
   function rnd(n){ return Math.floor(Math.random()*n); }
@@ -66,7 +66,7 @@
   function setSkin(){ $("skinE").textContent=S.skin; $("skinE").className=S.skin==="🚀"?"r":""; var sh=$("ship"); var pl=sh.querySelector(".pilot"); if(pl) pl.remove(); if(pet){ var d=document.createElement("span"); d.className="pilot"; d.innerHTML=MathPet.pic(pet,"happy",34); sh.appendChild(d); } }
   setSkin();
   // ---------- the questions ----------
-  var ZONES=[["Make Ten","凑十法"],["Tens & Ones","加减十和一"],["Doubles & Halves","加倍和减半"],["Big Tens","整十加减"],["Hundreds","整百加减"]];
+  var ZONES=[["Make Ten","凑十法"],["Tens & Ones","加减十和一"],["Doubles & Halves","加倍和减半"],["Big Tens","整十加减"],["Hundreds","整百加减"],["Within 1000","1000 以内加减"]];
   function question(z){
     var a,b,ans,txt,cn;
     if(z===0){ a=6+rnd(4); b=2+rnd(8); while(a+b<=10) b++; if(Math.random()<.5){ var t=a; a=b; b=t; } ans=a+b; txt=a+" + "+b; cn="先凑十：想 10 + ?";
@@ -77,6 +77,13 @@
     else if(z===4){ // within 1000: hundreds, and adding 100 or 10 to a three-digit number
       if(Math.random()<.5){ a=(1+rnd(7))*100; b=(1+rnd(9-a/100))*100; if(Math.random()<.4){ txt=(a+b)+" − "+b; ans=a; } else { txt=a+" + "+b; ans=a+b; } cn="几个百加几个百"; }
       else { a=101+rnd(780); b=pick([100,10,100]); ans=a+b; txt=a+" + "+b; cn=b===100?"只有百位变":"只有十位变"; } }
+    else if(z===5){ // within 1000 (Unit 7): a three-digit number plus or minus 10 or 100, and hundreds and tens together
+      var r5=Math.random();
+      if(r5<.45){ b=pick([10,100]); var up=Math.random()<.5; a=up?101+rnd(890-b):101+b+rnd(890-b); ans=up?a+b:a-b; txt=a+(up?" + ":" − ")+b; cn=b===100?"只有百位变":"只有十位变"; }
+      else { var hh=(1+rnd(7))*100, tt=(1+rnd(8))*10; a=hh+tt;
+        if(Math.random()<.5){ b=(1+rnd(Math.max(1,9-a/100|0)))*100; if(a+b>990) b=100; ans=a+b; txt=a+" + "+b; cn="百位加百位"; }
+        else if(Math.random()<.5){ b=(1+rnd(Math.floor(a/100)))*100; if(b>=a) b=100; ans=a-b; txt=a+" − "+b; cn="百位减百位"; }
+        else { b=(1+rnd(Math.max(1,tt/10)))*10; if(b>tt) b=10; ans=a-b; txt=a+" − "+b; cn="十位减十位"; } } }
     else { a=(1+rnd(8))*10; b=(1+rnd(9-a/10))*10; if(Math.random()<.4&&a>b){ ans=a-b; txt=a+" − "+b; } else { ans=a+b; txt=a+" + "+b; } cn="几个十加几个十"; }
     var wrong={}, list=[ans];
     (ans>=100?[ans+100,ans-100,ans+10,ans-10,ans+1]:[ans+1,ans-1,ans+10,ans-10,ans+2,ans-2]).forEach(function(v){ if(list.length<3&&v>=0&&v!==ans&&!wrong[v]&&Math.random()<.7){ wrong[v]=1; list.push(v); } });

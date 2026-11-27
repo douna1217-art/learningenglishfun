@@ -24,6 +24,10 @@
 .mat{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:5px;background:#f5e3c8;border-radius:16px;padding:5px;min-height:96px}.col{background:#fff;border-radius:10px;padding:3px;display:flex;flex-direction:column}.colT{font-weight:900;font-size:.68rem;text-align:center}
 .col.h .colT{color:#1f5f7a}.col.t .colT{color:#2f6b33}.col.o .colT{color:#9a6b00}.colIn{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;align-content:flex-start;flex:1;padding-top:2px}
 .pb{border:0;background:none;padding:0;cursor:pointer;line-height:0}.pb.fresh{animation:pop .25s}@keyframes pop{from{transform:scale(.4)}}
+/* trading (10 ones -> 1 ten) and breaking (1 ten -> 10 ones) for adding and subtracting with regrouping */
+.trade{border:0;border-radius:9px;background:#ffe36e;color:#5a4300;font:inherit;font-weight:900;font-size:.66rem;padding:3px 5px;margin:2px auto 0;cursor:pointer;box-shadow:0 2px 0 #c9a227;display:block;animation:tglow 1s ease-in-out infinite}
+.trade.brk{background:#dfe9ff;color:#1f3f7a;box-shadow:0 2px 0 #8fa8d8;animation:none}@keyframes tglow{50%{transform:scale(1.06)}}
+.colIn.merge .pb{animation:merge .45s ease-in}@keyframes merge{to{transform:scale(.2);opacity:.2}}
 .tray{display:flex;justify-content:center;gap:8px;margin-top:8px}.tb{border:0;background:#fff4e3;border-radius:16px;padding:6px 12px;cursor:pointer;box-shadow:0 4px 0 var(--line);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:78px;font:inherit}
 .tb b{font-family:Fredoka,sans-serif;font-size:1.2rem}.tb small{font-weight:800;font-size:.68rem;color:var(--muted)}
 .btns{display:flex;justify-content:center;gap:8px;margin-top:10px}.go{border:0;border-radius:999px;padding:12px 24px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go.light{background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--line)}
@@ -85,8 +89,15 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   function newOrder(){
     var d=L, n, kind="plain", label, cn;
     if(d===1) n=11+rnd(89); else n=101+rnd(899);
+    // levels 4 and 5 (Unit 7): adding and subtracting within 1000 on the mat, with trading 10 ones for a ten and breaking a ten into 10 ones
     // the first trucks of a level, and the one after a truck drove off, bring plain numbers; the new kinds of order come after
     var r=Math.random(); if(D&&(D.made<2||D.easy)){ r=1; D.easy=false; } if(D) D.made++;
+    if(d>=4&&r<(d>=5?.6:.45)){ var add=Math.random()<.5, a, b;
+      if(add){ do{ a=101+rnd(600); b=11+rnd(Math.min(389,898-a)); }while(Math.random()<.75&&(a%10+b%10<10)); n=a+b; kind="add"; label=a+" + "+b; cn="加法：车上有 "+a+" 块，再加 "+b+" 块"; }
+      else { do{ a=200+rnd(780); b=11+rnd(a-120); }while(Math.random()<.75&&(a%10>=b%10)); n=a-b; kind="sub"; label=a+" − "+b; cn="减法：车上有 "+a+" 块，拿走 "+b+" 块"; }
+      var pat2=58+(S.city&&countB("🏫")?6:0);
+      return {n:n,kind:kind,label:label,cn:cn,pat:pat2,left:pat2,a:a,b:b};
+    }
     if(d>=2&&r<.3){ kind="expand"; var dg=[Math.floor(n/100),Math.floor(n/10)%10,n%10], parts=[]; if(dg[0]) parts.push(dg[0]*100); if(dg[1]) parts.push(dg[1]*10); if(dg[2]) parts.push(dg[2]); if(Math.random()<.5) parts.reverse(); label=parts.join(" + "); cn="按展开式装货"; }
     else if(d>=3&&r<.6){ kind="more"; var by=pick([10,100]), up=Math.random()<.6; var base=up?101+rnd(899-by):101+by+rnd(899-by); n=up?base+by:base-by; label=(up?by+" more than ":by+" less than ")+base; cn=up?"比 "+base+" 多 "+by:"比 "+base+" 少 "+by; }
     else if(d>=2&&r<.75){ kind="words"; label=words(n); cn="读英文数字"; }
@@ -98,7 +109,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   function words(n){ if(n<20) return ONES[n]; if(n<100) return TENS[Math.floor(n/10)]+(n%10?"-"+ONES[n%10]:""); return ONES[Math.floor(n/100)]+" hundred"+(n%100?" "+words(n%100):""); }
   // ---------- one day ----------
   var DAY=150, D=null, raf=0, tt=0;
-  function goalFor(d){ return 4+d; }
+  function goalFor(d){ return d>=4?6:4+d; }
   function startDay(){
     D={t:DAY,cash:0,done:0,lost:0,q:[],next:1,cur:null,c:null,tut:!S.tut&&L===1,paused:false,made:0,easy:false};
     if(D.tut){ var o=newOrder(); o.n=23; o.kind="plain"; o.label="23"; o.cn="装 23 块"; D.q.push(o); D.next=999; }
@@ -123,15 +134,35 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   $("bays").addEventListener("click",function(e){ if(!D) return; var b=e.target.closest?e.target.closest(".truck"):null; if(!b) return; var o=D.q[+b.dataset.i]; if(o) load(o); });
   function load(o){
     D.cur=o; D.c={h:0,t:0,o:0}; var fresh=null; tone([660],.05);
-    $("dock").innerHTML='<div class="dock"><h3>Load <b>'+o.label+'</b>'+(o.kind==="plain"?" blocks":"")+'!<small>'+o.cn+(o.kind!=="plain"?" · Load the number 装这个数":"")+'</small></h3><div id="mat"></div><div class="tray" id="tray">'+(L>1?'<button type="button" class="tb" data-k="h">'+blockSvg("h",.8)+'<b>100</b><small>hundred</small></button>':'')+
+    var calc=o.kind==="add"||o.kind==="sub";
+    if(calc){ D.c={h:Math.floor(o.a/100),t:Math.floor(o.a/10)%10,o:o.a%10};   // the truck already has a blocks
+      if(!S["calc"+o.kind]){ S["calc"+o.kind]=1; save(); tip(o.kind==="add"?"➕ Add "+o.b+": tap 100, 10 and 1. 10 ones or more? Tap <b>🔁 10 ones → 1 ten</b>!":"➖ Take away "+o.b+": tap blocks on the mat to take them off. Not enough ones? Tap <b>🔨 1 ten → 10 ones</b>!",
+        o.kind==="add"?"加 "+o.b+"：点 100、10、1。个位满 10 个，就点“10 个一换 1 个十”！":"拿走 "+o.b+"：点垫子上的积木拿走。个位不够，就点“1 个十拆成 10 个一”！"); setTimeout(function(){ if(D&&!D.tut) tip(); },9000); } }
+    $("dock").innerHTML='<div class="dock"><h3>'+(calc?(o.kind==="add"?'The mat has <b>'+o.a+'</b>. Add <b>'+o.b+'</b> more!':'The mat has <b>'+o.a+'</b>. Take away <b>'+o.b+'</b>!'):'Load <b>'+o.label+'</b>'+(o.kind==="plain"?" blocks":"")+'!')+'<small>'+o.cn+(calc?" · "+o.label+" = ?":o.kind!=="plain"?" · Load the number 装这个数":"")+'</small></h3><div id="mat"></div><div class="tray" id="tray">'+(L>1?'<button type="button" class="tb" data-k="h">'+blockSvg("h",.8)+'<b>100</b><small>hundred</small></button>':'')+
       '<button type="button" class="tb" data-k="t">'+blockSvg("t",.8)+'<b>10</b><small>ten</small></button><button type="button" class="tb" data-k="o">'+blockSvg("o",1.4)+'<b>1</b><small>one</small></button></div><div class="fb" id="fb"></div><div class="btns"><button type="button" class="go light" id="clear">Clear 清空</button><button type="button" class="go" id="ship">Load it! 🚚</button></div></div>';
     function draw(){ var c=D.c; $("mat").innerHTML='<div class="mat">'+["h","t","o"].map(function(k){ var b=""; for(var i=0;i<c[k];i++) b+='<button type="button" class="pb'+(fresh===k&&i===c[k]-1?" fresh":"")+'" data-k="'+k+'">'+blockSvg(k,k==="o"?1.8:.9)+'</button>';
-      return '<div class="col '+k+'"><div class="colT">'+{h:"Hundreds 百位",t:"Tens 十位",o:"Ones 个位"}[k]+'</div><div class="colIn">'+b+'</div></div>'; }).join("")+'</div>'; }
+      var tr="";
+      if(L>=4){ if(k==="o"&&c.o>=10) tr+='<button type="button" class="trade" data-trade="o">🔁 10 ones → 1 ten</button>';
+        if(k==="t"&&c.t>=10) tr+='<button type="button" class="trade" data-trade="t">🔁 10 tens → 1 hundred</button>';
+        if(o.kind==="sub"&&k==="t"&&c.t>0) tr+='<button type="button" class="trade brk" data-brk="t">🔨 1 ten → 10 ones</button>';
+        if(o.kind==="sub"&&k==="h"&&c.h>0) tr+='<button type="button" class="trade brk" data-brk="h">🔨 1 hundred → 10 tens</button>'; }
+      return '<div class="col '+k+'"><div class="colT">'+{h:"Hundreds 百位",t:"Tens 十位",o:"Ones 个位"}[k]+'</div>'+tr+'<div class="colIn" id="ci'+k+'">'+b+'</div></div>'; }).join("")+'</div>'; }
     $("tray").onclick=function(e){ var b=e.target.closest?e.target.closest(".tb"):null; if(!b||D.cur!==o) return; var k=b.dataset.k; if(D.c[k]>=19) return; D.c[k]++; fresh=k; tone([880,1180],.05); draw(); guide(); };
-    $("mat").onclick=function(e){ var b=e.target.closest?e.target.closest(".pb"):null; if(!b) return; D.c[b.dataset.k]--; fresh=null; tone([520],.04); draw(); guide(); };
-    $("clear").onclick=function(){ D.c={h:0,t:0,o:0}; draw(); guide(); };
+    var UP={o:"t",t:"h"}, DOWN={t:"o",h:"t"}, busyT=false;
+    $("mat").onclick=function(e){
+      var tb=e.target.closest?e.target.closest(".trade"):null;
+      if(tb){ if(busyT) return; busyT=true;
+        if(tb.dataset.trade){ var k1=tb.dataset.trade; $("ci"+k1).classList.add("merge"); tone([523,659,784],.06);   // ten blocks squeeze together into one
+          setTimeout(function(){ D.c[k1]-=10; D.c[UP[k1]]++; fresh=UP[k1]; busyT=false; draw(); $("fb").className="fb"; $("fb").textContent=(k1==="o"?"10 ones = 1 ten! 10 个一换成 1 个十！":"10 tens = 1 hundred! 10 个十换成 1 个百！"); },450); }
+        else { var k2=tb.dataset.brk; if(D.c[DOWN[k2]]>9){ busyT=false; return; } D.c[k2]--; D.c[DOWN[k2]]+=10; fresh=DOWN[k2]; tone([784,659,523],.06); busyT=false; draw();
+          $("fb").className="fb"; $("fb").textContent=(k2==="t"?"1 ten = 10 ones! 1 个十拆成 10 个一！":"1 hundred = 10 tens! 1 个百拆成 10 个十！"); }
+        return; }
+      var b=e.target.closest?e.target.closest(".pb"):null; if(!b) return; D.c[b.dataset.k]--; fresh=null; tone([520],.04); draw(); guide(); };
+    $("clear").onclick=function(){ D.c=calc?{h:Math.floor(o.a/100),t:Math.floor(o.a/10)%10,o:o.a%10}:{h:0,t:0,o:0}; draw(); guide(); };
+    if(calc) $("clear").textContent="Start over 重来";
     $("ship").onclick=function(){ if(D.cur!==o) return; var v=D.c.h*100+D.c.t*10+D.c.o;
-      if(v!==o.n){ $("fb").className="fb bad"; $("fb").textContent="That is "+v+". "+(v<o.n?"More blocks! 不够":"Too many! 太多了")+" The truck needs "+o.n+"."; tone([260,200],.12,"sawtooth"); o.left-=3; return; }
+      if(calc&&v===o.n&&(D.c.o>9||D.c.t>9)){ $("fb").className="fb bad"; $("fb").textContent=(D.c.o>9?"Right number, but "+D.c.o+" ones is too many in one place: trade 10 ones for a ten! 个位满十了，换成一个十！":"Trade 10 tens for a hundred! 十位满十了，换成一个百！"); tone([330],.1); return; }
+      if(v!==o.n){ $("fb").className="fb bad"; $("fb").textContent=calc?"That is "+v+". "+(o.kind==="add"?"Did you add all "+o.b+"? 是不是加了 "+o.b+" 块？":"Did you take away "+o.b+"? 是不是拿走了 "+o.b+" 块？"):"That is "+v+". "+(v<o.n?"More blocks! 不够":"Too many! 太多了")+" The truck needs "+o.n+"."; tone([260,200],.12,"sawtooth"); o.left-=3; return; }
       shipped(o); };
     draw(); guide();
   }
@@ -189,7 +220,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   function intro(){
     $("dayN").textContent="· Level "+L; drawSkyline(); $("bays").innerHTML="";
     over('<h2>🏗️ Block City · Level <span id="lvN">'+L+'</span></h2><p>Place Value Practice 第 <span id="lvN2">'+L+'</span> 关</p><p>Goal 目标: <b><span id="lvGoal">'+goalFor(L)+'</span> trucks</b> in 2½ minutes</p>'+
-      '<div style="text-align:left;font-weight:800;font-size:.9rem;line-height:1.5;margin-top:6px">🚚 Tap a truck to load it. 点卡车装货<br>🧱 Build its number with 100s, 10s and 1s. 用百、十、一搭出它的数<br>⏳ Be quick: trucks drive off! 卡车会开走<br>🏙️ Spend your coins on your own city! 用金币建你的城市<br>'+(L>=2?"🧩 New orders: 300 + 40 + 7, and numbers in words! 新订单：展开式和英文数字<br>":"")+(L>=3?"⚙️ New orders: 10 more than 256! 新订单：比 256 多 10<br>":"")+'</div>'+
+      '<div style="text-align:left;font-weight:800;font-size:.9rem;line-height:1.5;margin-top:6px">🚚 Tap a truck to load it. 点卡车装货<br>🧱 Build its number with 100s, 10s and 1s. 用百、十、一搭出它的数<br>⏳ Be quick: trucks drive off! 卡车会开走<br>🏙️ Spend your coins on your own city! 用金币建你的城市<br>'+(L>=2?"🧩 New orders: 300 + 40 + 7, and numbers in words! 新订单：展开式和英文数字<br>":"")+(L>=3?"⚙️ New orders: 10 more than 256! 新订单：比 256 多 10<br>":"")+(L>=4?"🔁 New: add and subtract on the mat! Trade 10 ones for a ten, break a ten into 10 ones. 新：在垫子上做加减法，满十换一个十，不够就拆一个十！<br>":"")+'</div>'+
       '<p>🪙 Coins: '+S.coins+'</p>'+levelPick()+'<div class="btns"><button type="button" class="go light" id="cityBtn">🏙️ My city</button><button type="button" class="go" id="openBtn">Open! 开工 ▶</button></div>');
     wirePick(); $("cityBtn").onclick=cityScreen; $("openBtn").onclick=function(){ closeOver(); startDay(); };
   }
