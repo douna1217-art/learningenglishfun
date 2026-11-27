@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sweet Shop</title>
+<meta name="theme-color" content="#e0457b">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Sweet Shop: run a candy shop with your pet. Pay with pennies, nickels, dimes, quarters and dollars, count the tip jar and give change. Grade 2 money in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128a"></script>
+<script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="engine.js?v=20261128a"></script>
+<script>
+(function(){
+  "use strict";
+  // Sweet Shop (Grade 2, money): the child runs a candy shop with their pet. Everything is done with coins: pay a price exactly, count a tip
+  // jar, pay with the fewest coins, pay for two treats, give change. Coins are tapped from the tray onto the counter (tap one on the
+  // counter to take it back). The total on the counter is shown only in the first level: after that the coins are counted by the child.
+  var M=MathGame, pickOne=M.pickOne, rnd=M.rnd, between=M.between;
+  function Q(kind,d){ d.kind=kind; d.key=kind+"|"+JSON.stringify(d); return d; }
+  function fromKey(k){ var i=k.indexOf("|"); var d=JSON.parse(k.slice(i+1)); d.key=k; return d; }
+
+  // ---------- money ----------
+  var COIN={1:{n:"penny",pl:"pennies",cn:"1 美分"},5:{n:"nickel",pl:"nickels",cn:"5 美分"},10:{n:"dime",pl:"dimes",cn:"10 美分"},25:{n:"quarter",pl:"quarters",cn:"25 美分"},100:{n:"dollar",pl:"dollars",cn:"1 美元"}};
+  function money(c){ return c<100?c+"¢":"$"+Math.floor(c/100)+"."+(c%100<10?"0":"")+(c%100); }
+  function coinSvg(v,size){
+    if(v===100) return '<svg class="bill" viewBox="0 0 80 38" width="'+(size*1.9)+'" height="'+(size*.9)+'"><rect x="1.5" y="1.5" width="77" height="35" rx="5" fill="#a8dba0" stroke="#3f7a39" stroke-width="3"/><rect x="8" y="7" width="64" height="24" rx="4" fill="none" stroke="#3f7a39" stroke-width="1.5"/><circle cx="40" cy="19" r="9" fill="#8bc985" stroke="#3f7a39" stroke-width="1.5"/><text x="40" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="13" fill="#1f4a1c">$1</text><text x="13" y="16" font-size="8" font-weight="700" fill="#1f4a1c" font-family="Fredoka,sans-serif">1</text><text x="62" y="31" font-size="8" font-weight="700" fill="#1f4a1c" font-family="Fredoka,sans-serif">1</text></svg>';
+    var sc={1:.88,5:1,10:.8,25:1.12}[v], r=Math.round(size*sc/2), copper=v===1;
+    return '<svg class="coin" viewBox="0 0 '+(2*r+4)+' '+(2*r+4)+'" width="'+(2*r+4)+'" height="'+(2*r+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+(copper?"#d9884a":"#d8dce2")+'" stroke="'+(copper?"#8a4a1c":"#868d97")+'" stroke-width="3"/>'+
+      '<circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+(r-5)+'" fill="none" stroke="'+(copper?"#b56a33":"#aab0b8")+'" stroke-width="1.5"/><text x="'+(r+2)+'" y="'+(r+2+Math.round(r*.32))+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="'+Math.round(r*.82)+'" fill="'+(copper?"#5a2a08":"#3c434c")+'">'+v+'¢</text></svg>';
+  }
+  // the fewest coins (and bills) that make c from the kinds in "kinds"
+  function fewest(c,kinds){ var out=[], ks=kinds.slice().sort(function(a,b){ return b-a; }); ks.forEach(function(k){ while(c>=k){ out.push(k); c-=k; } }); return out; }
+  function countChain(list){ var s=0; return list.slice().sort(function(a,b){ return b-a; }).map(function(v){ s+=v; return money(s); }).join(", "); }
+
+  // ---------- treats and customers ----------
+  var TREATS=[["🍭","lollipop"],["🍬","candy"],["🍫","chocolate bar"],["🍩","donut"],["🧁","cupcake"],["🍪","cookie"],["🍦","ice cream"],["🍿","popcorn"],["🧃","juice box"],["🍡","candy stick"]];
+  var GUESTS=["🐻","🐰","🐼","🦊","🐨","🐯","🐷","🐸","🐵","🐶","🐱","🦁","🐮","🐹","🐧","🦄"];
+  var K=[1,5,10,25], K5=[1,5], K10=[1,5,10], KD=[1,5,10,25,100];
+
+  // ---------- the questions ----------
+  function pay(kinds,lo,hi,tot){ return function(){ var p=between(lo,hi); return Q("pay",{p:p,k:kinds,t:tot?1:0,i:rnd(TREATS.length),g:rnd(GUESTS.length)}); }; }
+  function jar(){ var n=between(3,7), c=[]; for(var i=0;i<n;i++) c.push(pickOne([25,10,10,5,5,1,1,1])); if(c.reduce(function(a,b){ return a+b; },0)>99) c=c.slice(0,3); return Q("jar",{c:c.sort(function(a,b){ return b-a; }),g:rnd(GUESTS.length)}); }
+  function few(){ var p; do{ p=between(16,99); }while(fewest(p,K).length<3); return Q("few",{p:p,k:K,i:rnd(TREATS.length),g:rnd(GUESTS.length)}); }
+  function two(){ var a=between(2,9)*5, b=between(2,9)*5+pickOne([0,0,1,2,3]); var i=rnd(TREATS.length), j; do{ j=rnd(TREATS.length); }while(j===i); return Q("two",{a:a,b:b,i:i,j:j,k:K,g:rnd(GUESTS.length)}); }
+  function change(){ if(Math.random()<.5){ var p=between(1,4)*5; return Q("change",{p:p,paid:25,k:K10,i:rnd(TREATS.length),g:rnd(GUESTS.length)}); }
+    var q=between(6,19)*5; return Q("change",{p:q,paid:100,k:K,i:rnd(TREATS.length),g:rnd(GUESTS.length)}); }
+  var LEVELS=[
+    {id:"m1",n:"Penny & Nickel Pops",ic:"🍭",gen:pay(K5,3,20,true)},
+    {id:"m2",n:"Dime Drops",ic:"🍬",gen:pay(K10,11,50,false)},
+    {id:"m3",n:"Quarter Treats",ic:"🧁",gen:pay(K,26,99,false)},
+    {id:"m4",n:"Count the Tip Jar",ic:"🫙",gen:jar},
+    {id:"m5",n:"Fewest Coins",ic:"🪙",gen:few},
+    {id:"m6",n:"Dollar Day",ic:"💵",gen:pay(KD,101,199,false)},
+    {id:"m7",n:"Two Treats",ic:"🛍️",gen:two},
+    {id:"m8",n:"Change, Please!",ic:"🔁",gen:change}
+  ];
+
+  // ---------- one question on the screen ----------
+  function target(q){ return q.kind==="two"?q.a+q.b:q.kind==="change"?q.paid-q.p:q.p; }
+  function right(q){ return q.kind==="jar"?String(q.c.reduce(function(a,b){ return a+b; },0)):"ok"; }
+  var tick=function(){ M.blip&&M.blip(880,.06); }, clink=function(){ M.blip&&M.blip(1320,.05); setTimeout(function(){ M.blip&&M.blip(1760,.05); },50); };
+  function who(q){ return GUESTS[q.g]; }
+  // the customer and what they say; the child's pet stands behind the counter as the shopkeeper
+  function shopTop(q,say){ var pet=MathPet.get(); return '<div class="shopTop"><span class="guest">'+who(q)+'</span><span class="bub">'+say+'</span>'+(pet?'<span class="keeper">'+MathPet.pic(pet,"happy",58)+'</span>':'<span class="keeper em">🧑‍🍳</span>')+'</div>'; }
+  function coinGame(q,ui){
+    var k=q.k, goal=target(q), counter=[];
+    if(q.kind==="change") ui.task("The "+TREATS[q.i][1]+" costs <b>"+money(q.p)+"</b>. The customer paid <b>"+money(q.paid)+"</b>. Give the <b>change</b>! <small>找零：给顾客找回多付的钱</small>");
+    else if(q.kind==="two") ui.task("Two treats: <b>"+money(q.a)+"</b> and <b>"+money(q.b)+"</b>. Pay for both! <small>两样一起付</small>");
+    else if(q.kind==="few") ui.task("Pay <b>"+money(q.p)+"</b> with the <b>fewest coins</b> you can! <small>用最少的硬币付</small>");
+    else ui.task("Pay <b>"+money(q.p)+"</b> for the "+TREATS[q.i][1]+"! Tap the coins. <small>点硬币付钱，正好付清</small>");
+    var top=q.kind==="change"?shopTop(q,"I paid "+money(q.paid)+". "+TREATS[q.i][0]+" costs "+money(q.p)+".")
+      :q.kind==="two"?shopTop(q,TREATS[q.i][0]+" "+money(q.a)+" + "+TREATS[q.j][0]+" "+money(q.b)):shopTop(q,"One "+TREATS[q.i][0]+", please! <b class=\"ptag\">"+money(q.p)+"</b>");
+    var f=ui.stage('<div class="sshop">'+top+'<div class="counter" id="ctr"><span class="ctrL">'+(q.kind==="change"?"Change for the customer 找给顾客":"Counter 柜台")+'</span><div class="ctrIn" id="ctrIn"></div><div class="tot" id="tot"></div></div>'+
+      '<div class="tray">'+k.map(function(v){ return '<button type="button" class="tc" data-v="'+v+'">'+coinSvg(v,46)+'<small>'+COIN[v].n+'</small></button>'; }).join("")+'</div>'+
+      '<button type="button" class="go" id="goBtn">'+(q.kind==="change"?"Give change ✓ <small>找零</small>":"Pay ✓ <small>付钱</small>")+'</button></div>');
+    function draw(){
+      var s=counter.reduce(function(a,b){ return a+b; },0);
+      f.querySelector("#ctrIn").innerHTML=counter.map(function(v,i){ return '<button type="button" class="cc" data-i="'+i+'" aria-label="Take back">'+coinSvg(v,38)+'</button>'; }).join("")||'<span class="empty">Tap a coin below 点下面的硬币</span>';
+      f.querySelector("#tot").textContent=q.t?"Total: "+money(s):"";
+    }
+    f.querySelector(".tray").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".tc"):null; if(!b||counter.length>=20) return;
+      counter.push(+b.dataset.v); counter.sort(function(a,b2){ return b2-a; }); clink(); draw(); });
+    f.querySelector("#ctrIn").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".cc"):null; if(!b) return; counter.splice(+b.dataset.i,1); tick(); draw(); });
+    f.querySelector("#goBtn").onclick=function(){ if(ui.locked()) return; var s=counter.reduce(function(a,b){ return a+b; },0);
+      if(s!==goal){ ui.answer("x:"+s); return; }
+      if(q.kind==="few"&&counter.length>fewest(goal,k).length){ ui.answer("more:"+counter.length); return; }
+      ui.answer("ok"); };
+    q._counter=function(){ return counter; };
+    draw();
+  }
+  function jarGame(q,ui){
+    var d=[0,0], sum=q.c.reduce(function(a,b){ return a+b; },0);
+    ui.task("A customer left a <b>tip</b>! How much money is in the jar? <small>数一数小费罐里有多少钱</small>");
+    var f=ui.stage('<div class="sshop">'+shopTop(q,"Thank you! Here is a tip! 🫙")+'<div class="jar"><div class="jarIn">'+q.c.map(function(v){ return '<span class="jc">'+coinSvg(v,44)+'</span>'; }).join("")+'</div></div>'+
+      '<div class="wheels"><span class="wh"><button type="button" data-i="0" data-d="1">▲</button><b data-i="0">0</b><button type="button" data-i="0" data-d="-1">▼</button></span><span class="wh"><button type="button" data-i="1" data-d="1">▲</button><b data-i="1">0</b><button type="button" data-i="1" data-d="-1">▼</button></span><span class="cent">¢</span></div>'+
+      '<div class="hintS">Start with the biggest coins and count on. 从最大的硬币开始往上数</div><button type="button" class="go" id="goBtn">That\'s the tip ✓ <small>就是这么多</small></button></div>');
+    f.querySelector(".wheels").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest("button"):null; if(!b) return; var i=+b.dataset.i; d[i]=(d[i]+ +b.dataset.d+10)%10; tick();
+      [].forEach.call(f.querySelectorAll(".wheels b"),function(x){ x.textContent=d[+x.dataset.i]; }); });
+    f.querySelector("#goBtn").onclick=function(){ if(!ui.locked()) ui.answer(String(d[0]*10+d[1])); };
+  }
+  function render(q,ui){ if(q.kind==="jar") return jarGame(q,ui); return coinGame(q,ui); }
+  function after(q,ok,given){
+    var b=document.getElementById("goBtn"); if(b) b.disabled=true;
+    [].forEach.call(document.querySelectorAll("#field button"),function(x){ x.disabled=true; });
+    var g=document.querySelector("#field .guest"); if(g){ g.classList.add(ok?"happy":"sad"); }
+    if(ok){ var bub=document.querySelector("#field .bub"); if(bub) bub.innerHTML=pickOne(["Yummy! Thank you! 😋","Perfect! 🎉","Just right! 😊","Thanks, shopkeeper! 💖"]); MathPet.feed(2); sold(q); }
+    else if(q.kind!=="jar"){ // put one right set of coins on the counter
+      var c=document.getElementById("ctrIn"); if(c) c.innerHTML='<span class="oneWay">One way 一种付法:</span>'+fewest(target(q),q.k).map(function(v){ return '<span class="cc">'+coinSvg(v,38)+'</span>'; }).join("");
+      var t=document.getElementById("tot"); if(t) t.textContent="= "+money(target(q));
+    }
+  }
+  function explain(q){
+    if(q.kind==="jar") return "Count on: "+countChain(q.c)+". The tip is "+right(q)+"¢.";
+    var g=target(q), set=fewest(g,q.k);
+    if(q.kind==="change") return money(q.paid)+" − "+money(q.p)+" = "+money(g)+" change.";
+    if(q.kind==="two") return money(q.a)+" + "+money(q.b)+" = "+money(g)+".";
+    return money(g)+": "+countChain(set)+".";
+  }
+  function rightText(q){ return pickOne(["🍬 Sold!","🍭 Sweet!","💰 Ka-ching!","🧁 Happy customer!"]); }
+  function wrongText(q,v){
+    if(v.indexOf("more:")===0) return "Right amount, but "+v.slice(5)+" coins. You can use fewer!";
+    if(q.kind==="jar") return "Not quite: the jar has "+right(q)+"¢.";
+    var s=+v.slice(2), g=target(q);
+    return s<g?"That is "+money(s)+": "+money(g-s)+" too little.":"That is "+money(s)+": "+money(s-g)+" too much.";
+  }
+  function teach(q,given){
+    var g=target(q), set=fewest(g,q.k), steps=[], cn;
+    steps.push("Coin values: penny <b>1¢</b>, nickel <b>5¢</b>, dime <b>10¢</b>, quarter <b>25¢</b>"+(q.k&&q.k.indexOf(100)>=0?", one dollar <b>$1 = 100¢</b>":"")+". The dime is small but worth more than the nickel!");
+    if(q.kind==="jar"){ steps.push("Put the coins in order, biggest first, and count on: <b>"+countChain(q.c)+"</b>."); steps.push("The tip is <b>"+right(q)+"¢</b>."); cn="数硬币：先数最大的，再一个一个往上加。"; }
+    else{
+      if(q.kind==="two") steps.push("Add the two prices first: "+money(q.a)+" + "+money(q.b)+" = <b>"+money(g)+"</b>.");
+      if(q.kind==="change") steps.push("Change = what was paid − the price: "+money(q.paid)+" − "+money(q.p)+" = <b>"+money(g)+"</b>. Or count up from "+money(q.p)+" to "+money(q.paid)+".");
+      steps.push("One way to make <b>"+money(g)+"</b>: "+set.map(function(v){ return COIN[v].n; }).join(" + ")+". Count on: "+countChain(set)+".");
+      if(given&&given.indexOf("x:")===0){ var s=+given.slice(2); steps.push("You put "+money(s)+". "+(s<g?"Add "+money(g-s)+" more.":"Take away "+money(s-g)+".")); }
+      if(given&&given.indexOf("more:")===0) steps.push("Use the biggest coins first: as many quarters as fit, then dimes, then nickels, then pennies.");
+      cn=q.kind==="change"?"找零 = 付的钱 − 价钱。也可以从价钱往上数到付的钱。":q.kind==="few"?"最少的硬币：先用最大的硬币，能放几个放几个，再用小一点的。":"付钱：先放大的硬币，再放小的，边放边往上数。";
+    }
+    return {steps:steps,cn:cn};
+  }
+  function miss(q){
+    if(q.kind==="jar") return "tip jar: "+countChain(q.c);
+    if(q.kind==="change") return "change: "+money(q.paid)+" − "+money(q.p)+" = "+money(target(q));
+    if(q.kind==="two") return money(q.a)+" + "+money(q.b)+" = "+money(target(q));
+    return "pay "+money(q.p)+(q.kind==="few"?" with the fewest coins":"");
+  }
+
+  // ---------- the sweets the shop has sold (a collection on the map) ----------
+  var SOLD="sweetShop.sold.v1", soldMap={};
+  try{ soldMap=JSON.parse(localStorage.getItem(SOLD))||{}; }catch(e){ soldMap={}; }
+  function sold(q){ var ts=q.kind==="two"?[q.i,q.j]:q.i!=null?[q.i]:[]; ts.forEach(function(i){ soldMap[i]=(soldMap[i]||0)+1; }); try{ localStorage.setItem(SOLD,JSON.stringify(soldMap)); }catch(e){} }
+  function soldHtml(){
+    var total=0; Object.keys(soldMap).forEach(function(k){ total+=soldMap[k]; });
+    return '<div style="font-weight:900;margin-bottom:8px">'+total+' treats sold 已卖出 '+total+' 份</div><div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px">'+
+      TREATS.map(function(t,i){ var n=soldMap[i]||0; return '<div style="text-align:center;background:'+(n?"#fff0f6":"#f4f4f6")+';border-radius:14px;padding:6px 2px;'+(n?"":"filter:grayscale(1);opacity:.45")+'"><div style="font-size:1.7rem">'+t[0]+'</div><b style="font-size:.8rem">'+(n?"× "+n:"?")+'</b></div>'; }).join("")+'</div>';
+  }
+
+  var PS=MathPet.shop("candy");
+  M.run({title:"Sweet Shop",icon:"🍭",tagline:MathPet.name("Your pet")+" opens a candy shop! Pay, count and give change.",store:"sweetShop.v1",gameId:"money",cheer:true,perLevel:6,bossCount:8,
+    hero:function(){ return MathPet.hero("🍭",function(n){ return n+" is your shop helper! Earn candies and win prizes for "+n+" in the shop."; }); },
+    coin:{e:"🍬",n:"candies"},heart:"💖",leave:"Close the shop",levelWord:"shop day",doneWord:"Shop days done",ownedWord:"Prizes",fastMs:20000,
+    theme:{brand:"#e0457b",dark:"#a82a58",bg:"#fff3f7",line:"#f7d6e3",ink:"#3d2030",muted:"#8a6577",hero:"linear-gradient(180deg,#ff8fb8,#ffc6a8)",choice:["#ffe3ee","#fff4d1","#e6f6df","#e4f1fb"]},
+    levels:LEVELS,boss:{n:"Busy Candy Day",ic:"🎉",desc:"Every kind of shop job, one after another!"},practice:{n:"Practice Counter",ic:"🧮"},
+    shop:PS.shop,isOwned:PS.isOwned,onBuy:PS.onBuy,useOwned:PS.useOwned,ownedText:PS.ownedText,
+    shopTitle:"Prize shop: candies win prizes for your pet",shopCn:"用糖果给宠物换奖品",emptyOwned:"🎁",
+    panel:{title:"🍬 Sold Today and Always",cn:"卖出的糖果收集册",html:soldHtml},
+    kinds:{pay:"Pay an exact price with coins",jar:"Count a group of coins",few:"Make an amount with the fewest coins",two:"Add two prices and pay",change:"Give change (subtract)"},
+    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+      '.sshop{max-width:460px;margin:0 auto}.shopTop{display:flex;align-items:center;gap:10px;margin:2px 0 8px}.guest{font-size:3rem;line-height:1;transition:transform .3s}.guest.happy{animation:hop .6s 2}.guest.sad{filter:grayscale(.5)}'+
+      '@keyframes hop{50%{transform:translateY(-12px) rotate(-6deg)}}.keeper{flex:none;width:58px;height:58px;display:flex;align-items:center;justify-content:center}.keeper.em{font-size:2.6rem}.keeper svg{overflow:hidden}.bub{background:#fff;border:3px solid var(--line);border-radius:18px;padding:8px 12px;font-weight:900;flex:1}.bub .ptag{display:inline-block;background:#ffe36e;border-radius:8px;padding:0 8px;margin-left:4px;transform:rotate(-3deg)}'+
+      '.counter{background:linear-gradient(180deg,#f3c9a0,#e9b385);border-radius:20px;padding:8px;min-height:120px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.08)}.ctrL{display:block;font-weight:900;font-size:.8rem;color:#6b3f1f}'+
+      '.ctrIn{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:center;min-height:70px}.ctrIn .empty{font-weight:800;color:#8a5a37;font-size:.85rem}.cc{border:0;background:none;padding:0;cursor:pointer;animation:drop .25s ease-out}'+
+      '@keyframes drop{from{transform:translateY(-30px) scale(1.2);opacity:.3}}.oneWay{font-weight:900;font-size:.8rem;color:#6b3f1f;flex-basis:100%;text-align:center}.tot{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.2rem;color:#6b3f1f;min-height:1.3em}'+
+      '.tray{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}.tc{border:0;background:#fff;border-radius:18px;padding:6px 6px 4px;cursor:pointer;box-shadow:0 4px 0 var(--line);display:flex;flex-direction:column;align-items:center;min-width:64px}.tc:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}.tc small{font-weight:800;font-size:.72rem;color:var(--muted)}'+
+      '.tc:disabled,.cc:disabled{opacity:.6;cursor:default}.go{display:block;margin:12px auto 0;border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.85}.go:disabled{opacity:.45}'+
+      '.jar{margin:4px auto 0;width:220px;min-height:150px;border:5px solid #9ccbe0;border-top-width:12px;border-radius:24px 24px 40px 40px;background:rgba(214,240,250,.6);display:flex;align-items:flex-end;justify-content:center;padding:8px}.jarIn{display:flex;flex-wrap:wrap-reverse;justify-content:center;gap:2px}'+
+      '.wheels{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px}.wh{display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:14px;box-shadow:0 3px 0 var(--line)}.wh b{font-family:Fredoka,sans-serif;font-size:2.2rem;line-height:1.1}.wh button{border:0;background:none;color:var(--brand);font-size:1.1rem;padding:2px 16px;cursor:pointer}.cent{font-family:Fredoka,sans-serif;font-size:2rem;font-weight:700}'+
+      '.hintS{text-align:center;font-weight:800;color:var(--muted);font-size:.82rem;margin-top:8px}',
+    fromKey:fromKey,render:render,right:right,rightText:rightText,wrongText:wrongText,explain:explain,teach:teach,after:after,miss:miss});
+})();
+</script>
+</body></html>

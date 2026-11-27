@@ -17,6 +17,7 @@
      shop items may have icon (html) instead of e; isOwned(it)?, onBuy(it)?, useOwned(it)?, ownedText(it)? change what the shop does
      gameId?: "measure"                                  // the name in the site's event log (game_level_start, game_level_end)
      cheer?: true                                       // a short burst of confetti after each right answer
+     perLevel?: 8, bossCount?: 12                       // questions in a level and in the boss level (the Grade 2 games ask fewer)
    })
    MathGame.sound() tells a game whether the child has the sound on.
    A question is {kind, key, ...}. render() fills the screen with ui.task(html), ui.stage(html), ui.choices([{html, val}]), ui.words(text),
@@ -220,7 +221,7 @@
     function start(P) {
       var pool = null;
       if (P === PRACTICE) { pool = missList(); if (!pool.length) return; }
-      var total = P === BOSS ? 12 : P === PRACTICE ? Math.max(4, Math.min(10, pool.length * 2)) : 8;
+      var total = P === BOSS ? (C.bossCount || 12) : P === PRACTICE ? Math.max(4, Math.min(10, pool.length * 2)) : (C.perLevel || 8);
       G = { P: P, pool: pool, left: total, total: total, hearts: P === PRACTICE ? Infinity : 3, coins: 0, streak: 0, best: 0, correct: 0, miss: {}, q: null, locked: false, lastKey: "", again: [],
             idx: C.levels.indexOf(P), slump: 0, sinceHard: 0, hardDone: 0, mode: "" };
       $("pCoins").textContent = "0"; renderHearts(); show("play"); next();
