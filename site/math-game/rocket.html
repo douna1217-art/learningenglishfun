@@ -71,10 +71,12 @@
     var a=q.sw?q.b:q.a, b=q.sw?q.a:q.b;   // sometimes the small number comes first: the frame is filled from the bigger one
     var big=Math.max(a,b), small=Math.min(a,b), inFrame=big, pile=small;
     ui.task("<b>"+a+" + "+b+"</b> = ? Fill the ten frame first! <small>先把十格框填满，再加剩下的</small>");
-    var f=ui.stage('<div class="spc">'+pilot("Tap the fuel drops to fill the frame! 点燃料滴，填满十格")+'<div class="frames"><div class="tf" id="tf"></div><div class="pile" id="pile"></div></div><div class="sum" id="sum"></div>'+wheelsHtml("fw",2,LBL)+goBtn("Launch! 🚀","发射")+'</div>');
+    var f=ui.stage('<div class="spc">'+pilot("Move the yellow drops into the blue frame until it is full! 把黄色燃料移到蓝色框里，直到装满")+'<div class="frames"><div class="fr"><b id="lb1">'+big+'</b><div class="tf" id="tf"></div></div><span class="arr">⬅</span><div class="fr"><b id="lb2">'+small+'</b><div class="tf two" id="pile"></div></div></div><div class="sum" id="sum"></div>'+wheelsHtml("fw",2,LBL)+goBtn("Launch! 🚀","发射")+'</div>');
     function draw(){
       var h=""; for(var i=0;i<10;i++) h+='<span class="cell'+(i<inFrame?(i<big?" have":" moved"+(i===inFrame-1?" fresh":"")):"")+'">'+(i<inFrame?"●":"")+'</span>'; f.querySelector("#tf").innerHTML=h;
-      var p=""; for(var j=0;j<pile;j++) p+='<button type="button" class="drop">●</button>'; f.querySelector("#pile").innerHTML=p||'<span class="none">—</span>';
+      // the second ten frame: the drops still to move (tap one and it jumps into the first frame)
+      var p=""; for(var j=0;j<10;j++) p+=j<pile?'<button type="button" class="cell drop" aria-label="Move this drop">●</button>':'<span class="cell"></span>'; f.querySelector("#pile").innerHTML=p;
+      f.querySelector("#lb1").textContent=inFrame; f.querySelector("#lb2").textContent=pile;   // how many in each frame now
       f.querySelector("#sum").innerHTML=inFrame===10?'<b>10</b> + <b>'+pile+'</b> = ?':(10-inFrame)+" more to make 10 还差 "+(10-inFrame)+" 个凑成十";
     }
     f.querySelector("#pile").addEventListener("click",function(e){ if(ui.locked()) return; var b2=e.target.closest?e.target.closest(".drop"):null; if(!b2||inFrame>=10) return; inFrame++; pile--; tick(); if(inFrame===10) zoom(); draw(); });
@@ -210,21 +212,22 @@
     shopTitle:"Prize shop: stars win space prizes for your pet",shopCn:"用星星给宠物换太空奖品",emptyOwned:"🎁",
     panel:{title:"🪐 Planets Visited",cn:"每答对 5 题，飞到下一个星球",html:tripHtml},
     kinds:{frame:"Make ten to add within 20",jump:"Add and subtract within 100 (tens and ones)",double:"Doubles",half:"Halves",big:"Add within 1000"},
-    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+    css:'@media(max-height:820px){.kbar{display:none}}'+'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
       '.spc{max-width:460px;margin:0 auto}.kbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}.keeper{flex:none;width:50px;height:50px;display:flex;align-items:center;justify-content:center}.keeper.em{font-size:2.3rem}.keeper svg{overflow:hidden}'+
       '.kbub{background:#fff;border:3px solid var(--line);border-radius:16px;padding:6px 10px;font-weight:900;font-size:.85rem;flex:1}'+
       '.go{display:block;margin:12px auto 0;border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.85}.go:disabled{opacity:.45}'+
       '.wheels{display:flex;justify-content:center;gap:8px;margin-top:10px}.wh{display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:14px;box-shadow:0 3px 0 var(--line);padding:4px 2px 2px;min-width:72px}'+
       '.wh small{font-weight:900;font-size:.62rem;color:var(--muted)}.wh b{font-family:Fredoka,sans-serif;font-size:2.2rem;line-height:1.1}.wh button{border:0;background:none;color:var(--brand);font-size:1.1rem;padding:2px 16px;cursor:pointer}'+
-      '.frames{display:flex;flex-direction:column;align-items:center;gap:10px}.tf{display:grid;grid-template-columns:repeat(5,44px);gap:4px;background:#26357a;padding:6px;border-radius:14px}'+
-      '.cell{height:44px;border-radius:8px;background:#e8ebff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#f5b301}.cell.have{color:#3a4fa8}.cell.moved{color:#f5b301}.cell.fresh{animation:pop .3s}'+
-      '.pile{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:44px}.drop{width:44px;height:44px;border:0;border-radius:50%;background:#fff4d1;color:#f5b301;font-size:1.6rem;cursor:pointer;box-shadow:0 3px 0 #f0dca0}.pile .none{color:var(--muted);font-weight:900}'+
+      '.frames{display:flex;align-items:center;justify-content:center;gap:6px}.fr{text-align:center}.fr>b{display:block;font-family:Fredoka,sans-serif;font-size:1.5rem;color:var(--brand)}'+
+      '.tf{display:grid;grid-template-columns:repeat(5,min(36px,7.2vw));gap:3px;background:#26357a;padding:5px;border-radius:12px}.tf.two{background:#c79a12}.arr{font-size:1.6rem;color:var(--brand);margin-top:24px}'+
+      '.cell{height:min(36px,7.2vw);border-radius:7px;background:#e8ebff;border:0;padding:0;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#f5b301}.cell.have{color:#3a4fa8}.cell.moved{color:#f5b301}.cell.fresh{animation:pop .3s}'+
+      '.pile{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:44px}.tf.two .cell{background:#fff8e0}.cell.drop{color:#f5b301;cursor:pointer;font-size:1.6rem;display:flex;align-items:center;justify-content:center}.pile .none{color:var(--muted);font-weight:900}'+
       '.sum{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.3rem;margin-top:8px;color:var(--ink);min-height:1.4em}.sum b{color:var(--brand)}'+
       '.trkBox{background:#eef0ff;border-radius:16px;padding:6px}.trk{width:100%;display:block}.trk text.blast{animation:blast 1s ease-in forwards}@keyframes blast{to{transform:translateY(-60px);opacity:0}}'+
       '.log{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;color:var(--muted);margin-top:6px;min-height:1.3em;word-break:break-word}.oneWay{text-align:center;font-weight:900;font-size:.9rem;margin-top:6px}'+
       '.jbtns{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}.jb{border:0;border-radius:16px;padding:12px 16px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.35rem;cursor:pointer;min-width:70px}'+
       '.jb.up{background:#fff4d1;box-shadow:0 4px 0 #f0dca0;color:#8a6200}.jb.dn{background:#ffe3e3;box-shadow:0 4px 0 #f3c0c0;color:#a03838}.jb.undo{background:#fff;box-shadow:0 4px 0 var(--line);color:var(--muted)}.jb:disabled{opacity:.5}'+
-      '.mirror{display:grid;grid-template-columns:1fr 8px 1fr;gap:8px;align-items:stretch}.half{min-height:120px;border-radius:16px;background:#eef0ff;display:flex;flex-wrap:wrap;gap:4px;align-content:center;justify-content:center;padding:8px;font-size:1.5rem}'+
+      '.mirror{display:grid;grid-template-columns:1fr 8px 1fr;gap:8px;align-items:stretch}.half{min-height:86px;border-radius:16px;background:#eef0ff;display:flex;flex-wrap:wrap;gap:4px;align-content:center;justify-content:center;padding:8px;font-size:1.5rem}'+
       '.half.r{border:3px dashed #b8c0ee}.glass{background:linear-gradient(180deg,#bfe4ff,#7fb6ff);border-radius:4px}.st.fresh{animation:pop .3s}.addS{font-weight:900;color:var(--brand);font-size:1.3rem}'+
       '.row{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;font-size:1.45rem;background:#eef0ff;border-radius:16px;padding:10px}.row .st.r{filter:hue-rotate(160deg)}.row .cut{width:4px;background:#e0457b;border-radius:2px;margin:0 6px;align-self:stretch}'+
       '.slider{width:100%;margin-top:10px;accent-color:#e0457b;height:28px}'+

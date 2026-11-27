@@ -73,7 +73,10 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .meter i{display:block;height:100%;background:var(--good)}
 
 /* ===== jumping ===== */
-.bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+#topRow[hidden]{display:none}
+/* a short window (a laptop): smaller pictures and buttons so the question fits without scrolling */
+@media(max-height:820px){.nl{height:96px!important}.stage{padding-top:6px!important}}
+#play{max-width:620px;margin-left:auto;margin-right:auto}.bar-top{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:nowrap;padding-top:10px}.bar-top .tbtn{padding:7px 10px;white-space:nowrap}#quitBtn{max-width:42vw;overflow:hidden;text-overflow:ellipsis}.bar-top .chip{padding:5px 10px;white-space:nowrap}.bar-top .hearts{white-space:nowrap}
 .hearts{font-size:1.4rem;letter-spacing:.06em;font-weight:900}
 .hearts .lost{filter:grayscale(1);opacity:.3}
 .stage{position:relative;margin-top:12px;border-radius:26px;box-shadow:var(--shadow);overflow:hidden;
@@ -159,7 +162,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 </style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
 </head>
 <body>
-<div class="top">
+<div class="top" id="topRow">
   <a class="home" id="homeLink" href="../index.html">← Home</a>
   <div class="wallet">
     <span class="chip" id="coinChip">🪰 <span id="coinTotal">0</span></span>
@@ -194,6 +197,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     <button class="tbtn" type="button" id="quitBtn">✕ Leave the pond</button>
     <span class="hearts" id="hearts"></span>
     <span class="chip">🪰 +<span id="pCoins">0</span></span>
+    <button class="tbtn snd" type="button" id="soundBtn2" aria-label="Sound">🔔</button>
   </div>
   <div class="stage" id="stage">
     <div class="task" id="task"></div>
@@ -329,7 +333,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   };
 
   var $=function(id){return document.getElementById(id);};
-  function show(id){ ["map","play","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); window.scrollTo(0,0); }
+  function show(id){ ["map","play","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); $("topRow").hidden=(id==="play"); window.scrollTo(0,0); }   // while playing, one tight bar instead of two rows
   function frogHtml(cls){ return '<span class="frog'+(cls?" "+cls:"")+'">🐸'+(data.hat?'<span class="hat">'+data.hat+'</span>':"")+'</span>'; }
 
   // ---------- map ----------
@@ -384,8 +388,8 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     });
     $("skills").innerHTML=h;
   }
-  $("soundBtn").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
-  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 Sound on":"🔕 Sound off"; }
+  $("soundBtn").onclick=$("soundBtn2").onclick=function(){ data.sound=!data.sound; save(); renderSound(); };
+  function renderSound(){ $("soundBtn").textContent=data.sound?"🔔 Sound on":"🔕 Sound off"; $("soundBtn2").textContent=data.sound?"🔔":"🔕"; }
 
   // ---------- drawing a number line ----------
   function lineHtml(q,W,opts){

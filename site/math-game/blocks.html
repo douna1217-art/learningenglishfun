@@ -122,7 +122,7 @@
     ui.task("Which is bigger? Tap a crocodile sign, then Chomp! <small>哪个大？点一个鳄鱼符号，再按“咬下去”</small>");
     var f=ui.stage('<div class="fac"><div class="cmp"><div class="side"><b>'+q.a+'</b>'+matHtml(blocksOf(q.a),{small:true})+'</div><div class="slot" id="slot">?</div><div class="side"><b>'+q.b+'</b>'+matHtml(blocksOf(q.b),{small:true})+'</div></div>'+
       '<div class="signs">'+[["<","the right one is bigger 右边大"],["=","the same 一样大"],[">","the left one is bigger 左边大"]].map(function(x){ return '<button type="button" class="sign" data-s="'+x[0]+'"><span class="sg">'+x[0]+'</span><span class="cr">🐊</span><small>'+x[1]+'</small></button>'; }).join("")+'</div>'+
-      '<div class="tot">The open mouth eats the bigger number. Compare the hundreds first, then the tens, then the ones. 张开的嘴吃大的数；先比百位，再比十位，再比个位</div>'+goBtn("Chomp! ✓","咬下去")+'</div>');
+      '<div class="tot">Compare the hundreds first. 先比百位</div>'+goBtn("Chomp! ✓","咬下去")+'</div>');
     f.querySelector("#goBtn").disabled=true;
     f.querySelector(".signs").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest(".sign"):null; if(!b) return;
       pick=b.dataset.s; [].forEach.call(f.querySelectorAll(".sign"),function(x){ x.classList.toggle("on",x===b); });
@@ -145,7 +145,7 @@
   function moreGame(q,ui){
     var c=blocksOf(q.n), k=q.by===100?"h":"t";
     ui.task("The machine says <b>"+(q.up?"+":"−")+" "+q.by+"</b>! Start with <b>"+q.n+"</b>. What number comes out? <small>机器："+(q.up?"加":"减")+" "+q.by+"，结果是多少？</small>");
-    var f=ui.stage('<div class="fac">'+keeper("Pull the lever, then read the number! 拉一下，再读数")+'<div class="mach">⚙️ <b>'+q.n+' '+(q.up?"+":"−")+' '+q.by+'</b></div><div id="matBox"></div><div class="lever"><button type="button" class="tb" id="lev">'+blockSvg(k,1)+'<small><b class="bv">'+(q.up?"+":"−")+VAL[k]+'</b>'+(q.up?"Add":"Take away")+' a '+NAME[k]+'</small></button></div>'+wheels("mw")+goBtn("That's it ✓","就是这个数")+'</div>');
+    var f=ui.stage('<div class="fac">'+keeper("Pull the lever, then read the number! 拉一下，再读数")+'<div class="mach">⚙️ <b>'+q.n+' '+(q.up?"+":"−")+' '+q.by+'</b><button type="button" class="tb lev" id="lev">'+blockSvg(k,.7)+'<small><b class="bv">'+(q.up?"+":"−")+VAL[k]+'</b>'+(q.up?"Add":"Take away")+' a '+NAME[k]+'</small></button></div><div id="matBox"></div>'+wheels("mw")+goBtn("That's it ✓","就是这个数")+'</div>');
     function draw(){ f.querySelector("#matBox").innerHTML=matHtml(c,{}); }
     var used=false;
     f.querySelector("#lev").onclick=function(){ if(ui.locked()||used) return; used=true; if(q.up) c[k]++; else c[k]--; snap(); draw(); f.querySelector("#lev").disabled=true; };
@@ -235,9 +235,9 @@
     shopTitle:"Prize shop: bolts win prizes for your pet",shopCn:"用螺栓给宠物换奖品",emptyOwned:"🎁",
     panel:{title:"🏙️ Block City",cn:"积木城：答对一题加一块积木",html:cityHtml},
     kinds:{build:"Build a number (hundreds, tens, ones)",read:"Read a number from blocks",bundle:"Bundle 10 ones into a ten",cmp:"Compare three-digit numbers (> < =)",skip:"Skip count by 5s, 10s, 100s",more:"10 or 100 more or less",expand:"Expanded form"},
-    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+    css:'@media(max-height:820px){.kbar{display:none}}'+'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
       '.fac{max-width:460px;margin:0 auto;position:relative}.kbar{display:flex;align-items:center;gap:8px;margin-bottom:6px}.keeper{flex:none;width:50px;height:50px;display:flex;align-items:center;justify-content:center}.keeper.em{font-size:2.3rem}.keeper svg{overflow:hidden}.kbub{background:#fff;border:3px solid var(--line);border-radius:16px;padding:6px 10px;font-weight:900;font-size:.85rem;flex:1}'+
-      '.mat{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px;background:#f5e3c8;border-radius:18px;padding:6px;min-height:120px}.mat.small{min-height:70px;padding:4px;gap:3px;grid-template-columns:2.2fr 1.2fr 1fr}'+
+      '.mat{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px;background:#f5e3c8;border-radius:18px;padding:6px;min-height:84px}.mat.small{min-height:70px;padding:4px;gap:3px;grid-template-columns:2.2fr 1.2fr 1fr}'+
       '.col{background:#fff;border-radius:12px;padding:4px;display:flex;flex-direction:column}.col.h .colT{color:#1f5f7a}.col.t .colT{color:#2f6b33}.col.o .colT{color:#9a6b00}'+
       '.colT{font-weight:900;font-size:.72rem;text-align:center}.mat.small .colT{font-size:.6rem}.colIn{display:flex;flex-wrap:wrap;gap:3px;align-content:flex-start;justify-content:center;flex:1;padding-top:3px}'+
       '.pb{border:0;background:none;padding:0;cursor:pointer;line-height:0}.pb.fresh{animation:pop .25s}span.pb{cursor:default}.oneWay{font-weight:900;font-size:.85rem;text-align:center;margin-bottom:4px}'+
@@ -257,7 +257,7 @@
       '.path{background:#e4f1fb;border-radius:18px;padding:10px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.2rem;display:flex;align-items:center;flex-wrap:wrap;gap:6px;min-height:60px}.start{background:#fff;border-radius:12px;padding:4px 10px}.hopper{width:40px;height:40px;line-height:0;font-size:2rem}'+
       '.pond{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.stone{border:0;border-radius:50% 50% 45% 55%;background:#c9d6e3;padding:16px 4px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.3rem;cursor:pointer;box-shadow:0 5px 0 #9fb1c4;color:var(--ink)}'+
       '.stone.ok{background:#7cc47f;color:#fff;box-shadow:0 5px 0 #4f9a53}.stone.bad{background:#f3a1a8;box-shadow:0 5px 0 #d06a74}.stone:disabled{cursor:default}'+
-      '.mach{text-align:center;font-family:Fredoka,sans-serif;font-size:1.6rem;background:#fff1d6;border-radius:16px;padding:6px;margin-bottom:8px}.lever{display:flex;justify-content:center;margin-top:8px}',
+      '.mach{display:flex;align-items:center;justify-content:center;gap:14px;font-family:Fredoka,sans-serif;font-size:1.6rem;background:#fff1d6;border-radius:16px;padding:6px;margin-bottom:8px}.tb.lev{flex-direction:row;min-height:0;min-width:0;padding:6px 10px;font-family:Nunito,sans-serif}.lever{display:flex;justify-content:center;margin-top:8px}',
     fromKey:fromKey,render:render,right:right,rightText:rightText,wrongText:wrongText,explain:explain,teach:teach,after:after,miss:miss});
 })();
 </script>

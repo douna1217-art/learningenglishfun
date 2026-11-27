@@ -58,17 +58,17 @@
     '.item .p{display:block;font-size:.82rem;color:var(--muted);margin-top:2px}.item.own{border-color:var(--good);background:#effaf2}.item.own .p{color:var(--good)}.item:disabled{opacity:.55;cursor:default}' +
     '.skills{width:100%;border-collapse:collapse;margin-bottom:14px;font-weight:800;font-size:.9rem}.skills td{padding:7px 4px;border-top:1px solid var(--line)}.skills td:last-child{text-align:right;white-space:nowrap}' +
     '.meter{display:inline-block;width:90px;height:10px;border-radius:9px;background:#eef1f5;overflow:hidden;vertical-align:middle;margin-left:6px}.meter i{display:block;height:100%;background:var(--good)}' +
-    '.bar-top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.hearts{font-size:1.4rem;letter-spacing:.06em;font-weight:900}.hearts .lost{filter:grayscale(1);opacity:.3}' +
-    '.stage{position:relative;margin-top:12px;border-radius:26px;box-shadow:var(--shadow);overflow:hidden;background:#fff;padding:12px 12px 14px}' +
+    '#topRow[hidden]{display:none}@media(max-height:820px){.task{padding:6px 10px;font-size:1rem}.stage{padding:8px 10px 10px}}#play{padding-top:10px;max-width:620px;margin:0 auto}.bar-top{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:nowrap}.bar-top .tbtn{padding:7px 10px;white-space:nowrap}#quitBtn{max-width:42vw;overflow:hidden;text-overflow:ellipsis}.bar-top .chip{padding:5px 10px}.bar-top .hearts{font-size:1.15rem;white-space:nowrap}.bar-top .hearts span{font-size:.9rem!important}.hearts{font-size:1.4rem;letter-spacing:.06em;font-weight:900}.hearts .lost{filter:grayscale(1);opacity:.3}' +
+    '.stage{position:relative;margin-top:8px;border-radius:26px;box-shadow:var(--shadow);overflow:hidden;background:#fff;padding:12px 12px 14px}' +
     '.task{background:var(--bg);border-radius:14px;padding:9px 12px;font-weight:900;font-size:1.08rem;text-align:center;line-height:1.4}.task b{color:var(--dark)}' +
-    '.words{font-weight:900;color:var(--muted);font-size:1.08rem;min-height:1.5em;text-align:center;margin-top:8px}' +
+    '.words{font-weight:900;color:var(--muted);font-size:1.08rem;min-height:1.2em;text-align:center;margin-top:4px}' +
     '.msg{text-align:center;font-weight:900;min-height:1.6em;font-size:1.1rem;margin-top:2px}.msg.good{color:var(--good)}.msg.bad{color:var(--bad)}.msg.combo{color:#e07b00}.msg.pop{animation:pop .35s}' +
     '.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}' +
     '.choice{border:0;border-radius:22px;padding:14px 6px;font-family:Fredoka,sans-serif;font-size:1.8rem;font-weight:700;color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.13);transition:transform .06s;min-height:70px}' +
     '.choice.text{font-size:1.1rem;font-family:Nunito,sans-serif;font-weight:900}.choice small{display:block;font-size:.82rem;font-family:Nunito,sans-serif;font-weight:900}' +
     '.choice:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.13)}.choice.right{background:var(--good)!important;color:#fff}' +
     '.choice.wrong{background:var(--bad)!important;color:#fff;animation:shake .35s}.choice:disabled{cursor:default}' +
-    '.hint{text-align:center;color:var(--muted);font-weight:800;font-size:.9rem;margin-top:8px}' +
+    '.hint{text-align:center;color:var(--muted);font-weight:800;font-size:.9rem;margin-top:4px}' +
     '.teach{margin-top:12px;background:#fff;border:3px solid #ffd166;border-radius:20px;padding:12px 14px 14px;box-shadow:0 10px 24px rgba(0,0,0,.1);animation:pop .3s}' +
     '.teach h3{margin:0 0 8px;font-size:1.15rem}.teach h3 small{font-family:Nunito,sans-serif;font-size:.85rem;color:#7a7a7a;font-weight:800}' +
     '.teach ol{margin:0;padding-left:1.4em;font-weight:800;line-height:1.55}.teach li{margin:3px 0}' +
@@ -88,14 +88,14 @@
     '@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}' +
     '@media(max-width:620px){.lvls{gap:8px}.lv .tag{font-size:.9rem}.choice{font-size:1.5rem}.choice.text{font-size:1rem}}';
 
-  var HTML = '<div class="top"><a class="home" id="homeLink" href="../index.html">← Home</a><div class="wallet"><span class="chip" id="coinChip"><span id="coinE"></span> <span id="coinTotal">0</span></span>' +
+  var HTML = '<div class="top" id="topRow"><a class="home" id="homeLink" href="../index.html">← Home</a><div class="wallet"><span class="chip" id="coinChip"><span id="coinE"></span> <span id="coinTotal">0</span></span>' +
     '<button class="tbtn" type="button" id="soundBtn">🔔 Sound on</button></div></div><div class="wrap">' +
     '<section id="map"><div class="hero" id="hero"><h1 id="gTitle"></h1><p id="gTag"></p><div class="owned" id="owned"></div><div class="progress" id="progress"></div></div>' +
     '<div class="lvls" id="lvls"></div>' +
     '<details class="panel" id="xPanel" hidden open><summary id="xTitle"></summary><div id="xBody" style="padding-bottom:14px"></div></details>' +
     '<details class="panel" open><summary id="shopTitle"></summary><div class="shop" id="shop"></div></details>' +
     '<details class="panel"><summary>📋 For parents: what is going well <small>给家长看：掌握情况</small></summary><table class="skills" id="skills"></table></details></section>' +
-    '<section id="play" hidden><div class="bar-top"><button class="tbtn" type="button" id="quitBtn">✕ Leave</button><span class="hearts" id="hearts"></span><span class="chip"><span id="coinE2"></span> +<span id="pCoins">0</span></span></div>' +
+    '<section id="play" hidden><div class="bar-top"><button class="tbtn" type="button" id="quitBtn">✕ Leave</button><span class="hearts" id="hearts"></span><span class="chip"><span id="coinE2"></span> +<span id="pCoins">0</span></span><button class="tbtn snd" type="button" id="soundBtn2" aria-label="Sound">🔔</button></div>' +
     '<div class="stage"><div class="task" id="task"></div><div id="field"></div></div><div class="words" id="words"></div><div class="msg" id="msg"></div>' +
     '<div class="choices" id="choices"></div><div class="teach" id="teach" hidden></div><div class="hint" id="hint"></div></section>' +
     '<section id="result" hidden><div class="result"><div class="big" id="rBig"></div><h2 id="rTitle"></h2><div class="stars" id="rStars"></div><div class="reward" id="rReward"></div><p id="rSub"></p>' +
@@ -153,7 +153,7 @@
       oops: function () { tone([260, 180], "sawtooth", .16); }, buy: function () { tone([659, 880, 1047], "triangle", .12); },
       win: function () { tone([523, 659, 784, 1047], "triangle", .18); }, lose: function () { tone([392, 330, 262], "sine", .25); }
     };
-    function show(id) { ["map", "play", "result"].forEach(function (s) { $(s).hidden = (s !== id); }); $("coinChip").hidden = (id !== "map"); root.scrollTo(0, 0); }
+    function show(id) { ["map", "play", "result"].forEach(function (s) { $(s).hidden = (s !== id); }); $("coinChip").hidden = (id !== "map"); $("topRow").hidden = (id === "play"); root.scrollTo(0, 0); }
 
     // ---------- map ----------
     function starText(n) { return "⭐".repeat(n) + "☆".repeat(3 - n); }
@@ -211,8 +211,8 @@
       });
       $("skills").innerHTML = h;
     }
-    $("soundBtn").onclick = function () { data.sound = !data.sound; save(); renderSound(); };
-    function renderSound() { $("soundBtn").textContent = data.sound ? "🔔 Sound on" : "🔕 Sound off"; }
+    $("soundBtn").onclick = $("soundBtn2").onclick = function () { data.sound = !data.sound; save(); renderSound(); };
+    function renderSound() { $("soundBtn").textContent = data.sound ? "🔔 Sound on" : "🔕 Sound off"; $("soundBtn2").textContent = data.sound ? "🔔" : "🔕"; }
 
     // ---------- playing ----------
     var G = null, pending = 0;
