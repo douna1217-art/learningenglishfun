@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Story Theater</title>
+<meta name="theme-color" content="#a8324a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Story Theater: watch little math stories on stage - cookies eaten, balloons floating away, friends coming to a party - pick the number sentence that matches and answer. Grade 1 addition and subtraction story problems.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#2b2a3f;--muted:#6f6a86;--bg:#fff3f0}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 20px;position:relative}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.tbtn{background:#fff;border:1px solid #f3d6cf;border-radius:13px;padding:8px 12px;color:var(--ink);text-decoration:none;font:inherit;font-weight:900;cursor:pointer}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #f3d6cf}
+.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.35rem}
+/* the theater: red curtains, a wooden stage, lights */
+.stage{position:relative;height:max(330px,calc(100vh - 470px));border-radius:22px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#fff7e0,#f5d9a8 70%);touch-action:none}
+.curtain{position:absolute;top:0;bottom:0;width:9%;background:repeating-linear-gradient(90deg,#b3243c 0 10px,#8a1a2e 10px 20px);z-index:5;transition:width .8s ease}
+.curtain.l{left:0;border-radius:0 0 30px 0}.curtain.r{right:0;border-radius:0 0 0 30px}.stage.closed .curtain{width:51%}
+.valance{position:absolute;left:0;right:0;top:0;height:22px;background:repeating-radial-gradient(circle at 15px -6px,#b3243c 0 16px,#8a1a2e 16px 18px);background-size:30px 24px;z-index:6}
+.floor{position:absolute;left:0;right:0;bottom:0;height:16%;background:repeating-linear-gradient(90deg,#c98a4b 0 40px,#b97a3c 40px 42px);border-top:4px solid #8a5a2b}
+.light{position:absolute;top:22px;width:40%;height:80%;background:radial-gradient(ellipse at 50% 0,rgba(255,255,200,.45),transparent 70%);pointer-events:none}
+.helper{position:absolute;left:10%;top:28px;display:flex;align-items:flex-start;gap:5px;z-index:7;max-width:80%}
+.pet{width:42px;height:42px;flex:none;display:flex;align-items:center;justify-content:center;font-size:1.9rem}.pet.cheer{animation:bob .5s 2}@keyframes bob{50%{transform:translateY(-8px)}}
+.bub{background:#fff;border-radius:12px;padding:4px 8px;font-weight:900;font-size:.74rem;line-height:1.2;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.decor{position:absolute;bottom:16%;font-size:1.4rem;z-index:1;pointer-events:none}
+/* the things in a story */
+.it{position:absolute;width:var(--s,40px);height:var(--s,40px);margin:calc(var(--s,40px) / -2) 0 0 calc(var(--s,40px) / -2);display:flex;align-items:center;justify-content:center;font-size:calc(var(--s,40px) * .82);line-height:1;z-index:3;transition:left .7s ease,top .7s ease,transform .5s,opacity .5s}
+.it svg{width:100%;height:auto}.it.new{filter:drop-shadow(0 0 5px #ffd84a)}
+.it.fly{top:-60px!important;opacity:0;transition:top 1.2s ease-in,opacity 1.2s}
+.it.eat{transform:scale(0) rotate(90deg);opacity:0}
+.it.walk{left:110%!important;transition:left 1.4s linear}
+.it.glow{animation:glow .8s ease-in-out infinite;filter:drop-shadow(0 0 7px #ff4f8a)}@keyframes glow{50%{transform:scale(1.15)}}
+.it.pick{outline:4px solid #ffd84a;border-radius:50%}
+.bag{position:absolute;width:var(--b,70px);height:var(--b,70px);margin:calc(var(--b,70px) / -2) 0 0 calc(var(--b,70px) / -2);z-index:4;display:flex;align-items:center;justify-content:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:calc(var(--b,70px) * .5);color:#fff;
+  background:radial-gradient(circle at 40% 35%,#a87be0,#6a3fb0);border-radius:42% 42% 46% 46%;box-shadow:0 5px 0 rgba(0,0,0,.2);transition:transform .5s,opacity .5s,left .7s,top .7s}
+.bag:before{content:"";position:absolute;top:-12%;left:30%;width:40%;height:22%;background:#6a3fb0;border-radius:40% 40% 10% 10%}
+.bag.open{transform:scale(1.5);opacity:0}
+.sign{position:absolute;bottom:17%;transform:translateX(-50%);background:#fff;border-radius:10px;padding:1px 8px;font-weight:900;font-size:.78rem;z-index:4;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.link{position:absolute;height:4px;background:#ff4f8a;border-radius:2px;transform-origin:0 50%;z-index:2;pointer-events:none}
+.crumb{position:absolute;width:6px;height:6px;border-radius:2px;background:#c98a4b;z-index:6;animation:crumb .6s ease-out forwards}@keyframes crumb{to{transform:translate(var(--x),var(--y));opacity:0}}
+/* the story lines */
+.lines{position:absolute;left:10%;right:10%;bottom:2%;z-index:6;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ln{background:rgba(255,255,255,.95);border-radius:10px;padding:2px 10px;font-weight:900;font-size:.95rem;animation:lnin .4s}.ln b{font-family:Fredoka,sans-serif;color:#a8324a;font-size:1.15em}@keyframes lnin{from{opacity:0;transform:translateY(8px)}}
+.ln small{color:var(--muted);font-weight:800;margin-left:6px}
+/* the bottom */
+.task{background:#fff;border-radius:18px;padding:9px 12px;margin-top:8px;text-align:center;font-weight:900;font-size:1.08rem;box-shadow:0 3px 0 #f3d6cf}
+.task .cn{display:block;font-size:.8rem;color:var(--muted);font-weight:800;margin-top:2px}.task b{font-family:Fredoka,sans-serif;font-size:1.25em;color:#a8324a}
+.cards{display:none;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.cards button{border:0;border-radius:16px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.45rem;padding:12px 2px;box-shadow:0 5px 0 #f3d6cf;cursor:pointer;color:var(--ink)}
+.cards button.bad,.nums button.bad{background:#ffd6d0;animation:shake .4s}
+.nums{display:none;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:8px}
+.nums button{border:0;border-radius:12px;background:#fff;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.4rem;padding:7px 0;box-shadow:0 4px 0 #f3d6cf;cursor:pointer;color:var(--ink)}
+.row2{display:flex;gap:8px;margin-top:8px}.row2 button{flex:1;border:0;border-radius:14px;background:#fff;font:inherit;font-weight:900;font-size:.95rem;padding:9px;box-shadow:0 4px 0 #f3d6cf;cursor:pointer;color:var(--ink)}
+.eqbig{font-family:Fredoka,sans-serif;font-size:1.9rem;color:#2f9e5b}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.5rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);pointer-events:none;animation:up 1.1s forwards;z-index:9}@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.over{position:absolute;inset:0;background:rgba(80,20,30,.86);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:16px;z-index:10}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.9rem}.over p{margin:4px 0;font-weight:800}
+.go{border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin-top:12px}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.92rem;text-align:left;margin-top:8px;max-width:400px}.how div{margin:4px 0}
+.shop{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;max-width:380px;margin-top:10px}
+.shop button{border:0;border-radius:14px;background:#fff;padding:6px 2px;font:inherit;font-weight:900;font-size:.75rem;color:var(--ink);cursor:pointer}.shop button i{display:block;font-style:normal;font-size:1.8rem}
+.shop button.own{background:#d6f5e6}.shop button:disabled{opacity:.45;cursor:default}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+.wrap.fitted{max-width:none;display:flex;flex-direction:column;overflow:hidden}
+.wrap.fitted .stage{flex:1;height:auto;min-height:300px}
+.wrap.fitted .ln{font-size:1.15rem}.wrap.fitted .pet{width:56px;height:56px}.wrap.fitted .bub{font-size:.92rem}
+@media(min-width:900px){.wrap.fitted .top,.wrap.fitted .hud,.wrap.fitted .bottom{width:100%;max-width:820px;margin-left:auto;margin-right:auto}.wrap.fitted .nums{grid-template-columns:repeat(11,1fr)}}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261130a"></script><script src="critters.js?v=20261130a"></script>
+<div class="wrap" id="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.25rem">🎭 Story Theater</b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Stories 故事</small><b id="score">0/6</b></div><div><small>Level 关</small><b id="day">1</b></div><div><small>Coins 金币</small><b id="coins">0</b></div></div>
+  <div class="stage" id="stage">
+    <div class="light" style="left:5%"></div><div class="light" style="right:5%"></div><div class="floor"></div><div id="decor"></div>
+    <div id="scene"></div><div class="lines" id="lines"></div>
+    <div class="helper"><div class="pet" id="pet"></div><div class="bub" id="bub">The show begins! 演出开始啦！</div></div>
+    <div class="curtain l"></div><div class="curtain r"></div><div class="valance"></div>
+  </div>
+  <div class="bottom">
+    <div class="task" id="task"></div>
+    <div class="cards" id="cards"></div>
+    <div class="nums" id="nums"></div>
+    <div class="row2" id="row2"><button type="button" id="replay">▶ Watch again 再看一遍</button></div>
+  </div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Story Theater (Grade 1, Unit 2: addition and subtraction story problems). Each story plays on the stage with its lines below;
+  // the number the story doesn't say waits in a purple "?" bag. Then: pick the number sentence that matches (3 cards), and answer.
+  // The bag opens and the hidden things pop out. 6 stories a level, 5 right opens the next; any level opened can be played again.
+  //   level 1  add to / take from, the result unknown (5 + 3 = ?, 7 − 2 = ?), within 10
+  //   level 2  put together / take apart (4 red and 3 green: how many in all? 8 apples, 5 are red: how many green?)
+  //   level 3  the change or the start unknown (5 + ? = 8, ? − 2 = 4) with the bag
+  //   level 4  compare: pair the two rows one to one (tap one in each row), the extra ones glow; how many more / fewer?
+  //   level 5+ all of them, within 20
+  var $=function(id){ return document.getElementById(id); };
+  var STORE="storyTheater.v1", S={day:1,coins:0,deco:{},tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var L=S.day, D=null, Q=null, busy=false, GOAL=6, timers=[];
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=rnd(i+1), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function later(f,ms){ var t=setTimeout(f,ms); timers.push(t); return t; }
+  function stopAll(){ timers.forEach(clearTimeout); timers=[]; }
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").onclick=function(){ S.sound=!S.sound; $("soundBtn").textContent=S.sound?"🔔":"🔕"; save(); };
+  $("soundBtn").textContent=S.sound?"🔔":"🔕";
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var pet=window.MathPet?MathPet.get():null;
+  $("pet").innerHTML=pet?MathPet.pic(pet,"happy",56):"🐣";
+  function say(t){ $("bub").innerHTML=t; var p=$("pet"); p.classList.remove("cheer"); void p.offsetWidth; p.classList.add("cheer"); }
+  function Z(){ return parseFloat($("wrap").style.zoom)||1; }
+  var DECO=[{id:"rose",e:"🌹",p:5},{id:"star",e:"⭐",p:8},{id:"mask",e:"🎭",p:12},{id:"music",e:"🎵",p:16},{id:"crown",e:"👑",p:22},{id:"trophy",e:"🏆",p:28},{id:"spark",e:"🎇",p:36},{id:"castle",e:"🏰",p:45}];
+  function drawDeco(){ $("decor").innerHTML=DECO.filter(function(d){ return S.deco[d.id]; }).map(function(d,i){ return '<span class="decor" style="left:'+(12+i*10)+'%">'+d.e+'</span>'; }).join(""); }
+  // ---------- the stories ----------
+  // join / separate themes: the thing, its words, how the new ones come, how some go
+  var JS=[{e:"🍪",n:"cookies",cn:"饼干",add:"Dad bakes {b} more.",addcn:"爸爸又烤了 {b} 块。",some:"Dad bakes some more.",somecn:"爸爸又烤了一些。",sub:"Ben eats {b}.",subcn:"小本吃了 {b} 块。",subsome:"Ben eats some.",subsomecn:"小本吃了一些。",go:"eat",where:"on the plate"},
+    {e:"🎈",n:"balloons",cn:"气球",add:"Mia ties on {b} more.",addcn:"米娅又系上 {b} 个。",some:"Mia ties on some more.",somecn:"米娅又系上一些。",sub:"{b} float away!",subcn:"飞走了 {b} 个！",subsome:"Some float away!",subsomecn:"飞走了一些！",go:"fly",where:"at the party"},
+    {e:"crit",n:"friends",cn:"小动物",add:"{b} more come to the party.",addcn:"又来了 {b} 只。",some:"Some more come.",somecn:"又来了一些。",sub:"{b} go home.",subcn:"{b} 只回家了。",subsome:"Some go home.",subsomecn:"有一些回家了。",go:"walk",where:"at the party"},
+    {e:"🐟",n:"fish",cn:"小鱼",add:"Sam puts in {b} more.",addcn:"山姆又放进 {b} 条。",some:"Sam puts in some more.",somecn:"山姆又放进一些。",sub:"{b} swim away.",subcn:"游走了 {b} 条。",subsome:"Some swim away.",subsomecn:"游走了一些。",go:"walk",where:"in the pond"},
+    {e:"⭐",n:"stickers",cn:"贴纸",add:"Lily gets {b} more.",addcn:"莉莉又得到 {b} 张。",some:"Lily gets some more.",somecn:"莉莉又得到一些。",sub:"She gives {b} away.",subcn:"她送出去 {b} 张。",subsome:"She gives some away.",subsomecn:"她送出去一些。",go:"fly",where:"in her book"}];
+  var PT=[{a:"🍎",b:"🍏",an:"red",bn:"green",n:"apples",cn:"苹果",acn:"红",bcn:"绿"},{a:"🌷",b:"🌻",an:"tulips",bn:"sunflowers",n:"flowers",cn:"花",acn:"郁金香",bcn:"向日葵",pl:1},{a:"⚽",b:"🏀",an:"soccer balls",bn:"basketballs",n:"balls",cn:"球",acn:"足球",bcn:"篮球",pl:1}];
+  var CP=[{e:"🐚",n:"shells",cn:"贝壳",p1:"Mia",p2:"Leo"},{e:"🚗",n:"cars",cn:"小汽车",p1:"Sam",p2:"Ava"},{e:"✏️",n:"pencils",cn:"铅笔",p1:"Zoe",p2:"Max"},{e:"🍓",n:"berries",cn:"草莓",p1:"Kim",p2:"Ben"}];
+  function fill(t,o){ return t.replace("{b}",o.b); }
+  function gen(){
+    var easy=D.n<=2||D.bad, hard=!easy&&D.streak>=3, max=L>=5&&!easy?(hard?20:15):10;
+    var kinds=L===1?["join-res","sep-res"]:L===2?["put-tot","put-add"]:L===3?["join-chg","sep-chg","join-start","sep-start"]:L===4?["cmp"]:["join-res","sep-res","put-tot","put-add","join-chg","sep-chg","join-start","sep-start","cmp"];
+    if(L===3&&easy) kinds=["join-chg","sep-chg"];
+    var k=kinds[rnd(kinds.length)], q={k:k,tries:0,eqTries:0}, a, b, c;
+    // a the start, b the change, c the end (join: a+b=c, separate: a-b=c)
+    if(k.indexOf("join")===0||k==="put-tot"||k==="put-add"){ do{ a=1+rnd(max-2); b=1+rnd(max-a); }while(a+b>Math.min(max,10)&&max===10||a+b>max); c=a+b; }
+    else if(k.indexOf("sep")===0){ c=0; do{ a=3+rnd(max-2); b=1+rnd(a-1); }while(a>max); c=a-b; }
+    else { a=3+rnd(Math.min(max,10)-2); b=1+rnd(a-1); c=a-b; }
+    q.a=a; q.b=b; q.c=c;
+    if(k.indexOf("join")===0||k.indexOf("sep")===0){ q.th=JS[rnd(JS.length)]; q.crit=Critters.list[rnd(Critters.list.length)]; }
+    else if(k.indexOf("put")===0) q.th=PT[rnd(PT.length)];
+    else { q.th=CP[rnd(CP.length)]; q.ask=Math.random()<.5?"more":"fewer"; }
+    // the number sentence, the answer, and two that don't match the story
+    var E={"join-res":[a+" + "+b+" = ?",c],"join-chg":[a+" + ? = "+c,b],"join-start":["? + "+b+" = "+c,a],"sep-res":[a+" − "+b+" = ?",c],"sep-chg":[a+" − ? = "+c,b],"sep-start":["? − "+b+" = "+c,a],
+      "put-tot":[a+" + "+b+" = ?",c],"put-add":[a+" + ? = "+c,b],"cmp":[a+" − "+b+" = ?",c]}[k];
+    q.eq=E[0]; q.ans=E[1];
+    var wrong={"join-res":[a+" − "+b+" = ?",b+" + ? = "+a],"join-chg":[a+" − ? = "+c,a+" + "+c+" = ?"],"join-start":["? − "+b+" = "+c,b+" + "+c+" = ?"],"sep-res":[a+" + "+b+" = ?",b+" − ? = "+a],"sep-chg":[a+" + ? = "+c,a+" + "+c+" = ?"],"sep-start":["? + "+b+" = "+c,c+" − "+b+" = ?"],
+      "put-tot":[a+" − "+b+" = ?",b+" + ? = "+a],"put-add":[a+" + "+c+" = ?",c+" + ? = "+a],"cmp":[a+" + "+b+" = ?",b+" − ? = "+a]}[k];
+    q.cards=shuffle([q.eq].concat(wrong));
+    if(!S.tut&&L===1&&D.first) { q=gen2tut(); }
+    return q;
+  }
+  function gen2tut(){ var q={k:"join-res",a:3,b:2,c:5,ans:5,eq:"3 + 2 = ?",tries:0,eqTries:0,th:JS[0],tut:true}; q.cards=shuffle([q.eq,"3 − 2 = ?","2 + ? = 3"]); return q; }
+  // ---------- the stage ----------
+  function W(){ return $("stage").clientWidth; } function H(){ return $("stage").clientHeight; }
+  function itemSize(n){ var w=W(), h=H(); return Math.round(Math.max(24,Math.min(64,w*.6/Math.min(10,Math.max(5,n)),h/6.5))); }
+  // the place of the i-th thing of a group: rows of 5 (easy to count), the group centered at (cx, cy)
+  function slot(i,cx,cy,s){ var col=i%5, row=Math.floor(i/5); return [cx+(col-2)*s*1.12, cy+(row-.5)*s*1.15]; }
+  var items=[];
+  function art(e,s){ return e==="crit"?Critters.svg(Q.crit):e; }
+  function put(e,x,y,s,cls){ var el=document.createElement("div"); el.className="it"+(cls?" "+cls:""); el.style.setProperty("--s",s+"px"); el.innerHTML=art(e,s); el.style.left=x+"px"; el.style.top=y+"px"; $("scene").appendChild(el); items.push(el); return el; }
+  function bag(x,y,size){ var w=W(); if(x>0) x=Math.max(w*.12+size/2,Math.min(x,w*.88-size/2)); var el=document.createElement("div"); el.className="bag"; el.id="bag"; el.style.setProperty("--b",size+"px"); el.textContent="?"; el.style.left=x+"px"; el.style.top=y+"px"; $("scene").appendChild(el); return el; }
+  function sign(x,t){ $("scene").insertAdjacentHTML("beforeend",'<div class="sign" style="left:'+x+'px">'+t+'</div>'); }
+  function line(en,cn){ $("lines").insertAdjacentHTML("beforeend",'<div class="ln">'+en+'<small>'+cn+'</small></div>'); tone([660],.04); }
+  function crumbs(x,y){ for(var i=0;i<6;i++){ var c=document.createElement("i"); c.className="crumb"; c.style.left=x+"px"; c.style.top=y+"px"; c.style.setProperty("--x",(rnd(40)-20)+"px"); c.style.setProperty("--y",(rnd(30)-5)+"px"); $("scene").appendChild(c); (function(e){ setTimeout(function(){ e.remove(); },600); })(c); } }
+  function leave(el,how){ var x=parseFloat(el.style.left), y=parseFloat(el.style.top);
+    if(how==="eat"){ el.classList.add("eat"); crumbs(x,y); tone([300,250],.05,"square"); } else if(how==="fly"){ el.classList.add("fly"); tone([800,1000],.05); } else { el.classList.add("walk"); tone([500],.04); } }
+  // ---------- playing a story ----------
+  function play(){
+    stopAll(); busy=true; items=[]; $("scene").innerHTML=""; $("lines").innerHTML="";
+    var q=Q, k=q.k, th=q.th, w=W(), h=H(), cy=h*.48, n=Math.max(q.a,q.c,q.b), s=itemSize(k==="cmp"?q.a:n), T=0;
+    function at(ms,f){ T+=ms; later(f,T); }
+    var N=function(v){ return "<b>"+v+"</b>"; };
+    if(k.indexOf("join")===0||k.indexOf("sep")===0){
+      var e=th.e, cx=w*.42, isJ=k.indexOf("join")===0, start=k.indexOf("start")>0, chg=k.indexOf("chg")>0;
+      var where=th.where;
+      if(start){   // some, hidden in the bag
+        bag(cx,cy,s*2); line("Some "+th.n+" are "+where+". "+"("+N("?")+")","有一些"+th.cn+"。");
+        if(isJ){ at(900,function(){ line(fill(th.add,q).replace(q.b,N(q.b)),fill(th.addcn,q)); for(var i=0;i<q.b;i++){ (function(i){ var p=slot(i,w*.68,cy,s); var el=put(e,-40,p[1],s,"new"); later(function(){ el.style.left=p[0]+"px"; },60+i*120); })(i); } });
+          at(1600,function(){ line("Now there are "+N(q.c)+" "+th.n+".","现在有 "+q.c+" "+(th.e==="crit"?"只":"个")+"。"); }); }
+        else { at(900,function(){ line(fill(th.sub,q).replace(q.b,N(q.b)),fill(th.subcn,q)); for(var i=0;i<q.b;i++){ (function(i){ var p=slot(i,cx,cy,s); var el=put(e,cx,cy,s); later(function(){ el.style.left=(p[0]+s*1.5)+"px"; el.style.top=p[1]+"px"; },60); later(function(){ leave(el,th.go); },700+i*150); })(i); } });
+          at(1600+q.b*150,function(){ for(var i=0;i<q.c;i++){ var p=slot(i,w*.7,cy,s); put(e,p[0],p[1],s); } line(N(q.c)+" are left.","还剩 "+q.c+" 个。"); }); }
+      } else {
+        line("There are "+N(q.a)+" "+th.n+" "+where+".","有 "+q.a+" "+(th.e==="crit"?"只":"个")+th.cn+"。");
+        var grp=[]; for(var i=0;i<q.a;i++){ var p=slot(i,cx,cy,s); grp.push(put(e,p[0],p[1],s)); }
+        if(isJ&&!chg){ at(1100,function(){ line(fill(th.add,q).replace(String(q.b),N(q.b)),fill(th.addcn,q)); for(var j=0;j<q.b;j++){ (function(j){ var p=slot(q.a+j,cx,cy,s); var el=put(e,-40,p[1],s,"new"); later(function(){ el.style.left=p[0]+"px"; el.style.top=p[1]+"px"; },60+j*140); })(j); } }); }
+        else if(isJ&&chg){ at(1100,function(){ line(th.some,th.somecn); var bg=bag(-60,cy,s*2); later(function(){ bg.style.left=Math.min(cx+s*4.2,W()*.88-s)+"px"; },60); });
+          at(1400,function(){ line("Now there are "+N(q.c)+" "+th.n+".","现在有 "+q.c+" 个。"); }); }
+        else if(!isJ&&!chg){ at(1100,function(){ line(fill(th.sub,q).replace(String(q.b),N(q.b)),fill(th.subcn,q)); for(var j=0;j<q.b;j++){ (function(j){ var el=grp[q.a-1-j]; later(function(){ leave(el,th.go); },j*220); })(j); } }); }
+        else { at(1100,function(){ line(th.subsome,th.subsomecn); var bg=bag(cx+s*4.2,cy,s*2); bg.style.opacity="0"; for(var j=0;j<q.b;j++){ (function(j){ var el=grp[q.a-1-j]; later(function(){ el.style.left=(cx+s*4.2)+"px"; el.style.top=cy+"px"; el.style.transform="scale(.3)"; el.style.opacity="0"; },j*120); })(j); }
+            later(function(){ bg.style.opacity="1"; },q.b*120+300); });
+          at(1500,function(){ line(N(q.c)+" are left.","还剩 "+q.c+" 个。"); }); }
+      }
+    } else if(k.indexOf("put")===0){
+      var t=th, cx1=w*.34, cx2=w*.68;
+      if(k==="put-tot"){ line("There are "+N(q.a)+" "+(t.pl?t.an:t.an+" "+t.n)+".","有 "+q.a+" 个"+t.acn+(t.pl?"":t.cn)+"。"); for(var i=0;i<q.a;i++){ var p=slot(i,cx1,cy,s); put(t.a,p[0],p[1],s); }
+        at(1000,function(){ line("There are "+N(q.b)+" "+(t.pl?t.bn:t.bn+" "+t.n)+".","有 "+q.b+" 个"+t.bcn+(t.pl?"":t.cn)+"。"); for(var j=0;j<q.b;j++){ var p2=slot(j,cx2,cy,s); put(t.b,p2[0],p2[1],s,"new"); } }); }
+      else { line("There are "+N(q.c)+" "+t.n+".","一共有 "+q.c+" 个"+t.cn+"。"); at(900,function(){ line(N(q.a)+" are "+t.an+". The rest are "+t.bn+".",q.a+" 个是"+t.acn+(t.pl?"":"的")+"，其余是"+t.bcn+(t.pl?"":"的")+"。"); for(var i=0;i<q.a;i++){ var p=slot(i,cx1,cy,s); put(t.a,p[0],p[1],s); } bag(cx2,cy,s*2); }); }
+    } else {   // compare: two rows, pair them up
+      s=Math.round(Math.max(24,Math.min(60,(w*.64)/q.a/1.12,h/6))); var t2=th, x0=w*.27, y1=h*.36, y2=h*.6, step=Math.min(s*1.15,(w*.64)/q.a);
+      line(t2.p1+" has "+N(q.a)+" "+t2.n+".",t2.p1+" 有 "+q.a+" 个"+t2.cn+"。");
+      $("scene").insertAdjacentHTML("beforeend",'<div class="sign" style="left:'+(w*.17)+'px;bottom:auto;top:'+(y1-12)+'px">'+t2.p1+'</div>'); for(var i2=0;i2<q.a;i2++) put(t2.e,x0+i2*step,y1,s).dataset.row="1";
+      at(900,function(){ line(t2.p2+" has "+N(q.b)+" "+t2.n+".",t2.p2+" 有 "+q.b+" 个"+t2.cn+"。"); $("scene").insertAdjacentHTML("beforeend",'<div class="sign" style="left:'+(w*.17)+'px;bottom:auto;top:'+(y2-12)+'px">'+t2.p2+'</div>');
+        for(var j=0;j<q.b;j++) put(t2.e,x0+j*step,y2,s,"new").dataset.row="2"; });
+    }
+    at(1300,function(){ busy=false; afterStory(); });
+  }
+  function afterStory(){
+    if(Q.k==="cmp"&&!Q.paired) return startPairing();
+    if(Q.stage==="num") return askNumber();
+    Q.stage="eq"; $("task").innerHTML='Which number sentence matches the story?<span class="cn">哪个算式和故事对得上？</span>';
+    var c=$("cards"); c.style.display="grid"; c.innerHTML=Q.cards.map(function(t){ return '<button type="button">'+t+'</button>'; }).join("");
+    [].forEach.call(c.querySelectorAll("button"),function(b){ b.onclick=function(){ if(busy) return; pickEq(b); }; });
+    say(Q.tut?"3 cookies, 2 more come: 3 + 2! 3 块，又来 2 块：3 + 2！":"Read the story again if you need! 可以再看一遍故事！");
+  }
+  // compare: tap one in the top row, then one in the bottom row: a line joins them
+  function startPairing(){
+    Q.pair=[]; Q.sel=null; $("task").innerHTML='Match them up! Tap one on top, then one below.<span class="cn">一个对一个：先点上面一个，再点下面一个。</span>';
+    say("Who has extra? Match them one to one! 谁多出来？一个对一个连起来！");
+    $("scene").onclick=function(e){ var el=e.target.closest?e.target.closest(".it"):null; if(!el||busy||el.dataset.done) return;
+      if(!Q.sel){ if(el.dataset.row!=="1") return; Q.sel=el; el.classList.add("pick"); tone([600],.04); return; }
+      if(el.dataset.row!=="2"){ Q.sel.classList.remove("pick"); Q.sel=el; el.classList.add("pick"); return; }
+      var a=Q.sel; a.classList.remove("pick"); a.dataset.done=1; el.dataset.done=1; Q.sel=null; Q.pair.push([a,el]); drawLink(a,el); tone([700,900],.05);
+      if(Q.pair.length===Q.b){ Q.paired=true; $("scene").onclick=null; [].forEach.call(document.querySelectorAll('.it[data-row="1"]'),function(x){ if(!x.dataset.done) x.classList.add("glow"); });
+        say("Look! These have no partner! 看，这些没有伙伴！"); later(afterStory,900); } };
+  }
+  function drawLink(a,b){ var x1=parseFloat(a.style.left), y1=parseFloat(a.style.top), x2=parseFloat(b.style.left), y2=parseFloat(b.style.top), d=Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)), ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;
+    $("scene").insertAdjacentHTML("beforeend",'<div class="link" style="left:'+x1+'px;top:'+y1+'px;width:'+d+'px;transform:rotate('+ang+'deg)"></div>'); }
+  function pickEq(b){
+    if(b.textContent===Q.eq){ tone([660,880],.07); b.style.background="#d6f5e6"; Q.stage="num"; say("Yes! That's the story. 对！就是这个故事。"); later(askNumber,600); return; }
+    Q.eqTries++; b.classList.add("bad"); b.disabled=true; tone([200,150],.12,"sawtooth");
+    if(Q.eqTries>=2){ [].forEach.call($("cards").querySelectorAll("button"),function(x){ if(x.textContent===Q.eq) x.style.background="#d6f5e6"; }); say("This one matches: "+Q.eq+". 这个对："+Q.eq); Q.stage="num"; later(askNumber,1400); return; }
+    say(hintEq());
+  }
+  function hintEq(){ var k=Q.k; return k.indexOf("join")===0||k==="put-tot"||k==="put-add"?"They come together: it's adding! 合在一起：用加法！":k.indexOf("sep")===0?"Some go away: it's taking away! 拿走了一些：用减法！":"How many more: take the smaller from the bigger. 多多少：大的减小的。"; }
+  function askNumber(){
+    $("cards").style.display="none"; var n=$("nums"); n.style.display="grid";
+    if(!n.firstChild){ var h=""; for(var i=0;i<=20;i++) h+='<button type="button" data-v="'+i+'">'+i+'</button>'; n.innerHTML=h; [].forEach.call(n.querySelectorAll("button"),function(b){ b.onclick=function(){ if(!busy) pickNum(+b.dataset.v,b); }; }); }
+    [].forEach.call(n.querySelectorAll("button"),function(b){ b.classList.remove("bad"); b.disabled=false; });
+    var k=Q.k, th=Q.th, h2;
+    if(k==="join-res"||k==="put-tot") h2='<b>'+Q.eq+'</b> How many '+(th.n||"")+' in all?<span class="cn">一共有多少？</span>';
+    else if(k==="sep-res") h2='<b>'+Q.eq+'</b> How many are left?<span class="cn">还剩多少？</span>';
+    else if(k==="join-chg") h2='<b>'+Q.eq+'</b> How many came?<span class="cn">来了多少？（袋子里有几个）</span>';
+    else if(k==="sep-chg") h2='<b>'+Q.eq+'</b> How many went away?<span class="cn">走了多少？（袋子里有几个）</span>';
+    else if(k.indexOf("start")>0) h2='<b>'+Q.eq+'</b> How many were there at first?<span class="cn">一开始有多少？（袋子里有几个）</span>';
+    else if(k==="put-add") h2='<b>'+Q.eq+'</b> How many are '+th.bn+'?<span class="cn">'+th.bcn+'的有多少？</span>';
+    else h2='<b>'+Q.eq+'</b> '+(Q.ask==="more"?'How many more does '+th.p1+' have?':'How many fewer does '+th.p2+' have?')+'<span class="cn">'+(Q.ask==="more"?th.p1+' 比 '+th.p2+' 多几个？':th.p2+' 比 '+th.p1+' 少几个？')+'</span>';
+    $("task").innerHTML=h2; say("What goes in the ? 问号是几？");
+  }
+  function pickNum(v,b){
+    if(v===Q.ans) return win();
+    Q.tries++; b.classList.add("bad"); b.disabled=true; tone([200,150],.12,"sawtooth");
+    if(Q.tries>=2){ busy=true; say("It's "+Q.ans+"! "+Q.eq.replace("?",Q.ans)+" 答案是 "+Q.ans+"！"); reveal(); later(function(){ lose(); },2200); return; }
+    say(Q.k==="cmp"?"Count the ones with no partner. 数一数没有伙伴的。":Q.k.indexOf("start")>0||Q.k.indexOf("chg")>0||Q.k==="put-add"?"Think: what number makes it true? You can count on! 想一想：几能让算式成立？可以接着往后数。":"Count them all. 全部数一数。");
+  }
+  // the bag opens: the hidden things pop out
+  function reveal(){
+    var bg=$("bag"); if(!bg) return; var x=parseFloat(bg.style.left), y=parseFloat(bg.style.top), s=itemSize(Math.max(Q.a,Q.c)), e=Q.k.indexOf("put")===0?Q.th.b:Q.th.e;
+    bg.classList.add("open"); tone([523,659,784],.07);
+    for(var i=0;i<Q.ans;i++){ (function(i){ var el=put(e,x,y,s,"new"); var p=slot(i,x,y,s*.8); later(function(){ el.style.left=p[0]+"px"; el.style.top=p[1]+"px"; },80+i*90); })(i); }
+  }
+  function win(){
+    busy=true; var good=!Q.eqTries&&!Q.tries, coins=good?3:1; D.ok++; D.coins+=coins; S.coins+=coins; D.streak=good?D.streak+1:0; D.bad=!good; save();
+    reveal(); tone([660,880,1100],.08); var r=$("stage").getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/3); if(pet) MathPet.feed(1);
+    var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"; fx.style.left="45%"; fx.style.top="30%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
+    $("nums").style.display="none"; $("task").innerHTML='<span class="eqbig">'+Q.eq.replace("?",Q.ans)+'</span>';
+    say(["Bravo! 好棒！","The story is solved! 故事解开了！","Encore! 再来一个！"][rnd(3)]); if(Q.tut){ S.tut=1; save(); }
+    hud(); later(curtainNext,2300);
+  }
+  function lose(){ D.miss++; D.bad=true; D.streak=0; if(Q.tut){ S.tut=1; save(); } $("nums").style.display="none"; $("task").innerHTML='<span class="eqbig">'+Q.eq.replace("?",Q.ans)+'</span>'; hud(); later(curtainNext,1200); }
+  // the curtains close and open between stories
+  function curtainNext(){ var st=$("stage"); st.classList.add("closed"); tone([392,330],.15,"sine"); later(function(){ next(); later(function(){ st.classList.remove("closed"); tone([523,659,784],.1); },150); },850); }
+  $("replay").onclick=function(){ if(!Q||busy||Q.k==="cmp"&&Q.pair&&Q.pair.length) return; var stg=Q.stage; $("cards").style.display="none"; $("nums").style.display="none"; play(); Q.stage=stg; };
+  function next(){
+    stopAll(); $("cards").style.display="none"; $("nums").style.display="none"; $("scene").onclick=null;
+    if(D.n>=GOAL) return endLevel();
+    D.n++; Q=gen(); D.first=false; hud(); $("task").innerHTML='🎭 Watch the story! 看故事！'; say(Q.tut?"Watch the cookies! 看饼干！":"Watch carefully! 仔细看！"); play();
+  }
+  function hud(){ $("score").textContent=(D?D.ok:0)+"/"+GOAL; $("day").textContent=L; $("coins").textContent=S.coins; }
+  function startLevel(){ D={n:0,ok:0,miss:0,coins:0,streak:0,bad:false,first:true}; if(window.GameProgress) GameProgress.start("story","day"+L); closeOver(); next(); }
+  function endLevel(){
+    var won=D.ok>=5, d=L;
+    if(window.GameProgress) GameProgress.report({game:"story",level:"day"+d,name:"Story Theater Level "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:GOAL,best:D.ok});
+    if(won){ if(L===S.day) S.day++; L++; save(); }
+    tone(won?[523,659,784,1047]:[392,330,262],.2);
+    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！":"再试一次，答对 5 个故事就过关！")+'</p><p style="font-size:1.3rem">🎭 '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+levelPick()+'<button type="button" class="go" id="nextDay">'+playLabel()+'</button>');
+    wireShop(); wirePick(); $("nextDay").onclick=startLevel;
+  }
+  function shopHtml(){ return '<p style="margin-top:10px">🛒 Theater shop 剧场商店 · 🪙 '+S.coins+'</p><div class="shop" id="shop">'+DECO.map(function(d){ var own=S.deco[d.id]; return '<button type="button" data-id="'+d.id+'" class="'+(own?"own":"")+'"'+(!own&&S.coins<d.p?" disabled":"")+'><i>'+d.e+'</i>'+(own?"✓":d.p+" 🪙")+'</button>'; }).join("")+'</div>'; }
+  function wireShop(){ [].forEach.call(document.querySelectorAll("#shop button"),function(b){ b.onclick=function(){ var d=DECO.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!d||S.deco[d.id]||S.coins<d.p) return; S.coins-=d.p; S.deco[d.id]=1; save(); drawDeco(); $("coins").textContent=S.coins; tone([660,880,1100],.08); $("shop").outerHTML=shopHtml().replace(/^<p[^>]*>.*?<\/p>/,""); wireShop(); }; }); }
+  function levelPick(){ return window.LevelPick?LevelPick.html("story",S.day,L):""; }
+  function playLabel(){ return S.day>1||L>1?"Level "+L+" ▶ 开始第 "+L+" 关":"Play! 开始"; }
+  function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; $("day").textContent=L; var b=$("play")||$("nextDay"); if(b) b.textContent=playLabel(); }); }
+  function over(html){ var o0=$("over"); if(o0) o0.remove(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  var HOW='<div class="how"><div>🎭 Watch the little story on the stage.</div><div>🃏 Pick the number sentence that matches it.</div><div>🔢 Then answer: what goes in the <b>?</b></div><div>👜 The purple bag hides the number the story doesn\'t tell. It opens at the end!</div><div style="color:var(--muted)">看舞台上的小故事，选出对得上的算式，再回答问号是几。紫色袋子里藏着故事没说的数，最后会打开！</div></div>';
+  function intro(){ over('<h2>🎭 Story Theater</h2><p>Story Problems Practice 加减应用题</p>'+HOW+levelPick()+'<button type="button" class="go" id="play">'+playLabel()+'</button>'); wirePick(); $("play").onclick=startLevel; }
+  $("helpBtn").onclick=function(){ var o=document.createElement("div"); o.className="over"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go">Got it! 明白了</button>'; $("wrap").appendChild(o); o.querySelector(".go").onclick=function(){ o.remove(); }; };
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
+  function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<18;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:34,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
+  if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
+  drawDeco(); hud(); $("task").innerHTML="🎭 Welcome to Story Theater! 欢迎来故事小剧场！";
+  window.__story={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },busy:function(){ return busy; },start:startLevel};
+  intro();
+})();
+</script>
+</body></html>
