@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Block City</title>
+<meta name="theme-color" content="#e08a1e">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Block City: run a block factory, load the trucks with hundreds, tens and ones, and build your own city with the money. Grade 2 place value in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#3a2a14;--muted:#86704f;--brand:#e08a1e;--dark:#a8620c;--bg:#fff6ea;--line:#f5dfc0}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:520px;margin:0 auto;padding:8px 12px 24px}
+@media(min-width:900px){.wrap{max-width:1000px}.main{display:grid;grid-template-columns:1fr 1.1fr;gap:12px;align-items:start}#dock:empty::before{content:"👈 Tap a truck to load it · 点左边的卡车来装货";display:block;background:#fff;border-radius:20px;padding:20px;text-align:center;font-weight:900;color:var(--muted);box-shadow:0 4px 0 var(--line)}}
+.top{display:flex;align-items:center;justify-content:space-between;gap:6px}.tbtn{background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px 11px;font:inherit;font-weight:900;color:var(--ink);text-decoration:none;cursor:pointer}
+.hud{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px;margin:6px 0}.hud div{background:#fff;border-radius:12px;text-align:center;padding:3px;box-shadow:0 3px 0 var(--line)}.hud small{display:block;font-weight:800;color:var(--muted);font-size:.65rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.15rem}
+.goal{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin-bottom:6px}.goal i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f5b301,#2f9e5b);transition:width .4s}
+.yard{position:relative;border-radius:20px;background:linear-gradient(180deg,#bfe3ff 0,#bfe3ff 46%,#9a9a9a 46%,#8a8a8a 100%);min-height:220px;padding:8px;overflow:hidden}
+.skyline{position:absolute;left:0;right:0;top:8px;display:flex;justify-content:center;gap:2px;font-size:1.3rem;opacity:.85;pointer-events:none}
+.bays{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:62px;align-items:end}
+.truck{border:0;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;padding:0;animation:drive .5s ease-out;position:relative}.truck .t{font-size:2.8rem;line-height:1;transform:scaleX(-1)}
+@keyframes drive{from{transform:translateX(-80px);opacity:0}}.order{background:#fff;border-radius:12px;padding:3px 7px;font-weight:900;font-family:Fredoka,sans-serif;font-size:1rem;box-shadow:0 3px 0 rgba(0,0,0,.15);white-space:nowrap}
+.pat{width:66px;height:7px;border-radius:5px;background:#fff;overflow:hidden}.pat i{display:block;height:100%;background:#2f9e5b}.pat i.low{background:#e0457b}
+.dockrow{display:flex;align-items:center;gap:8px;margin-top:8px}.keeper{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-size:2rem}.keeper svg{overflow:hidden}.cmsg{font-weight:900;background:rgba(255,255,255,.85);border-radius:12px;padding:4px 10px;font-size:.82rem}
+.dock{margin-top:8px;background:#fff;border-radius:20px;padding:10px;box-shadow:0 4px 0 var(--line)}.dock h3{margin:0 0 6px;text-align:center;font-size:1rem}.dock h3 small{display:block;font-weight:800;color:var(--muted);font-size:.75rem}
+.mat{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:5px;background:#f5e3c8;border-radius:16px;padding:5px;min-height:96px}.col{background:#fff;border-radius:10px;padding:3px;display:flex;flex-direction:column}.colT{font-weight:900;font-size:.68rem;text-align:center}
+.col.h .colT{color:#1f5f7a}.col.t .colT{color:#2f6b33}.col.o .colT{color:#9a6b00}.colIn{display:flex;flex-wrap:wrap;gap:3px;justify-content:center;align-content:flex-start;flex:1;padding-top:2px}
+.pb{border:0;background:none;padding:0;cursor:pointer;line-height:0}.pb.fresh{animation:pop .25s}@keyframes pop{from{transform:scale(.4)}}
+.tray{display:flex;justify-content:center;gap:8px;margin-top:8px}.tb{border:0;background:#fff4e3;border-radius:16px;padding:6px 12px;cursor:pointer;box-shadow:0 4px 0 var(--line);display:flex;flex-direction:column;align-items:center;gap:2px;min-width:78px;font:inherit}
+.tb b{font-family:Fredoka,sans-serif;font-size:1.2rem}.tb small{font-weight:800;font-size:.68rem;color:var(--muted)}
+.btns{display:flex;justify-content:center;gap:8px;margin-top:10px}.go{border:0;border-radius:999px;padding:12px 24px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go.light{background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--line)}
+.fb{text-align:center;font-weight:900;min-height:1.3em;margin-top:6px}.fb.bad{color:#d9443b}
+.over{position:fixed;inset:0;background:rgba(58,42,20,.55);display:flex;align-items:center;justify-content:center;padding:12px;z-index:30}.card{background:#fff;border-radius:22px;padding:14px;max-width:460px;width:100%;max-height:94vh;overflow:auto;text-align:center}.card h2{font-family:Fredoka,sans-serif;margin:0 0 4px}.card p{margin:4px 0;font-weight:800}
+.city{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;background:#9fd48a;border-radius:16px;padding:6px;margin:8px 0}.lot{aspect-ratio:1;border:0;border-radius:8px;background:#b8e2a4;font-size:1.5rem;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}.lot.road{background:#9a9a9a}.lot.sel{outline:3px dashed #e08a1e}
+.shop{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.bld{border:2px solid var(--line);border-radius:14px;background:#fff9f0;padding:4px 8px;font:inherit;cursor:pointer;min-width:66px}.bld .e{font-size:1.5rem;display:block}.bld small{font-weight:900;font-size:.72rem;color:var(--brand)}.bld.on{border-color:#e08a1e;background:#fff1d6}.bld:disabled{opacity:.4;cursor:default}
+.guide{animation:glow 1.1s ease-in-out infinite;border-radius:16px}@keyframes glow{50%{box-shadow:0 0 0 6px rgba(245,179,1,.85)}}
+.tipbar{background:#fff7d6;border:3px solid #ffc93c;border-radius:16px;padding:6px 10px;font-weight:900;text-align:center;margin:4px 0}.tipbar small{display:block;font-weight:800;opacity:.75}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;color:#2f9e5b;font-size:1.3rem;animation:up 1s forwards;pointer-events:none}@keyframes up{to{transform:translateY(-40px);opacity:0}}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script>
+<div class="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.15rem">🏗️ Block City <span id="dayN"></span></b><span><button class="tbtn" type="button" id="helpBtn">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
+  <div class="hud"><div><small>Coins today 今天赚的</small><b id="cash">0</b></div><div><small>Time 时间</small><b id="clock">2:30</b></div><div><small>Trucks 卡车</small><b id="done">0</b></div></div>
+  <div class="goal"><i id="goalBar"></i></div>
+  <div class="tipbar" id="tip" hidden></div>
+  <div class="main"><div><div class="yard"><div class="skyline" id="skyline"></div><div class="bays" id="bays"></div></div><div class="dockrow"><span class="keeper" id="keeper"></span><span class="cmsg" id="cmsg">Tap a truck to load it! 点卡车来装货</span></div></div><div id="dock"></div></div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Block City: one day at the child's block factory. Trucks drive in (up to 3 wait), each with an order and a patience bar: load 347
+  // blocks, load 300 + 40 + 7, load 10 more than 256 … The child taps a truck and loads it on a hundreds / tens / ones mat with hundred
+  // flats, ten rods and one cubes. A truck loaded right pays coins (more when quick); a truck that waits too long drives off. The day
+  // has a goal (trucks loaded); the coins build the child's own city on a 6 x 5 map, one building on the lot of their choice.
+  var $=function(id){ return document.getElementById(id); };
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function pick(a){ return a[rnd(a.length)]; }
+  var STORE="blockCity.v1", S={day:1,coins:0,city:{},tut:0,sound:true};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0) for(var k in s0) S[k]=s0[k]; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var actx=null;
+  function tone(fs,len,type){ if(!S.sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").textContent=S.sound?"🔔":"🔕"; $("soundBtn").onclick=function(){ S.sound=!S.sound; save(); $("soundBtn").textContent=S.sound?"🔔":"🔕"; };
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var pet=null; function refreshPet(){ pet=window.MathPet?MathPet.get():null; $("keeper").innerHTML=pet?MathPet.pic(pet,"happy",46):"👷"; } refreshPet();
+  // ---------- blocks ----------
+  var NAME={h:"hundred",t:"ten",o:"one"}, VAL={h:100,t:10,o:1};
+  function blockSvg(k,s){
+    s=s||1;
+    if(k==="h"){ var h='<svg viewBox="0 0 42 42" width="'+(34*s)+'" height="'+(34*s)+'"><rect x="1" y="1" width="40" height="40" rx="2" fill="#5fb7d4" stroke="#1f5f7a" stroke-width="2"/>'; for(var i=1;i<10;i++) h+='<path d="M'+(1+i*4)+' 1V41M1 '+(1+i*4)+'H41" stroke="#3d93b3" stroke-width=".8"/>'; return h+'</svg>'; }
+    if(k==="t"){ var t='<svg viewBox="0 0 10 42" width="'+(8*s)+'" height="'+(34*s)+'"><rect x="1" y="1" width="8" height="40" rx="1.5" fill="#7cc47f" stroke="#2f6b33" stroke-width="1.6"/>'; for(var j=1;j<10;j++) t+='<path d="M1 '+(1+j*4)+'H9" stroke="#4f9a53" stroke-width=".8"/>'; return t+'</svg>'; }
+    return '<svg viewBox="0 0 10 10" width="'+(8*s)+'" height="'+(8*s)+'"><rect x="1" y="1" width="8" height="8" rx="1.5" fill="#f5b301" stroke="#9a6b00" stroke-width="1.6"/></svg>';
+  }
+  // ---------- orders ----------
+  function newOrder(){
+    var d=S.day, n, kind="plain", label, cn;
+    if(d===1) n=11+rnd(89); else n=101+rnd(899);
+    var r=Math.random();
+    if(d>=2&&r<.3){ kind="expand"; var dg=[Math.floor(n/100),Math.floor(n/10)%10,n%10], parts=[]; if(dg[0]) parts.push(dg[0]*100); if(dg[1]) parts.push(dg[1]*10); if(dg[2]) parts.push(dg[2]); if(Math.random()<.5) parts.reverse(); label=parts.join(" + "); cn="按展开式装货"; }
+    else if(d>=3&&r<.6){ kind="more"; var by=pick([10,100]), up=Math.random()<.6; var base=up?101+rnd(899-by):101+by+rnd(899-by); n=up?base+by:base-by; label=(up?by+" more than ":by+" less than ")+base; cn=up?"比 "+base+" 多 "+by:"比 "+base+" 少 "+by; }
+    else if(d>=2&&r<.75){ kind="words"; label=words(n); cn="读英文数字"; }
+    else { label=String(n); cn="装 "+n+" 块"; }
+    var pat=(kind==="plain"?26:34)+(S.city&&countB("🏫")?6:0);
+    return {n:n,kind:kind,label:label,cn:cn,pat:pat,left:pat};
+  }
+  var ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"],TENS=["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
+  function words(n){ if(n<20) return ONES[n]; if(n<100) return TENS[Math.floor(n/10)]+(n%10?"-"+ONES[n%10]:""); return ONES[Math.floor(n/100)]+" hundred"+(n%100?" "+words(n%100):""); }
+  // ---------- one day ----------
+  var DAY=150, D=null, raf=0, tt=0;
+  function goalFor(d){ return 4+d; }
+  function startDay(){
+    D={t:DAY,cash:0,done:0,lost:0,q:[],next:1,cur:null,c:null,tut:!S.tut,paused:false};
+    if(D.tut){ var o=newOrder(); o.n=23; o.kind="plain"; o.label="23"; o.cn="装 23 块"; D.q.push(o); D.next=999; }
+    $("dayN").textContent="· Day "+S.day; drawSkyline(); drawBays(); hud(); $("dock").innerHTML=""; say("Factory open! 开工啦！");
+    tone([523,659,784],.12); cancelAnimationFrame(raf); tt=0; raf=requestAnimationFrame(loop); guide();
+  }
+  function loop(t){
+    if(!D) return; if(!tt) tt=t; var dt=Math.min(.25,(t-tt)/1000); tt=t;
+    if(!D.tut&&!D.paused){
+      D.t-=dt; D.next-=dt;
+      if(D.next<=0&&D.q.length<3&&D.t>10){ D.q.push(newOrder()); D.next=7+Math.random()*4; tone([330,392],.08,"sine"); drawBays(); }
+      D.q.slice().forEach(function(o){ o.left-=dt*(o===D.cur?.35:1); if(o.left<=0) driveOff(o); });
+      [].forEach.call(document.querySelectorAll(".truck"),function(b){ var o=D.q[+b.dataset.i]; if(!o) return; var i=b.querySelector(".pat i"), r=o.left/o.pat; i.style.width=Math.max(0,r*100)+"%"; i.className=r<.3?"low":""; });
+      hud(); if(D.t<=0) return endDay();
+    }
+    raf=requestAnimationFrame(loop);
+  }
+  function hud(){ if(!D) return; $("cash").textContent=D.cash; var s=Math.max(0,Math.ceil(D.t)); $("clock").textContent=Math.floor(s/60)+":"+(s%60<10?"0":"")+(s%60); $("done").textContent=D.done+" / "+goalFor(S.day); $("goalBar").style.width=Math.min(100,D.done/goalFor(S.day)*100)+"%"; }
+  function say(t){ $("cmsg").textContent=t; }
+  function drawBays(){ var h=""; for(var i=0;i<3;i++){ var o=D.q[i]; h+=o?'<button type="button" class="truck" data-i="'+i+'"><span class="order">'+o.label+'</span><span class="t">🚚</span><span class="pat"><i style="width:'+(o.left/o.pat*100)+'%"></i></span></button>':'<span></span>'; } $("bays").innerHTML=h; }
+  function driveOff(o){ var i=D.q.indexOf(o); if(i<0) return; D.q.splice(i,1); D.lost++; if(D.cur===o){ D.cur=null; $("dock").innerHTML=""; } say("A truck drove off empty! 🚚💨 卡车等太久开走了"); tone([300,220],.15,"sawtooth"); drawBays(); }
+  $("bays").addEventListener("click",function(e){ if(!D) return; var b=e.target.closest?e.target.closest(".truck"):null; if(!b) return; var o=D.q[+b.dataset.i]; if(o) load(o); });
+  function load(o){
+    D.cur=o; D.c={h:0,t:0,o:0}; var fresh=null; tone([660],.05);
+    $("dock").innerHTML='<div class="dock"><h3>Load <b>'+o.label+'</b>'+(o.kind==="plain"?" blocks":"")+'!<small>'+o.cn+(o.kind!=="plain"?" · Load the number 装这个数":"")+'</small></h3><div id="mat"></div><div class="tray" id="tray">'+(S.day>1?'<button type="button" class="tb" data-k="h">'+blockSvg("h",.8)+'<b>100</b><small>hundred</small></button>':'')+
+      '<button type="button" class="tb" data-k="t">'+blockSvg("t",.8)+'<b>10</b><small>ten</small></button><button type="button" class="tb" data-k="o">'+blockSvg("o",1.4)+'<b>1</b><small>one</small></button></div><div class="fb" id="fb"></div><div class="btns"><button type="button" class="go light" id="clear">Clear 清空</button><button type="button" class="go" id="ship">Load it! 🚚</button></div></div>';
+    function draw(){ var c=D.c; $("mat").innerHTML='<div class="mat">'+["h","t","o"].map(function(k){ var b=""; for(var i=0;i<c[k];i++) b+='<button type="button" class="pb'+(fresh===k&&i===c[k]-1?" fresh":"")+'" data-k="'+k+'">'+blockSvg(k,k==="o"?1.8:.9)+'</button>';
+      return '<div class="col '+k+'"><div class="colT">'+{h:"Hundreds 百位",t:"Tens 十位",o:"Ones 个位"}[k]+'</div><div class="colIn">'+b+'</div></div>'; }).join("")+'</div>'; }
+    $("tray").onclick=function(e){ var b=e.target.closest?e.target.closest(".tb"):null; if(!b||D.cur!==o) return; var k=b.dataset.k; if(D.c[k]>=19) return; D.c[k]++; fresh=k; tone([880,1180],.05); draw(); guide(); };
+    $("mat").onclick=function(e){ var b=e.target.closest?e.target.closest(".pb"):null; if(!b) return; D.c[b.dataset.k]--; fresh=null; tone([520],.04); draw(); guide(); };
+    $("clear").onclick=function(){ D.c={h:0,t:0,o:0}; draw(); guide(); };
+    $("ship").onclick=function(){ if(D.cur!==o) return; var v=D.c.h*100+D.c.t*10+D.c.o;
+      if(v!==o.n){ $("fb").className="fb bad"; $("fb").textContent="That is "+v+". "+(v<o.n?"More blocks! 不够":"Too many! 太多了")+" The truck needs "+o.n+"."; tone([260,200],.12,"sawtooth"); o.left-=3; return; }
+      shipped(o); };
+    draw(); guide();
+  }
+  function shipped(o){
+    if(D.tut){ D.tut=false; S.tut=1; save(); D.next=2; tip("🎉 Great! More trucks are coming. Load them before they drive off!","太棒了！还会有更多卡车，在它们开走前装好货！"); mark(null); setTimeout(function(){ if(D&&!D.tut) tip(); },5000); }
+    var quick=o.left/o.pat, pay=10+(o.kind!=="plain"?5:0)+(quick>.5?5:0)+(countB("🏪")?2:0);
+    D.cash+=pay; D.done++; var i=D.q.indexOf(o); if(i>=0) D.q.splice(i,1); D.cur=null; $("dock").innerHTML="";
+    say(pick(["Delivered! 🚚✨","Perfect load! 💯","Off it goes! 🎉"])+" +"+pay); tone([784,988,1319],.08); confetti(); drawBays(); hud();
+    if(pet) MathPet.feed(1);
+  }
+  function endDay(){
+    cancelAnimationFrame(raf); var d=D; D=null; $("dock").innerHTML="";
+    var met=d.done>=goalFor(S.day);
+    S.coins+=d.cash; if(met) S.day++; save();
+    if(window.GameProgress) GameProgress.report({game:"place-value",level:"day"+(met?S.day-1:S.day),name:"Block City Day "+(met?S.day-1:S.day),won:met,stars:met?(d.lost?2:3):0,correct:d.done,total:d.done+d.lost,best:d.done});
+    tone(met?[523,659,784,1047]:[392,330,262],.16);
+    over('<h2>'+(met?"🎉 Great day!":"⏰ Closing time!")+'</h2><p>'+(met?"今天的目标达成了！":"还差一点，再试一次！")+'</p><p style="font-size:1.4rem;font-family:Fredoka,sans-serif">'+d.done+' / '+goalFor(met?S.day-1:S.day)+' trucks loaded · 🚚</p><p>+'+d.cash+' coins · '+d.lost+' drove off</p><p>🪙 Coins: <b>'+S.coins+'</b></p>'+
+      '<div class="btns"><button type="button" class="go light" id="cityBtn">🏙️ Build my city 建城</button><button type="button" class="go" id="nextBtn">'+(met?"Day "+S.day+" ▶":"Try again ▶")+'</button></div>');
+    $("cityBtn").onclick=cityScreen; $("nextBtn").onclick=function(){ closeOver(); startDay(); };
+  }
+  // ---------- the city: 6 x 5 lots; buy a building, then tap the lot for it ----------
+  var BUILD=[["🌳",10,"Tree 树"],["🏠",30,"House 房子"],["🛣️",15,"Road 路"],["⛲",50,"Park 公园"],["🏪",60,"Shop 商店: +2 coins a truck"],["🏫",80,"School 学校: trucks wait longer"],["🏥",100,"Hospital 医院"],["🏢",120,"Tower 大楼"],["🎡",150,"Big wheel 摩天轮"],["🏰",250,"Castle 城堡"]];
+  function countB(e){ var n=0; for(var k in S.city) if(S.city[k]===e) n++; return n; }
+  function drawSkyline(){ var e=[]; for(var k in S.city) if(["🌳","🛣️"].indexOf(S.city[k])<0) e.push(S.city[k]); $("skyline").textContent=e.slice(0,14).join(""); }
+  var picked=null;
+  var PRIZE={"gp-hardhat":40,"gp-squareglasses":60,"gp-bandana":80,"gp-blockcrown":120};
+  function cityScreen(){
+    var h='<div class="city">'; for(var i=0;i<30;i++){ var b=S.city[i]; h+='<button type="button" class="lot'+(b==="🛣️"?" road":"")+'" data-i="'+i+'">'+(b&&b!=="🛣️"?b:b==="🛣️"?"":"")+'</button>'; } h+='</div>';
+    var pz=(window.GamePrizes?GamePrizes.forGame("blocks"):[]).filter(function(p){ return PRIZE[p.id]&&window.ITEMS&&window.ITEMS[p.id]; });
+    over('<h2>🏙️ My Block City</h2><p>🪙 Coins: <b>'+S.coins+'</b> · '+(picked?"Now tap an empty lot for "+picked[0]+" 点空地放下":"Pick a building, then tap a lot 先选建筑，再点空地")+'</p>'+h+
+      '<div class="shop">'+BUILD.map(function(b,i){ return '<button type="button" class="bld'+(picked&&picked[0]===b[0]?" on":"")+'" data-b="'+i+'"'+(S.coins<b[1]?" disabled":"")+' title="'+b[2]+'"><span class="e">'+b[0]+'</span><small>🪙'+b[1]+'</small></button>'; }).join("")+'</div>'+
+      (pz.length?'<p style="margin-top:10px">🎁 Prizes for your pet 宠物奖品</p><div class="shop">'+pz.map(function(p){ var own=GamePrizes.won(p.id); return '<button type="button" class="bld pzb" data-p="'+p.id+'"'+(!own&&S.coins<PRIZE[p.id]?" disabled":"")+'><span class="e" style="width:56px;height:38px;display:block">'+GamePrizes.thumb(p.id)+'</span><small>'+(own?(MathPet.wearing(p.id)?"✓ Wearing":"Wear"):"🪙"+PRIZE[p.id])+'</small></button>'; }).join("")+'</div>':'')+
+      '<div class="btns"><button type="button" class="go" id="backBtn">Back to the factory ▶</button></div>');
+    [].forEach.call(document.querySelectorAll(".bld[data-b]"),function(b){ b.onclick=function(){ picked=BUILD[+b.dataset.b]; tone([660],.05); cityScreen(); }; });
+    [].forEach.call(document.querySelectorAll(".lot"),function(l){ l.onclick=function(){ var i=+l.dataset.i; if(!picked||S.city[i]||S.coins<picked[1]) return; S.coins-=picked[1]; S.city[i]=picked[0]; save(); tone([659,880,1047],.12); confetti(); if(S.coins<picked[1]) picked=null; cityScreen(); }; });
+    [].forEach.call(document.querySelectorAll(".pzb"),function(b){ b.onclick=function(){ var id=b.dataset.p; if(!GamePrizes.won(id)){ if(S.coins<PRIZE[id]) return; S.coins-=PRIZE[id]; save(); GamePrizes.win(id); } if(MathPet.get()) MathPet.wear(id); refreshPet(); tone([659,880,1047],.12); cityScreen(); }; });
+    $("backBtn").onclick=function(){ picked=null; closeOver(); intro(); };
+  }
+  // ---------- learning by doing on the first day ----------
+  function tip(en,cn){ var t=$("tip"); if(!en){ t.hidden=true; return; } t.hidden=false; t.innerHTML=en+"<small>"+cn+"</small>"; }
+  function mark(el){ [].forEach.call(document.querySelectorAll(".guide"),function(x){ x.classList.remove("guide"); }); if(el) el.classList.add("guide"); }
+  function guide(){
+    if(!D||!D.tut){ return; }
+    if(!D.cur){ tip("👆 A truck! Tap it to load it.","来卡车了！点一下来装货"); mark(document.querySelector(".truck")); return; }
+    var c=D.c, v=c.h*100+c.t*10+c.o;
+    if(c.t<2){ tip("23 = 2 tens and 3 ones. Tap the <b>10</b> rod 2 times!","23 是 2 个十和 3 个一：点 2 次 10"); mark(document.querySelector('.tb[data-k="t"]')); return; }
+    if(v!==23){ tip("Now tap the <b>1</b> cube 3 times!","再点 3 次 1"); mark(document.querySelector('.tb[data-k="o"]')); return; }
+    tip("✅ That's 23! Press <b>Load it!</b>","装好了！按 Load it!"); mark($("ship"));
+  }
+  function over(h){ closeOver(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML='<div class="card">'+h+'</div>'; document.body.appendChild(o); }
+  function closeOver(){ var o=$("over"); if(o) o.remove(); }
+  function intro(){
+    $("dayN").textContent="· Day "+S.day; drawSkyline(); $("bays").innerHTML="";
+    over('<h2>🏗️ Day '+S.day+' at your block factory</h2><p>第 '+S.day+' 天开工</p><p>Goal 目标: <b>'+goalFor(S.day)+' trucks</b> in 2½ minutes</p>'+
+      '<div style="text-align:left;font-weight:800;font-size:.9rem;line-height:1.5;margin-top:6px">🚚 Tap a truck to load it. 点卡车装货<br>🧱 Build its number with 100s, 10s and 1s. 用百、十、一搭出它的数<br>⏳ Be quick: trucks drive off! 卡车会开走<br>🏙️ Spend your coins on your own city! 用金币建你的城市<br>'+(S.day>=2?"🧩 New orders: 300 + 40 + 7, and numbers in words! 新订单：展开式和英文数字<br>":"")+(S.day>=3?"⚙️ New orders: 10 more than 256! 新订单：比 256 多 10<br>":"")+'</div>'+
+      '<p>🪙 Coins: '+S.coins+'</p><div class="btns"><button type="button" class="go light" id="cityBtn">🏙️ My city</button><button type="button" class="go" id="openBtn">Open! 开工 ▶</button></div>');
+    $("cityBtn").onclick=cityScreen; $("openBtn").onclick=function(){ closeOver(); startDay(); };
+  }
+  $("helpBtn").onclick=function(){ if(D) D.paused=true; over('<h2>❓ How to play 怎么玩</h2><div style="text-align:left;font-weight:800;line-height:1.6">🚚 Tap a truck. 点卡车<br>🧱 Tap 100, 10 and 1 to build its number on the mat (tap a block on the mat to take it back). 点积木搭出卡车上的数（点垫子上的积木可以拿回）<br>✅ Press <b>Load it!</b> 按 Load it!<br>⏳ The bar under a truck is its patience. 卡车下面的条是耐心<br>🏙️ Coins build your city. 金币用来建城市</div><div class="btns"><button type="button" class="go" id="okH">Got it! 明白了</button></div>'); $("okH").onclick=function(){ closeOver(); if(D) D.paused=false; else intro(); }; };
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], an=0;
+  function confetti(){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<36;i++) parts.push({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*.3,vx:(Math.random()-.5)*8,vy:-Math.random()*8-2,l:50,c:["#f5b301","#5fb7d4","#7cc47f","#e8916d","#a493d6"][i%5]}); if(!an) an=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.35; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,7,7); return p.l>0; }); an=parts.length?requestAnimationFrame(fx):0; if(!an) cx.clearRect(0,0,cv.width,cv.height); }
+  window.__city={day:function(){ return D; },saved:function(){ return S; },end:function(){ if(D) D.t=0; }};
+  intro();
+})();
+</script>
+</body></html>
