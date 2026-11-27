@@ -24,7 +24,7 @@
 .pat{width:70px;height:8px;border-radius:5px;background:#fff;overflow:hidden}.pat i{display:block;height:100%;background:#2f9e5b}.pat i.low{background:#e0457b}
 .vip{position:absolute;top:-6px;right:6px;font-size:1.2rem}.spot{position:relative;display:flex;justify-content:center}
 .counter{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px}.keeper{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:2.4rem}.keeper svg{overflow:hidden}
-.cmsg{font-weight:900;color:#6b3f1f;background:rgba(255,255,255,.7);border-radius:12px;padding:4px 10px;font-size:.85rem}
+.jarS{font-weight:900;background:#fff;border-radius:12px;padding:4px 8px;font-size:.85rem;color:#3d6f85}.cmsg{font-weight:900;color:#6b3f1f;background:rgba(255,255,255,.7);border-radius:12px;padding:4px 10px;font-size:.85rem}
 /* the register (one customer at a time) */
 .reg{margin-top:10px;background:#fff;border-radius:20px;padding:10px;box-shadow:0 4px 0 var(--line)}.reg h3{margin:0 0 6px;font-size:1rem;text-align:center}.reg h3 small{display:block;font-weight:800;color:var(--muted);font-size:.75rem}
 .till{background:linear-gradient(180deg,#f3c9a0,#e9b385);border-radius:16px;min-height:76px;display:flex;flex-wrap:wrap;gap:3px;align-items:center;justify-content:center;padding:6px}.till .empty{font-weight:800;color:#8a5a37;font-size:.85rem}
@@ -43,17 +43,20 @@
 .guide{position:relative;animation:glow 1.1s ease-in-out infinite;border-radius:16px}@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(245,179,1,.0)}50%{box-shadow:0 0 0 6px rgba(245,179,1,.85)}}
 .finger{position:absolute;font-size:2rem;pointer-events:none;animation:point .8s ease-in-out infinite;z-index:6}@keyframes point{50%{transform:translateY(8px)}}
 .tipbar{background:#fff7d6;border:3px solid #ffc93c;border-radius:16px;padding:8px 12px;font-weight:900;text-align:center;margin:6px 0}.tipbar small{display:block;font-weight:800;opacity:.75}
+.jarBig{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;background:rgba(214,240,250,.6);border:4px solid #9ccbe0;border-radius:18px 18px 30px 30px;padding:10px;margin:8px auto;max-width:300px}
+.wheels{display:flex;justify-content:center;gap:8px;margin-top:6px}.wh{display:flex;flex-direction:column;align-items:center;background:#fff4f8;border-radius:14px;box-shadow:0 3px 0 var(--line);padding:4px 2px 2px;min-width:70px}.wh small{font-weight:900;font-size:.7rem;color:var(--muted)}.wh b{font-family:Fredoka,sans-serif;font-size:2rem;line-height:1.1}.wh button{border:0;background:none;color:var(--brand);font-size:1.1rem;padding:2px 16px;cursor:pointer}
+.up.pz{display:flex;flex-direction:column;align-items:center;text-align:center}.pzi{display:block;width:64px;height:44px}.pzi svg{width:100%;height:100%}
 canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
 .float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;color:#2f9e5b;font-size:1.3rem;animation:up 1s forwards;pointer-events:none;z-index:5}@keyframes up{to{transform:translateY(-40px);opacity:0}}
 </style>
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script>
 <div class="wrap">
   <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.2rem">🍭 Shop Day <span id="dayN"></span></b><span><button class="tbtn" type="button" id="helpBtn" aria-label="How to play">?</button> <button class="tbtn" type="button" id="soundBtn">🔔</button></span></div>
   <div class="hud"><div><small>Money today 今天赚的</small><b id="cash">$0.00</b></div><div><small>Time 时间</small><b id="clock">2:30</b></div><div><small>Happy 满意</small><b id="stars">⭐⭐⭐</b></div></div>
   <div class="goal"><i id="goalBar"></i></div>
   <div class="tipbar" id="tip" hidden></div>
-  <div class="main"><div class="shop" id="shop"><div class="awning"></div><div id="decor"></div><div class="queue" id="queue"></div><div class="counter"><span class="keeper" id="keeper"></span><span class="cmsg" id="cmsg">Tap a customer to serve them! 点顾客来招待</span></div></div>
+  <div class="main"><div class="shop" id="shop"><div class="awning"></div><div id="decor"></div><div class="queue" id="queue"></div><div class="counter"><span class="keeper" id="keeper"></span><span class="jarS" id="jar">🫙 0</span><span class="cmsg" id="cmsg">Tap a customer to serve them! 点顾客来招待</span></div></div>
   <div id="reg"></div></div>
 </div>
 <canvas id="fx"></canvas>
@@ -80,8 +83,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
   var actx=null;
   function tone(fs,len,type){ if(!sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
-  var pet=window.MathPet?MathPet.get():null;
-  $("keeper").innerHTML=pet?MathPet.pic(pet,"happy",56):"🧑‍🍳";
+  var pet=null;
+  function refreshPet(){ pet=window.MathPet?MathPet.get():null; $("keeper").innerHTML=pet?MathPet.pic(pet,"happy",56):"🧑‍🍳"; }
+  refreshPet();
 
   // ---------- upgrades ----------
   var UPS=[
@@ -105,12 +109,16 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
     var treats=TREATS.slice(); if(has("icecream")) treats.push(["🍦",50,95]); if(has("cake")) treats.push(["🎂",110,190]);
     var t=pick(treats), price=t[1]+rnd(t[2]-t[1]+1);
     if(price>=100&&!has("cake")) price=99;
-    var vip=Math.random()<.12, change=S.day>=3&&price<100&&Math.random()<.35;
-    var pat=(change?30:22)+(has("chairs")?10:0)+(price>=100?8:0);
-    return {who:pick(GUESTS),e:t[0],price:price,vip:vip,change:change,paid:change?100:0,pat:pat,left:pat,id:Math.random()};
+    var vip=Math.random()<.12, r=Math.random(), change=S.day>=3&&price<100&&r<.3, two=null, few=false;
+    // from day 2: some buy two treats (add the prices first), some ask for the fewest coins (a bonus if you manage it)
+    if(!change&&S.day>=2&&price<100&&r<.55){ var t2=pick(TREATS), a=5+rnd(40), b=t2[1]+rnd(Math.max(1,Math.min(45,t2[2])-t2[1]+1)); if(a+b<100){ two={e1:t[0],e2:t2[0],a:a,b:b}; price=a+b; } }
+    else if(!change&&S.day>=2&&price<100&&r<.72) few=true;
+    var pat=(change?30:two?30:22)+(has("chairs")?10:0)+(price>=100?8:0);
+    return {who:pick(GUESTS),e:t[0],price:price,vip:vip,change:change,paid:change?100:0,two:two,few:few,pat:pat,left:pat,id:Math.random()};
   }
   function startDay(){
-    D={t:DAY_SECONDS,cash:0,served:0,lost:0,stars:3+(has("cat")?1:0),q:[],next:2,cur:null,tray:[],goal:goalFor(S.day),tut:!S.tut,paused:false};
+    setTimeout(drawJar,0);
+    D={t:DAY_SECONDS,cash:0,served:0,lost:0,stars:3+(has("cat")?1:0),q:[],next:2,cur:null,tray:[],goal:goalFor(S.day),tut:!S.tut,paused:false,jar:[]};
     if(D.tut){ var first=newCustomer(); first.price=11; first.e="🍭"; first.vip=false; first.change=false; D.q.push(first); D.next=999; }
     $("dayN").textContent="· Day "+S.day; drawDecor(); drawQueue(); drawHud(); $("reg").innerHTML="";
     say("Open! 开门营业！"); tone([523,659,784],.12);
@@ -165,7 +173,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
     var h="";
     for(var i=0;i<3;i++){ var c=D.q[i];
       if(!c){ h+='<div class="spot"></div>'; continue; }
-      h+='<div class="spot"><button type="button" class="cust" data-i="'+i+'">'+(c.vip?'<span class="vip">👑</span>':'')+'<span class="order">'+c.e+(c.change?' <span class="tag">'+money(c.price)+'</span> 💵$1':' <span class="tag">'+money(c.price)+'</span>')+'</span><span class="who">'+c.who+'</span><span class="pat"><i style="width:'+(c.left/c.pat*100)+'%"></i></span></button></div>';
+      h+='<div class="spot"><button type="button" class="cust" data-i="'+i+'">'+(c.vip?'<span class="vip">👑</span>':'')+'<span class="order">'+(c.two?c.two.e1+c.two.e2+' <span class="tag">'+money(c.two.a)+'+'+money(c.two.b)+'</span>':c.e+(c.change?' <span class="tag">'+money(c.price)+'</span> 💵$1':' <span class="tag">'+money(c.price)+'</span>'+(c.few?' 🪙':'')))+'</span><span class="who">'+c.who+'</span><span class="pat"><i style="width:'+(c.left/c.pat*100)+'%"></i></span></button></div>';
     }
     $("queue").innerHTML=h;
   }
@@ -182,8 +190,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   function serve(c){
     D.cur=c; D.tray=[]; tone([660],.05);
     var goal=c.change?c.paid-c.price:c.price;
-    $("reg").innerHTML='<div class="reg"><h3>'+c.who+' '+(c.change?"buys "+c.e+" for <b>"+money(c.price)+"</b> and pays <b>$1.00</b>. Give the change!":"wants "+c.e+": ring up <b>"+money(c.price)+"</b>!")+
-      '<small>'+(c.change?"找零：$1.00 − "+money(c.price):"把 "+money(c.price)+" 放进收银台")+'</small></h3><div class="till" id="till"></div><div class="tray" id="tray">'+kinds().map(function(v){ return '<button type="button" class="tc" data-v="'+v+'">'+coinSvg(v,42)+'<small>'+NAMES[v]+'</small></button>'; }).join("")+'</div>'+
+    var head=c.change?"buys "+c.e+" for <b>"+money(c.price)+"</b> and pays <b>$1.00</b>. Give the change!":c.two?"wants "+c.two.e1+" <b>"+money(c.two.a)+"</b> and "+c.two.e2+" <b>"+money(c.two.b)+"</b>: add them and ring up both!":c.few?"wants "+c.e+": ring up <b>"+money(c.price)+"</b> with the <b>fewest coins</b> for a bonus!":"wants "+c.e+": ring up <b>"+money(c.price)+"</b>!";
+    var cn=c.change?"找零：$1.00 − "+money(c.price):c.two?"两样一起买：先把两个价钱加起来":c.few?"用最少的硬币收钱，有奖励":"把 "+money(c.price)+" 放进收银台";
+    $("reg").innerHTML='<div class="reg"><h3>'+c.who+' '+head+'<small>'+cn+'</small></h3><div class="till" id="till"></div><div class="tray" id="tray">'+kinds().map(function(v){ return '<button type="button" class="tc" data-v="'+v+'">'+coinSvg(v,42)+'<small>'+NAMES[v]+'</small></button>'; }).join("")+'</div>'+
       '<div class="fb" id="fb"></div><div class="btns"><button type="button" class="go light" id="clear">Clear 清空</button><button type="button" class="go" id="ring">'+(c.change?"Give change ✓":"Ring it up ✓")+'</button></div></div>';
     var fresh=-1;
     function draw(){ $("till").innerHTML=D.tray.map(function(v,i){ return '<button type="button" class="cc'+(i===fresh?" fresh":"")+'" data-i="'+i+'">'+coinSvg(v,34)+'</button>'; }).join("")||'<span class="empty">Tap coins below 点下面的硬币</span>'; }
@@ -198,14 +207,18 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
     };
     draw(); guide();
   }
+  function fewest(c){ var out=[]; kinds().slice().sort(function(a,b){ return b-a; }).forEach(function(k){ while(c>=k){ out.push(k); c-=k; } }); return out; }
+  function drawJar(){ var j=$("jar"); if(j) j.textContent="🫙 "+(D?D.jar.length:0); }
   function done(c){
     if(D.tut){ D.tut=false; S.tut=1; save(); D.next=1.5; mark(null);
       tip("🎉 Great! Now more customers will come. Serve them before their patience bar runs out!","太棒了！接下来会有更多顾客，在耐心条用完前招待他们！"); setTimeout(function(){ if(D&&!D.tut) tip(); },5000); }
-    var fast=c.left/c.pat, tipC=fast>.6?(has("music")?10:5):fast>.3?(has("music")?5:0):0, earn=c.price*(c.vip?2:1)+tipC;
+    var fast=c.left/c.pat, tipC=fast>.6?(has("music")?10:5):fast>.3?(has("music")?5:0):0, earn=c.price*(c.vip?2:1);
+    var fewBonus=c.few&&D.tray.length===fewest(c.price).length?10:0; earn+=fewBonus;
     D.cash+=earn; D.served++;
+    if(tipC){ D.jar.push(tipC===10?10:5); if(Math.random()<.5) D.jar.push(1); drawJar(); }   // the tip goes in the jar, counted at closing time
     var i=D.q.indexOf(c); if(i>=0) D.q.splice(i,1);
     D.cur=null; $("reg").innerHTML="";
-    say(pick(["Yummy! Thank you! 😋","Ka-ching! 💰","Best shop ever! 💖"])+(tipC?" Tip +"+tipC+"¢!":"")+(c.vip?" VIP ×2!":""));
+    say(pick(["Yummy! Thank you! 😋","Ka-ching! 💰","Best shop ever! 💖"])+(tipC?" A tip in the jar! 🫙":"")+(c.vip?" VIP ×2!":"")+(fewBonus?" Fewest coins +10¢!":""));
     tone([784,988,1319],.08); confetti(); drawQueue(); drawHud();
     var f=document.createElement("span"); f.className="float"; f.textContent="+"+money(earn); f.style.left="44%"; f.style.top="60px"; $("shop").appendChild(f); setTimeout(function(){ f.remove(); },1000);
     if(pet) MathPet.feed(1);
@@ -213,19 +226,45 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   function endDay(){
     cancelAnimationFrame(raf);
     var d=D; D=null; $("reg").innerHTML="";
+    if(d.jar.length) return countJar(d);
+    summary(d,0,false);
+  }
+  // closing time: count the tip jar (right = the tips and a 10 cent counting bonus go to the bank; wrong = the tips still do)
+  function countJar(d){
+    var sum=d.jar.reduce(function(a,b){ return a+b; },0), w=[0,0,0], coins=d.jar.slice().sort(function(a,b){ return b-a; });
+    overlay('<h2>🫙 Count the tip jar!</h2><p>打烊了！数一数小费罐里有多少钱</p><div class="jarBig">'+coins.map(function(v){ return coinSvg(v,40); }).join("")+'</div>'+
+      '<div class="wheels" id="jw">'+["dollars","dimes","pennies"].map(function(l,i){ return '<span class="wh"><small>'+["$","10¢","1¢"][i]+'</small><button type="button" data-i="'+i+'" data-d="1">▲</button><b data-i="'+i+'">0</b><button type="button" data-i="'+i+'" data-d="-1">▼</button></span>'; }).join("")+'</div>'+
+      '<p style="color:var(--muted);font-size:.85rem">Count right: the tips go to the bank, plus a 10¢ counting bonus! 数对了：小费存进银行，再奖励 10¢</p><div class="btns"><button type="button" class="go" id="jarOk">That is the tip ✓</button></div>');
+    $("jw").onclick=function(e){ var b=e.target.closest?e.target.closest("button"):null; if(!b) return; var i=+b.dataset.i; w[i]=(w[i]+ +b.dataset.d+10)%10; tone([520],.04); [].forEach.call($("jw").querySelectorAll("b"),function(x){ x.textContent=w[+x.dataset.i]; }); };
+    $("jarOk").onclick=function(){ var v=w[0]*100+w[1]*10+w[2], ok=v===sum;
+      tone(ok?[784,988,1319]:[300,220],.1); if(ok) confetti();
+      d.tips=sum; summary(d,sum+(ok?10:0),ok,v); };
+  }
+  function summary(d,tips,counted,given){
     var met=d.cash>=d.goal&&d.stars>0;
-    S.bank+=d.cash; if(met){ S.best[S.day]=Math.max(S.best[S.day]||0,d.cash); S.day++; } save();
+    S.bank+=d.cash+tips; if(met){ S.best[S.day]=Math.max(S.best[S.day]||0,d.cash); S.day++; } save();
     try{ if(window.parent&&window.parent!==window&&window.parent.__trackEvent) window.parent.__trackEvent("game_level_end",{game:"shop-day",level:"day"+(met?S.day-1:S.day),won:met,cash:d.cash,served:d.served,lost:d.lost}); }catch(e){}
+    if(window.GameProgress) GameProgress.report({game:"shop-day",level:"day"+(met?S.day-1:S.day),name:"Shop Day "+(met?S.day-1:S.day),won:met,stars:met?Math.max(1,Math.min(3,d.stars)):0,correct:d.served,total:d.served+d.lost,best:d.served});
     tone(met?[523,659,784,1047]:[392,330,262],.16);
     overlay('<h2>'+(met?"🎉 Great day!":d.stars<=0?"😟 Too many unhappy customers":"⏰ Closing time!")+'</h2><p>'+(met?"今天的目标达成了！":"目标还差一点，再试一次！")+'</p>'+
-      '<p style="font-size:1.6rem;font-family:Fredoka,sans-serif">'+dollars(d.cash)+' <small style="font-size:.9rem;color:var(--muted)">/ goal '+dollars(d.goal)+'</small></p><p>'+d.served+' customers served · '+d.lost+' walked off</p>'+
+      '<p style="font-size:1.6rem;font-family:Fredoka,sans-serif">'+dollars(d.cash)+' <small style="font-size:.9rem;color:var(--muted)">/ goal '+dollars(d.goal)+'</small></p><p>'+d.served+' customers served · '+d.lost+' walked off</p>'+(d.tips!=null?'<p>🫙 Tips: '+money(d.tips)+(counted?' ✓ counted right! +10¢':' (you counted '+money(given)+')')+'</p>':'')+''+
       '<p>🏦 Bank 存款: <b>'+dollars(S.bank)+'</b></p><div class="btns"><button type="button" class="go light" id="upBtn">🛠️ Upgrade shop 升级店铺</button><button type="button" class="go" id="nextBtn">'+(met?"Day "+S.day+" ▶":"Try again ▶")+'</button></div>');
     $("upBtn").onclick=upgrades; $("nextBtn").onclick=function(){ closeOverlay(); startDay(); };
   }
+  // the pet's prizes (the four candy prizes), bought with the bank's money
+  var PRIZE_PRICE={"gp-cupcake":100,"gp-heartglasses":150,"gp-candybeads":200,"gp-gumcrown":300};
+  function prizes(){ return (window.GamePrizes?GamePrizes.forGame("candy"):[]).filter(function(p){ return PRIZE_PRICE[p.id]&&window.ITEMS&&window.ITEMS[p.id]; }); }
   function upgrades(){
+    var pz=prizes();
     overlay('<h2>🛠️ Upgrade your shop</h2><p>🏦 Bank 存款: <b>'+dollars(S.bank)+'</b></p><div class="ups">'+UPS.map(function(u){ var own=has(u.id);
-      return '<button type="button" class="up'+(own?" own":"")+'" data-id="'+u.id+'"'+(own||S.bank<u.p?" disabled":"")+'><b>'+u.e+" "+u.n+'</b><small>'+u.cn+'</small><small>'+u.d+'</small><span class="pr">'+(own?"✓ In your shop":dollars(u.p))+'</span></button>'; }).join("")+'</div><div class="btns"><button type="button" class="go" id="backBtn">Back ▶</button></div>');
-    [].forEach.call(document.querySelectorAll(".up"),function(b){ b.onclick=function(){ var u=UPS.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!u||has(u.id)||S.bank<u.p) return; S.bank-=u.p; S.ups[u.id]=1; save(); tone([659,880,1047],.12); confetti(); upgrades(); }; });
+      return '<button type="button" class="up'+(own?" own":"")+'" data-id="'+u.id+'"'+(own||S.bank<u.p?" disabled":"")+'><b>'+u.e+" "+u.n+'</b><small>'+u.cn+'</small><small>'+u.d+'</small><span class="pr">'+(own?"✓ In your shop":dollars(u.p))+'</span></button>'; }).join("")+'</div>'+
+      (pz.length?'<h3 style="margin:14px 0 0">🎁 Prizes for your pet 宠物奖品</h3><div class="ups">'+pz.map(function(p){ var own=GamePrizes.won(p.id), on=own&&MathPet.wearing(p.id);
+        return '<button type="button" class="up pz'+(own?" own":"")+'" data-p="'+p.id+'"'+(!own&&S.bank<PRIZE_PRICE[p.id]?" disabled":"")+'><span class="pzi">'+GamePrizes.thumb(p.id)+'</span><b>'+p.name+'</b><small>'+p.cn+'</small><span class="pr">'+(own?(on?"✓ Wearing":"Tap to wear"):dollars(PRIZE_PRICE[p.id]))+'</span></button>'; }).join("")+'</div>':'')+
+      '<div class="btns"><button type="button" class="go" id="backBtn">Back ▶</button></div>');
+    [].forEach.call(document.querySelectorAll(".up[data-id]"),function(b){ b.onclick=function(){ var u=UPS.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!u||has(u.id)||S.bank<u.p) return; S.bank-=u.p; S.ups[u.id]=1; save(); tone([659,880,1047],.12); confetti(); upgrades(); }; });
+    [].forEach.call(document.querySelectorAll(".up[data-p]"),function(b){ b.onclick=function(){ var id=b.dataset.p;
+      if(GamePrizes.won(id)){ if(!MathPet.get()){ alert("Adopt a pet on the home page first! 先在首页领养宠物"); return; } MathPet.wear(id); refreshPet(); upgrades(); return; }
+      if(S.bank<PRIZE_PRICE[id]) return; S.bank-=PRIZE_PRICE[id]; save(); GamePrizes.win(id); if(MathPet.get()) MathPet.wear(id); tone([659,880,1047],.12); confetti(); refreshPet(); upgrades(); }; });
     $("backBtn").onclick=function(){ closeOverlay(); intro(); };
   }
   $("helpBtn").onclick=function(){
