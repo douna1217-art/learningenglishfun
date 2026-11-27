@@ -36,13 +36,13 @@
 
   // ---------- answers ----------
   function round(n,to){ return Math.floor((n+to/2)/to)*to; }
-  function right(q){
-    if(q.kind==="r10") return String(round(q.a,10));
-    if(q.kind==="r100") return String(round(q.a,100));
-    if(q.kind==="add") return String(q.a+q.b);
-    if(q.kind==="sub") return String(q.a-q.b);
-    if(q.kind==="est") return String(round(q.a,100)+round(q.b,100));
-    return String(q.a-q.b-q.c);
+  function ans(q){
+    if(q.kind==="r10") return round(q.a,10);
+    if(q.kind==="r100") return round(q.a,100);
+    if(q.kind==="add") return q.a+q.b;
+    if(q.kind==="sub") return q.a-q.b;
+    if(q.kind==="est") return round(q.a,100)+round(q.b,100);
+    return q.a-q.b-q.c;
   }
   function noCarry(a,b){ var x=digits(a),y=digits(b); return ((x[0]+y[0])%10)*100+((x[1]+y[1])%10)*10+(x[2]+y[2])%10; }
   function flipSub(a,b){ var x=digits(a),y=digits(b); return Math.abs(x[0]-y[0])*100+Math.abs(x[1]-y[1])*10+Math.abs(x[2]-y[2]); }
@@ -67,44 +67,115 @@
       '<div style="border-top:4px solid #3a2030;margin-top:4px;text-align:right;letter-spacing:.35em;min-height:1.2em">'+(ans==null?"?":ans)+'</div></div>';
   }
 
-  // ---------- one question on the screen ----------
-  function render(q,ui){
-    var r=+right(q);
-    if(q.kind==="r10"||q.kind==="r100"){
-      var step=q.kind==="r10"?1:10, to=step*10, lo=Math.floor(q.a/to)*to, pos=(q.a-lo)/step;
-      ui.task("Round <b>"+q.a+"</b> to the nearest <b>"+(to===10?"ten":"hundred")+"</b>. Where does the car roll?");
-      ui.stage(track(lo,step,pos));
-      var cand=q.kind==="r10"?[lo,lo+10,lo-10,lo+20]:[lo,lo+100,round(q.a,10),lo+200];
-      ui.choices(M.numChoices(r,cand,0).map(function(v){ return {html:String(v),val:v}; }));
-      ui.words(W(q.a));
-    }else if(q.kind==="add"){
-      ui.task("A ride costs <b>"+q.a+"</b> tickets and a snack costs <b>"+q.b+"</b> tickets. How many tickets <b>in all</b>?");
-      ui.stage('<div style="text-align:center">🎠 + 🍿<br>'+column(q.a,q.b,"+")+'</div>');
-      ui.choices(M.numChoices(r,[noCarry(q.a,q.b),r+10,r-10,r+100,r-100],1).map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("Add the ones, then the tens, then the hundreds.");
-    }else if(q.kind==="sub"){
-      ui.task("You have <b>"+q.a+"</b> tickets. You spend <b>"+q.b+"</b>. How many tickets are <b>left</b>?");
-      ui.stage('<div style="text-align:center">🎟️ − 🎢<br>'+column(q.a,q.b,"−")+'</div>');
-      ui.choices(M.numChoices(r,[flipSub(q.a,q.b),r+10,r-10,r+100,r-100],1).map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("Subtract the ones, then the tens, then the hundreds.");
-    }else if(q.kind==="est"){
-      ui.task("<b>About</b> how much is "+q.a+" + "+q.b+"? Round each number to the nearest hundred first.");
-      ui.stage('<div style="text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:2.2rem;margin:14px 0">'+q.a+' + '+q.b+' ≈ ?</div>');
-      ui.choices(M.numChoices(r,[q.a+q.b,r+100,r-100,r+200],1).map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("≈ means about.");
-    }else{
-      ui.task("You have <b>"+q.a+"</b> tickets. You spend <b>"+q.b+"</b> on rides and <b>"+q.c+"</b> on snacks. How many tickets are left?");
-      ui.stage('<div style="text-align:center;font-size:2.4rem;margin:10px 0">🎟️ → 🎢 → 🍿</div>');
-      ui.choices(M.numChoices(r,[q.a-q.b,q.a-q.c,q.a-q.b+q.c,r+10,r-10],1).map(function(v){ return {html:String(v),val:v}; }));
-      ui.hint("Two steps: first the rides, then the snacks.");
-    }
+  // ---------- one question on the screen: everything is done with the hands ----------
+  // Rounding: put the car on the hill (tens) and tap the station it will roll to, then watch it roll. Adding and subtracting: spin the
+  // digit wheels of the ticket machine (carry marks can be tapped on). Estimating: send both cars to their stations. Two steps: pay
+  // the ride and the snack from the wallet, breaking a 100 into tens when needed.
+  // right(q) is "ok"; a wrong try comes back as "x:..." with what the child did. ans(q) is the number itself.
+  function right(q){ return "ok"; }
+  var tick=function(){ M.blip&&M.blip(440,.05); }, pop=function(){ M.blip&&M.blip(720,.1); };
+  function goBtn(t,cn,dis){ return '<button type="button" class="go" id="goBtn"'+(dis?" disabled":"")+'>'+t+' <small>'+cn+'</small></button>'; }
+  function lockGo(){ [].forEach.call(document.querySelectorAll("#field button"),function(b){ b.disabled=true; }); }
+  function carAt(car,pos){ car.style.left=((30+pos*30)/360*100)+"%"; car.style.top=((140-90*Math.sin(Math.PI*pos/10))/175*100)+"%"; }
+  // the hill with a station flag at each end
+  function hill(lo,step,pos,id,labels){
+    return '<div class="hill" id="'+id+'">'+track(lo,step,pos).replace('id="car"','class="car"')+
+      '<button type="button" class="flag lo" data-v="'+lo+'">🚩 '+lo+'</button><button type="button" class="flag hi" data-v="'+(lo+step*10)+'">🚩 '+(lo+step*10)+'</button></div>';
   }
-  function after(q){
-    if(q.kind==="r10"||q.kind==="r100"){ var step=q.kind==="r10"?1:10, lo=Math.floor(q.a/(step*10))*step*10; setTimeout(function(){ moveCar((+right(q)-lo)/step); },150); }
-    if(q.kind==="add"||q.kind==="sub"){ var f=document.getElementById("field"); f.innerHTML='<div style="text-align:center">'+(q.kind==="add"?"🎠 + 🍿":"🎟️ − 🎢")+'<br>'+column(q.a,q.b,q.kind==="add"?"+":"−",right(q))+'</div>'; }
+  function roll(box,pos,cb){ var car=box.querySelector(".car"), to=pos>=5?10:0; car.style.transition="left 1.1s ease-in,top 1.1s ease-in"; setTimeout(function(){ carAt(car,to); },30); if(cb) setTimeout(cb,1150); }
+
+  function roundGame(q,ui){
+    var tens=q.kind==="r10", step=tens?1:10, to=step*10, lo=Math.floor(q.a/to)*to, want=(q.a-lo)/step, pos=tens?0:want, placed=!tens, guess=null;
+    ui.task(tens?"Put the car at <b>"+q.a+"</b> on the hill. Then tap the station it will roll to! <small>先把小车放到 "+q.a+"，再点它会滑到哪个站</small>"
+                :"The car is at <b>"+q.a+"</b>. Round to the nearest hundred: tap the station it will roll to! <small>点小车会滑到的站</small>");
+    var f=ui.stage(hill(lo,step,pos,"h1")+'<div class="tip" id="tip">'+(tens?"Drag the car along the track. 拖动小车":"Is "+q.a+" past the halfway mark? 过了一半吗？")+'</div>');
+    var box=f.querySelector("#h1"), car=box.querySelector(".car"), on=false;
+    if(tens){
+      car.classList.add("drag"); car.style.transition="none";
+      var setPos=function(e){ var r=box.querySelector("svg").getBoundingClientRect(), x=(e.clientX-r.left)*360/r.width, p=Math.max(0,Math.min(10,Math.round((x-30)/30)));
+        if(p!==pos){ pos=p; carAt(car,pos); tick(); } placed=true; };
+      box.addEventListener("pointerdown",function(e){ if(ui.locked()||e.target.classList.contains("flag")) return; on=true; try{ box.setPointerCapture(e.pointerId); }catch(x){} setPos(e); e.preventDefault(); });
+      box.addEventListener("pointermove",function(e){ if(on) setPos(e); });
+      box.addEventListener("pointerup",function(){ on=false; });
+    }
+    [].forEach.call(box.querySelectorAll(".flag"),function(fl){ fl.onclick=function(){
+      if(ui.locked()) return;
+      if(tens&&!placed){ f.querySelector("#tip").textContent="First put the car at "+q.a+". 先放小车"; return; }
+      guess=+fl.dataset.v; fl.classList.add("pick"); [].forEach.call(box.querySelectorAll(".flag"),function(x){ x.disabled=true; });
+      if(tens&&pos!==want){ ui.answer("x:place:"+(lo+pos)); return; }
+      roll(box,pos,function(){ ui.answer(guess===round(q.a,to)?"ok":"x:"+guess); });
+    }; });
+  }
+  function wheelRow(){ return '<div class="drow ans"><span class="op"></span>'+[0,1,2].map(function(i){ return '<span class="wh"><button type="button" class="up" data-i="'+i+'">▲</button><b class="wv" data-i="'+i+'">0</b><button type="button" class="dn" data-i="'+i+'">▼</button></span>'; }).join("")+'</div>'; }
+  // spin(d, button): ▲ / ▼ on a wheel; true when it was one
+  function spin(d,t){ if(t.classList.contains("up")){ d[+t.dataset.i]=(d[+t.dataset.i]+1)%10; return true; } if(t.classList.contains("dn")){ d[+t.dataset.i]=(d[+t.dataset.i]+9)%10; return true; } return false; }
+  function showWheels(box,d){ [].forEach.call(box.querySelectorAll(".wv"),function(b){ b.textContent=d[+b.dataset.i]; }); }
+  // the ticket machine: three digit wheels (and carry marks for adding)
+  function wheels(q,ui){
+    var addQ=q.kind==="add", d=[0,0,0], carry=[0,0];
+    ui.task(addQ?"A ride costs <b>"+q.a+"</b> tickets and a snack costs <b>"+q.b+"</b>. How many tickets <b>in all</b>? Set the machine! <small>转动数字轮</small>"
+                :"You have <b>"+q.a+"</b> tickets and spend <b>"+q.b+"</b>. How many are <b>left</b>? Set the machine! <small>转动数字轮</small>");
+    var x=digits(q.a), y=digits(q.b);
+    var f=ui.stage('<div class="mach"><div class="mT">🎟️ Ticket machine</div>'+(addQ?'<div class="crow"><span></span>'+[0,1].map(function(i){ return '<button type="button" class="cm" data-c="'+i+'">'+"&nbsp;"+'</button>'; }).join("")+'<span></span></div>':'')+
+      '<div class="drow"><span class="op"></span>'+x.map(function(v){ return '<span class="dg">'+v+'</span>'; }).join("")+'</div>'+
+      '<div class="drow"><span class="op">'+(addQ?"+":"−")+'</span>'+y.map(function(v){ return '<span class="dg">'+v+'</span>'; }).join("")+'</div>'+
+      '<div class="bar"></div>'+wheelRow()+
+      '<div class="mH">'+(addQ?"Start with the ones. Tap a little box to carry 1. 从个位算起，满十点小格进 1":"Start with the ones. Not enough? Borrow 1 from the next place. 从个位减起，不够就借 1")+'</div></div>'+goBtn("Print tickets 🎟️","出票"));
+    function show(){ showWheels(f,d); [].forEach.call(f.querySelectorAll(".cm"),function(b){ var c=+b.dataset.c; b.innerHTML=carry[c]?"1":"&nbsp;"; b.classList.toggle("on",!!carry[c]); }); }
+    f.querySelector(".mach").addEventListener("click",function(e){ if(ui.locked()) return; var t=e.target.closest?e.target.closest("button"):null; if(!t) return;
+      if(spin(d,t)) tick();
+      else if(t.classList.contains("cm")){ var c=+t.dataset.c; carry[c]=carry[c]?0:1; tick(); }
+      show(); });
+    f.querySelector("#goBtn").onclick=function(){ if(ui.locked()) return; var n=d[0]*100+d[1]*10+d[2]; ui.answer(n===ans(q)?"ok":"x:"+n); };
+    show();
+  }
+  // estimate: send both cars to their hundreds, then the sum is made from the stations
+  function estGame(q,ui){
+    var picks={};
+    ui.task("<b>About</b> how much is "+q.a+" + "+q.b+"? Round each number: tap the station each car rolls to! <small>先把两个数四舍五入到整百</small>");
+    var la=Math.floor(q.a/100)*100, lb=Math.floor(q.b/100)*100;
+    var f=ui.stage(hill(la,10,(q.a-la)/10,"ea")+hill(lb,10,(q.b-lb)/10,"eb")+'<div class="sum" id="sum">? + ? ≈ ?</div>');
+    function upd(){ f.querySelector("#sum").textContent=(picks.ea!=null?picks.ea:"?")+" + "+(picks.eb!=null?picks.eb:"?")+" ≈ "+(picks.ea!=null&&picks.eb!=null?picks.ea+picks.eb:"?"); }
+    ["ea","eb"].forEach(function(id){ var box=f.querySelector("#"+id), n=id==="ea"?q.a:q.b, lo=id==="ea"?la:lb;
+      [].forEach.call(box.querySelectorAll(".flag"),function(fl){ fl.onclick=function(){ if(ui.locked()||picks[id]!=null) return;
+        picks[id]=+fl.dataset.v; fl.classList.add("pick"); [].forEach.call(box.querySelectorAll(".flag"),function(x){ x.disabled=true; }); upd();
+        roll(box,(n-lo)/10,function(){ if(picks.ea!=null&&picks.eb!=null&&!ui.locked()) ui.answer(picks.ea+picks.eb===ans(q)?"ok":"x:"+(picks.ea+picks.eb)); }); }; }); });
+  }
+  // two steps: pay from the wallet (hundreds and tens), break a 100 into ten 10s when needed
+  function wallet(q,ui){
+    var h=Math.floor(q.a/100), t=(q.a%100)/10, paid=[0,0], stage=0, NEED=[q.b,q.c];
+    ui.task("You have <b>"+q.a+"</b> tickets. Pay <b>"+q.b+"</b> for the ride, then <b>"+q.c+"</b> for the snack. How many are left? <small>先付游乐项目，再付零食</small>");
+    var f=ui.stage('<div class="wal" id="wal"></div><div class="pay"><div class="box" id="b0">🎢 Ride: <b id="p0">0</b> / '+q.b+'</div><div class="box" id="b1">🍿 Snack: <b id="p1">0</b> / '+q.c+'</div></div>'+
+      '<div class="tip" id="tip">Tap a 10 to pay with it. Tap a 100 to break it into ten 10s. 点 10 付款，点 100 换成十张 10</div>'+
+      '<div class="mach" id="left" hidden><div class="mT">How many tickets are left? 还剩几张？</div>'+wheelRow()+'</div>'+goBtn("That's what is left ✓","就剩这么多",true)), d=[0,0,0];
+    function draw(){
+      var s=""; for(var i=0;i<h;i++) s+='<button type="button" class="tk h" data-v="100">100</button>'; for(var j=0;j<t;j++) s+='<button type="button" class="tk t" data-v="10">10</button>';
+      f.querySelector("#wal").innerHTML=s||'<span class="empty">empty</span>';
+      f.querySelector("#p0").textContent=paid[0]; f.querySelector("#p1").textContent=paid[1];
+      f.querySelector("#b0").className="box"+(stage===0?" on":"")+(paid[0]===q.b?" full":""); f.querySelector("#b1").className="box"+(stage===1?" on":"")+(paid[1]===q.c?" full":"");
+      f.querySelector("#goBtn").disabled=stage<2;
+      if(stage>=2){ f.querySelector("#left").hidden=false; f.querySelector("#tip").textContent="All paid! Now count what is left in the wallet. 付完了！数一数还剩多少"; }
+    }
+    f.querySelector("#left").addEventListener("click",function(e){ if(ui.locked()) return; var b=e.target.closest?e.target.closest("button"):null; if(b&&spin(d,b)){ tick(); showWheels(f,d); } });
+    f.querySelector("#wal").addEventListener("click",function(e){ if(ui.locked()||stage>1) return; var b=e.target.closest?e.target.closest(".tk"):null; if(!b) return;
+      if(b.dataset.v==="100"){ h--; t+=10; tick(); }
+      else{ t--; paid[stage]+=10; pop(); if(paid[stage]===NEED[stage]) stage++; }
+      draw(); });
+    f.querySelector("#goBtn").onclick=function(){ if(ui.locked()) return; var n=d[0]*100+d[1]*10+d[2]; ui.answer(n===ans(q)?"ok":"x:"+n); };
+    draw();
+  }
+  function render(q,ui){
+    if(q.kind==="r10"||q.kind==="r100") return roundGame(q,ui);
+    if(q.kind==="add"||q.kind==="sub") return wheels(q,ui);
+    if(q.kind==="est") return estGame(q,ui);
+    return wallet(q,ui);
+  }
+  function after(q,ok){
+    lockGo();
+    if(q.kind==="add"||q.kind==="sub"){ var m=document.querySelector("#field .mach"); if(m&&!ok) m.insertAdjacentHTML("afterend",'<div style="text-align:center">'+column(q.a,q.b,q.kind==="add"?"+":"−",ans(q))+'</div>'); }
   }
   function explain(q){
-    var r=right(q);
+    var r=ans(q);
     if(q.kind==="r10"||q.kind==="r100") return q.a+" rounded to the nearest "+(q.kind==="r10"?"ten":"hundred")+" is "+r+".";
     if(q.kind==="add") return q.a+" + "+q.b+" = "+r+".";
     if(q.kind==="sub") return q.a+" − "+q.b+" = "+r+".";
@@ -112,13 +183,15 @@
     return q.a+" − "+q.b+" − "+q.c+" = "+r+".";
   }
   function teach(q,given){
-    var r=+right(q), x=digits(q.a), y=digits(q.b), steps, cn, pic="";
+    var r=ans(q), x=digits(q.a), y=digits(q.b), steps, cn, pic="", gs=String(given||""), gp=gs.indexOf("x:place:")===0?+gs.slice(8):null;
+    given=gs.indexOf("x:")===0&&gp===null?gs.slice(2):"";
     if(q.kind==="r10"||q.kind==="r100"){
       var to=q.kind==="r10"?10:100, lo=Math.floor(q.a/to)*to, d=q.kind==="r10"?x[2]:x[1], place=q.kind==="r10"?"ones":"tens";
       steps=[q.a+" is between <b>"+lo+"</b> and <b>"+(lo+to)+"</b>. Halfway is "+(lo+to/2)+".",
              "Look at the <b>"+place+" digit</b>: "+d+".",
              d>=5?d+" is 5 or more, so the car goes over the hill and rolls to <b>"+(lo+to)+"</b>.":d+" is less than 5, so the car rolls back to <b>"+lo+"</b>.",
              q.a+" rounded to the nearest "+(to===10?"ten":"hundred")+" is <b>"+r+"</b>."];
+      if(gp!==null) steps.unshift("You put the car at <b>"+gp+"</b>, but the number is <b>"+q.a+"</b>. Count the marks from "+lo+": "+lo+", "+(lo+1)+", "+(lo+2)+" … one mark for each 1.");
       if(q.kind==="r100"&&+given===round(q.a,10)) steps.push("Careful: "+given+" is the nearest <i>ten</i>. This question asks for the nearest <i>hundred</i>.");
       cn=q.kind==="r10"?"看个位：5 或以上，往上进到下一个整十；比 5 小，退回到这个整十。":"看十位：5 或以上，往上进到下一个整百；比 5 小，退回到这个整百。";
     }else if(q.kind==="add"){
@@ -156,12 +229,21 @@
     return {steps:steps,cn:cn,pic:pic};
   }
   function miss(q){
-    if(q.kind==="r10"||q.kind==="r100") return q.a+" → "+right(q);
-    if(q.kind==="add") return q.a+" + "+q.b+" = "+right(q);
-    if(q.kind==="sub") return q.a+" − "+q.b+" = "+right(q);
-    if(q.kind==="est") return q.a+" + "+q.b+" ≈ "+right(q);
-    return q.a+" − "+q.b+" − "+q.c+" = "+right(q);
+    if(q.kind==="r10"||q.kind==="r100") return q.a+" → "+ans(q);
+    if(q.kind==="add") return q.a+" + "+q.b+" = "+ans(q);
+    if(q.kind==="sub") return q.a+" − "+q.b+" = "+ans(q);
+    if(q.kind==="est") return q.a+" + "+q.b+" ≈ "+ans(q);
+    return q.a+" − "+q.b+" − "+q.c+" = "+ans(q);
   }
+  function wrongText(q,v){
+    var g=String(v);
+    if(g.indexOf("x:place:")===0) return "The car is at "+g.slice(8)+", not "+q.a+".";
+    g=g.slice(2);
+    if(q.kind==="r10"||q.kind==="r100") return "Whoosh! The car rolled to "+ans(q)+", not "+g+".";
+    if(q.kind==="est") return g+" is not it: round each number first.";
+    return "The machine printed "+g+". Check each column!";
+  }
+  function rightText(q){ return pickOne(q.kind==="r10"||q.kind==="r100"||q.kind==="est"?["🎢 Wheee!","🎢 Right on the station!","🎢 Great ride!"]:["🎟️ Tickets printed!","🎟️ Exactly right!","🎟️ Great counting!"]); }
   M.run({title:"Number Park",gameId:"numbers",icon:"🎢",tagline:"Ride the coaster, count the tickets, have fun with big numbers!",store:"numberPark.v1",
     coin:{e:"🎟️",n:"tickets"},heart:"❤️",leave:"Leave the park",levelWord:"ride",doneWord:"Rides done",ownedWord:"In your park",
     theme:{brand:"#d1477a",dark:"#9c2f59",bg:"#fdf0f5",line:"#f3d9e4",ink:"#3a2030",muted:"#86687a",hero:"linear-gradient(180deg,#ff8fb8,#ffc6a8)"},
@@ -170,8 +252,21 @@
           {id:"candy",e:"🍭",n:"Candy shop",p:25},{id:"balloons",e:"🎈",n:"Balloons",p:30},{id:"tent",e:"🎪",n:"Circus tent",p:40},{id:"train",e:"🚂",n:"Park train",p:50},
           {id:"slide",e:"🛝",n:"Big slide",p:60},{id:"fireworks",e:"🎆",n:"Fireworks",p:90}],
     shopTitle:"Park shop: tickets build your own park",shopCn:"用票建造你的游乐园",emptyOwned:"🌳",
-    kinds:{r10:"Round to the nearest ten",r100:"Round to the nearest hundred",add:"Add within 1,000",sub:"Subtract within 1,000",est:"Estimate by rounding",two:"Two-step problems"},
-    fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss});
+    kinds:{r10:"Place on the hill and round to the nearest ten",r100:"Round to the nearest hundred",add:"Add within 1,000",sub:"Subtract within 1,000",est:"Estimate by rounding",two:"Two-step problems"},
+    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+      '.go{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:12px 26px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go small{font-weight:800;opacity:.8}.go:disabled{opacity:.45}'+
+      '.hill{position:relative;max-width:460px;margin:4px auto 0;touch-action:none}.hill .car{position:absolute;transform:translate(-50%,-92%);font-size:2rem;pointer-events:none}.hill .car.drag{filter:drop-shadow(0 4px 4px rgba(0,0,0,.25))}'+
+      '.flag{position:absolute;bottom:-8px;border:3px solid var(--brand);background:#fff;border-radius:999px;font:inherit;font-weight:900;font-size:.95rem;padding:4px 10px;cursor:pointer;color:var(--ink)}.flag.lo{left:0}.flag.hi{right:0}.flag.pick{background:#ffe9a8;border-color:#f5b301}.flag:disabled{cursor:default}'+
+      '.hill+.hill{margin-top:22px}.tip{text-align:center;font-weight:800;color:var(--muted);margin:18px 0 0;font-size:.9rem}.sum{text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.8rem;margin:20px 0 0}'+
+      '.mach{max-width:330px;margin:4px auto 0;background:#fff;border:3px solid var(--line);border-radius:22px;padding:10px 14px;font-family:Fredoka,sans-serif}.mT{text-align:center;font-weight:700;color:var(--brand);margin-bottom:4px}'+
+      '.drow,.crow{display:grid;grid-template-columns:1.2em repeat(3,1fr);gap:6px;align-items:center;text-align:center;font-weight:700;font-size:2rem}.op{font-size:1.6rem}.bar{border-top:4px solid var(--ink);margin:4px 0 6px}'+
+      '.cm{width:30px;height:26px;margin:0 auto;border:2px dashed var(--brand);border-radius:8px;background:#fff;font:inherit;font-size:1rem;color:var(--brand);cursor:pointer;padding:0}.cm.on{border-style:solid;background:#ffe9a8}'+
+      '.wh{display:flex;flex-direction:column;align-items:center;background:#fdf0f5;border-radius:14px;padding:2px 0}.wh b{font-size:2.1rem;line-height:1.1}.wh button{border:0;background:none;color:var(--brand);font-size:1.1rem;padding:2px 14px;cursor:pointer}'+
+      '.mH{text-align:center;font-family:Nunito,sans-serif;font-weight:800;font-size:.75rem;color:var(--muted);margin-top:6px}'+
+      '.wal{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:52px;padding:8px;background:#fdf0f5;border-radius:18px}.tk{border:0;border-radius:8px;font:inherit;font-weight:900;cursor:pointer;color:#fff;box-shadow:0 3px 0 rgba(0,0,0,.18)}'+
+      '.tk.h{background:#d1477a;padding:12px 14px;font-size:1.05rem}.tk.t{background:#f59bbd;padding:8px 9px;font-size:.9rem}.wal .empty{color:var(--muted);font-weight:800}'+
+      '.pay{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.box{border:3px dashed var(--line);border-radius:16px;padding:8px;text-align:center;font-weight:800}.box.on{border-color:var(--brand);border-style:solid}.box.full{background:#e3f6e8;border-color:#2f9e5b}',
+    fromKey:fromKey,render:render,right:right,rightText:rightText,wrongText:wrongText,explain:explain,teach:teach,after:after,miss:miss});
 })();
 </script>
 </body></html>
