@@ -78,6 +78,12 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
 .arrow{font-size:1.6rem;font-weight:900;color:var(--brand)}
 .badge{display:inline-block;background:var(--brand);color:#fff;border-radius:999px;padding:4px 12px;font-weight:900}
 .digital{display:inline-block;margin-top:4px;background:#22314f;color:#7dffb0;font-family:"Courier New",monospace;font-weight:700;font-size:1.3rem;border-radius:8px;padding:2px 10px;min-width:4.2em}
+.dep{display:inline-block;background:#22314f;border-radius:18px;padding:8px 14px 10px;color:#7dffb0;font-family:"Courier New",monospace;text-align:center;margin-top:4px}
+.depT{font-family:Fredoka,sans-serif;font-weight:700;color:#fff;font-size:.95rem;margin-bottom:2px}.depRow{display:flex;align-items:center;justify-content:center;gap:4px}
+.dep .wh{display:flex;flex-direction:column;align-items:center}.dep .wh b{font-size:2.4rem;line-height:1.1;min-width:1.6em}.dep .wh button{border:0;background:none;color:#7dffb0;font-size:1.2rem;padding:2px 16px;cursor:pointer}
+.dep .colon{font-size:2.2rem;font-weight:700}.dep .unit{font-family:Nunito,sans-serif;font-weight:900;color:#fff;font-size:1rem;margin-left:6px}.depH{font-family:Nunito,sans-serif;font-weight:800;font-size:.72rem;color:#b8c6e6;margin-top:2px}
+.clocks .ready{flex-basis:100%;max-width:320px;border:0;border-radius:999px;padding:13px;font:inherit;font-weight:900;font-size:1.15rem;background:var(--good);color:#fff;box-shadow:0 4px 0 #1f7041;cursor:pointer;margin-top:6px}.clocks .ready:disabled{opacity:.5}
+.clockbox.turn .clock{width:220px;height:220px}.clocks.two .clockbox.turn .clock{width:150px;height:150px}.turnTip.wide{flex-basis:100%;text-align:center}.turnTip{font-weight:800;color:var(--muted);font-size:.85rem;margin-top:4px}.turnTip small{display:block;font-weight:700;opacity:.8}
 .setter{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 .setter button{border:0;border-radius:14px;padding:11px 4px;font-weight:900;font-size:1rem;background:#fff;box-shadow:0 4px 0 #cfd8ee}
 .setter button:active{transform:translateY(3px);box-shadow:0 1px 0 #cfd8ee}
@@ -424,36 +430,99 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
     var ch=$("choices"); ch.innerHTML=""; $("setter").hidden=true; $("clocks").className="clocks";
     [].forEach.call(document.querySelectorAll("#setter button"),function(b){ b.disabled=false; });
     var c=$("choo"); c.className="choo";
+    handsOn(q);
+  }
+  // ---------- hands-on: a station clock whose long hand is dragged (the short hand follows, as on a real clock),
+  // and a departure board whose hour and minutes are spun ----------
+  var HAND=null;
+  window.__time={cur:function(){ return G&&G.q; }};   // for the browser tests   // the hands-on part of the question on the screen: {after(ok)}
+  function handPath(t0,t1){   // the part of the clock face the long hand swept, from minute t0 to t1 (t1 > t0)
+    if(t1<=t0) return "";
+    if(t1-t0>=60) return '<circle cx="100" cy="100" r="40" fill="rgba(245,179,1,.28)"/>';
+    var a0=(t0%60)*6*Math.PI/180, a1=(t1%60)*6*Math.PI/180, r=40, big=(t1-t0)>30?1:0;
+    return '<path d="M100 100 L'+(100+r*Math.sin(a0)).toFixed(1)+' '+(100-r*Math.cos(a0)).toFixed(1)+' A'+r+' '+r+' 0 '+big+' 1 '+(100+r*Math.sin(a1)).toFixed(1)+' '+(100-r*Math.cos(a1)).toFixed(1)+'Z" fill="rgba(245,179,1,.35)"/>';
+  }
+  // turnClock(box, start [h, m], step, opts): a clock in box; drag anywhere on it to turn the long hand. opts.sweep: show the part swept from the start.
+  function turnClock(box,start,step,opts){
+    opts=opts||{};
+    var t0=((start[0]%12)*60+start[1]), t=t0, on=false, last=null;
+    box.innerHTML='<div class="clockbox turn">'+clockSvg(start[0],start[1],"turnClock")+(opts.digital?'<span class="digital" id="turnDigital"></span>':'')+'<div class="turnTip">Drag the long hand around ↻ <small>拖动长针</small></div></div>';
+    var svg=box.querySelector("svg");
+    svg.querySelector(".hands").insertAdjacentHTML("beforebegin",'<g class="sweep"></g>');
+    function hm(){ var x=((t%720)+720)%720, h=Math.floor(x/60); return [h===0?12:h,x%60]; }
+    function draw(){ var c=hm(); svg.querySelector(".hands").innerHTML=hands(c[0],c[1]); if(opts.sweep) svg.querySelector(".sweep").innerHTML=handPath(t0,t);
+      var d=box.querySelector("#turnDigital"); if(d) d.textContent=digital(c[0],c[1]); }
+    function setFrom(e){
+      var r=svg.getBoundingClientRect(), x=(e.clientX-r.left)/r.width*200-100, y=(e.clientY-r.top)/r.height*200-100;
+      if(x*x+y*y<64) return;   // too near the middle to tell the direction
+      var a=Math.atan2(x,-y)*180/Math.PI; if(a<0) a+=360;
+      var mm=Math.round(a/6/step)*step%60, cur=((t%60)+60)%60, d=mm-cur;
+      if(d>30) d-=60; if(d<-30) d+=60;
+      if(d){ t+=d; if(opts.noBack&&t<t0) t=t0; SFX.tick(); draw(); }
+    }
+    svg.style.touchAction="none"; svg.style.cursor="grab";
+    svg.addEventListener("pointerdown",function(e){ if(!G||G.locked) return; on=true; try{ svg.setPointerCapture(e.pointerId); }catch(x){} setFrom(e); e.preventDefault(); });
+    svg.addEventListener("pointermove",function(e){ if(on) setFrom(e); });
+    svg.addEventListener("pointerup",function(){ on=false; }); svg.addEventListener("pointercancel",function(){ on=false; });
+    draw();
+    return { time:hm, minutes:function(){ return t-t0; }, show:function(h,m){ var target=((h%12)*60+m); while(target<t0&&opts.sweep) target+=720; t=target; draw(); } };
+  }
+  // the departure board: hour and minute wheels
+  function board(box,step){
+    var h=12, m=0;
+    box.innerHTML='<div class="dep"><div class="depT">🚉 Departures</div><div class="depRow"><span class="wh"><button type="button" data-w="h" data-d="1">▲</button><b id="bh">12</b><button type="button" data-w="h" data-d="-1">▼</button></span>'+
+      '<span class="colon">:</span><span class="wh"><button type="button" data-w="m" data-d="1">▲</button><b id="bm">00</b><button type="button" data-w="m" data-d="-1">▼</button></span></div>'+
+      '<div class="depH">'+(step===1?"▲▼ change the minutes one by one 分钟一格一格调":"▲▼ change the minutes by 5 分钟每次 5")+'</div></div>';
+    function draw(){ box.querySelector("#bh").textContent=h; box.querySelector("#bm").textContent=(m<10?"0":"")+m; }
+    box.querySelector(".dep").addEventListener("click",function(e){ if(!G||G.locked) return; var b=e.target.closest?e.target.closest("button"):null; if(!b) return;
+      var d=+b.dataset.d; if(b.dataset.w==="h") h=((h-1+d+12)%12)+1; else m=(m+d*step+60)%60; SFX.tick(); draw(); });
+    draw();
+    return { time:function(){ return [h,m]; }, show:function(hh,mm){ h=hh; m=mm; draw(); } };
+  }
+  function minWheel(box){
+    var n=0;
+    box.innerHTML='<div class="dep small"><div class="depT">⏱️ The trip took</div><div class="depRow"><span class="wh"><button type="button" data-d="5">▲</button><b id="bn">0</b><button type="button" data-d="-5">▼</button></span><span class="unit">minutes</span></div></div>';
+    box.querySelector(".dep").addEventListener("click",function(e){ if(!G||G.locked) return; var b=e.target.closest?e.target.closest("button"):null; if(!b) return; n=Math.max(0,Math.min(90,n+ +b.dataset.d)); SFX.tick(); box.querySelector("#bn").textContent=n; });
+    return { value:function(){ return n; }, show:function(v){ n=v; box.querySelector("#bn").textContent=n; } };
+  }
+  function readyBtn(txt){ return '<button type="button" class="ready" id="readyBtn">'+(txt||"✓ Ready!")+'</button>'; }
+  function handsOn(q){
+    var c=$("clocks"), step=q.m%5===0?5:1;
+    HAND=null;
     if(q.kind==="read"){
-      $("board").innerHTML='The train leaves at this time. <span class="w">What time is it?</span>';
-      $("clocks").innerHTML=clockSvg(q.h,q.m);
-      timeChoices(q.h,q.m).forEach(function(t){ ch.appendChild(choiceBtn(digital(t[0],t[1]),t[0]+":"+t[1])); });
+      $("board").innerHTML='The train leaves at this time. <span class="w">Set the departure board!</span>';
+      c.innerHTML='<div class="clockbox">'+clockSvg(q.h,q.m)+'</div><div id="depBox"></div>'+readyBtn("✓ Post it!");
+      var B=board(c.querySelector("#depBox"),step);
+      $("readyBtn").onclick=function(){ var t=B.time(); answer(t[0]+":"+t[1],null); };
       $("hint").textContent="The short hand shows the hour. The long hand shows the minutes.";
-    }else if(q.kind==="words"){
-      $("board").innerHTML='"The train leaves at <span class="w">'+sayTime(q.h,q.m)+'</span>."';
-      $("clocks").innerHTML="";
-      timeChoices(q.h,q.m).forEach(function(t){ ch.appendChild(choiceBtn(clockSvg(t[0],t[1]).replace('class="clock"','class="clock" style="width:92px;height:92px;margin:auto"'),t[0]+":"+t[1])); });
-      $("hint").textContent="Which clock shows that time?";
-    }else if(q.kind==="set"){
-      $("board").innerHTML='Set the station clock to <span class="w">'+digital(q.h,q.m)+'</span>';
-      setT=(q.h===12&&q.m===0)?[3,0]:[12,0];
-      $("clocks").innerHTML='<div class="clockbox">'+clockSvg(setT[0],setT[1],"setClock")+'<span class="digital" id="setDigital">'+digital(setT[0],setT[1])+'</span></div>';
-      $("setter").hidden=false;
-      $("words").textContent=sayDigital(q.h,q.m);
+      HAND={after:function(ok){ if(!ok) B.show(q.h,q.m); }};
+    }else if(q.kind==="words"||q.kind==="set"){
+      $("board").innerHTML=q.kind==="words"?'"The train leaves at <span class="w">'+sayTime(q.h,q.m)+'</span>." Set the station clock!':'Set the station clock to <span class="w">'+digital(q.h,q.m)+'</span>';
+      var start=(q.h===12&&q.m===0)?[3,0]:[12,0];
+      c.innerHTML='<div id="clkBox"></div>'+readyBtn();
+      var K=turnClock(c.querySelector("#clkBox"),start,step,{});
+      $("readyBtn").onclick=function(){ var t=K.time(); answer(t[0]+":"+t[1],null); };
+      if(q.kind==="set") $("words").textContent=sayDigital(q.h,q.m);
+      $("hint").textContent="Turn the long hand. The short hand moves too: past 12, it goes on to the next hour.";
+      HAND={after:function(ok){ if(!ok) K.show(q.h,q.m); }};
     }else if(q.kind==="dur"){
       var e=addMin(q.h,q.m,q.n);
       $("board").innerHTML='The train left at '+digital(q.h,q.m)+' and arrived at '+digital(e[0],e[1])+'. <span class="w">How long was the trip?</span>';
-      $("clocks").className="clocks two";
-      $("clocks").innerHTML='<div class="clockbox">'+clockSvg(q.h,q.m)+'Left</div><span class="arrow">➜</span><div class="clockbox">'+clockSvg(e[0],e[1])+'Arrived</div>';
-      durChoices(q.n).forEach(function(v){ ch.appendChild(choiceBtn(v+'<small style="display:block;font-size:.85rem;font-family:Nunito,sans-serif;font-weight:900">minutes</small>',String(v))); });
-      $("hint").textContent="Count on from "+digital(q.h,q.m)+" by fives.";
+      c.className="clocks two";
+      c.innerHTML='<div id="clkBox"></div><span class="arrow">➜</span><div class="clockbox">'+clockSvg(e[0],e[1])+'Arrived '+digital(e[0],e[1])+'</div><div class="turnTip wide" id="durTip"></div><div id="nBox"></div>'+readyBtn();
+      var K2=turnClock(c.querySelector("#clkBox"),[q.h,q.m],5,{sweep:true,noBack:true}), N=minWheel(c.querySelector("#nBox"));
+      c.querySelector("#clkBox .turnTip").innerHTML="Left "+digital(q.h,q.m);
+      c.querySelector("#durTip").innerHTML="Turn the long hand from "+digital(q.h,q.m)+" to the arrival time and count by 5s. <small>拖动长针从出发转到到达，五分五分地数</small>";
+      $("readyBtn").onclick=function(){ answer(String(N.value()),null); };
+      HAND={after:function(ok){ K2.show(e[0],e[1]); if(!ok) N.show(q.n); }};
     }else{
-      $("board").innerHTML='The train leaves at '+digital(q.h,q.m)+'. The trip takes '+minsWords(q.n)+'. <span class="w">When does it arrive?</span>';
-      $("clocks").className="clocks two";
-      $("clocks").innerHTML='<div class="clockbox">'+clockSvg(q.h,q.m)+'Leaves</div><span class="arrow">+ '+q.n+' min</span>';
       var r=addMin(q.h,q.m,q.n);
-      timeChoices(r[0],r[1]).forEach(function(t){ ch.appendChild(choiceBtn(digital(t[0],t[1]),t[0]+":"+t[1])); });
-      $("hint").textContent="Move the long hand on by "+minsWords(q.n)+".";
+      $("board").innerHTML='The train leaves at '+digital(q.h,q.m)+'. The trip takes <span class="w">'+minsWords(q.n)+'</span>. Turn the clock to the arrival time!';
+      c.innerHTML='<div id="clkBox"></div>'+readyBtn("✓ Arrived!");
+      var K3=turnClock(c.querySelector("#clkBox"),[q.h,q.m],5,{sweep:true,noBack:true});
+      c.querySelector(".turnTip").innerHTML="Move the long hand on by "+minsWords(q.n)+": count by 5s <small>五分五分地往前拨</small>";
+      $("readyBtn").onclick=function(){ var t=K3.time(); answer(t[0]+":"+t[1],null); };
+      HAND={after:function(ok){ if(!ok) K3.show(r[0],r[1]); }};
     }
   }
   function rightAnswer(q){
@@ -526,8 +595,8 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
     [].forEach.call(document.querySelectorAll(".choice"),function(x){ x.disabled=true; if(x.dataset.v===right) x.classList.add("right"); });
     [].forEach.call(document.querySelectorAll("#setter button"),function(b){ b.disabled=true; });
     if(!ok&&btn) btn.classList.add("wrong");
-    if(q.kind==="set"&&!ok){ setT=[q.h,q.m]; drawSet(); }
-    if(q.kind==="end"){ var r=addMin(q.h,q.m,q.n); $("clocks").innerHTML+='<div class="clockbox">'+clockSvg(r[0],r[1])+'Arrives</div>'; }
+    var rb=$("readyBtn"); if(rb) rb.disabled=true;
+    if(HAND&&HAND.after) HAND.after(ok);   // a wrong try: the clock or the board moves to the right time
     $("words").textContent=explain(q);
     $("hint").textContent="";
     G.left--;
@@ -542,7 +611,7 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
       f.miss++; ks.miss++; G.streak=0; G.miss[q.key]=q; G.again.push(q.key);
       SFX.oops();
       if(G.hearts!==Infinity) G.hearts--;
-      say(q.kind==="set"?"Not quite. Look: this is "+digital(q.h,q.m)+".":"Oops! The right answer is green.","bad");
+      say(q.kind==="dur"?"Not quite: the trip took "+minsWords(q.n)+".":q.kind==="end"?"Not quite. Look: it arrives at "+rightAnswer(q).replace(/:(\d)$/,":0$1")+".":"Not quite. Look: this is "+digital(q.h,q.m)+".","bad");
     }
     save(); renderHearts();
     var cont=G.hearts<=0?function(){ finish(false); }:G.left<=0?function(){ SFX.win(); finish(true); }:next;
