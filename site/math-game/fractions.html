@@ -159,7 +159,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:620px){.ponds{gap:8px}.pond .tag{font-size:.92rem}.pond .name{font-size:.66rem}.choice{font-size:1.6rem;min-height:76px}.nl{margin:4px 8px 0}.tick{width:28px;height:30px;margin-left:-14px}}
-</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
+</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script>
 </head>
 <body>
 <div class="top" id="topRow">
@@ -334,6 +334,9 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   var $=function(id){return document.getElementById(id);};
   function show(id){ ["map","play","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); $("topRow").hidden=(id==="play"); window.scrollTo(0,0); }   // while playing, one tight bar instead of two rows
+  // the question fills the window (fit.js): measured and zoomed after each question is drawn, back to normal on the map and the result
+  var FIT=window.FitPlay?FitPlay(document.querySelector(".wrap"),$("play"),{max:1.6,min:0.85}):null;
+  if(FIT){ var _show=show; show=function(id){ if(id!=="play") FIT.reset(); _show(id); }; var _next=next; next=function(){ _next(); FIT(); }; }
   function frogHtml(cls){ return '<span class="frog'+(cls?" "+cls:"")+'">🐸'+(data.hat?'<span class="hat">'+data.hat+'</span>':"")+'</span>'; }
 
   // ---------- map ----------

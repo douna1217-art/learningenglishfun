@@ -89,7 +89,7 @@
   function laneX(l){ return (l*33.33+16.66)+"%"; }
   function startRun(){
     closeOver();
-    R={lane:1,fuel:100,dist:0,stars:0,rows:0,zone:0,row:null,speed:22,tut:!S.tut,over:false,streak:0};
+    R={lane:1,fuel:100,dist:0,stars:0,rows:0,zone:0,row:null,speed:13,tut:!S.tut,over:false,streak:0};
     $("ship").style.left=laneX(1);
     nextRow(); last=0; cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
     if(window.GameProgress) GameProgress.start("add-subtract","run");
@@ -122,7 +122,7 @@
     el.classList.add(ok?"good":"bad"); row.els[row.q.opts.indexOf(row.q.ans)].classList.add("good");
     var f=document.createElement("span"); f.className="float"; f.style.left=laneX(R.lane); f.style.top="70%";
     if(ok){ R.fuel=Math.min(100,R.fuel+14); R.stars++; R.streak++; f.textContent="⭐ +1"; f.style.color="#ffe36e"; tone([660,880,1100],.08);
-      R.speed=Math.min(60,R.speed+1.1);
+      R.speed=Math.min(34,R.speed+.6);   // the rocks start slow and speed up a little with every right answer
       if(R.streak%5===0){ R.fuel=Math.min(100,R.fuel+10); f.textContent="🔥 "+R.streak+" in a row!"; } }
     else{ R.fuel-=24; R.streak=0; f.textContent=row.q.txt.replace(" = ?","")+(row.q.txt.indexOf("=")<0?" = ":" → ")+row.q.ans; f.style.color="#ffb3ba"; tone([220,160],.15,"sawtooth"); var sh=$("ship"); sh.classList.remove("hit"); void sh.offsetWidth; sh.classList.add("hit"); }
     $("sky").appendChild(f); setTimeout(function(){ f.remove(); },1000);

@@ -7,6 +7,29 @@
    Written for old Android WebViews: no optional chaining, no spread, no Object.assign. */
 (function (root) {
   "use strict";
+  /* FitPlay(wrap, section, {max, min}): for the level games. Each time a question is drawn, the playing screen (section) is measured at
+     its natural size and the page (wrap) is zoomed so the question fills the window below its top: larger on a big screen (up to max),
+     a little smaller on a short one (down to min) so it fits without scrolling. fit() is returned; call it after drawing a question.
+     fit.reset() takes the zoom off (for the map and the result screens). */
+  root.FitPlay = function (wrap, section, o) {
+    o = o || {};
+    function fit() {
+      if (!section || section.hidden) { wrap.style.zoom = ""; return; }
+      wrap.style.zoom = 1; wrap.style.paddingTop = "";
+      var H = wrap.getBoundingClientRect().bottom + (root.pageYOffset || 0), w = section.offsetWidth;   // the bottom of the game, its margin included
+      if (!H || !w) return;
+      var z = Math.min((root.innerHeight - 4) / H, (root.innerWidth - 24) / w);
+      z = Math.max(o.min || 0.85, Math.min(o.max || 1.6, z));
+      wrap.style.zoom = z;
+      // a short question (or a tall, narrow screen): the question sits in the middle of the window, not at the top
+      var spare = root.innerHeight - H * z;
+      if (spare > 60) wrap.style.paddingTop = Math.floor(spare / 2 / z) + "px";   // padding, not a margin: a margin would collapse through the page
+    }
+    fit.reset = function () { wrap.style.zoom = ""; wrap.style.paddingTop = ""; };
+    var t = 0;
+    root.addEventListener("resize", function () { clearTimeout(t); t = setTimeout(fit, 120); });
+    return fit;
+  };
   root.FitScreen = function (el, o) {
     o = o || {};
     function fit() {

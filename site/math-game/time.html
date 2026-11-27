@@ -137,7 +137,7 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
 @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:620px){.plats{gap:8px}.plat .tag{font-size:.9rem}.plat .ic{width:44px;height:44px}.choice{font-size:1.6rem}.choice.text{font-size:1rem}.clock{width:170px;height:170px}.clocks.two .clock{width:120px;height:120px}}
-</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
+</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script>
 </head>
 <body>
 <div class="top" id="topRow">
@@ -324,6 +324,9 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
 
   var $=function(id){return document.getElementById(id);};
   function show(id){ ["map","play","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); $("topRow").hidden=(id==="play"); window.scrollTo(0,0); }   // while playing, one tight bar instead of two rows
+  // the question fills the window (fit.js): measured and zoomed after each question is drawn, back to normal on the map and the result
+  var FIT=window.FitPlay?FitPlay(document.querySelector(".wrap"),$("play"),{max:1.6,min:0.85}):null;
+  if(FIT){ var _show=show; show=function(id){ if(id!=="play") FIT.reset(); _show(id); }; var _next=next; next=function(){ _next(); FIT(); }; }
 
   // ---------- map ----------
   function starText(n){ return "⭐".repeat(n)+"☆".repeat(3-n); }

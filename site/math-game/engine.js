@@ -153,7 +153,8 @@
       oops: function () { tone([260, 180], "sawtooth", .16); }, buy: function () { tone([659, 880, 1047], "triangle", .12); },
       win: function () { tone([523, 659, 784, 1047], "triangle", .18); }, lose: function () { tone([392, 330, 262], "sine", .25); }
     };
-    function show(id) { ["map", "play", "result"].forEach(function (s) { $(s).hidden = (s !== id); }); $("coinChip").hidden = (id !== "map"); $("topRow").hidden = (id === "play"); root.scrollTo(0, 0); }
+    var fitPlay = root.FitPlay ? root.FitPlay(doc.querySelector(".wrap"), $("play"), { max: 1.6, min: 0.85 }) : null;
+    function show(id) { if (fitPlay && id !== "play") fitPlay.reset(); ["map", "play", "result"].forEach(function (s) { $(s).hidden = (s !== id); }); $("coinChip").hidden = (id !== "map"); $("topRow").hidden = (id === "play"); root.scrollTo(0, 0); }
 
     // ---------- map ----------
     function starText(n) { return "⭐".repeat(n) + "☆".repeat(3 - n); }
@@ -287,6 +288,7 @@
       if (!tag) { tag = doc.createElement("div"); tag.id = "qtag"; $("task").parentNode.insertBefore(tag, $("task")); }
       tag.className = G.mode ? "qtag " + G.mode : "";
       tag.innerHTML = G.mode === "hard" ? "⚡ Challenge question! +3 " + C.coin.e + " <small>挑战题：答错也不扣心</small>" : G.mode === "easy" ? "🌱 Warm-up question <small>热身题</small>" : "";
+      if (fitPlay) fitPlay();   // the question fills the window (fit.js)
     }
     function say(text, cls) { var m = $("msg"); m.className = "msg " + cls; void m.offsetWidth; m.textContent = text; m.classList.add("pop"); }
     function later(fn, ms) { clearTimeout(pending); pending = setTimeout(fn, ms); }

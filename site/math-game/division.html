@@ -145,7 +145,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .dn{background:#fff;border-radius:20px;padding:6px 18px;text-align:center;min-width:120px;box-shadow:0 4px 0 #ead7c9}.dn b{display:block;font-family:Fredoka,sans-serif;font-size:2.6rem;line-height:1.05}.dn small{font-weight:800;color:var(--muted);font-size:.75rem}
 .pileNote{text-align:center;font-weight:900;margin:10px 0 0;color:var(--muted)}.pileNote.good{color:#2f9e5b}.pileNote.bad{color:#d9443b}.pileDone{font-weight:900;color:#2f9e5b}
 .serveBtn{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:13px 30px;font:inherit;font-weight:900;font-size:1.15rem;background:#2f9e5b;color:#fff;box-shadow:0 5px 0 #1f7041;cursor:pointer}.serveBtn:disabled{opacity:.5}
-</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
+</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script>
 </head>
 <body>
 <div class="top" id="topRow">
@@ -315,6 +315,9 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   var $=function(id){return document.getElementById(id);};
   function show(id){ ["map","serve","result"].forEach(function(s){ $(s).hidden=(s!==id); }); $("coinChip").hidden=(id!=="map"); $("topRow").hidden=(id==="serve"); window.scrollTo(0,0); }   // while playing, one tight bar instead of two rows
+  // the question fills the window (fit.js): measured and zoomed after each question is drawn, back to normal on the map and the result
+  var FIT=window.FitPlay?FitPlay(document.querySelector(".wrap"),$("serve"),{max:1.6,min:0.85}):null;
+  if(FIT){ var _show=show; show=function(id){ if(id!=="serve") FIT.reset(); _show(id); }; var _next=nextGuest; nextGuest=function(){ _next(); FIT(); }; }
 
   // ---------- the café's decorations ----------
   function decorate(box){
