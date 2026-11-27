@@ -44,6 +44,8 @@
 /* the two-sided ruler: inches along the top (yellow), centimeters along the bottom (blue), drawn to scale: 1 inch = 2.54 cm */
 .ruler.dual{height:76px;background:linear-gradient(180deg,#ffe27a,#f5c84a 50%,#a8e6ff 50%,#6ccaf2)}
 .ruler.dual em.t{top:2px;bottom:auto}
+.ruler b.ul{position:absolute;left:5px;top:15px;font-family:Fredoka,sans-serif;font-weight:700;font-size:.78rem;color:#5a4300}   /* the unit, at the 0 end */
+.ruler b.ul.cmu{color:#073246}.ruler.dual b.ul.cmu{top:auto;bottom:14px}.ruler.cm b.ul{color:#073246}
 .ruler i.b{top:auto;bottom:0;background:#073246;height:11px}.ruler i.b.m5{height:15px}.ruler i.b.m10{height:19px}
 .ruler span.b{top:auto;bottom:15px;font-size:.68rem;color:#073246}
 .uin,.ucm{display:inline-block;border-radius:8px;padding:0 6px;font-family:Fredoka,sans-serif}.uin{background:#ffe27a;color:#5a4300}.ucm{background:#a8e6ff;color:#073246}
@@ -59,11 +61,12 @@
 .plank.fall{transition:top .7s ease-in,transform .7s ease-in}
 .saw{position:absolute;font-size:1.8rem;z-index:6;animation:saw .18s linear infinite alternate}@keyframes saw{to{transform:translateY(8px) rotate(-12deg)}}
 .dust{position:absolute;width:5px;height:5px;border-radius:2px;background:#e6b77d;z-index:6;animation:dust .7s ease-out forwards}@keyframes dust{to{transform:translate(var(--x),var(--y));opacity:0}}
-.critter{position:absolute;font-size:2.3rem;line-height:1;z-index:5;transform:translateX(-50%);transition:left 1.5s linear}
-.critter i{display:inline-block;font-style:normal}.critter i.flip{transform:scaleX(-1)}   /* the emoji animals face left; they walk to the right */
+.critter{position:absolute;line-height:0;z-index:5;transform:translateX(-50%);transition:left 1.5s linear}
+.critter svg{width:52px;height:auto;display:block;overflow:visible}   /* drawn animals, all facing right: the way they walk */
+.village svg{width:26px;height:auto;display:inline-block;margin-right:1px}.endrow svg{width:40px;height:auto;margin:0 2px}
 .critter b{display:inline-block;animation:idle 1.6s ease-in-out infinite}.critter.walk b{animation:walk .3s ease-in-out infinite}
 @keyframes idle{50%{transform:translateY(-3px)}}@keyframes walk{50%{transform:translateY(-8px) rotate(6deg)}}
-.critter .say{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#fff;border-radius:10px;padding:2px 7px;font-size:.75rem;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.1)}
+.critter .say{position:absolute;bottom:100%;left:0;background:#fff;border-radius:10px;padding:2px 7px;font-size:.75rem;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.1)}
 .heart{position:absolute;font-size:1.3rem;z-index:8;pointer-events:none;animation:heart 1.2s ease-out forwards}@keyframes heart{to{transform:translateY(-60px) scale(1.4);opacity:0}}
 .drop{position:absolute;width:7px;height:7px;border-radius:50%;background:#bfe6ff;z-index:6;animation:dust .6s ease-out forwards}
 .village{position:absolute;right:8px;z-index:3;font-size:1.3rem;letter-spacing:-2px;pointer-events:none}
@@ -92,8 +95,8 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
 /* fitted to the window (fit.js) */
 .wrap.fitted{max-width:none;display:flex;flex-direction:column;overflow:hidden}
 .wrap.fitted .stage{flex:1;height:auto;min-height:260px}
-.wrap.fitted .ruler span{font-size:1.15rem}.wrap.fitted .ruler span.b{font-size:.9rem;bottom:20px}.wrap.fitted .ruler.dual{height:92px}.wrap.fitted .ruler i{height:20px}.wrap.fitted .ruler i.h{height:11px}.wrap.fitted .ruler i.b{height:14px}.wrap.fitted .ruler i.b.m5{height:18px}.wrap.fitted .ruler i.b.m10{height:22px}.wrap.fitted .ruler span:not(.b){top:21px}
-.wrap.fitted .critter{font-size:3rem}.wrap.fitted .pet{width:72px;height:72px}.wrap.fitted .bub{font-size:.95rem}.wrap.fitted .decor{font-size:2.3rem}
+.wrap.fitted .ruler b.ul{font-size:1rem;top:20px}.wrap.fitted .ruler.dual b.ul.cmu{top:auto;bottom:19px}.wrap.fitted .ruler span{font-size:1.15rem}.wrap.fitted .ruler span.b{font-size:.9rem;bottom:20px}.wrap.fitted .ruler.dual{height:92px}.wrap.fitted .ruler i{height:20px}.wrap.fitted .ruler i.h{height:11px}.wrap.fitted .ruler i.b{height:14px}.wrap.fitted .ruler i.b.m5{height:18px}.wrap.fitted .ruler i.b.m10{height:22px}.wrap.fitted .ruler span:not(.b){top:21px}
+.wrap.fitted .critter svg{width:68px}.wrap.fitted .village svg{width:32px}.wrap.fitted .pet{width:72px;height:72px}.wrap.fitted .bub{font-size:.95rem}.wrap.fitted .decor{font-size:2.3rem}
 @media(min-width:900px){.wrap.fitted .top,.wrap.fitted .hud,.wrap.fitted .bottom{width:100%;max-width:820px;margin-left:auto;margin-right:auto}
   .wrap.fitted .ans{grid-template-columns:auto 1fr auto}.wrap.fitted .keys{grid-template-columns:repeat(11,1fr)}.wrap.fitted .build{grid-column:auto;margin-top:0;width:auto;padding:0 22px}}
 </style>
@@ -159,7 +162,20 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   }
   function drawTown(){ if(Q&&D) drawScene(); }
   // ---------- a question ----------
-  var CRIT=["🐞","🐌","🐛","🐜","🐢","🦔","🐇","🐿️","🐥","🐁","🐸","🦆"];
+  // the animals, drawn facing right (emoji animals face different ways on different phones)
+  var INK='stroke="#2b2a3f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"';
+  var EYE=function(x,y){ return '<circle cx="'+x+'" cy="'+y+'" r="2.6" fill="#2b2a3f"/><circle cx="'+(x+.9)+'" cy="'+(y-.9)+'" r=".9" fill="#fff"/>'; };
+  var CRITS={
+    ladybug:["ladybug",'<svg viewBox="0 0 64 46"><path d="M18 36l-3 7M29 37v7M40 36l3 7" fill="none" '+INK+'/><path d="M8 36Q9 11 30 11Q48 11 48 36Z" fill="#e8413c" '+INK+'/><path d="M28 11V36" '+INK+'/><circle cx="17" cy="23" r="3.6" fill="#2b2a3f"/><circle cx="37" cy="21" r="3.6" fill="#2b2a3f"/><circle cx="21" cy="31" r="2.6" fill="#2b2a3f"/><circle cx="40" cy="30" r="2.6" fill="#2b2a3f"/><circle cx="52" cy="29" r="8.5" fill="#2b2a3f"/><circle cx="55" cy="27" r="2.6" fill="#fff"/><circle cx="55.8" cy="27" r="1.2" fill="#2b2a3f"/><path d="M53 21Q56 13 61 12" fill="none" '+INK+'/></svg>'],
+    snail:["snail",'<svg viewBox="0 0 64 46"><path d="M3 42H50Q60 42 60 33Q60 25 52 25Q46 25 46 32V36H4Q1 39 3 42Z" fill="#f3c98b" '+INK+'/><circle cx="25" cy="23" r="15" fill="#c98a4b" '+INK+'/><path d="M25 23m-5 0a5 5 0 1 0 5-5a10 10 0 1 1-10 10" fill="none" '+INK+'/><path d="M52 26L54 13M57 27L61 15" fill="none" '+INK+'/><circle cx="54" cy="12" r="2.6" fill="#2b2a3f"/><circle cx="61" cy="14" r="2.6" fill="#2b2a3f"/><path d="M53 35q3 2 6 0" fill="none" '+INK+'/></svg>'],
+    turtle:["turtle",'<svg viewBox="0 0 66 46"><ellipse cx="16" cy="39" rx="6" ry="4" fill="#8fd16f" '+INK+'/><ellipse cx="40" cy="39" rx="6" ry="4" fill="#8fd16f" '+INK+'/><path d="M2 32L8 30" '+INK+'/><circle cx="56" cy="29" r="8" fill="#9edc7a" '+INK+'/>'+EYE(58,27)+'<path d="M55 33q3 2 6 0" fill="none" '+INK+'/><path d="M6 36Q9 9 29 9Q49 9 52 36Z" fill="#5aa83f" '+INK+'/><path d="M19 15L23 25L35 25L39 15M23 25L19 36M35 25L39 36M14 25H23M35 25H46" fill="none" stroke="#2f6b33" stroke-width="1.8"/></svg>'],
+    chick:["chick",'<svg viewBox="0 0 64 48"><path d="M24 40v6M34 40v6M24 46h-4M34 46h4" fill="none" stroke="#e08a1a" stroke-width="2.4" stroke-linecap="round"/><circle cx="28" cy="29" r="15" fill="#ffd84a" '+INK+'/><circle cx="44" cy="17" r="11" fill="#ffd84a" '+INK+'/><path d="M54 15L62 18L54 22Z" fill="#ff9f43" '+INK+'/>'+EYE(47,14)+'<path d="M20 28q6 7 12 0" fill="#ffc72c" '+INK+'/><path d="M41 6q2-5 5-1" fill="none" '+INK+'/></svg>'],
+    mouse:["mouse",'<svg viewBox="0 0 66 44"><path d="M12 32Q2 30 3 20" fill="none" '+INK+'/><ellipse cx="30" cy="30" rx="19" ry="11" fill="#c4bfd3" '+INK+'/><path d="M40 22Q48 16 56 22L63 27L55 31Q46 34 40 30Z" fill="#c4bfd3" '+INK+'/><circle cx="46" cy="15" r="6.5" fill="#f4b6c6" '+INK+'/>'+EYE(52,22)+'<circle cx="63" cy="27" r="2.2" fill="#e86a8a"/><path d="M22 40l-2 3M36 40l2 3" '+INK+'/></svg>'],
+    bunny:["bunny",'<svg viewBox="0 0 64 48"><ellipse cx="42" cy="9" rx="4" ry="10" transform="rotate(-12 42 9)" fill="#fff" '+INK+'/><ellipse cx="50" cy="9" rx="4" ry="10" transform="rotate(10 50 9)" fill="#fff" '+INK+'/><circle cx="10" cy="31" r="5" fill="#fff" '+INK+'/><ellipse cx="28" cy="34" rx="17" ry="11" fill="#fff" '+INK+'/><circle cx="47" cy="25" r="10" fill="#fff" '+INK+'/>'+EYE(50,23)+'<circle cx="57" cy="27" r="2" fill="#f28fa8"/><ellipse cx="38" cy="44" rx="6" ry="2.5" fill="#fff" '+INK+'/></svg>'],
+    hedgehog:["hedgehog",'<svg viewBox="0 0 66 46"><path d="M6 38L4 30L9 26L7 18L14 16L15 8L22 10L27 4L32 10L38 7L40 14L46 14L44 22L48 26" fill="#8a5a2b" '+INK+'/><path d="M6 38Q8 24 28 22Q46 21 52 28L62 33L52 38Z" fill="#e8c9a0" '+INK+'/>'+EYE(51,29)+'<circle cx="62" cy="33" r="2.4" fill="#2b2a3f"/><path d="M20 38l-1 5M36 38l1 5" '+INK+'/></svg>']
+  };
+  var CRIT=Object.keys(CRITS);
+  function critSvg(k){ return (CRITS[k]||CRITS.ladybug)[1]; }
   function gen(){
     var easy=D.n<=2||D.bad, hard=!easy&&D.streak>=3;
     var show=L===1?"in":L===2?"cm":"both", unit=L===1?"in":L===2?"cm":(Math.random()<.5?"in":"cm");
@@ -173,13 +189,13 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if(t==="broken") q.start=1+rnd(4);
     if(t==="longer"){ q.len=unit==="in"?4+rnd(4):8+rnd(10); q.have=1+rnd(Math.max(1,Math.min(q.len-2,(unit==="in"?9:22)-q.len))); }   // the plank we have and the gap both fit on the screen
     q.est=L>=5&&!easy&&(t==="measure"||t==="broken")&&Math.random()<.45;
-    if(!S.tut&&D.first) q={type:"measure",unit:"in",gu:"in",show:"in",len:4,tries:0,crit:"🐞",tut:true,stage:1};
+    if(!S.tut&&D.first&&L===1) q={type:"measure",unit:"in",gu:"in",show:"in",len:4,tries:0,crit:"ladybug",tut:true,stage:1};
     q.start=q.start||0;
     q.answer=t==="longer"?q.len-q.have:q.len;
     return q;
   }
   // ---------- drawing the scene ----------
-  var W=360, H=300, U=30, IN=30, CT=150, XL=100, XR=220, RP=12;   // stage size, pixels per unit asked (U) and per inch (IN), cliff top, the gap's edges, ruler padding
+  var W=360, H=300, U=30, IN=30, CT=150, XL=100, XR=220, RP=40;   // stage size, pixels per unit asked (U) and per inch (IN), cliff top, the gap's edges, ruler padding
   function upx(u){ return u==="in"?IN:IN/2.54; }
   function Z(){ return parseFloat($("wrap").style.zoom)||1; }
   function layout(){
@@ -193,9 +209,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     var h='<div class="cliff l" style="width:'+XL+'px;top:'+CT+'px"></div><div class="river" style="left:'+XL+'px;width:'+(XR-XL)+'px;top:'+(CT+30)+'px"></div><div class="cliff r" style="left:'+XR+'px;top:'+CT+'px"></div>';
     h+='<div class="post" style="left:'+(XL-5)+'px;top:'+(CT-28)+'px"></div><div class="post" style="left:'+(XR+5)+'px;top:'+(CT-28)+'px"></div>';
     h+='<div class="edge" style="left:'+XL+'px;top:'+(CT-30)+'px;height:112px"></div><div class="edge" style="left:'+XR+'px;top:'+(CT-30)+'px;height:112px"></div>';
-    h+='<div class="critter" id="crit" style="left:'+Math.max(fitted()?38:28,XL-34)+'px;top:'+(CT-(fitted()?48:38))+'px"><i'+(Q.crit==="🐸"?'':' class="flip"')+'><b>'+Q.crit+'</b></i></div>';
+    h+='<div class="critter" id="crit" style="left:'+Math.max(fitted()?40:30,XL-38)+'px;top:'+(CT-(fitted()?50:38))+'px"><b>'+critSvg(Q.crit)+'</b></div>';
     if(Q.type==="longer") h+='<div class="plank" id="have" style="left:'+(XL-6-Q.have*U)+'px;width:'+(Q.have*U)+'px;top:'+(CT-14)+'px"></div>';
-    h+=townHtml()+'<div class="village" style="top:'+(CT+14)+'px">'+D.saved.join("")+'</div>';
+    h+=townHtml()+'<div class="village" style="top:'+(CT+14)+'px">'+D.saved.map(critSvg).join("")+'</div>';
     h+=rulerHtml();
     $("scene").innerHTML=h;
     if(Q.type==="longer"){ var c=$("crit"); c.style.left=Math.max(fitted()?38:28,XL-6-Q.have*U-24)+"px"; }
@@ -211,7 +227,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   }
   function rulerHtml(){
     var w=RP*2+10*IN, h, dual=Q.show==="both", cm=Q.show==="cm";
-    h=dual?inchScale(0)+cmScale(0,true)+'<em class="t">inches</em><em>cm</em>':cm?cmScale(Q.start,false)+'<em>cm</em>':inchScale(Q.start)+'<em>inches</em>';
+    h=dual?inchScale(0)+cmScale(0,true)+'<b class="ul">in</b><b class="ul cmu">cm</b><em class="t">inches</em><em>cm</em>':cm?cmScale(Q.start,false)+'<b class="ul cmu">cm</b><em>cm</em>':inchScale(Q.start)+'<b class="ul">in</b><em>inches</em>';
     // the ruler starts away from the edge: the child has to slide it so the start is at the edge of the gap
     var left=Q.rl!=null?Q.rl:(Q.rl=Math.max(-RP-U*2,Math.min(W-w*.5,XL-RP-U*(1.6+rnd(3))+(Math.random()<.5?0:U*.4))));
     return '<div class="ruler'+(dual?" dual":cm?" cm":"")+(Q.start?" broken":"")+(Q.est&&!Q.estDone?" hide":"")+'" id="ruler" style="left:'+left+'px;top:'+(CT+2)+'px;width:'+w+'px">'+h+'</div>';
@@ -442,7 +458,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if(!noTool&&toolTime()) return showTool();
     D.n++; Q=gen(); D.first=false; drawScene(); drawTask(); hud();
     if(Q.show==="both"&&!S.dual){ S.dual=1; save(); say("This ruler has two sides: <span class='uin'>inches</span> on top, <span class='ucm'>centimeters</span> below! 上面是英寸，下面是厘米！"); }
-    else if(!Q.tut) say(Q.type==="broken"?"Count the spaces, not the start number! 数格子，不是看开头的数！":Q.type==="both"?"Let's measure both ways! 两种单位都量一量！":Q.unit==="cm"?"Centimeters are small: count carefully! 厘米很小，仔细看！":Q.crit+" needs a bridge! "+Q.crit+" 要过河！");
+    else if(!Q.tut) say(Q.type==="broken"?"Count the spaces, not the start number! 数格子，不是看开头的数！":Q.type==="both"?"Let's measure both ways! 两种单位都量一量！":Q.unit==="cm"?"Centimeters are small: count carefully! 厘米很小，仔细看！":"The "+CRITS[Q.crit][0]+" needs a bridge! 小"+{ladybug:"瓢虫",snail:"蜗牛",turtle:"乌龟",chick:"鸡",mouse:"老鼠",bunny:"兔子",hedgehog:"刺猬"}[Q.crit]+"要过河！");
     crit(Q.tut?"Help! 帮帮我！":["Help! 帮帮我！","Hi! 你好！","Please? 拜托！"][rnd(3)]);
   }
   function startDay(){
@@ -456,7 +472,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if(window.GameProgress) GameProgress.report({game:"length",level:"day"+d,name:"Bridge Builders Level "+d,won:won,stars:won?(D.miss?2:3):0,correct:D.ok,total:GOAL,best:D.ok});
     if(won){ if(L===S.day) S.day++; L++; save(); }
     tone(won?[523,659,784,1047]:[392,330,262],.2);
-    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！":"再试一次，帮 5 只小动物过河就过关！")+'</p><p style="font-size:1.4rem">'+D.saved.join(" ")+'</p><p>🌉 '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+
+    over('<h2>'+(won?"🎉 Level "+d+" done!":"Level "+d)+'</h2><p>'+(won?"第 "+d+" 关完成啦！":"再试一次，帮 5 只小动物过河就过关！")+'</p><p class="endrow">'+D.saved.map(critSvg).join("")+'</p><p>🌉 '+D.ok+' / '+GOAL+' · +'+D.coins+' 🪙</p>'+shopHtml()+
       levelPick()+'<button type="button" class="go" id="nextDay">'+playLabel()+'</button>');
     wireShop(); wirePick(); $("nextDay").onclick=startDay;
   }
@@ -489,7 +505,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
   var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(function(){ if(Q&&!busy&&D&&Q.type!=="tool"){ Q.rl=null; drawScene(); } },150); });
   drawTown(); $("day").textContent=L; $("coins").textContent=S.coins;
-  D={n:0,ok:0,saved:[]}; Q={type:"measure",unit:"in",gu:"in",show:"in",len:5,start:0,crit:"🐞",est:false}; drawScene(); $("task").innerHTML="🌉 Help the animals cross the river! 帮小动物过河！";
+  D={n:0,ok:0,saved:[]}; Q={type:"measure",unit:"in",gu:"in",show:"in",len:5,start:0,crit:"ladybug",est:false}; drawScene(); $("task").innerHTML="🌉 Help the animals cross the river! 帮小动物过河！";
   window.__len={q:function(){ return Q; },d:function(){ return D; },s:function(){ return S; },geo:function(){ return {XL:XL,XR:XR,U:U,IN:IN,RP:RP,CT:CT,W:W}; },start:startDay};
   intro();
 })();

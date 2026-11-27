@@ -129,7 +129,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   }
   function startDay(){
     setTimeout(drawJar,0);
-    D={t:DAY_SECONDS,cash:0,served:0,lost:0,stars:3+(has("cat")?1:0),q:[],next:2,cur:null,tray:[],goal:goalFor(L),tut:!S.tut,paused:false,jar:[],made:0,easy:false};
+    D={t:DAY_SECONDS,cash:0,served:0,lost:0,stars:3+(has("cat")?1:0),q:[],next:2,cur:null,tray:[],goal:goalFor(L),tut:!S.tut&&L===1,paused:false,jar:[],made:0,easy:false};
     if(D.tut){ var first=newCustomer(); first.price=11; first.e="🍭"; first.vip=false; first.change=false; D.q.push(first); D.next=999; }
     $("dayN").textContent="· Level "+L; drawDecor(); drawQueue(); drawHud(); $("reg").innerHTML="";
     say("Open! 开门营业！"); tone([523,659,784],.12);

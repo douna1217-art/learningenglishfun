@@ -133,7 +133,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     var q={type:t,who:cu[0],veg:cu[1]==="🧀"?"🌽":cu[1],tries:0};
     if(t==="plant"||t==="patch"){ do{ q.rows=2+rnd(easy?2:big?4:3); q.cols=2+rnd(easy?2:big?5:3); }while(q.rows===q.cols&&Math.random()<.6||q.rows>R||q.cols>C); q.total=q.rows*q.cols; }
     else { q.n=easy?4+rnd(7):(big?6:5)+rnd(big?15:10); q.total=q.n; }
-    if(!S.tut&&D.first) q={type:"plant",who:"🐰",veg:"🥕",tries:0,rows:2,cols:3,total:6,tut:true};
+    if(!S.tut&&D.first&&L===1) q={type:"plant",who:"🐰",veg:"🥕",tries:0,rows:2,cols:3,total:6,tut:true};
     return q;
   }
   function plural(){ return {"🥕":"carrots","🍓":"strawberries","🌽":"corn","🥬":"lettuces","🍅":"tomatoes","🍆":"eggplants","🥦":"broccoli"}[Q.veg]||"veggies"; }
@@ -217,9 +217,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   }; });
   function checkTotal(){
     if(+val===Q.total) return harvest();
-    Q.tries++; tone([200,150],.12,"sawtooth"); $("show").classList.add("shake"); setTimeout(function(){ $("show").classList.remove("shake"); },400);
+    Q.tries++; Q.tt=(Q.tt||0)+1; tone([200,150],.12,"sawtooth"); $("show").classList.add("shake"); setTimeout(function(){ $("show").classList.remove("shake"); },400);
     [].forEach.call(document.querySelectorAll(".cell .pl"),function(p){ p.classList.remove("wiggle"); void p.offsetWidth; p.classList.add("wiggle"); });
-    if(Q.tries>=2&&!Q.fixed){ Q.fixed=true; D.miss++; setVal(String(Q.total)); say("Count by "+Q.cols+"s: "+skip(Q.cols,Q.rows)+". 一共 "+Q.total+" 个！"); busy=true; setTimeout(function(){ busy=false; harvest(); },1600); return; }
+    if(Q.tt>=2){ if(!Q.fixed){ Q.fixed=true; D.miss++; } setVal(String(Q.total)); say("Count by "+Q.cols+"s: "+skip(Q.cols,Q.rows)+". 一共 "+Q.total+" 个！"); busy=true; setTimeout(function(){ busy=false; harvest(); },1600); return; }
     say("Count by "+Q.cols+"s, one row at a time! "+Q.cols+" 个 "+Q.cols+" 个地数，一行一行加！"); setVal("");
   }
   function skip(n,t){ var a=[]; for(var i=1;i<=t;i++) a.push(n*i); return a.join(", "); }

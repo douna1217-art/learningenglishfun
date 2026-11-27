@@ -75,6 +75,8 @@ def game_files(html):
             rel = os.path.normpath(os.path.join(base, m.group(1).split("?")[0]))
             return "<script>/* " + rel + " */" + script_safe(read(rel)) + "</script>" if os.path.isfile(os.path.join(SITE, rel)) else m.group(0)
         g = re.sub(r'<script src="((?:\.\./)?[^":]+?\.js(?:\?[^"]*)?)"></script>', inline, g)
+        # the preview is for testing: every level of every game can be picked (math-game/levels.js)
+        g = g.replace("<head>", "<head><script>window.LEVEL_TEST=1;</script>", 1)
         return with_fonts(g)
     return {f: one(f) for f in files if os.path.isfile(os.path.join(SITE, f))}
 

@@ -100,7 +100,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
   var DAY=150, D=null, raf=0, tt=0;
   function goalFor(d){ return 4+d; }
   function startDay(){
-    D={t:DAY,cash:0,done:0,lost:0,q:[],next:1,cur:null,c:null,tut:!S.tut,paused:false,made:0,easy:false};
+    D={t:DAY,cash:0,done:0,lost:0,q:[],next:1,cur:null,c:null,tut:!S.tut&&L===1,paused:false,made:0,easy:false};
     if(D.tut){ var o=newOrder(); o.n=23; o.kind="plain"; o.label="23"; o.cn="装 23 块"; D.q.push(o); D.next=999; }
     $("dayN").textContent="· Level "+L; drawSkyline(); drawBays(); hud(); $("dock").innerHTML=""; say("Factory open! 开工啦！");
     tone([523,659,784],.12); cancelAnimationFrame(raf); tt=0; raf=requestAnimationFrame(loop); guide();

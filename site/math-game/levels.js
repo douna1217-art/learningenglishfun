@@ -18,14 +18,19 @@
   function crowns(game, n) {
     try { return root.GameProgress ? root.GameProgress.crowns(game, "day" + n) : 0; } catch (e) { return 0; }
   }
+  // in the preview made for testing (tools/build_preview.py sets LEVEL_TEST) every level of every game can be picked
+  var TOP = { "number-line": 5, "length": 6, "equal-groups": 5, "place-value": 4, "shop-day": 4 };
+  function testing() { try { return !!(root.LEVEL_TEST || (root.parent && root.parent !== root && root.parent.LEVEL_TEST)); } catch (e) { return !!root.LEVEL_TEST; } }
   function html(game, max, cur) {
     css();
+    var test = testing(), opened = max;
+    if (test) max = Math.max(max, TOP[game] || 6);
     if (max <= 1) return "";
-    var h = '<div class="lvlab">Choose a level 选关</div><div class="lvpick" id="lvpick">';
+    var h = '<div class="lvlab">Choose a level 选关' + (test ? ' · 🧪 test: all levels open 测试版：每关都能选' : '') + '</div><div class="lvpick" id="lvpick">';
     for (var n = 1; n <= max; n++) {
       var c = crowns(game, n), cr = "";
       for (var i = 0; i < c; i++) cr += "👑";
-      h += '<button type="button" data-l="' + n + '"' + (n === cur ? ' class="on"' : "") + ">" + n + "<small>" + (cr || (n === max ? "new" : "")) + "</small></button>";
+      h += '<button type="button" data-l="' + n + '"' + (n === cur ? ' class="on"' : "") + ">" + n + "<small>" + (cr || (n === opened ? "new" : "")) + "</small></button>";
     }
     return h + "</div>";
   }

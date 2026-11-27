@@ -149,7 +149,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     else if(t==="sub"){ d=easy?11+rnd(12):hard?25+rnd(22):11+rnd(36); a=d+3+rnd(96-d-3); q.start=a; q.target=a-d; }
     else if(t==="gap"){ d=12+rnd(easy?14:30); a=3+rnd(96-d-3); q.start=a; q.target=a+d; }
     else { do{ q.target=12+rnd(80); }while(q.target%10===0); q.start=Math.floor(q.target/10)*10-10+rnd(5); if(q.target-q.start<6) q.start-=5; }
-    if(!S.tut&&D.first){ q={type:"add",step:1,hops:0,tries:0,path:[],start:20,target:32,tut:true}; }
+    if(!S.tut&&D.first&&L===1){ q={type:"add",step:1,hops:0,tries:0,path:[],start:20,target:32,tut:true}; }
     q.pos=q.start; return q;
   }
   function num(v){ return v*Q.step; }
