@@ -415,7 +415,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   }
   function nextGuest(){
     $("teach").hidden=true;
-    S.locked=false;
+    S.locked=false; $("msg").textContent=""; $("msg").className="msg";
     // adapting (adapt.js): a warm-up with a small answer, or a challenge from the next divisor with a big answer
     var dd=S.D.d, r5=function(n){ return 1+Math.floor(Math.random()*n); };
     S.f=Adapt.pick(S,{normal:S.D!==KITCHEN&&S.D!==BUSY,

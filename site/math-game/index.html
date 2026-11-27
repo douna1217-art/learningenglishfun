@@ -366,7 +366,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   function renderHp(){ $("hpFill").style.width=Math.max(0,B.hp/B.maxHp*100)+"%"; }
   function nextQ(){
     $("teach").hidden=true;
-    B.locked=false; B.left=B.hp;
+    B.locked=false; $("msg").textContent=""; $("msg").className="msg"; B.left=B.hp;
     // adapting (adapt.js): a warm-up from the easy end of the table, or a challenge from the next table's hard end
     var t=B.L.t, rnd5=function(n){ return 1+Math.floor(Math.random()*n); };
     B.q=Adapt.pick(B,{normal:B.L!==TRAIN&&B.L!==BOSS,
