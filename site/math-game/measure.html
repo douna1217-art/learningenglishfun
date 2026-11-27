@@ -31,6 +31,9 @@
   function scale(){ if(Math.random()<.5) return Q("scale",{u:"g",cap:1000,st:100,t:100*between(1,9),i:rnd(4)}); return Q("scale",{u:"kg",cap:10,st:1,t:between(1,9),i:rnd(4)}); }
   function batch(){ var p=between(2,5), n=between(2,Math.min(4,Math.floor(18/p))); return Q("batch",{u:"kg",cap:20,st:1,p:p,n:n,t:p*n,i:rnd(4)}); }
   function unit(){ return Q("unit",{h:Math.random()<.5?1:0,o:rnd(10)}); }
+  // Grams or Kilograms?: four things to put on the right scale (1 to 3 heavy ones)
+  function usort(){ var nh=1+rnd(3), hv=M.shuffle(HEAVY.map(function(x,i){ return i; })).slice(0,nh), lt=M.shuffle(LIGHT.map(function(x,i){ return i; })).slice(0,4-nh);
+    return Q("usort",{s:M.shuffle(hv.map(function(i){ return [1,i]; }).concat(lt.map(function(i){ return [0,i]; })))}); }
   function est(){ return Q("est",{i:rnd(EST.length)}); }
   var LEVELS=[
     {id:"p1",n:"First Drops",ic:"💧",gen:pour1},   // every line has its number
@@ -39,7 +42,7 @@
     {id:"p4",n:"Pour It Out",ic:"🫗",gen:sub},
     {id:"p5",n:"Weigh It",ic:"⚖️",gen:scale},
     {id:"p6",n:"Big Batches",ic:"🍯",gen:batch},
-    {id:"p7",n:"Grams or Kilograms?",ic:"🪶",gen:unit},
+    {id:"p7",n:"Grams or Kilograms?",ic:"🪶",gen:usort},
     {id:"p8",n:"Good Guess",ic:"🤔",gen:est}
   ];
   var POURING={pour:1,add:1,sub:1,scale:1,batch:1};
@@ -252,6 +255,8 @@
       if(q.kind==="batch") ui.words(q.n+" spells × "+q.p+" kilograms = ?");
       return;
     }
+    if(q.kind==="usort") return unitSort(q,ui);
+    if(q.kind==="est") return estLine(q,ui);
     if(q.kind==="unit"){
       var ob=q.h?HEAVY[q.o]:LIGHT[q.o];
       ui.task("Which unit would you use to measure the mass of a <b>"+ob[1]+"</b>?");
@@ -269,8 +274,56 @@
     ui.choices(M.shuffle(list));
     ui.hint("Think of things you know.");
   }
+  // ---------- hands-on: things onto the gram or kilogram scale; a guess slid onto the size line ----------
+  function thing(x){ return x[0]?HEAVY[x[1]]:LIGHT[x[1]]; }
+  function unitSort(q,ui){
+    ui.task("Put each thing on the right scale! <small>把每样东西放到合适的秤上</small>");
+    var f=ui.stage('<div class="tray">'+q.s.map(function(x,i){ var t=thing(x); return '<div class="piece" data-i="'+i+'" tabindex="0" role="button"><span class="em">'+t[0]+'</span><small>'+t[1]+'</small></div>'; }).join("")+'</div>'+
+      '<div class="baskets"><div class="basket" data-b="0"><b>⚖️ grams (g)</b><small>light things 轻的东西</small><div class="in"></div></div><div class="basket" data-b="1"><b>🏋️ kilograms (kg)</b><small>heavy things 重的东西</small><div class="in"></div></div></div>');
+    var left=q.s.length, sel=null;
+    function drop(p,b){
+      if(ui.locked()) return;
+      var x=q.s[+p.dataset.i], bx=f.querySelectorAll(".basket")[b].querySelector(".in");
+      p.style.transform=""; p.classList.remove("sel"); bx.appendChild(p);
+      if(x[0]!==b){ p.classList.add("bad"); ui.answer("x:"+x[0]+","+x[1]); return; }
+      p.classList.add("done"); blip(700,.1,"sine",.1);
+      if(--left===0) ui.answer("ok");
+    }
+    [].forEach.call(f.querySelectorAll(".piece"),function(p){
+      drag(p,function(cx,cy){ var el=hit(p,cx,cy,".basket"); if(el) drop(p,+el.dataset.b); else p.style.transform=""; });
+      p.addEventListener("click",function(){ if(p.classList.contains("done")||ui.locked()) return; if(sel) sel.classList.remove("sel"); sel=p; p.classList.add("sel"); });
+    });
+    [].forEach.call(f.querySelectorAll(".basket"),function(b){ b.addEventListener("click",function(){ if(sel&&!sel.classList.contains("done")){ var p=sel; sel=null; drop(p,+b.dataset.b); } }); });
+  }
+  // the four guesses, smallest to biggest (in grams or liters)
+  function estStops(e){
+    var o=e[3]==="L"?[[e[2],"L"],[e[2]*10,"L"],[e[2]>=10?e[2]/10:e[2]*100,"L"],[e[2]*1000,"L"]]:[[e[2],e[3]],[e[2],e[3]==="kg"?"g":"kg"],[e[2]*10,e[3]],[e[2]*100,e[3]]], seen={}, out=[];
+    o.forEach(function(x){ var k=x[0]+x[1]; if(!seen[k]){ seen[k]=1; out.push(x); } });
+    return out.sort(function(a,b){ return a[0]*(a[1]==="kg"?1000:1)-b[0]*(b[1]==="kg"?1000:1); });
+  }
+  function estLine(q,ui){
+    var e=EST[q.i], st=estStops(e), water=e[3]==="L";
+    ui.task("About how "+(water?"much water does <b>"+e[1]+"</b> hold":"heavy is <b>"+e[1]+"</b>")+"? Slide it to your guess! <small>估一估，把它拖到你猜的数上</small>");
+    var f=ui.stage('<div class="tray"><div class="piece big" data-i="0" tabindex="0" role="button"><span class="em">'+e[0]+'</span></div></div>'+
+      '<div class="line"><div class="ends"><span>'+(water?"less water 少":"lighter 轻")+'</span><span>'+(water?"more water 多":"heavier 重")+' ➜</span></div><div class="stops">'+
+      st.map(function(x){ return '<div class="stop" data-v="'+x[0]+x[1]+'"><div class="in"></div><b>'+x[0]+" "+x[1]+'</b></div>'; }).join("")+'</div></div>');
+    var p=f.querySelector(".piece"), sel=false;
+    function put(stop){ if(ui.locked()) return; p.style.transform=""; stop.querySelector(".in").appendChild(p); p.classList.add("done"); ui.answer(stop.dataset.v); }
+    drag(p,function(cx,cy){ var el=hit(p,cx,cy,".stop"); if(el) put(el); else p.style.transform=""; });
+    p.addEventListener("click",function(){ if(!ui.locked()){ sel=true; p.classList.add("sel"); } });
+    [].forEach.call(f.querySelectorAll(".stop"),function(el){ el.addEventListener("click",function(){ if(sel) put(el); }); });
+  }
+  function drag(el,end){
+    var sx=0,sy=0,on=false,moved=false;
+    el.addEventListener("pointerdown",function(e){ if(el.classList.contains("done")) return; on=true; moved=false; sx=e.clientX; sy=e.clientY; try{ el.setPointerCapture(e.pointerId); }catch(_){} });
+    el.addEventListener("pointermove",function(e){ if(!on) return; var dx=e.clientX-sx, dy=e.clientY-sy; if(!moved&&Math.abs(dx)+Math.abs(dy)<8) return; moved=true; el.classList.add("lift"); el.style.transform="translate("+dx+"px,"+dy+"px) scale(1.1)"; });
+    el.addEventListener("pointerup",function(e){ if(!on) return; on=false; el.classList.remove("lift"); if(moved) end(e.clientX,e.clientY); });
+    el.addEventListener("pointercancel",function(){ on=false; el.classList.remove("lift"); el.style.transform=""; });
+  }
+  function hit(el,x,y,sel){ el.style.visibility="hidden"; var t=document.elementFromPoint(x,y); el.style.visibility=""; return t&&t.closest?t.closest(sel):null; }
+
   function right(q){
-    if(POURING[q.kind]) return "ok";
+    if(POURING[q.kind]||q.kind==="usort") return "ok";
     if(q.kind==="unit") return q.h?"kg":"g";
     var e=EST[q.i]; return e[2]+e[3];
   }
@@ -282,6 +335,9 @@
     return "between "+Math.floor(v/step)*step+" and "+Math.ceil(v/step)*step+" "+unitWord(q,2);
   }
   function after(q,ok,given){
+    var fd=document.getElementById("field");
+    if(q.kind==="usort"&&!ok) [].forEach.call(fd.querySelectorAll(".piece"),function(p){ var x=q.s[+p.dataset.i]; fd.querySelectorAll(".basket")[x[0]].querySelector(".in").appendChild(p); p.classList.remove("bad","sel"); p.classList.add("done"); p.style.transform=""; });
+    if(q.kind==="est") [].forEach.call(fd.querySelectorAll(".stop"),function(el){ if(el.dataset.v===right(q)) el.classList.add("good"); else if(el.dataset.v===given) el.classList.add("bad"); });
     if(!POURING[q.kind]) return;
     stopPour();
     var d=document.querySelector(".dragon");
@@ -315,6 +371,7 @@
     if(q.kind==="sub") return q.s+" − "+q.b+" = "+(q.s-q.b)+" liters left.";
     if(q.kind==="scale") return "The scale needed to show "+q.t+" "+unitWord(q,q.t)+".";
     if(q.kind==="batch") return q.n+" × "+q.p+" = "+q.t+" kilograms.";
+    if(q.kind==="usort") return "Heavy things in kilograms: "+(q.s.filter(function(x){ return x[0]; }).map(function(x){ return thing(x)[1]; }).join(", ")||"none")+". Light things in grams.";
     if(q.kind==="unit") return "Use "+(q.h?"kilograms: a "+HEAVY[q.o][1]+" is heavy.":"grams: a "+LIGHT[q.o][1]+" is light.");
     var e=EST[q.i]; return e[1].charAt(0).toUpperCase()+e[1].slice(1)+" is about "+e[2]+" "+(e[3]==="kg"?"kilograms":e[3]==="g"?"grams":"liters")+".";
   }
@@ -323,6 +380,8 @@
     if(given==="overflow") return "🫧 Too much! The potion bubbled over!";
     if(given.indexOf("phase1")===0) return "💨 The first color was not right…";
     if(POURING[q.kind]) return "💨 Pfff… not quite the right amount.";
+    if(q.kind==="usort"){ var gx=given.slice(2).split(","), t=thing([+gx[0],+gx[1]]); return "Oops! A "+t[1]+" is "+(+gx[0]?"heavy":"light")+": it goes on the "+(+gx[0]?"kilogram":"gram")+" scale."; }
+    if(q.kind==="est") return "Not quite: look where the green one is.";
     return "Oops! The right answer is green.";
   }
   function teach(q,given){
@@ -348,6 +407,12 @@
       cn=isScale?"读秤：先看每一小格代表多少，指针停在目标刻度上再停手。快到的时候轻轻点，一点一点加。":"看准目标刻度线；快到的时候轻轻点按钮，一点一点加，液面碰到线就停。";
       return {steps:steps,cn:cn};
     }
+    if(q.kind==="usort"){
+      var gy=given.slice(2).split(","), ty=thing([+gy[0],+gy[1]]);
+      return {steps:["<b>Grams (g)</b> are for light things. A paper clip is about 1 gram.","<b>Kilograms (kg)</b> are for heavy things. A big dictionary is about 1 kilogram. 1 kilogram = 1,000 grams.",
+                     "A "+ty[1]+" is <b>"+(+gy[0]?"heavy":"light")+"</b>, so it goes on the <b>"+(+gy[0]?"kilogram":"gram")+"</b> scale."],
+              cn:"克（g）量轻的东西，比如回形针约 1 克；千克（kg）量重的东西，比如一本大词典约 1 千克。1 千克 = 1000 克。"};
+    }
     if(q.kind==="unit"){
       var ob=q.h?HEAVY[q.o]:LIGHT[q.o];
       return {steps:["<b>Grams (g)</b> are for light things. A paper clip is about 1 gram.","<b>Kilograms (kg)</b> are for heavy things. A big dictionary is about 1 kilogram. 1 kilogram = 1,000 grams.",
@@ -366,12 +431,25 @@
     if(q.kind==="scale") return q.t+" "+q.u;
     if(q.kind==="batch") return q.n+" × "+q.p+" kg = "+q.t+" kg";
     if(q.kind==="unit") return (q.h?HEAVY[q.o][1]:LIGHT[q.o][1])+": "+right(q);
+    if(q.kind==="usort") return "grams or kilograms: "+q.s.map(function(x){ return thing(x)[1]; }).join(", ");
     var e=EST[q.i]; return e[1]+" ≈ "+e[2]+" "+e[3];
   }
   M.run({title:"Potion Lab",icon:"🧪",tagline:helper()+" has the hiccups! Brew potions to help.",store:"potionLab.v2",gameId:"measure",cheer:true,hero:heroHtml,
     coin:{e:"💎",n:"crystals"},heart:"💜",leave:"Leave the lab",levelWord:"potion",doneWord:"Potions made",ownedWord:"In your lab",fastMs:15000,
     theme:{brand:"#6a4fc4",dark:"#4a3394",bg:"#f3efff",line:"#e2dafa",ink:"#2c2250",muted:"#6e6394",hero:"linear-gradient(180deg,#6a4fc4,#b38cf0)"},
-    css:'.dragon{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0 4px}.dragon .cure{grid-column:1/-1}.dragon .bubble{min-width:0;line-height:1.3}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.pet{width:64px;height:64px}.dragon .dr.pet svg{overflow:hidden}.dragon .dr.happy{animation:none}'+
+    css:'.task small{display:block;font-size:.8rem;opacity:.7;font-weight:800;margin-top:2px}'+
+      '.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;min-height:84px;margin:4px 0 12px}.tray:empty{min-height:0;margin:0}.piece{width:78px;height:84px;border-radius:16px;background:#fff;border:3px dashed #d9cff5;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;padding:2px}'+
+      '.piece .em{font-size:2.3rem;line-height:1.1}.piece small{font-weight:800;font-size:.68rem;line-height:1.1;text-align:center;color:var(--muted)}.piece.big{width:96px;height:96px}.piece.big .em{font-size:3.4rem}'+
+      '.piece.lift{border-style:solid;border-color:var(--brand);box-shadow:0 10px 18px rgba(40,20,90,.25);z-index:5;position:relative;cursor:grabbing}.piece.sel{border-style:solid;border-color:#f5b301;box-shadow:0 0 0 4px #ffe9a8}'+
+      '.piece.done{width:58px;height:62px;border:0;background:none;cursor:default}.piece.done .em{font-size:1.7rem}.piece.bad{animation:shake .4s}.piece.bad .em{filter:drop-shadow(0 0 4px #e0475b)}'+
+      '.baskets{display:grid;grid-template-columns:1fr 1fr;gap:10px}.basket{min-height:150px;border-radius:20px;background:#f1ecff;border:3px solid #d9cff5;padding:8px;text-align:center;cursor:pointer}.basket:nth-child(2){background:#fff1dc;border-color:#f3d6a6}'+
+      '.basket b{display:block;font-size:.95rem}.basket small{display:block;font-weight:800;opacity:.7;font-size:.75rem}.basket .in{display:flex;flex-wrap:wrap;justify-content:center;gap:2px;margin-top:6px}'+
+      '@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}'+
+      '.line .ends{display:flex;justify-content:space-between;font-weight:900;font-size:.8rem;color:var(--muted);margin:0 2px 6px}.line .stops{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:relative}'+
+      '.line .stops:before{content:"";position:absolute;left:4%;right:4%;top:44px;height:6px;border-radius:3px;background:linear-gradient(90deg,#d9cff5,var(--brand))}'+
+      '.stop{position:relative;cursor:pointer;text-align:center}.stop .in{height:90px;border-radius:16px;border:3px dashed #d9cff5;background:rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center}'+
+      '.stop b{display:block;margin-top:6px;font-size:1rem}.stop.good .in{border:3px solid #2f9e5b;background:#e3f6e8}.stop.good b{color:#1f6b3a}.stop.bad .in{border:3px solid #e0475b;background:#fde6ea}.stop .piece.done{width:auto;height:auto}.stop .piece.done .em{font-size:2.2rem}'+
+      '.dragon{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0 4px}.dragon .cure{grid-column:1/-1}.dragon .bubble{min-width:0;line-height:1.3}.dragon .dr{font-size:2.6rem;line-height:1;animation:hic 1.2s ease-in-out infinite}.dragon .dr.pet{width:64px;height:64px}.dragon .dr.pet svg{overflow:hidden}.dragon .dr.happy{animation:none}'+
       '.dragon .bubble{background:var(--bg);border-radius:14px;padding:4px 10px;font-weight:900;font-size:.95rem}.dragon .cure{width:100%;font-weight:800;font-size:.82rem;color:var(--muted);letter-spacing:1px}'+
       '.lab{position:relative;margin-top:2px;padding-top:30px}.bottle{position:absolute;left:50%;top:-4px;transform:translateX(-50%) rotate(140deg);font-size:2.1rem;z-index:2}'+
       '.stream{position:absolute;left:calc(50% - 4px);top:24px;width:8px;height:70px;border-radius:4px;opacity:0;transition:opacity .1s;z-index:1}'+
@@ -401,7 +479,7 @@
     useOwned:function(it){ if(!myPet()){ alert("Adopt a pet on the home page first, then it can wear this! 先在首页领养宠物，它才能穿戴。"); return; } wearPrize(it.id); },
     ownedText:function(it){ return wearing(it.id)?"✓ Wearing":"Tap to wear"; },
     shopTitle:"Prizes for your pet: crystals buy things to wear",shopCn:"用水晶给宠物买穿戴的奖励（首页宠物也能穿）",
-    kinds:{pour:"Pour to a line (read liters)",add:"Two-part recipes (+ on a scale)",sub:"Pour out (− on a scale)",scale:"Weigh in grams and kilograms",batch:"Big batches (× with kilograms)",unit:"Grams or kilograms?",est:"Estimate mass and volume"},
+    kinds:{pour:"Pour to a line (read liters)",add:"Two-part recipes (+ on a scale)",sub:"Pour out (− on a scale)",scale:"Weigh in grams and kilograms",batch:"Big batches (× with kilograms)",unit:"Grams or kilograms?",usort:"Grams or kilograms? (sorting)",est:"Estimate mass and volume"},
     panel:{title:"📖 Potion Book",cn:"药水图鉴：做出完美的药水来收集卡片",html:bookHtml},
     fromKey:fromKey,render:render,right:right,explain:explain,teach:teach,after:after,miss:miss,rightText:rightText,wrongText:wrongText});
   // for the tests: pour an exact amount without holding the button
