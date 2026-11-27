@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shop Day</title>
+<meta name="theme-color" content="#e0457b">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Shop Day: run your candy shop for a day. Customers line up; ring up their money and give change before they run out of patience. Earn money, upgrade your shop. Grade 2 money in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#3d2030;--muted:#8a6577;--brand:#e0457b;--dark:#a82a58;--bg:#fff3f7;--line:#f7d6e3}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:520px;margin:0 auto;padding:10px 12px 30px}
+@media(min-width:760px){.wrap{zoom:1.15}}@media(min-width:1000px){.wrap{zoom:1.3}}@media(min-width:1300px){.wrap{zoom:1.45}}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}.tbtn{background:#fff;border:1px solid var(--line);border-radius:13px;padding:8px 12px;font:inherit;font-weight:900;color:var(--ink);text-decoration:none;cursor:pointer}
+.hud{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 var(--line)}.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.25rem}
+.goal{height:12px;border-radius:7px;background:#f7d6e3;overflow:hidden;margin:2px 0 8px;position:relative}.goal i{display:block;height:100%;background:linear-gradient(90deg,#f5b301,#2f9e5b);width:0;transition:width .4s}
+/* the shop */
+.shop{position:relative;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#ffe4ef 0,#ffe4ef 58%,#e9b385 58%,#d99a66 100%);min-height:300px;padding:8px}
+.awning{height:26px;margin:-8px -8px 6px;background:repeating-linear-gradient(90deg,#e0457b 0 26px,#fff 26px 52px);border-radius:0 0 12px 12px}
+.decor{position:absolute;font-size:1.7rem;pointer-events:none}.sign{position:absolute;top:30px;left:50%;transform:translateX(-50%);font-family:Fredoka,sans-serif;font-weight:700;color:#fff;background:#3d2030;border-radius:10px;padding:2px 12px;font-size:.95rem;box-shadow:0 0 12px #ff8fb8}
+.queue{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:40px;min-height:150px;align-items:end}
+.cust{border:0;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0;font:inherit;animation:walk .5s ease-out}.cust .who{font-size:3rem;line-height:1}
+@keyframes walk{from{transform:translateX(-60px);opacity:0}}.cust.leave{animation:leave .6s forwards}@keyframes leave{to{transform:translateX(80px);opacity:0}}
+.order{background:#fff;border-radius:14px;padding:4px 8px;font-weight:900;box-shadow:0 3px 0 var(--line);font-size:.95rem;white-space:nowrap}.order .tag{background:#ffe36e;border-radius:6px;padding:0 5px;margin-left:3px}
+.pat{width:70px;height:8px;border-radius:5px;background:#fff;overflow:hidden}.pat i{display:block;height:100%;background:#2f9e5b}.pat i.low{background:#e0457b}
+.vip{position:absolute;top:-6px;right:6px;font-size:1.2rem}.spot{position:relative;display:flex;justify-content:center}
+.counter{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px}.keeper{width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:2.4rem}.keeper svg{overflow:hidden}
+.cmsg{font-weight:900;color:#6b3f1f;background:rgba(255,255,255,.7);border-radius:12px;padding:4px 10px;font-size:.85rem}
+/* the register (one customer at a time) */
+.reg{margin-top:10px;background:#fff;border-radius:20px;padding:10px;box-shadow:0 4px 0 var(--line)}.reg h3{margin:0 0 6px;font-size:1rem;text-align:center}.reg h3 small{display:block;font-weight:800;color:var(--muted);font-size:.75rem}
+.till{background:linear-gradient(180deg,#f3c9a0,#e9b385);border-radius:16px;min-height:76px;display:flex;flex-wrap:wrap;gap:3px;align-items:center;justify-content:center;padding:6px}.till .empty{font-weight:800;color:#8a5a37;font-size:.85rem}
+.tc,.cc{border:0;background:none;padding:0;cursor:pointer;line-height:0}.cc.fresh{animation:drop .25s ease-out}@keyframes drop{from{transform:translateY(-24px);opacity:.3}}
+.tray{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin-top:8px}.tray .tc{background:#fff4f8;border-radius:14px;padding:5px 5px 3px;box-shadow:0 3px 0 var(--line);display:flex;flex-direction:column;align-items:center;line-height:1}.tray .tc small{font-weight:800;font-size:.68rem;color:var(--muted)}
+.btns{display:flex;justify-content:center;gap:8px;margin-top:10px}.go{border:0;border-radius:999px;padding:12px 24px;font:inherit;font-weight:900;font-size:1.1rem;background:var(--brand);color:#fff;box-shadow:0 5px 0 var(--dark);cursor:pointer}.go.light{background:#fff;color:var(--ink);box-shadow:0 5px 0 var(--line)}
+.fb{text-align:center;font-weight:900;min-height:1.4em;margin-top:6px}.fb.bad{color:#d9443b}.fb.good{color:#2f9e5b}
+.idle{text-align:center;font-weight:900;color:var(--muted);padding:14px}
+/* the screens over the shop: the start of a day, the end of a day and the upgrade shop */
+.over{position:fixed;inset:0;background:rgba(61,32,48,.6);display:flex;align-items:center;justify-content:center;padding:14px;z-index:30}
+.card{background:#fff;border-radius:22px;padding:16px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center}.card h2{font-family:Fredoka,sans-serif;margin:0 0 4px}.card p{margin:4px 0;font-weight:800}
+.ups{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;text-align:left}.up{border:2px solid var(--line);border-radius:16px;padding:8px;background:#fff9fb;font:inherit;cursor:pointer}.up b{display:block}.up small{display:block;color:var(--muted);font-weight:800;font-size:.75rem}.up .pr{font-weight:900;color:var(--brand)}
+.up.own{background:#e3f6e8;border-color:#9ad9ae;cursor:default}.up:disabled{opacity:.45;cursor:default}.stars{font-size:1.6rem}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;color:#2f9e5b;font-size:1.3rem;animation:up 1s forwards;pointer-events:none;z-index:5}@keyframes up{to{transform:translateY(-40px);opacity:0}}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script>
+<div class="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.2rem">🍭 Shop Day <span id="dayN"></span></b><button class="tbtn" type="button" id="soundBtn">🔔</button></div>
+  <div class="hud"><div><small>Money today 今天赚的</small><b id="cash">$0.00</b></div><div><small>Time 时间</small><b id="clock">2:30</b></div><div><small>Happy 满意</small><b id="stars">⭐⭐⭐</b></div></div>
+  <div class="goal"><i id="goalBar"></i></div>
+  <div class="shop" id="shop"><div class="awning"></div><div id="decor"></div><div class="queue" id="queue"></div><div class="counter"><span class="keeper" id="keeper"></span><span class="cmsg" id="cmsg">Tap a customer to serve them! 点顾客来招待</span></div></div>
+  <div id="reg"></div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Shop Day: one day in the child's candy shop. Customers walk in (up to 3 wait at a time), each with an order and a patience bar. The
+  // child chooses whom to serve: tap a customer, then ring up the price with coins in the till (later days: they pay with a dollar and
+  // the child gives the change). Served = the money goes in the till, with a tip when the customer was served quickly; a customer whose
+  // patience runs out walks off and the shop loses a smile. The day lasts 150 seconds and has a money goal; at the end of the day the
+  // money goes to the bank and buys upgrades that change the shop (more patience, bigger tips, new treats, decorations).
+  var $=function(id){ return document.getElementById(id); };
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function pick(a){ return a[rnd(a.length)]; }
+  function money(c){ return c<100?c+"¢":"$"+Math.floor(c/100)+"."+(c%100<10?"0":"")+(c%100); }
+  function dollars(c){ return "$"+Math.floor(c/100)+"."+(c%100<10?"0":"")+(c%100); }
+  // ---------- saved: the day reached, the bank, the upgrades ----------
+  var STORE="shopDay.v1", S={day:1,bank:0,ups:{},best:{}};
+  try{ var s0=JSON.parse(localStorage.getItem(STORE)); if(s0&&typeof s0==="object"){ S.day=s0.day||1; S.bank=s0.bank||0; S.ups=s0.ups||{}; S.best=s0.best||{}; S.sound=s0.sound; } }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify(S)); }catch(e){} }
+  var sound=S.sound!==false;
+  $("soundBtn").textContent=sound?"🔔":"🔕";
+  $("soundBtn").onclick=function(){ sound=!sound; S.sound=sound; save(); $("soundBtn").textContent=sound?"🔔":"🔕"; };
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  var actx=null;
+  function tone(fs,len,type){ if(!sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  var pet=window.MathPet?MathPet.get():null;
+  $("keeper").innerHTML=pet?MathPet.pic(pet,"happy",56):"🧑‍🍳";
+
+  // ---------- upgrades ----------
+  var UPS=[
+    {id:"chairs",e:"🪑",n:"Comfy chairs",cn:"舒服的椅子",p:150,d:"Customers wait longer. 顾客更有耐心"},
+    {id:"music",e:"🎶",n:"Happy music",cn:"快乐的音乐",p:120,d:"Bigger tips. 小费变多"},
+    {id:"icecream",e:"🍦",n:"Ice cream machine",cn:"冰淇淋机",p:250,d:"Sell ice cream for more money. 卖冰淇淋，赚得更多"},
+    {id:"neon",e:"✨",n:"Neon sign",cn:"霓虹招牌",p:200,d:"More customers come in. 来的顾客更多"},
+    {id:"flowers",e:"🌷",n:"Flowers",cn:"鲜花",p:80,d:"A prettier shop. 店更漂亮"},
+    {id:"balloons",e:"🎈",n:"Balloons",cn:"气球",p:100,d:"A party shop! 派对气氛"},
+    {id:"cake",e:"🎂",n:"Cake counter",cn:"蛋糕柜台",p:400,d:"Sell cakes: big prices with dollars. 卖蛋糕，要用美元"},
+    {id:"cat",e:"🐈",n:"Shop cat",cn:"店猫",p:300,d:"Customers smile: one extra happy star. 多一颗满意星"}
+  ];
+  function has(id){ return !!S.ups[id]; }
+  // ---------- one day ----------
+  var DAY_SECONDS=150, D=null, tickT=0, raf=0;
+  var GUESTS=["🐻","🐰","🐼","🦊","🐨","🐯","🐷","🐸","🐵","🐶","🐱","🦁","🐮","🐹","🐧","🦄"];
+  var TREATS=[["🍭",8,30],["🍬",3,20],["🍫",25,60],["🍩",30,70],["🧁",35,80],["🍪",10,45]];
+  function kinds(){ return S.day>=2?[1,5,10,25]:[1,5,10]; }
+  function goalFor(day){ return 150+day*60; }
+  function newCustomer(){
+    var treats=TREATS.slice(); if(has("icecream")) treats.push(["🍦",50,95]); if(has("cake")) treats.push(["🎂",110,190]);
+    var t=pick(treats), price=t[1]+rnd(t[2]-t[1]+1);
+    if(price>=100&&!has("cake")) price=99;
+    var vip=Math.random()<.12, change=S.day>=3&&price<100&&Math.random()<.35;
+    var pat=(change?30:22)+(has("chairs")?10:0)+(price>=100?8:0);
+    return {who:pick(GUESTS),e:t[0],price:price,vip:vip,change:change,paid:change?100:0,pat:pat,left:pat,id:Math.random()};
+  }
+  function startDay(){
+    D={t:DAY_SECONDS,cash:0,served:0,lost:0,stars:3+(has("cat")?1:0),q:[],next:2,cur:null,tray:[],goal:goalFor(S.day)};
+    $("dayN").textContent="· Day "+S.day; drawDecor(); drawQueue(); drawHud(); $("reg").innerHTML="";
+    say("Open! 开门营业！"); tone([523,659,784],.12);
+    cancelAnimationFrame(raf); tickT=0; raf=requestAnimationFrame(loop);
+  }
+  function loop(t){
+    if(!D) return;
+    if(!tickT) tickT=t;
+    var dt=Math.min(.25,(t-tickT)/1000); tickT=t;
+    D.t-=dt; D.next-=dt;
+    if(D.next<=0&&D.q.length<3&&D.t>8){ D.q.push(newCustomer()); D.next=(has("neon")?4:6)+Math.random()*3; tone([880],.05,"sine"); drawQueue(); }
+    D.q.slice().forEach(function(c){ if(c===D.cur) c.left-=dt*.35; else c.left-=dt; if(c.left<=0) walkOff(c); });
+    updatePatience(); drawHud();
+    if(D.t<=0||D.stars<=0) return endDay();
+    raf=requestAnimationFrame(loop);
+  }
+  function walkOff(c){
+    var i=D.q.indexOf(c); if(i<0) return;
+    D.q.splice(i,1); D.lost++; D.stars--;
+    if(D.cur===c){ D.cur=null; $("reg").innerHTML=""; }
+    say(c.who+" got tired of waiting! 😠 顾客等太久走了"); tone([300,220],.15,"sawtooth"); drawQueue();
+  }
+  function drawHud(){
+    $("cash").textContent=dollars(D.cash);
+    var s=Math.max(0,Math.ceil(D.t)); $("clock").textContent=Math.floor(s/60)+":"+(s%60<10?"0":"")+(s%60);
+    $("stars").textContent=D.stars>0?new Array(D.stars+1).join("⭐"):"—";
+    $("goalBar").style.width=Math.min(100,D.cash/D.goal*100)+"%";
+  }
+  function drawDecor(){
+    var h=""; if(has("neon")) h+='<div class="sign">✨ SWEET SHOP ✨</div>';
+    if(has("flowers")) h+='<span class="decor" style="left:6px;top:150px">🌷</span><span class="decor" style="right:6px;top:150px">🌷</span>';
+    if(has("balloons")) h+='<span class="decor" style="left:10px;top:30px">🎈</span><span class="decor" style="right:12px;top:34px">🎈</span>';
+    if(has("music")) h+='<span class="decor" style="left:46%;top:150px;font-size:1.2rem">🎶</span>';
+    if(has("cat")) h+='<span class="decor" style="right:16px;bottom:8px">🐈</span>';
+    if(has("chairs")) h+='<span class="decor" style="left:10px;bottom:8px">🪑</span>';
+    $("decor").innerHTML=h;
+  }
+  function drawQueue(){
+    var h="";
+    for(var i=0;i<3;i++){ var c=D.q[i];
+      if(!c){ h+='<div class="spot"></div>'; continue; }
+      h+='<div class="spot"><button type="button" class="cust" data-i="'+i+'">'+(c.vip?'<span class="vip">👑</span>':'')+'<span class="order">'+c.e+(c.change?' <span class="tag">'+money(c.price)+'</span> 💵$1':' <span class="tag">'+money(c.price)+'</span>')+'</span><span class="who">'+c.who+'</span><span class="pat"><i style="width:'+(c.left/c.pat*100)+'%"></i></span></button></div>';
+    }
+    $("queue").innerHTML=h;
+  }
+  function updatePatience(){ [].forEach.call(document.querySelectorAll(".cust"),function(b){ var c=D.q[+b.dataset.i]; if(!c) return; var i=b.querySelector(".pat i"); var r=c.left/c.pat; i.style.width=Math.max(0,r*100)+"%"; i.className=r<.3?"low":""; }); }
+  function say(t){ $("cmsg").textContent=t; }
+  $("queue").addEventListener("click",function(e){ if(!D) return; var b=e.target.closest?e.target.closest(".cust"):null; if(!b) return; var c=D.q[+b.dataset.i]; if(!c) return; serve(c); });
+  // ---------- the register ----------
+  function coinSvg(v,size){
+    if(v===100) return '<svg viewBox="0 0 80 38" width="'+(size*1.9)+'" height="'+(size*.9)+'"><rect x="1.5" y="1.5" width="77" height="35" rx="5" fill="#a8dba0" stroke="#3f7a39" stroke-width="3"/><circle cx="40" cy="19" r="9" fill="#8bc985" stroke="#3f7a39" stroke-width="1.5"/><text x="40" y="24" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="13" fill="#1f4a1c">$1</text></svg>';
+    var sc={1:.88,5:1,10:.8,25:1.12}[v], r=Math.round(size*sc/2), cu=v===1;
+    return '<svg viewBox="0 0 '+(2*r+4)+' '+(2*r+4)+'" width="'+(2*r+4)+'" height="'+(2*r+4)+'"><circle cx="'+(r+2)+'" cy="'+(r+2)+'" r="'+r+'" fill="'+(cu?"#d9884a":"#d8dce2")+'" stroke="'+(cu?"#8a4a1c":"#868d97")+'" stroke-width="3"/><text x="'+(r+2)+'" y="'+(r+2+Math.round(r*.32))+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="'+Math.round(r*.82)+'" fill="'+(cu?"#5a2a08":"#3c434c")+'">'+v+'¢</text></svg>';
+  }
+  var NAMES={1:"penny",5:"nickel",10:"dime",25:"quarter"};
+  function serve(c){
+    D.cur=c; D.tray=[]; tone([660],.05);
+    var goal=c.change?c.paid-c.price:c.price;
+    $("reg").innerHTML='<div class="reg"><h3>'+c.who+' '+(c.change?"buys "+c.e+" for <b>"+money(c.price)+"</b> and pays <b>$1.00</b>. Give the change!":"wants "+c.e+": ring up <b>"+money(c.price)+"</b>!")+
+      '<small>'+(c.change?"找零：$1.00 − "+money(c.price):"把 "+money(c.price)+" 放进收银台")+'</small></h3><div class="till" id="till"></div><div class="tray" id="tray">'+kinds().map(function(v){ return '<button type="button" class="tc" data-v="'+v+'">'+coinSvg(v,42)+'<small>'+NAMES[v]+'</small></button>'; }).join("")+'</div>'+
+      '<div class="fb" id="fb"></div><div class="btns"><button type="button" class="go light" id="clear">Clear 清空</button><button type="button" class="go" id="ring">'+(c.change?"Give change ✓":"Ring it up ✓")+'</button></div></div>';
+    var fresh=-1;
+    function draw(){ $("till").innerHTML=D.tray.map(function(v,i){ return '<button type="button" class="cc'+(i===fresh?" fresh":"")+'" data-i="'+i+'">'+coinSvg(v,34)+'</button>'; }).join("")||'<span class="empty">Tap coins below 点下面的硬币</span>'; }
+    $("tray").onclick=function(e){ var b=e.target.closest?e.target.closest(".tc"):null; if(!b||D.cur!==c||D.tray.length>=15) return; var v=+b.dataset.v; D.tray.push(v); D.tray.sort(function(a,b2){ return b2-a; }); fresh=D.tray.lastIndexOf(v); tone([1320,1760],.04); draw(); };
+    $("till").onclick=function(e){ var b=e.target.closest?e.target.closest(".cc"):null; if(!b) return; D.tray.splice(+b.dataset.i,1); fresh=-1; tone([520],.04); draw(); };
+    $("clear").onclick=function(){ D.tray=[]; draw(); };
+    $("ring").onclick=function(){
+      if(D.cur!==c) return;
+      var sum=D.tray.reduce(function(a,b2){ return a+b2; },0);
+      if(sum!==goal){ $("fb").className="fb bad"; $("fb").textContent="That is "+money(sum)+". "+(sum<goal?"Not enough: count again! 不够，再数数":"Too much: take some back! 太多了")+""; tone([260,200],.12,"sawtooth"); c.left-=2; return; }
+      done(c);
+    };
+    draw();
+  }
+  function done(c){
+    var fast=c.left/c.pat, tip=fast>.6?(has("music")?10:5):fast>.3?(has("music")?5:0):0, earn=(c.change?c.price:c.price)*(c.vip?2:1)+tip;
+    D.cash+=earn; D.served++;
+    var i=D.q.indexOf(c); if(i>=0) D.q.splice(i,1);
+    D.cur=null; $("reg").innerHTML="";
+    say(pick(["Yummy! Thank you! 😋","Ka-ching! 💰","Best shop ever! 💖"])+(tip?" Tip +"+tip+"¢!":"")+(c.vip?" VIP ×2!":""));
+    tone([784,988,1319],.08); confetti(); drawQueue(); drawHud();
+    var f=document.createElement("span"); f.className="float"; f.textContent="+"+money(earn); f.style.left="44%"; f.style.top="60px"; $("shop").appendChild(f); setTimeout(function(){ f.remove(); },1000);
+    if(pet) MathPet.feed(1);
+  }
+  function endDay(){
+    cancelAnimationFrame(raf);
+    var d=D; D=null; $("reg").innerHTML="";
+    var met=d.cash>=d.goal&&d.stars>0;
+    S.bank+=d.cash; if(met){ S.best[S.day]=Math.max(S.best[S.day]||0,d.cash); S.day++; } save();
+    try{ if(window.parent&&window.parent!==window&&window.parent.__trackEvent) window.parent.__trackEvent("game_level_end",{game:"shop-day",level:"day"+(met?S.day-1:S.day),won:met,cash:d.cash,served:d.served,lost:d.lost}); }catch(e){}
+    tone(met?[523,659,784,1047]:[392,330,262],.16);
+    overlay('<h2>'+(met?"🎉 Great day!":d.stars<=0?"😟 Too many unhappy customers":"⏰ Closing time!")+'</h2><p>'+(met?"今天的目标达成了！":"目标还差一点，再试一次！")+'</p>'+
+      '<p style="font-size:1.6rem;font-family:Fredoka,sans-serif">'+dollars(d.cash)+' <small style="font-size:.9rem;color:var(--muted)">/ goal '+dollars(d.goal)+'</small></p><p>'+d.served+' customers served · '+d.lost+' walked off</p>'+
+      '<p>🏦 Bank 存款: <b>'+dollars(S.bank)+'</b></p><div class="btns"><button type="button" class="go light" id="upBtn">🛠️ Upgrade shop 升级店铺</button><button type="button" class="go" id="nextBtn">'+(met?"Day "+S.day+" ▶":"Try again ▶")+'</button></div>');
+    $("upBtn").onclick=upgrades; $("nextBtn").onclick=function(){ closeOverlay(); startDay(); };
+  }
+  function upgrades(){
+    overlay('<h2>🛠️ Upgrade your shop</h2><p>🏦 Bank 存款: <b>'+dollars(S.bank)+'</b></p><div class="ups">'+UPS.map(function(u){ var own=has(u.id);
+      return '<button type="button" class="up'+(own?" own":"")+'" data-id="'+u.id+'"'+(own||S.bank<u.p?" disabled":"")+'><b>'+u.e+" "+u.n+'</b><small>'+u.cn+'</small><small>'+u.d+'</small><span class="pr">'+(own?"✓ In your shop":dollars(u.p))+'</span></button>'; }).join("")+'</div><div class="btns"><button type="button" class="go" id="backBtn">Back ▶</button></div>');
+    [].forEach.call(document.querySelectorAll(".up"),function(b){ b.onclick=function(){ var u=UPS.filter(function(x){ return x.id===b.dataset.id; })[0]; if(!u||has(u.id)||S.bank<u.p) return; S.bank-=u.p; S.ups[u.id]=1; save(); tone([659,880,1047],.12); confetti(); upgrades(); }; });
+    $("backBtn").onclick=function(){ closeOverlay(); intro(); };
+  }
+  function overlay(h){ closeOverlay(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML='<div class="card">'+h+'</div>'; document.body.appendChild(o); }
+  function closeOverlay(){ var o=$("over"); if(o) o.remove(); }
+  function intro(){
+    $("dayN").textContent="· Day "+S.day; drawDecorIdle();
+    overlay('<h2>🍭 Day '+S.day+' at your shop</h2><p>第 '+S.day+' 天营业</p><p style="font-size:1.1rem">Goal 目标: <b>'+dollars(goalFor(S.day))+'</b> in 2½ minutes</p>'+
+      '<div style="text-align:left;font-weight:800;font-size:.9rem;margin-top:8px;line-height:1.5">👆 Tap a customer to serve them. 点顾客来招待<br>🪙 Put the right coins in the till. 放对硬币<br>⏳ Be quick: watch their patience bar! 注意耐心条<br>'+
+      (S.day>=3?"💵 Some pay with $1: give the change! 有的付 1 美元，要找零<br>":"")+(S.day>=2?"🪙 Quarters (25¢) today! 今天有 25 美分<br>":"")+'</div>'+
+      '<p>🏦 Bank 存款: '+dollars(S.bank)+'</p><div class="btns"><button type="button" class="go light" id="upBtn">🛠️ Upgrades</button><button type="button" class="go" id="openBtn">Open the shop! 开门 ▶</button></div>');
+    $("upBtn").onclick=upgrades; $("openBtn").onclick=function(){ closeOverlay(); startDay(); };
+  }
+  function drawDecorIdle(){ var tmp=D; D={}; drawDecor(); D=tmp; $("queue").innerHTML='<div class="spot"></div><div class="idle">Closed 打烊</div><div class="spot"></div>'; }
+  // ---------- confetti ----------
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], an=0;
+  function confetti(){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<40;i++) parts.push({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*.3,vx:(Math.random()-.5)*8,vy:-Math.random()*8-2,l:50,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!an) an=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.35; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,7,7); return p.l>0; }); an=parts.length?requestAnimationFrame(fx):0; if(!an) cx.clearRect(0,0,cv.width,cv.height); }
+  window.__shop={day:function(){ return D; },saved:function(){ return S; },end:function(){ if(D){ D.t=0; } }};
+  intro();
+})();
+</script>
+</body></html>

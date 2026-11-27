@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ten Pop</title>
+<meta name="theme-color" content="#7a3fd0">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Ten Pop: number blocks rise from the bottom. Tap blocks that make 10 to pop them before they reach the top! Grade 2 making ten in English.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+:root{--ink:#2a1d4a;--muted:#7a6f99;--brand:#7a3fd0;--bg:#f3efff}
+*{box-sizing:border-box}html,body{margin:0}body{background:var(--bg);color:var(--ink);font-family:Nunito,ui-rounded,"Trebuchet MS",Arial,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+.wrap{max-width:520px;margin:0 auto;padding:10px 12px 30px}
+@media(min-width:760px){.wrap{zoom:1.15}}@media(min-width:1000px){.wrap{zoom:1.3}}@media(min-width:1300px){.wrap{zoom:1.45}}
+.top{display:flex;align-items:center;gap:8px;justify-content:space-between}.tbtn{background:#fff;border:1px solid #ddd3fa;border-radius:13px;padding:8px 12px;font-weight:900;color:var(--ink);text-decoration:none;font:inherit;font-weight:900;cursor:pointer}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #ddd3fa}.hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.4rem}
+.game{position:relative;display:grid;grid-template-columns:1fr 74px;gap:8px}
+.board{position:relative;background:linear-gradient(180deg,#2a1d4a,#4a2f86);border-radius:20px;padding:6px;display:grid;grid-template-columns:repeat(6,1fr);grid-template-rows:repeat(9,1fr);gap:4px;aspect-ratio:6/9;touch-action:manipulation}
+.danger{position:absolute;left:6px;right:6px;top:6px;height:calc((100% - 12px)/9);border-radius:10px;background:repeating-linear-gradient(45deg,rgba(255,80,110,.25) 0 8px,transparent 8px 16px);pointer-events:none;opacity:0;transition:opacity .3s}.danger.on{opacity:1}
+.blk{border:0;border-radius:12px;font-family:Fredoka,sans-serif;font-weight:700;font-size:clamp(1.3rem,6vw,2rem);color:#fff;cursor:pointer;box-shadow:inset 0 -5px 0 rgba(0,0,0,.18);transition:transform .12s;padding:0}
+.blk.sel{transform:scale(.88);outline:4px solid #fff;outline-offset:-4px}.blk.pop{animation:pop .35s forwards}.blk.bad{animation:shake .35s}.blk.new{animation:rise .3s}
+@keyframes pop{50%{transform:scale(1.35)}100%{transform:scale(0);opacity:0}}@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}@keyframes rise{from{transform:translateY(60%)}}
+.c1{background:#ff7a8a}.c2{background:#ff9f43}.c3{background:#f5b301}.c4{background:#7cc47f}.c5{background:#2fb3a6}.c6{background:#4aa3ff}.c7{background:#5b6cff}.c8{background:#a46bff}.c9{background:#e05cc0}
+.side{display:flex;flex-direction:column;align-items:center;gap:8px}.pet{width:70px;height:70px;display:flex;align-items:center;justify-content:center;font-size:3rem}.pet svg{overflow:hidden}.pet.cheer{animation:hop .5s 2}
+@keyframes hop{50%{transform:translateY(-12px)}}.bub{background:#fff;border-radius:14px;padding:6px;font-weight:900;font-size:.78rem;text-align:center;min-height:2.4em;box-shadow:0 3px 0 #ddd3fa}
+.sum{background:#fff;border-radius:16px;padding:6px;text-align:center;width:100%;box-shadow:0 3px 0 #ddd3fa}.sum small{display:block;font-weight:800;color:var(--muted);font-size:.65rem}.sum b{font-family:Fredoka,sans-serif;font-size:1.9rem}.sum b.full{color:#2f9e5b}
+.next{height:10px;border-radius:6px;background:#ddd3fa;overflow:hidden;margin-top:8px}.next i{display:block;height:100%;background:linear-gradient(90deg,#f5b301,#ff7a8a);width:100%}
+.rule{text-align:center;font-weight:800;color:var(--muted);font-size:.85rem;margin-top:6px}
+.float{position:absolute;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.4rem;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);pointer-events:none;animation:up 1s forwards;z-index:5}@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.over{position:absolute;inset:0;background:rgba(42,29,74,.82);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;padding:16px;z-index:6}
+.over h2{font-family:Fredoka,sans-serif;margin:0 0 6px;font-size:1.9rem}.over p{margin:4px 0;font-weight:800}.over .big{font-family:Fredoka,sans-serif;font-size:2.6rem}
+.go{border:0;border-radius:999px;padding:13px 28px;font:inherit;font-weight:900;font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00;cursor:pointer;margin-top:12px}
+.how{background:#fff;color:var(--ink);border-radius:16px;padding:10px 12px;font-weight:800;font-size:.9rem;text-align:left;margin-top:8px;max-width:300px}.how div{margin:3px 0}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script>
+<div class="wrap">
+  <div class="top"><a class="tbtn" href="../index.html" id="home">← Home</a><b style="font-family:Fredoka,sans-serif;font-size:1.3rem">🔟 Ten Pop</b><button class="tbtn" type="button" id="soundBtn">🔔</button></div>
+  <div class="hud"><div><small>Score 分数</small><b id="score">0</b></div><div><small>Level 关</small><b id="lvl">1</b></div><div><small>Best 最高</small><b id="best">0</b></div></div>
+  <div class="game">
+    <div class="board" id="board"><div class="danger" id="danger"></div></div>
+    <div class="side"><div class="pet" id="pet"></div><div class="bub" id="bub">Make 10! 凑十！</div><div class="sum"><small>Your total 你选的和</small><b id="sum">0</b><small>/ 10</small></div></div>
+  </div>
+  <div class="next"><i id="nextBar"></i></div>
+  <div class="rule">Tap blocks that make <b>10</b> together (2 or more). They pop! 点几个加起来正好是 10 的数字块</div>
+</div>
+<canvas id="fx"></canvas>
+<script>
+(function(){
+  "use strict";
+  // Ten Pop: number blocks rise from the bottom of a 6 x 9 board, one new row every few seconds. Tap blocks that add up to exactly 10
+  // (two or more, anywhere on the board) and they pop; the blocks above fall down. More blocks in one pop and quick pops in a row (combo)
+  // score more. A pick that goes over 10 fizzles. The rows come faster every level; when a column reaches the top, the game is over.
+  var $=function(id){ return document.getElementById(id); };
+  var W=6, H=9, cols, sel=[], score=0, level=1, combo=0, lastPop=0, best=0, rowEvery=8000, rowT=0, last=0, playing=false, raf=0, sound=true, popped=0;
+  var STORE="tenPop.v1";
+  try{ var st=JSON.parse(localStorage.getItem(STORE))||{}; best=st.best||0; if(st.sound===false) sound=false; }catch(e){}
+  function save(){ try{ localStorage.setItem(STORE,JSON.stringify({best:best,sound:sound})); }catch(e){} }
+  $("best").textContent=best;
+  // ---------- sound ----------
+  var actx=null;
+  function tone(fs,len,type){ if(!sound) return; try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); fs.forEach(function(f,i){ var t=actx.currentTime+i*len*.7, o=actx.createOscillator(), g=actx.createGain(); o.type=type||"triangle"; o.frequency.value=f; g.gain.setValueAtTime(.13,t); g.gain.exponentialRampToValueAtTime(.001,t+len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+len+.02); }); }catch(e){} }
+  $("soundBtn").onclick=function(){ sound=!sound; $("soundBtn").textContent=sound?"🔔":"🔕"; save(); };
+  $("soundBtn").textContent=sound?"🔔":"🔕";
+  try{ if(window.self!==window.top) $("home").style.visibility="hidden"; }catch(e){}
+  // ---------- the pet ----------
+  var pet=window.MathPet?MathPet.get():null;
+  $("pet").innerHTML=pet?MathPet.pic(pet,"happy",70):"🐣";
+  function say(t){ $("bub").textContent=t; var p=$("pet"); p.classList.remove("cheer"); void p.offsetWidth; p.classList.add("cheer"); }
+  // ---------- the board ----------
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  // a new number: mostly ones that have a partner on the board, so there is always something to pop
+  function newNum(){
+    var all=[]; cols.forEach(function(c){ c.forEach(function(v){ all.push(v); }); });
+    if(all.length&&Math.random()<.55){ var v=all[rnd(all.length)]; if(v<10) return 10-v; }
+    return 1+rnd(9);
+  }
+  function addRow(){
+    for(var x=0;x<W;x++) cols[x].unshift(newNum());
+    sel=sel.map(function(s){ return [s[0],s[1]+1]; });
+    if(cols.some(function(c){ return c.length>H; })){ gameOver(); return; }
+    draw(true); tone([220],.08,"sine");
+  }
+  function draw(rose){
+    var b=$("board"), h='<div class="danger'+(cols.some(function(c){ return c.length>=H-1; })?" on":"")+'" id="danger"></div>';
+    for(var y=H-1;y>=0;y--) for(var x=0;x<W;x++){
+      var v=cols[x][y];
+      if(v==null) continue;   // blocks are placed by their row and column; empty cells stay empty
+      var isSel=sel.some(function(s){ return s[0]===x&&s[1]===y; });
+      h+='<button type="button" class="blk c'+v+(isSel?" sel":"")+(rose&&y===0?" new":"")+'" data-x="'+x+'" data-y="'+y+'" style="grid-column:'+(x+1)+';grid-row:'+(H-y)+'">'+v+'</button>';
+    }
+    b.innerHTML=h;
+    var s=selSum(); $("sum").textContent=s; $("sum").className=s===10?"full":"";
+  }
+  function selSum(){ return sel.reduce(function(t,s){ return t+cols[s[0]][s[1]]; },0); }
+  $("board").addEventListener("click",function(e){
+    if(!playing) return;
+    var b=e.target.closest?e.target.closest(".blk"):null; if(!b) return;
+    var x=+b.dataset.x, y=+b.dataset.y, i=-1;
+    sel.forEach(function(s,k){ if(s[0]===x&&s[1]===y) i=k; });
+    if(i>=0){ sel.splice(i,1); tone([440],.05); draw(); return; }
+    sel.push([x,y]); tone([520+sel.length*120],.06);
+    var s=selSum();
+    if(s===10) return pop();
+    if(s>10){ // too much: the pick fizzles
+      [].forEach.call(document.querySelectorAll(".blk.sel"),function(el){ el.classList.add("bad"); });
+      tone([200,150],.12,"sawtooth"); say("Oops, "+s+" is more than 10! 超过 10 啦"); combo=0;
+      setTimeout(function(){ sel=[]; draw(); },350); return;
+    }
+    draw();
+  });
+  function pop(){
+    var now=performance.now(), n=sel.length;
+    combo=(now-lastPop<3500)?combo+1:1; lastPop=now;
+    var pts=10*n*(n>2?2:1)*combo; score+=pts; popped++;
+    var b=$("board").getBoundingClientRect();
+    sel.forEach(function(s){ var el=document.querySelector('.blk[data-x="'+s[0]+'"][data-y="'+s[1]+'"]'); if(el){ el.classList.add("pop"); var r=el.getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/2); } });
+    var f=document.createElement("span"); f.className="float"; f.textContent="+"+pts+(combo>1?" ×"+combo:""); f.style.left="40%"; f.style.top="40%"; $("board").appendChild(f); setTimeout(function(){ f.remove(); },1000);
+    tone(n>2?[660,880,1100,1320]:[660,880,1100],.09);
+    say(n>2?n+" blocks! Super! 一次消 "+n+" 个！":combo>2?"Combo ×"+combo+"! 连击！":["Pop! 啪！","Ten! 凑成十！","Nice! 漂亮！"][rnd(3)]);
+    var gone=sel.slice(); sel=[];
+    setTimeout(function(){
+      gone.sort(function(a,c){ return c[1]-a[1]; }).forEach(function(s){ cols[s[0]].splice(s[1],1); });
+      $("score").textContent=score;
+      var nl=1+Math.floor(score/250); if(nl>level){ level=nl; rowEvery=Math.max(2600,8000-level*700); $("lvl").textContent=level; say("Level "+level+"! Faster! 加速！"); tone([523,659,784,1047],.12); }
+      if(cols.every(function(c){ return !c.length; })){ score+=100; say("Board clear! +100 清空！"); for(var k=0;k<3;k++) addRow(); }
+      draw();
+    },330);
+  }
+  // ---------- the clock: a new row every few seconds ----------
+  function loop(t){
+    if(!playing) return;
+    if(!last) last=t;
+    rowT+=t-last; last=t;
+    $("nextBar").style.width=Math.max(0,100-rowT/rowEvery*100)+"%";
+    if(rowT>=rowEvery){ rowT=0; addRow(); }
+    raf=requestAnimationFrame(loop);
+  }
+  function start(){
+    cols=[]; for(var x=0;x<W;x++) cols.push([]);
+    score=0; level=1; combo=0; rowEvery=8000; rowT=0; last=0; sel=[]; popped=0;
+    $("score").textContent=0; $("lvl").textContent=1;
+    for(var r=0;r<4;r++) for(var x2=0;x2<W;x2++) cols[x2].unshift(newNum());
+    playing=true; draw(); say("Make 10! 凑十！");
+    if(window.GameProgress) GameProgress.start("ten-pop","endless");
+    cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
+  }
+  function gameOver(){
+    playing=false; cancelAnimationFrame(raf);
+    var nb=score>best; if(nb){ best=score; $("best").textContent=best; } save();
+    tone([392,330,262],.25,"sine");
+    try{ if(window.parent&&window.parent!==window&&window.parent.__trackEvent) window.parent.__trackEvent("game_level_end",{game:"ten-pop",level:"endless",won:false,score:score,pops:popped,level_reached:level}); }catch(e){}
+    if(pet&&popped) MathPet.feed(Math.min(10,popped));
+    draw();
+    var o=document.createElement("div"); o.className="over";
+    o.innerHTML='<h2>'+(nb?"🏆 New best!":"The blocks reached the top!")+'</h2><p>'+(nb?"新纪录！":"方块碰到顶啦！")+'</p><div class="big">'+score+'</div><p>'+popped+' pops · level '+level+'</p><button type="button" class="go" id="again">Play again 再来一次</button>';
+    $("board").appendChild(o); $("again").onclick=start;
+  }
+  function intro(){
+    cols=[]; for(var x=0;x<W;x++) cols.push([]);
+    draw();
+    var o=document.createElement("div"); o.className="over";
+    o.innerHTML='<h2>🔟 Ten Pop</h2><div class="how"><div>👆 Tap blocks that make <b>10</b>: 3 + 7, or 2 + 3 + 5!</div><div>💥 They pop. More blocks = more points.</div><div>⏫ New rows rise from the bottom. Don\'t let them reach the top!</div><div style="color:var(--muted)">点加起来正好是 10 的数字块，它们就会消掉。别让方块堆到顶！</div></div><button type="button" class="go" id="play">Play! 开始</button>'+(best?'<p>Best 最高分: '+best+'</p>':'');
+    $("board").appendChild(o); $("play").onclick=start;
+  }
+  // ---------- confetti bits ----------
+  var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
+  function burst(x,y){ cv.width=innerWidth; cv.height=innerHeight; for(var i=0;i<14;i++) parts.push({x:x,y:y,vx:(Math.random()-.5)*7,vy:-Math.random()*6-1,l:30,c:["#f5b301","#ff7a8a","#7cc47f","#4aa3ff","#a46bff"][i%5]}); if(!anim) anim=requestAnimationFrame(fx); }
+  function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
+  window.__ten={state:function(){ return {cols:cols,score:score,playing:playing,level:level}; },addRow:function(){ addRow(); },start:start};
+  intro();
+})();
+</script>
+</body></html>
