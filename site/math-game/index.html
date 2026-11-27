@@ -133,7 +133,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .key{border:0;border-radius:16px;padding:12px 0;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.7rem;background:#fff;color:var(--ink);box-shadow:0 5px 0 #c9d6ea;cursor:pointer}
 .key:active{transform:translateY(3px);box-shadow:0 2px 0 #c9d6ea}.key.del{font-size:1.3rem;background:#eef2f8}.key.cast{font-size:1.15rem;background:#f5b301;color:#3b2a00;box-shadow:0 5px 0 #b88a00}.key:disabled{opacity:.5}
 .ans.typed{color:var(--brand,#3a7bd5)}
-</style><script src="../game-progress.js?v=20261127a"></script>
+</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
 </head>
 <body>
 <div class="top">
@@ -345,7 +345,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   }
 
 
-  window.__tt={cur:function(){ return B&&B.q; }};   // for the browser tests
+  window.__tt={cur:function(){ return B&&B.q; },g:function(){ return B; }};   // for the browser tests
   function startBattle(L){
     if(window.GameProgress) GameProgress.start(GID,L.id);
     var pool=buildPool(L); if(!pool.length) return;
@@ -366,7 +366,12 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   function renderHp(){ $("hpFill").style.width=Math.max(0,B.hp/B.maxHp*100)+"%"; }
   function nextQ(){
     $("teach").hidden=true;
-    B.locked=false; B.q=pick();
+    B.locked=false; B.left=B.hp;
+    // adapting (adapt.js): a warm-up from the easy end of the table, or a challenge from the next table's hard end
+    var t=B.L.t, rnd5=function(n){ return 1+Math.floor(Math.random()*n); };
+    B.q=Adapt.pick(B,{normal:B.L!==TRAIN&&B.L!==BOSS,
+      easy:function(){ return Math.random()<.5?[t,rnd5(5)]:[rnd5(5),t]; },
+      hard:function(){ var h=Math.min(9,t+1), o=5+rnd5(4); return Math.random()<.5?[h,o]:[o,h]; }})||pick();
     var a=B.q[0], b=B.q[1];
     $("question").innerHTML=a+" × "+b+' = <span class="ans">?</span>';
     $("qWords").textContent=sayFact(a,b);
@@ -375,7 +380,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     box.innerHTML=[1,2,3,4,5,6,7,8,9].map(function(d){ return '<button type="button" class="key" data-k="'+d+'">'+d+'</button>'; }).join("")+
       '<button type="button" class="key del" data-k="del" aria-label="Delete">⌫</button><button type="button" class="key" data-k="0">0</button><button type="button" class="key cast" data-k="cast">⚡ Cast</button>';
     box.onclick=function(e){ var t=e.target.closest?e.target.closest(".key"):null; if(t) press(t.dataset.k); };
-    showTyped();
+    showTyped(); Adapt.tag($("question"),B);
     B.t0=performance.now(); tick();
   }
   function showTyped(){ var a=B.q[0], b=B.q[1]; $("question").innerHTML=a+" × "+b+' = <span class="ans'+(B.typed?" typed":"")+'">'+(B.typed||"?")+'</span>'; }
@@ -441,21 +446,24 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     if(v===p){
       f.ok++; B.correct++; B.streak++; B.best=Math.max(B.best,B.streak);
       var crit=ms<3000, dmg=crit?2:1, gain=crit?2:1;
-      B.hp-=dmg; B.coins+=gain; $("bCoins").textContent=B.coins;
+      var extra=Adapt.right(B);
+      B.hp-=dmg; B.coins+=gain+extra; $("bCoins").textContent=B.coins;
       var shot=document.createElement("span"); shot.className="shot"; shot.textContent=crit?"💥":"⭐"; $("arena").appendChild(shot);
       setTimeout(function(){ shot.remove(); anim(mon,"hit"); floatText(crit?"Critical! -2":"-1",crit); renderHp(); },260);
       if(crit) SFX.crit(); else SFX.hit();
-      if(B.streak>=3) say("🔥 "+B.streak+" in a row!","combo");
+      if(extra) say("⚡ Challenge solved! +"+extra+" coins!","combo");
+      else if(B.streak>=3) say("🔥 "+B.streak+" in a row!","combo");
       else say(crit?"⚡ Super fast! Critical hit!":["Great job!","Nice!","You got it!","Awesome!"][Math.floor(Math.random()*4)],"good");
       save();
       if(B.hp<=0){ later(function(){ mon.className="monster dead"; SFX.win(); later(function(){ finish(true); },750); },500); }
       else later(nextQ,850);
     }else{
-      f.miss++; B.streak=0; B.miss[k]=1;
-      B.pool.push([a,b],[a,b]);   // a missed fact comes back soon
+      var free=Adapt.wrong(B);   // a missed challenge costs no heart and is not practised later
+      B.streak=0;
+      if(!free){ f.miss++; B.miss[k]=1; B.pool.push([a,b],[a,b]); }   // a missed fact comes back soon
       anim(mon,"attack"); var ar=$("arena"); ar.classList.remove("shake"); void ar.offsetWidth; ar.classList.add("shake");
       SFX.hurt();
-      if(B.hearts!==Infinity){ B.hearts--; renderHearts(); }
+      if(B.hearts!==Infinity&&!free){ B.hearts--; renderHearts(); }
       say((v!=null?"Oops! "+v+" is not it. ":"Time's up! ")+a+" × "+b+" = "+p,"bad");
       save();
       teachShow(teachMult(a,b),B.hearts<=0?function(){ finish(false); }:nextQ);

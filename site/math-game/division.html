@@ -140,7 +140,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 .dn{background:#fff;border-radius:20px;padding:6px 18px;text-align:center;min-width:120px;box-shadow:0 4px 0 #ead7c9}.dn b{display:block;font-family:Fredoka,sans-serif;font-size:2.6rem;line-height:1.05}.dn small{font-weight:800;color:var(--muted);font-size:.75rem}
 .pileNote{text-align:center;font-weight:900;margin:10px 0 0;color:var(--muted)}.pileNote.good{color:#2f9e5b}.pileNote.bad{color:#d9443b}.pileDone{font-weight:900;color:#2f9e5b}
 .serveBtn{display:block;margin:10px auto 0;border:0;border-radius:999px;padding:13px 30px;font:inherit;font-weight:900;font-size:1.15rem;background:#2f9e5b;color:#fff;box-shadow:0 5px 0 #1f7041;cursor:pointer}.serveBtn:disabled{opacity:.5}
-</style><script src="../game-progress.js?v=20261127a"></script>
+</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
 </head>
 <body>
 <div class="top">
@@ -390,7 +390,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     return pool[Math.min(i,pool.length-1)].slice();
   }
 
-  window.__div={cur:function(){ return S&&S.f; }};   // for the browser tests
+  window.__div={cur:function(){ return S&&S.f; },g:function(){ return S; }};   // for the browser tests
   function startDay(D){
     if(window.GameProgress) GameProgress.start(GID,D.id);
     var pool=buildPool(D); if(!pool.length) return;
@@ -415,7 +415,12 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
   }
   function nextGuest(){
     $("teach").hidden=true;
-    S.locked=false; S.f=pick();
+    S.locked=false;
+    // adapting (adapt.js): a warm-up with a small answer, or a challenge from the next divisor with a big answer
+    var dd=S.D.d, r5=function(n){ return 1+Math.floor(Math.random()*n); };
+    S.f=Adapt.pick(S,{normal:S.D!==KITCHEN&&S.D!==BUSY,
+      easy:function(){ var q=r5(5); return [dd*q,dd]; },
+      hard:function(){ var h=Math.min(9,dd+1), q=5+r5(4); return [h*q,h]; }})||pick();
     var a=S.f[0], b=S.f[1], tr=TREATS[Math.floor(Math.random()*TREATS.length)];
     S.tr=tr;
     var c=$("cust"); c.textContent=GUESTS[Math.floor(Math.random()*GUESTS.length)]; c.className="cust"; void c.offsetWidth; c.className="cust in";
@@ -423,7 +428,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     $("pile").innerHTML=treatGrid(tr[0],a,a>40?12:a>20?10:9);
     var pl=""; for(var i=0;i<b;i++) pl+='<div class="plate"><div class="t">&nbsp;</div></div>';
     $("plates").innerHTML=pl;
-    $("question").innerHTML=a+" ÷ "+b+' = <span class="ans">?</span>';
+    $("question").innerHTML=a+" ÷ "+b+' = <span class="ans">?</span>'; Adapt.tag($("question"),S);
     $("qWords").textContent=sayFact(a,b);
     // hands-on: choose how many go on each plate; the plates fill and the pile shrinks as you go, and the plates are served when the pile is empty
     var box=$("choices"); box.innerHTML='<div class="dealer"><button type="button" class="dl" id="dMinus">−</button><div class="dn"><b id="dN">0</b><small>on each plate 每盘几个</small></div><button type="button" class="dl" id="dPlus">+</button></div>'+
@@ -502,19 +507,22 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     if(v===q){
       f.ok++; S.correct++; S.streak++; S.best=Math.max(S.best,S.streak);
       var fast=ms<6000, gain=fast?2:1;
-      S.coins+=gain; $("sCoins").textContent=S.coins;
+      var extra=Adapt.right(S);
+      S.coins+=gain+extra; $("sCoins").textContent=S.coins;
       c.className="cust happy";
       $("bubble").innerHTML=THANKS[Math.floor(Math.random()*THANKS.length)]+" "+q+" on each plate. "+(fast?"Here is a tip! 🪙🪙":"🪙");
       if(fast) SFX.tip(); else SFX.ding();
-      if(S.streak>=3) say("🔥 "+S.streak+" happy customers in a row!","combo");
+      if(extra) say("⚡ Challenge solved! +"+extra+" coins!","combo");
+      else if(S.streak>=3) say("🔥 "+S.streak+" happy customers in a row!","combo");
       else say(fast?"⚡ Super fast! You got a tip!":["Great job!","Nice sharing!","You got it!","Awesome!"][Math.floor(Math.random()*4)],"good");
     }else{
-      f.miss++; S.streak=0; S.miss[k]=1;
-      S.pool.push([a,b],[a,b]);   // a missed fact comes back soon
+      var free=Adapt.wrong(S);   // a missed challenge costs no heart and is not practised later
+      S.streak=0;
+      if(!free){ f.miss++; S.miss[k]=1; S.pool.push([a,b],[a,b]); }   // a missed fact comes back soon
       c.className="cust sad";
       $("bubble").innerHTML="Hmm… "+a+" shared on "+b+" plates is <b>"+q+"</b> on each plate.";
       SFX.oops();
-      if(S.hearts!==Infinity) S.hearts--;
+      if(S.hearts!==Infinity&&!free) S.hearts--;
       say((v==null?"Too slow! ":v*b>a?"Not enough treats! ":"Treats were left over! ")+a+" ÷ "+b+" = "+q,"bad");
     }
     save(); renderHearts();

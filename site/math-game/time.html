@@ -135,7 +135,7 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
 @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:620px){.plats{gap:8px}.plat .tag{font-size:.9rem}.plat .ic{width:44px;height:44px}.choice{font-size:1.6rem}.choice.text{font-size:1rem}.clock{width:170px;height:170px}.clocks.two .clock{width:120px;height:120px}}
-</style><script src="../game-progress.js?v=20261127a"></script>
+</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
 </head>
 <body>
 <div class="top">
@@ -388,6 +388,9 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
     $("hearts").innerHTML=h+' <span style="font-size:1rem">🚆 '+G.left+'</span>';
   }
   function makeQ(){
+    // adapting (adapt.js): a warm-up from the level before, or a challenge from the level after
+    var li=PLATS.indexOf(G.P), aq=Adapt.pick(G,{normal:li>=0,easy:li>0?PLATS[li-1].gen:null,hard:li>=0&&li<PLATS.length-1?PLATS[li+1].gen:null});
+    if(aq){ G.lastKey=aq.key; return aq; }
     var q, tries=0;
     do{
       if(G.P===PRACTICE) q=fromKey(pickOne(G.pool));
@@ -425,7 +428,7 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
 
   function next(){
     $("teach").hidden=true;
-    G.locked=false; var q=G.q=makeQ(); G.t0=Date.now();
+    G.locked=false; var q=G.q=makeQ(); G.t0=Date.now(); Adapt.tag($("board"),G);
     $("msg").textContent=""; $("msg").className="msg"; $("words").textContent=""; $("hint").textContent="";
     var ch=$("choices"); ch.innerHTML=""; $("setter").hidden=true; $("clocks").className="clocks";
     [].forEach.call(document.querySelectorAll("#setter button"),function(b){ b.disabled=false; });
@@ -435,7 +438,7 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
   // ---------- hands-on: a station clock whose long hand is dragged (the short hand follows, as on a real clock),
   // and a departure board whose hour and minutes are spun ----------
   var HAND=null;
-  window.__time={cur:function(){ return G&&G.q; }};   // for the browser tests   // the hands-on part of the question on the screen: {after(ok)}
+  window.__time={cur:function(){ return G&&G.q; },g:function(){ return G; }};   // for the browser tests   // the hands-on part of the question on the screen: {after(ok)}
   function handPath(t0,t1){   // the part of the clock face the long hand swept, from minute t0 to t1 (t1 > t0)
     if(t1<=t0) return "";
     if(t1-t0>=60) return '<circle cx="100" cy="100" r="40" fill="rgba(245,179,1,.28)"/>';
@@ -602,15 +605,17 @@ button:focus-visible{outline:3px solid #f5b301;outline-offset:2px}
     G.left--;
     if(ok){
       f.ok++; ks.ok++; G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
-      var fast=ms<(q.kind==="set"?15000:7000), gain=fast?2:1; G.coins+=gain; $("pCoins").textContent=G.coins;
+      var fast=ms<(q.kind==="set"?15000:7000), gain=fast?2:1; var extra=Adapt.right(G); G.coins+=gain+extra; $("pCoins").textContent=G.coins;
       var c=$("choo"); void c.offsetWidth; c.className="choo go";
       if(fast) SFX.fast(); else SFX.toot();
-      if(G.streak>=3) say("🔥 "+G.streak+" trains on time in a row!","combo");
+      if(extra) say("⚡ Challenge solved! +"+extra+" coins!","combo");
+      else if(G.streak>=3) say("🔥 "+G.streak+" trains on time in a row!","combo");
       else say(fast?"⚡ Right on time! Two tickets!":pickOne(["All aboard!","Right on time!","Choo choo! Correct!","Great job!"]),"good");
     }else{
-      f.miss++; ks.miss++; G.streak=0; G.miss[q.key]=q; G.again.push(q.key);
+      var free=Adapt.wrong(G); G.streak=0;   // a missed challenge costs no heart and is not practised later
+      if(!free){ f.miss++; ks.miss++; G.miss[q.key]=q; G.again.push(q.key); }
       SFX.oops();
-      if(G.hearts!==Infinity) G.hearts--;
+      if(G.hearts!==Infinity&&!free) G.hearts--;
       say(q.kind==="dur"?"Not quite: the trip took "+minsWords(q.n)+".":q.kind==="end"?"Not quite. Look: it arrives at "+rightAnswer(q).replace(/:(\d)$/,":0$1")+".":"Not quite. Look: this is "+digital(q.h,q.m)+".","bad");
     }
     save(); renderHearts();

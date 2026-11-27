@@ -147,7 +147,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 @keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 @media(max-width:620px){.plots{gap:8px}.plot .tag{font-size:.9rem}.choice{font-size:1.6rem}}
-</style><script src="../game-progress.js?v=20261127a"></script>
+</style><script src="../game-progress.js?v=20261127a"></script><script src="adapt.js?v=20261127a"></script>
 </head>
 <body>
 <div class="top">
@@ -386,7 +386,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   // ---------- playing ----------
   var G=null, pending=0, planted={};
-  window.__area={cur:function(){ return G&&G.q; }};   // for the browser tests
+  window.__area={cur:function(){ return G&&G.q; },g:function(){ return G; }};   // for the browser tests
   function start(P){
     if(window.GameProgress) GameProgress.start(GID,P.id);
     var pool=null;
@@ -401,6 +401,9 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     $("hearts").innerHTML=h+' <span style="font-size:1rem">🌱 '+G.left+'</span>';
   }
   function makeQ(){
+    // adapting (adapt.js): a warm-up from the level before, or a challenge from the level after
+    var li=PLOTS.indexOf(G.P), aq=Adapt.pick(G,{normal:li>=0,easy:li>0?PLOTS[li-1].gen:null,hard:li>=0&&li<PLOTS.length-1?PLOTS[li+1].gen:null});
+    if(aq){ G.lastKey=aq.key; return aq; }
     var q, tries=0;
     do{
       if(G.P===PRACTICE) q=fromKey(pickOne(G.pool));
@@ -442,7 +445,7 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
 
   function next(){
     $("teach").hidden=true;
-    G.locked=false; var q=G.q=makeQ(); G.t0=Date.now(); G.icon=pickOne(FLOWERS);
+    G.locked=false; var q=G.q=makeQ(); G.t0=Date.now(); Adapt.tag($("task"),G); G.icon=pickOne(FLOWERS);
     $("msg").textContent=""; $("msg").className="msg"; $("words").textContent=""; $("hint").textContent=""; $("counter").textContent="";
     $("setbtns").hidden=true; [].forEach.call(document.querySelectorAll("#setbtns button"),function(b){ b.disabled=false; });
     var ch=$("choices"); ch.innerHTML=""; var fd=$("field"); fd.innerHTML="";
@@ -643,14 +646,16 @@ button:focus-visible{outline:3px solid #3a7bd5;outline-offset:2px}
     G.left--;
     if(ok){
       f.ok++; ks.ok++; G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
-      var fast=ms<((q.kind==="plant"||q.kind==="rect")?20000:8000), gain=fast?2:1; G.coins+=gain; $("pCoins").textContent=G.coins;
+      var fast=ms<((q.kind==="plant"||q.kind==="rect")?20000:8000), gain=fast?2:1; var extra=Adapt.right(G); G.coins+=gain+extra; $("pCoins").textContent=G.coins;
       if(fast) SFX.fast(); else SFX.grow();
-      if(G.streak>=3) say("🔥 "+G.streak+" jobs done in a row!","combo");
+      if(extra) say("⚡ Challenge solved! +"+extra+" coins!","combo");
+      else if(G.streak>=3) say("🔥 "+G.streak+" jobs done in a row!","combo");
       else say(fast?"⚡ Speedy gardener! Two seeds!":pickOne(["Great job!","Your garden grows!","You got it!","Lovely work!"]),"good");
     }else{
-      f.miss++; ks.miss++; G.streak=0; G.miss[q.key]=q; G.again.push(q.key);
+      var free=Adapt.wrong(G); G.streak=0;   // a missed challenge costs no heart and is not practised later
+      if(!free){ f.miss++; ks.miss++; G.miss[q.key]=q; G.again.push(q.key); }
       SFX.oops();
-      if(G.hearts!==Infinity) G.hearts--;
+      if(G.hearts!==Infinity&&!free) G.hearts--;
       say(q.kind==="plant"?"Count again: you planted "+val+".":q.kind==="rect"?"Not quite that rectangle.":q.kind==="count"?"You counted "+val+": some squares were missed.":q.kind==="area"?"That makes "+val+" squares: count the rows on the side.":
           q.kind==="perim"?"Not quite: the fence must go all the way around, only on the outside. Look at the brown fence.":q.kind==="L"?"Not quite: "+val+". Find each rectangle's area, then add.":"Not this box: look again at the job.","bad");
     }
