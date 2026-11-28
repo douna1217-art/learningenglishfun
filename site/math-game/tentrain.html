@@ -39,6 +39,7 @@
 .ps.wait{animation:wait 1.3s ease-in-out infinite}@keyframes wait{50%{transform:translateY(-4px)}}
 .ps.off{transition:left 1s ease-in,top .4s,opacity 1s}
 .ps.glow{filter:drop-shadow(0 0 5px #ffd84a)}
+.ps.fresh{background:#ffe27a;border-radius:10px;box-shadow:0 0 0 3px #f5a300,0 0 12px #ffd84a}
 .ps .n{position:absolute;top:-8px;right:-8px;background:#fff;border-radius:50%;width:20px;height:20px;font-family:Fredoka,sans-serif;font-size:.8rem;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 0 rgba(0,0,0,.2)}
 /* the strategy board and the fact family house */
 .board{position:absolute;left:50%;top:6%;transform:translateX(-50%);background:#2b4a3a;color:#fff;border:5px solid #8a5a2b;border-radius:10px;padding:4px 14px;font-family:Fredoka,sans-serif;font-size:1.25rem;z-index:7;text-align:center;line-height:1.35;display:none}
@@ -167,7 +168,8 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     later(function(){ busy=false; if(done) done(); },t);
   }
   function size(p,sz){ p.el.style.width=p.el.style.height=sz*.9+"px"; p.el.style.fontSize=(sz*.75)+"px"; p.el.style.marginLeft=p.el.style.marginTop=(-sz*.45)+"px"; }
-  function sitAt(p,i){ p.seat=i; p.plat=-1; var xy=seatXY(i); p.el.className="ps"; size(p,G.seat); p.el.style.left=xy[0]+"px"; p.el.style.top=xy[1]+"px"; }
+  // a passenger who just got on (missing-number trains) keeps a gold seat, so the child can count how many got on
+  function sitAt(p,i){ p.seat=i; p.plat=-1; var xy=seatXY(i); p.el.className="ps"+(p.fresh?" fresh":""); size(p,G.seat); p.el.style.left=xy[0]+"px"; p.el.style.top=xy[1]+"px"; }
   function standAt(p,i,n){ p.seat=-1; p.plat=i; p.n=n; var xy=platXY(i,n); p.el.className="ps wait"; size(p,G.ps); p.el.style.left=xy[0]+"px"; p.el.style.top=xy[1]+"px"; }
   function onBoard(){ return P.filter(function(p){ return p.seat>=0; }); }
   function freeSeat(car){ for(var i=(car||0)*10;i<20;i++) if(!P.some(function(p){ return p.seat===i; })) return i; return -1; }
@@ -179,7 +181,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if((t==="add"||t==="missing"||t==="double")&&p.seat<0){
       var s;
       if(t==="double"){ var c=counts(); s=freeSeat(c[0]<=c[1]?0:1); if(s>=10&&c[0]<=c[1]) s=freeSeat(0); } else s=freeSeat(0);
-      if(s<0) return; sitAt(p,s); tone([500+s*30,700],.05); showCounts();
+      if(s<0) return; if(t==="missing") p.fresh=true; sitAt(p,s); tone([500+s*30,700],.05); showCounts();
       var c2=counts(); if(c2[0]===10&&!Q.fullShown&&t!=="double"){ Q.fullShown=true; var car=$("car0"); car.classList.remove("full"); void car.offsetWidth; car.classList.add("full"); tone([660,880,1100],.08); say("Ten! The first car is full! 十个！第一节坐满了！"); }
       if(t==="add"&&!P.some(function(x){ return x.seat<0&&!x.gone; })) later(ask,700);
       if(t==="double"&&!P.some(function(x){ return x.seat<0&&!x.gone; })) later(ask,700);
