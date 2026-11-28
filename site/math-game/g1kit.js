@@ -3,7 +3,7 @@
    help and end screens, GameProgress, fitting the screen. A game gives its own look and its rounds:
 
      var K = G1Kit({
-       id: "bundle", store: "bundleFarm.v1", title: "🌾 Bundle Farm", name: "Bundle Farm", sub: "Numbers to 99 Practice 99 以内的数",
+       id: "eggs", store: "eggFarm.v1", title: "🥚 Egg Farm", name: "Egg Farm", sub: "Tens &amp; Ones Practice 十位和个位",
        how: "<div>…</div>", score: ["Carts", "车"], goal: 6, need: 5, top: 5,
        colors: { bg: "#fff8e6", line: "#f0dcb0", accent: "#2f8a4a", stage: "linear-gradient(...)" },
        shop: [{ id: "hen", e: "🐔", p: 5 }, …], shopName: "Farm shop 农场商店", decor: function (owned) { … draw them … },

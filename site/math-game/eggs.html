@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Egg Farm</title>
+<meta name="theme-color" content="#e8a33a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Egg Farm: catch the eggs the hens lay, 10 eggs fill a carton (one ten) and the cartons ride on the truck. Count tens and ones, catch exactly the eggs an order needs, compare two trucks, open a carton. Grade 1 numbers to 99.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* hens, falling eggs, the basket, cartons of ten and the truck */
+.perch{position:absolute;height:10px;border-radius:5px;background:#9a6a3a;box-shadow:0 3px 0 #6a4422;z-index:1}
+.hen{position:absolute;transform:translate(-50%,-62%);line-height:1;z-index:2}
+.hen.lay{animation:lay .35s}@keyframes lay{50%{transform:translate(-50%,-62%) scale(1.18,.82)}}
+.fegg,.egg{border-radius:50% 50% 46% 46%/60% 60% 40% 40%;background:radial-gradient(circle at 35% 30%,#fff 0 18%,#fff6e6 20%,#efdcbc);box-shadow:inset -2px -3px 0 rgba(0,0,0,.08),0 1px 1px rgba(0,0,0,.18)}
+.fegg.brown,.egg.brown{background:radial-gradient(circle at 35% 30%,#ffe6cf 0 16%,#e2ab7c 18%,#c98a5a)}
+.fegg{position:absolute;width:var(--e);height:calc(var(--e) * 1.25);margin:calc(var(--e) * -.625) 0 0 calc(var(--e) * -.5);z-index:4;pointer-events:none}
+.fegg.fly{transition:left .35s ease,top .35s ease,transform .35s ease}
+.egg{display:block}
+#bask{position:absolute;transform:translate(-50%,-38%);line-height:1;z-index:5;pointer-events:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.15))}
+#bask.got{animation:bump .22s}@keyframes bump{50%{transform:translate(-50%,-30%) scale(1.1,.9)}}
+.splat{position:absolute;transform:translate(-50%,-50%);border-radius:48% 52% 45% 55%/60% 50% 50% 40%;background:radial-gradient(circle at 50% 52%,#ffc21a 0 26%,#ffd95a 27%,#fff 31%,#fff 70%,#f1e6d0 72%);box-shadow:0 2px 0 rgba(0,0,0,.12);animation:splat .9s forwards;z-index:3;pointer-events:none}@keyframes splat{from{transform:translate(-50%,-50%) scale(.4)}60%{opacity:1}to{opacity:0;transform:translate(-50%,-50%) scale(1.1)}}
+.ground{position:absolute;left:0;right:0;background:linear-gradient(180deg,#c9a36a,#b98f55);z-index:0}
+.carton{position:absolute;background:#efd3a0;border:3px solid #b98a4a;border-radius:10px;z-index:2;cursor:pointer}
+.carton.pop{animation:cpop .45s}@keyframes cpop{50%{transform:scale(1.12)}}
+.carton.close::after{content:"10";position:absolute;inset:-3px;border-radius:10px;background:#f6dfb2;border:3px solid #b98a4a;display:flex;align-items:center;justify-content:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.6rem;color:#8a5a2b;animation:lid .3s}@keyframes lid{from{transform:scaleY(0);transform-origin:top}}
+.carton.fly{transition:left .55s ease,top .55s ease,transform .55s ease;transform-origin:0 0;z-index:7}
+.cup{position:absolute;border-radius:50%;background:#d6b483;box-shadow:inset 0 3px 4px rgba(0,0,0,.22);display:flex;align-items:center;justify-content:center}
+.truck{position:absolute;z-index:2;transition:transform 1.3s ease-in}
+.truck.go{transform:translateX(120vw)}
+.truck .bed{position:absolute;left:0;top:0;bottom:0;background:#e85d4a;border:3px solid #a8382a;border-radius:8px}
+.truck .cab{position:absolute;top:-28%;bottom:0;background:#f5b301;border:3px solid #b88a00;border-radius:12px 20px 8px 8px}
+.truck .win{position:absolute;left:16%;right:16%;top:12%;height:30%;background:#bfe6ff;border-radius:6px}
+.truck .wh{position:absolute;bottom:-15px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,#ddd 0 25%,#333 27%);z-index:1}
+.mini{position:absolute;background:#f6dfb2;border:2px solid #b98a4a;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:Fredoka,sans-serif;font-weight:700;color:#8a5a2b;cursor:pointer;z-index:2}
+.mini.out{animation:mout .4s forwards}@keyframes mout{to{transform:translateY(-30px) scale(.4);opacity:0}}
+.num{position:absolute;transform:translateX(-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:2rem;background:#fff;border-radius:12px;padding:0 12px;z-index:4;box-shadow:0 3px 0 rgba(0,0,0,.12)}
+.sign{position:absolute;transform:translate(-50%,-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:3.4rem;color:#d9822b;z-index:5;animation:chomp .5s 2}@keyframes chomp{50%{transform:translate(-50%,-50%) scale(1.3)}}
+.goal{position:absolute;right:10px;top:8px;background:#fff;border-radius:12px;padding:2px 10px;font-weight:900;font-size:.85rem;z-index:6;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.goal b{font-family:Fredoka,sans-serif;font-size:1.3rem;color:#d9822b}
+.hand{position:absolute;font-size:2.1rem;z-index:9;pointer-events:none;animation:swipe 1.4s ease-in-out infinite}@keyframes swipe{50%{transform:translateX(60px)}}
+.wrap.fitted .goal{font-size:1.05rem}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261203a"></script><script src="g1kit.js?v=20261201a"></script>
+<script>
+(function(){
+  "use strict";
+  // Egg Farm (Grade 1, Unit 4: numbers to 99). 6 rounds a level, 5 right opens the next; any level opened can be played again.
+  //   count   the hens lay eggs: move the basket to catch them. 10 eggs fill a carton (one ten), which rides onto the truck.
+  //           When the hens stop: how many eggs? (cartons are tens, the eggs in the open carton are ones)
+  //   exact   an order: "34 eggs!" Catch until the truck has 34 and send it. Too many? Tap the open carton (one egg out)
+  //           or a carton on the truck (ten out).
+  //   compare two trucks: pick >, < or =
+  //   open    open a carton: 1 ten becomes 10 ones. How many tens? How many ones now?
+  //   level 1 count, level 2 exact, level 3 compare, level 4 open, level 5 all of them
+  var $=function(id){ return document.getElementById(id); };
+  var Q=null, W=0, H=0, G={}, raf=0;
+  var K=G1Kit({
+    id:"eggs", store:"eggFarm.v1", title:"🥚 Egg Farm", name:"Egg Farm", sub:"Tens &amp; Ones Practice 十位和个位",
+    score:["Trucks","卡车"], goal:6, need:5,
+    colors:{bg:"#fff8ea",line:"#f0dfb8",accent:"#d9822b",stage:"linear-gradient(180deg,#bfe6ff 0 30%,#cdeaa0 30%)"},
+    how:'<div>🧺 Move the basket (slide your finger or the mouse) to catch the eggs!</div><div>📦 10 eggs fill a carton: one ten. Full cartons ride on the truck.</div><div>🔢 Cartons are the tens, loose eggs are the ones.</div><div>🚚 Orders: catch just the right number, then send the truck.</div><div style="color:var(--muted)">移动篮子接鸡蛋！10 个鸡蛋装满一盒，就是一个十，满盒放上卡车。盒数是十位，散蛋是个位。接够订单要的数，再把卡车送走。</div>',
+    shop:[{id:"chick",e:"🐤",p:5,x:"6%",y:"26%"},{id:"sun",e:"🌻",p:8,x:"92%",y:"26%"},{id:"pig",e:"🐖",p:12,x:"80%",y:"2%"},{id:"barn",e:"🏡",p:16,x:"62%",y:"2%"},{id:"tractor",e:"🚜",p:22,x:"44%",y:"2%"},{id:"cow",e:"🐄",p:28,x:"26%",y:"26%"},{id:"rooster",e:"🐓",p:36,x:"72%",y:"26%"},{id:"rainbow",e:"🌈",p:45,x:"88%",y:"2%"}],
+    shopName:"Farm shop 农场商店", welcome:"🥚 Welcome to Egg Farm! 欢迎来鸡蛋农场！", hello:"10 eggs fill a carton! 10 个鸡蛋装满一盒！",
+    round:round, resize:function(){ if(Q) draw(); }
+  });
+  // ---------- the layout ----------
+  function geom(){
+    var st=$("stage"); W=st.clientWidth; H=st.clientHeight;
+    G.wide=W/H>1.25; G.hy=Math.max(84,H*.21); G.hs=Math.max(30,Math.min(56,W*.12,H*.12)); G.nh=G.wide?5:4;
+    G.by=H*.6; G.bw=Math.min(130,Math.max(74,W*.21)); G.e=Math.max(14,Math.min(26,H*.055));
+    G.load={x:W*.03,y:H*.71,w:W*.94,h:H*.97-H*.71};
+  }
+  function cupXY(c,k){ return [c*.3+(k%5)*c*1.02, c*.3+Math.floor(k/5)*c*1.02]; }
+  function eggHtml(sz,i){ return '<b class="egg'+(i%3===1?" brown":"")+'" style="width:'+sz+'px;height:'+sz*1.25+'px"></b>'; }
+  // open cartons (their egg counts in cs) on the left, the truck with t full cartons on the right; main=the one eggs fly into
+  function loadHtml(box,t,cs,main){
+    var n=cs.length, c=Math.min(box.h/2.9,(box.w*(n>1?.52:.36))/(n*5.9)), cw=c*5.66, ch=c*2.64, h="", cy=box.y+box.h/2, i, k;
+    for(i=0;i<n;i++){ var x=box.x+i*(cw+c*.4), y=cy-ch/2; if(main&&i===0) G.cart={x:x,y:y,c:c,w:cw,h:ch};
+      h+='<div class="carton" data-c="'+i+'" style="left:'+x+'px;top:'+y+'px;width:'+cw+'px;height:'+ch+'px">';
+      for(k=0;k<10;k++){ var p=cupXY(c,k); h+='<i class="cup" style="left:'+p[0]+'px;top:'+p[1]+'px;width:'+c*.9+'px;height:'+c*.9+'px">'+(k<cs[i]?eggHtml(c*.6,k):'')+'</i>'; }
+      h+='</div>'; }
+    var tx=box.x+n*(cw+c*.4)+c*.5, tw=Math.min(box.x+box.w-tx, box.h*3.2), bedW=tw*.76, bedH=Math.min(box.h*.72,bedW*.45), ty=cy-bedH/2-6;
+    var mw=(bedW-12)/5-4, mh=Math.min(mw*.6,(bedH-12)/2-4);
+    if(main) G.truck={x:tx,y:ty,bedH:bedH,mw:mw,mh:mh};
+    h+='<div class="truck" style="left:'+tx+'px;top:'+ty+'px;width:'+tw+'px;height:'+bedH+'px"><div class="bed" style="width:'+bedW+'px"></div><div class="cab" style="left:'+(bedW+3)+'px;width:'+(tw-bedW-3)+'px"><i class="win"></i></div><i class="wh" style="left:12%"></i><i class="wh" style="left:'+(bedW*.72)+'px"></i>';
+    for(var j=0;j<t;j++){ var s=miniXY(j,mw,mh,bedH); h+='<div class="mini" data-i="'+j+'" style="left:'+s[0]+'px;top:'+s[1]+'px;width:'+mw+'px;height:'+mh+'px;font-size:'+Math.max(10,mh*.6)+'px">10</div>'; }
+    return h+'</div>';
+  }
+  function miniXY(j,mw,mh,bedH){ var col=j%5, row=Math.floor(j/5); return [7+col*(mw+4), bedH-7-(row+1)*(mh+4)+2]; }
+  // ---------- drawing ----------
+  function draw(){
+    geom(); var h="";
+    if(Q.k==="count"||Q.k==="exact"){
+      h+='<div class="ground" style="top:'+(G.load.y-8)+'px;bottom:0"></div><div class="perch" style="left:'+W*.04+'px;width:'+W*.92+'px;top:'+G.hy+'px"></div>';
+      for(var i=0;i<G.nh;i++) h+='<div class="hen" id="hen'+i+'" style="left:'+W*(i+.5)/G.nh+'px;top:'+G.hy+'px;font-size:'+G.hs+'px">🐔</div>';
+      if(Q.k==="exact") h+='<div class="goal">Order 订单: <b>'+Q.n+'</b></div>';
+      h+='<div id="bask" style="left:'+Q.bx+'px;top:'+G.by+'px;font-size:'+G.bw*.62+'px">🧺</div><div id="load"></div><div id="fall"></div>';
+      $("scene").innerHTML=h; $("scene").style.setProperty("--e",G.e+"px");
+      Q.fall.forEach(function(f){ $("fall").appendChild(f.el); f.x=Math.min(f.x,W-10); f.el.style.left=f.x+"px"; });
+      drawLoad(); return;
+    }
+    if(Q.k==="compare"){
+      var A=G.wide?{x:W*.02,y:H*.3,w:W*.45,h:H*.36}:{x:W*.03,y:H*.2,w:W*.94,h:H*.26}, B=G.wide?{x:W*.53,y:H*.3,w:W*.45,h:H*.36}:{x:W*.03,y:H*.62,w:W*.94,h:H*.26};
+      [[A,Q.A],[B,Q.B]].forEach(function(z){ var b=z[0],v=z[1]; h+=loadHtml(b,Math.floor(v/10),[v%10],false)+'<div class="num" style="left:'+(b.x+b.w/2)+'px;top:'+(b.y+b.h+(G.wide?14:2))+'px">'+v+'</div>'; });
+      if(Q.sign) h+='<div class="sign" style="left:'+W/2+'px;top:'+(G.wide?H*.48:H*.54)+'px">'+Q.sign+'</div>';
+      $("scene").innerHTML=h; return;
+    }
+    var bx={x:W*.03,y:Math.max(80,H*.28),w:W*.94,h:Math.min(H*.42,W*.36)};   // open
+    $("scene").innerHTML=loadHtml(bx,Q.t,Q.cs,false);
+  }
+  function drawLoad(){ var l=$("load"); if(l) l.innerHTML=loadHtml(G.load,Q.ts,[Q.os],true); }
+  // ---------- a round ----------
+  function round(){
+    var L=K.L, easy=K.easy(), hard=K.hard(), kinds=L===1?["count"]:L===2?["exact"]:L===3?["compare"]:L===4?["open"]:["count","exact","compare","open"];
+    if(L===5&&easy) kinds=["count","compare"];
+    var k=kinds[K.rnd(kinds.length)], tut=K.D.tut&&K.D.n===1;
+    stopLoop(); geom();
+    Q={k:k,tries:0,t:0,o:0,ts:0,os:0,fall:[],bx:W/2,clock:0,nextAt:.6,live:false,
+       v:H*(tut?.26:easy?.32:hard?.5:.4), gap:tut?1.3:easy?1.05:hard?.7:.85};
+    if(k==="count"){ Q.t=Q.ts=tut||easy?K.rnd(2):1+K.rnd(3); Q.left=tut?12:easy?10+K.rnd(7):hard?16+K.rnd(13):12+K.rnd(11);
+      K.task('Catch the eggs! 接鸡蛋！<span class="cn">移动篮子接住鸡蛋，10 个装满一盒。</span>'); K.say(tut?"Slide to move the basket! 左右移动篮子！":"Catch them all! 全部接住！"); }
+    else if(k==="exact"){ var n=easy?14+K.rnd(20):hard?35+K.rnd(55):18+K.rnd(52); if(n%10===0) n++; Q.n=n; Q.left=-1;
+      Q.t=Q.ts=Math.max(0,Math.floor(n/10)-1-K.rnd(2));
+      K.task('Catch eggs for the order: <b>'+n+'</b> eggs, then send the truck.<span class="cn">订单要 '+n+' 个鸡蛋：接够了就把卡车送走。</span>');
+      K.btns('<span></span><button type="button" class="main" id="send">🚚 Send 送走</button><span></span>');
+      $("send").onclick=send; K.say("Too many? Tap to take some out. 多了？点一下拿出来。"); }
+    else if(k==="compare"){ var a,b; do{ a=easy?11+K.rnd(40):11+K.rnd(88); b=Math.random()<.35?Math.floor(a/10)*10+K.rnd(10):11+K.rnd(88); if(Math.random()<.12) b=a; }while(b<10||(easy&&Math.abs(a-b)<3&&a!==b));
+      Q.A=a; Q.B=b; Q.ans=a>b?">":a<b?"<":"=";
+      K.task('Which truck has more eggs? Pick the sign.<span class="cn">哪辆车的鸡蛋多？选 &gt;、&lt; 或 =</span>');
+      var bt=K.btns('<button type="button" class="big" data-v="&gt;">&gt;<br><small style="font-size:.7rem">greater 大于</small></button><button type="button" class="big" data-v="=">=<br><small style="font-size:.7rem">equal 等于</small></button><button type="button" class="big" data-v="&lt;">&lt;<br><small style="font-size:.7rem">less 小于</small></button>');
+      [].forEach.call(bt.querySelectorAll("button"),function(x){ x.onclick=function(){ if(!K.busy) pickSign(x.getAttribute("data-v"),x); }; });
+      K.say("Compare the cartons first! 先比盒数！"); }
+    else { Q.t=easy?2+K.rnd(3):2+K.rnd(6); Q.o=K.rnd(easy?5:10); Q.n=Q.t*10+Q.o; Q.cs=[Q.o]; Q.cut=false;
+      K.task('The truck has <b>'+Q.n+'</b> eggs. Tap a carton to open it!<span class="cn">卡车上有 '+Q.n+' 个鸡蛋。点一盒，把它打开！</span>');
+      K.say("1 ten = 10 ones! 一个十等于十个一！"); }
+    draw();
+    if(k==="count"||k==="exact"){ Q.live=true; Q.last=0; raf=requestAnimationFrame(loop); if(tut) K.later(tutHand,300); }
+  }
+  // ---------- catching ----------
+  function stopLoop(){ if(raf) cancelAnimationFrame(raf); raf=0; }
+  function spawn(){
+    var i=K.rnd(G.nh), hen=$("hen"+i); if(!hen) return;
+    hen.classList.remove("lay"); void hen.offsetWidth; hen.classList.add("lay"); K.tone([880],.03);
+    var el=document.createElement("div"); el.className="fegg"+(Math.random()<.35?" brown":""); var f={x:W*(i+.5)/G.nh, y:G.hy+G.hs*.1, el:el};
+    el.style.left=f.x+"px"; el.style.top=f.y+"px"; $("fall").appendChild(el); Q.fall.push(f); if(Q.left>0) Q.left--;
+  }
+  function loop(now){
+    raf=0; if(!Q||!Q.live) return;
+    var dt=Q.last?Math.min(.05,(now-Q.last)/1000):0; Q.last=now; dt*=(window.__eggSpeed||1); Q.clock+=dt;
+    if(Q.left!==0&&Q.clock>=Q.nextAt){ spawn(); Q.nextAt=Q.clock+Q.gap*(.75+Math.random()*.5); }
+    if(window.__eggAuto){ var low=null; Q.fall.forEach(function(f){ if(!f.past&&(!low||f.y>low.y)) low=f; }); if(low) Q.bx=window.__eggAuto==="avoid"?(low.x<W/2?W-G.bw*.4:G.bw*.4):low.x; }   // test hooks: catch every egg / stay out of the way
+    var bk=$("bask"); if(bk) bk.style.left=Q.bx+"px";
+    Q.fall.forEach(function(f){ if(f.done) return; f.y+=Q.v*dt;
+      if(!f.past&&f.y>=G.by-G.e*.3){ f.past=true; if(Math.abs(f.x-Q.bx)<G.bw*.48&&Q.t*10+Q.o<99){ f.done=true; return caught(f); } }
+      if(f.y>G.load.y-G.e*.4){ f.done=true; return splat(f); }
+      f.el.style.top=f.y+"px"; });
+    Q.fall=Q.fall.filter(function(f){ return !f.done; });
+    if(Q.k==="count"&&Q.left===0&&!Q.fall.length){ Q.live=false; K.busy=true; K.later(ask,1300); return; }
+    raf=requestAnimationFrame(loop);
+  }
+  function caught(f){
+    var k=Q.o; Q.o++; if(Q.o===10){ Q.t++; Q.o=0; }
+    var bk=$("bask"); if(bk){ bk.classList.remove("got"); void bk.offsetWidth; bk.classList.add("got"); }
+    K.tone([620+k*35],.05);
+    var c=G.cart, p=cupXY(c.c,k); f.el.classList.add("fly"); f.el.style.left=(c.x+3+p[0]+c.c*.45)+"px"; f.el.style.top=(c.y+3+p[1]+c.c*.45)+"px"; f.el.style.transform="scale("+(c.c*.6/G.e)+")";
+    K.later(function(){ f.el.remove(); Q.os++; drawLoad(); if(Q.os===10) fullCarton(); },380);
+  }
+  function splat(f){ f.el.remove(); var s=document.createElement("div"); s.className="splat"; s.style.cssText="left:"+f.x+"px;top:"+(G.load.y-G.e*.4)+"px;width:"+G.e*1.9+"px;height:"+G.e*.8+"px";   // a broken egg on the ground $("fall").appendChild(s); setTimeout(function(){ s.remove(); },900); K.tone([180],.06,"square"); }
+  // 10 eggs: the lid closes and the carton rides onto the truck
+  function fullCarton(){
+    var cart=document.querySelector('#load .carton'); if(!cart) return;
+    var fl=cart.cloneNode(true); fl.classList.add("close"); $("fall").appendChild(fl);
+    K.tone([523,659,784],.07); K.say(["10 eggs: a full carton! 10 个，装满一盒！","One more ten! 又一个十！"][K.rnd(2)]);
+    Q.os=0; drawLoad();
+    var tr=G.truck, s=miniXY(Q.ts,tr.mw,tr.mh,tr.bedH);
+    setTimeout(function(){ fl.classList.add("fly"); fl.style.left=(tr.x+s[0])+"px"; fl.style.top=(tr.y+s[1])+"px"; fl.style.transform="scale("+(tr.mw/G.cart.w)+","+(tr.mh/G.cart.h)+")"; },300);
+    setTimeout(function(){ fl.remove(); Q.ts++; drawLoad(); },900);
+  }
+  // the basket follows a finger, the mouse or the arrow keys
+  function moveTo(e){ if(!Q||!Q.live) return; var r=$("stage").getBoundingClientRect(); var x=(e.clientX-r.left)*(W/r.width); Q.bx=Math.max(G.bw*.4,Math.min(W-G.bw*.4,x)); var hd=$("hand"); if(hd) hd.remove(); }
+  $("stage").addEventListener("pointerdown",moveTo); $("stage").addEventListener("pointermove",function(e){ if(e.pointerType==="mouse"||e.buttons) moveTo(e); });
+  document.addEventListener("keydown",function(e){ if(!Q||!Q.live) return; if(e.key==="ArrowLeft") Q.bx=Math.max(G.bw*.4,Q.bx-W*.08); if(e.key==="ArrowRight") Q.bx=Math.min(W-G.bw*.4,Q.bx+W*.08); });
+  // taking eggs out (orders only): the open carton gives one egg, a carton on the truck gives a ten
+  $("stage").addEventListener("click",function(e){
+    if(!Q||K.busy) return; var m=e.target.closest?e.target.closest(".mini"):null, c=e.target.closest?e.target.closest(".carton"):null;
+    if(Q.k==="exact"&&Q.live){
+      if(m&&Q.t>0&&Q.ts===Q.t){ Q.t--; Q.ts--; m.classList.add("out"); K.tone([500,380],.06); setTimeout(drawLoad,380); }
+      else if(c&&Q.o>0&&Q.os===Q.o){ Q.o--; Q.os--; K.tone([420],.06); drawLoad(); }
+      return; }
+    if(Q.k==="open"&&!Q.cut&&m) openCarton(m);
+  });
+  // ---------- how many? ----------
+  function ask(){
+    K.busy=false; Q.ans=Q.t*10+Q.o; drawLoad();
+    K.task('How many eggs did you catch?<span class="cn">你一共有几个鸡蛋？先数盒，再数散蛋。</span>'); K.say("Tens first, then ones! 先说十位，再说个位！");
+    K.pad2(function(v){ if(v===Q.ans) return good(TO(Q.t," ",Q.o)+" = "+Q.ans);
+      Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad();
+      if(Q.tries>=2){ K.busy=true; K.say("It's "+Q.ans+"! 是 "+Q.ans+"！"); K.task('<span class="eqbig">'+TO(Q.t," + ",Q.o)+' = '+Q.ans+'</span>'); K.later(function(){ K.done(false); },900); return; }
+      K.say("Each carton is 10. Count the cartons by tens, then the loose eggs. 一盒是 10。先十个十个数盒子，再数散蛋。"); });
+  }
+  function send(){
+    if(K.busy||!Q.live) return; var v=Q.t*10+Q.o;
+    if(v===Q.n){ Q.live=false; Q.left=0; return good(Q.n+" = "+TO(Q.t," ",Q.o)); }
+    Q.tries++; K.tone([200,150],.12,"sawtooth"); K.bad($("send")); setTimeout(function(){ var s=$("send"); if(s){ s.disabled=false; s.classList.remove("bad"); } },450);
+    if(Q.tries>=3){ Q.live=false; K.busy=true; K.say("The order was "+Q.n+": "+TO(Math.floor(Q.n/10)," and ",Q.n%10)+". 订单是 "+Q.n+"。"); K.task('<span class="eqbig">'+Q.n+' = '+TO(Math.floor(Q.n/10)," ",Q.n%10)+'</span>'); K.later(function(){ K.done(false); },1800); return; }
+    K.say(v<Q.n?"Not yet: the order needs more eggs. Keep catching! 还不够，继续接！":"Too many eggs! Tap the eggs or a carton to take some out. 太多了！点散蛋或一盒拿出来。");
+  }
+  function pickSign(v,btn){
+    if(v===Q.ans){ Q.sign=v; draw(); return good(Q.A+" "+v+" "+Q.B,true); }
+    Q.tries++; K.bad(btn); K.tone([200,150],.12,"sawtooth");
+    if(Q.tries>=2){ K.busy=true; Q.sign=Q.ans; draw(); K.task('<span class="eqbig">'+Q.A+' '+Q.ans+' '+Q.B+'</span>'); K.later(function(){ K.done(false); },1500); return; }
+    K.say(Math.floor(Q.A/10)!==Math.floor(Q.B/10)?"Count the cartons: more cartons is more eggs! 数盒子：盒多的鸡蛋多！":"Same cartons: compare the loose eggs! 盒数一样，比散蛋！");
+  }
+  function openCarton(m){
+    Q.cut=true; K.busy=true; m.classList.add("out"); K.tone([784,659,523],.07);
+    K.later(function(){ Q.t--; Q.o+=10; Q.cs=[Q.cs[0],10]; draw(); var c=document.querySelector('.carton[data-c="1"]'); if(c) c.classList.add("pop"); K.say("Now 10 more loose eggs! 多了 10 个散蛋！"); K.later(function(){ K.busy=false; askTens(); },500); },450);
+  }
+  function askTens(){
+    K.task('How many <b>tens</b> now?<span class="cn">现在有几个十？</span>');
+    K.nums(9,function(v,b){ if(v===Q.t) return askOnes(); Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth"); if(Q.tries>=2){ K.say("Count the cartons on the truck: "+Q.t+". 数卡车上的盒子：有 "+Q.t+" 盒。"); return askOnes(); } K.say("Count the cartons on the truck. 数一数卡车上有几盒。"); });
+  }
+  function askOnes(){
+    K.task('How many <b>ones</b> now?<span class="cn">现在有几个一？</span>');
+    K.nums(20,function(v,b){ if(v===Q.o) return good(Q.n+" = "+TO(Q.t," ",Q.o)); Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
+      if(Q.tries>=3){ K.busy=true; K.task('<span class="eqbig">'+Q.n+' = '+TO(Q.t," ",Q.o)+'</span>'); K.later(function(){ K.done(false); },1500); return; } K.say("Count the loose eggs in both cartons. 数一数两个盒子里的散蛋。"); });
+  }
+  function TO(t,mid,o){ return t+(t===1?" ten":" tens")+mid+o+(o===1?" one":" ones"); }
+  function good(eq,still){
+    K.hideAll(); K.task('<span class="eqbig">'+eq+'</span>'); K.say(["Great farming! 种田高手！","Yes! 对啦！","Super! 太棒了！"][K.rnd(3)]);
+    if(!still) K.later(function(){ [].forEach.call(document.querySelectorAll(".truck"),function(t){ t.classList.add("go"); }); K.tone([392,523,659],.1); },350);
+    K.done(true,Q.tries);
+  }
+  function tutHand(){ $("scene").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+(W/2-50)+'px;top:'+(G.by+G.bw*.3)+'px">👆</div>'); }
+  window.__eggs={q:function(){ return Q; },K:K};
+  K.start();
+})();
+</script>
+</body></html>
