@@ -17,7 +17,11 @@
 .side{position:absolute;z-index:4;pointer-events:none;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.15rem;color:#2c5a1e;background:#fff;border-radius:8px;padding:0 6px;transform:translate(-50%,-50%);box-shadow:0 2px 0 rgba(0,0,0,.12)}
 .grab{position:absolute;z-index:5;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:#ffd84a;border:3px solid #c79a00;box-shadow:0 3px 0 rgba(0,0,0,.2);pointer-events:none;animation:gpulse 1.2s ease-in-out infinite}@keyframes gpulse{50%{transform:scale(1.15)}}
 .critr{position:absolute;z-index:6;transform:translate(-50%,-50%);line-height:1;pointer-events:none;transition:left .8s ease-in,top .8s ease-in}
-.critr.hop{animation:phop .5s infinite}@keyframes phop{50%{margin-top:-10px}}
+.critr.hop{animation:phop .5s infinite}
+.critr.roll{animation:mroll .5s 4}@keyframes mroll{50%{transform:translate(-50%,-50%) rotate(180deg)}}
+.critr.muddy{filter:sepia(1) saturate(2.5) brightness(.55)}
+.gsq.still{animation:none}.gsq{position:absolute;z-index:2;pointer-events:none;background:#79c25a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);animation:gpop .25s}@keyframes gpop{from{transform:scale(.3)}}
+.mud{position:absolute;z-index:2;pointer-events:none;background:radial-gradient(circle at 40% 40%,#8a5a2b,#5e3a18);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}@keyframes phop{50%{margin-top:-10px}}
 .sign{position:absolute;z-index:6;background:#fff8e6;border:2px solid #e0b56a;border-radius:12px;padding:3px 10px;font-weight:900;font-size:.85rem;line-height:1.3;box-shadow:0 3px 0 rgba(0,0,0,.1)}
 .sign b{font-family:Fredoka,sans-serif;font-size:1.3rem;color:#4c9a3a}
 .hand{position:absolute;font-size:2.1rem;z-index:9;pointer-events:none;animation:drag 1.6s ease-in-out infinite}@keyframes drag{50%{transform:translate(40px,30px)}}
@@ -30,13 +34,14 @@
   "use strict";
   // Pet Pen Builder (Grade 3: area and perimeter). 6 pens a level, 5 right opens the next; any level opened can be played again.
   // The pen is a rectangle on a grid, w squares wide and h squares tall; its sides are labelled. Drag on the grid to stretch it.
-  //   rows     roll out the grass row by row (w squares a row), then how many squares of grass? (the area)
+  //   grass    how many squares of grass does the pen need? They are laid one by one: too few and a patch of mud is left,
+  //            and the pet rolls in it; too many and some are left over
   //   area     "the bunnies need 12 squares": stretch a pen of exactly 12 (3 by 4, 2 by 6, ... all right), open the gate
   //   fence    how many fence pieces go all the way round? The fence goes up piece by piece: too few and the puppy runs out of
   //            the gap, too many and some are left over
   //   perim    "you have 16 fence pieces": stretch a pen that uses all 16
   //   best     "16 fence pieces: make the biggest yard!" The same fence can hold very different yards
-  //   level 1 rows, level 2 area, level 3 fence, level 4 perim, level 5 best (with area and perim)
+  //   level 1 grass, level 2 area, level 3 fence, level 4 perim, level 5 best (with area and perim)
   var $=function(id){ return document.getElementById(id); };
   var Q=null, W=0, H=0, G={};
   var PETS=["🐶","🐰","🐑","🐱","🐹","🐥"];
@@ -62,10 +67,12 @@
     geom(); var u=G.u, w=Q.w, h=Q.h, x=G.px, y=G.py, s="";
     s+='<div class="grid" id="grid" style="left:'+G.x+'px;top:'+G.y+'px;width:'+(C*u)+'px;height:'+(R*u)+'px;background-size:'+u+'px '+u+'px"></div>';
     s+='<div class="dirt" style="left:'+x+'px;top:'+y+'px;width:'+(w*u)+'px;height:'+(h*u)+'px"></div>';
-    if(Q.k==="rows"){ for(var r=0;r<Q.rows;r++) s+='<div class="row" style="left:'+x+'px;top:'+(y+r*u)+'px;width:'+(w*u)+'px;height:'+u+'px;background-size:'+u+'px 100%;animation:none"></div>'; }
-    else if(Q.grass!==false) s+='<div class="grass" id="grass" style="left:'+x+'px;top:'+(y)+'px;width:'+(w*u)+'px;height:'+(h*u)+'px;background-size:'+u+'px '+u+'px"></div>';
+    if(Q.grass!==false) s+='<div class="grass" id="grass" style="left:'+x+'px;top:'+(y)+'px;width:'+(w*u)+'px;height:'+(h*u)+'px;background-size:'+u+'px '+u+'px"></div>';
     if(Q.fence) s+=fenceHtml(Q.fence===true?w*2+h*2:Q.fence);
-    if(Q.happy) for(var i=0;i<Q.happy;i++) s+='<div class="critr hop" style="font-size:'+u*.8+'px;left:'+(x+((i%w)+.5)*u)+'px;top:'+(y+(Math.floor(i/w)%h+.5)*u)+'px">'+Q.pet+'</div>';
+    else if(Q.laid) s+=fenceHtml(Q.laid);
+    for(var gi=0;gi<(Q.gN||0);gi++) s+=gsq(gi,"gsq still");
+    if(Q.mudFrom!=null) for(var mi=Q.mudFrom;mi<w*h;mi++) s+=gsq(mi,"mud");
+    if(Q.pile) s+='<div class="pile" style="left:'+(x+w*u+u*.6)+'px;top:'+(y+h*u/2)+'px">'+Q.pile+'</div>';
     s+='<div class="side" style="left:'+(x+w*u/2)+'px;top:'+(y+h*u+u*.42)+'px">'+w+'</div><div class="side" style="left:'+(x-u*.42)+'px;top:'+(y+h*u/2)+'px">'+h+'</div>';
     if(Q.drag) s+='<div class="grab" style="left:'+(x+w*u)+'px;top:'+(y+h*u)+'px"></div>';
     if(Q.sign) s+='<div class="sign" style="left:'+(G.x)+'px;top:'+Math.max(4,G.y-46)+'px">'+Q.sign+'</div>';
@@ -94,14 +101,12 @@
   document.addEventListener("pointerup",function(){ if(Q) Q.dragging=false; });
   // ---------- a round ----------
   function round(){
-    var L=K.L, easy=K.easy(), hard=K.hard(), kinds=L===1?["rows"]:L===2?["area"]:L===3?["fence"]:L===4?["perim"]:["best","best","area","perim"];
-    if(L===5&&easy) kinds=["area","perim"];
+    var L=K.L, easy=K.easy(), hard=K.hard(), kinds=L===1?["grass"]:L===2?["area"]:L===3?["fence"]:L===4?["perim"]:["best","best","area","perim"];
+    if(L===5&&easy) kinds=["area","perim"]; if(L===5&&!easy) kinds.push("grass");
     if(window.__petsOnly) kinds=[window.__petsOnly];
     var k=kinds[rnd(kinds.length)], pet=PETS[rnd(PETS.length)];
     Q={k:k,tries:0,pet:pet,w:2,h:2,fence:false,grass:true,drag:false};
-    if(k==="rows"){ Q.w=easy?2+rnd(3):3+rnd(6); Q.h=easy?2+rnd(2):2+rnd(4); Q.rows=0; Q.fence=true; Q.grass=false; Q.ans=Q.w*Q.h;
-      K.task('Roll out the grass, one row at a time!<span class="cn">一排一排铺草皮！</span>'); K.say("Each row is "+Q.w+" squares. 每排 "+Q.w+" 格。");
-      K.btns('<span></span><button type="button" class="main" id="roll">🌱 Roll a row 铺一排</button><span></span>').querySelector("#roll").onclick=rollRow; }
+    if(k==="grass"){ Q.w=easy?2+rnd(3):3+rnd(6); Q.h=easy?2+rnd(2):2+rnd(4); Q.fence=true; Q.grass=false; Q.ans=Q.w*Q.h; askGrass(); }
     else if(k==="area"){ var A=[[6],[8],[10],[12],[12],[15],[16],[18],[20],[24]][easy?rnd(4):rnd(10)][0]; Q.need=A; Q.drag=true; Q.w=1+rnd(3); Q.h=1+rnd(2);
       Q.sign=pet+' needs <b>'+A+'</b> squares of grass<br><span style="color:var(--muted);font-size:.8em">要 '+A+' 格草地</span>';
       K.task('Stretch the pen to <b>'+A+'</b> squares, then open the gate!<span class="cn">把围栏拉成 '+A+' 格，然后开门！</span>'); K.say("There is more than one way! 不止一种围法！");
@@ -117,44 +122,58 @@
     draw();
     if(Q.drag&&K.D.n===1) K.later(function(){ if(!$("hand")) $("scene").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+(G.px+Q.w*G.u-8)+'px;top:'+(G.py+Q.h*G.u-4)+'px">👆</div>'); },400);
   }
-  // ---------- rows: area as rows of w ----------
-  function rollRow(){
-    if(K.busy||Q.rows>=Q.h) return; var u=G.u; Q.rows++; K.tone([520+Q.rows*60],.06);
-    $("fly").insertAdjacentHTML("beforeend",'<div class="row" style="left:'+G.px+'px;top:'+(G.py+(Q.rows-1)*u)+'px;width:'+(Q.w*u)+'px;height:'+u+'px;background-size:'+u+'px 100%"></div>');
-    if(Q.rows===Q.h){ K.busy=true; K.later(function(){ K.busy=false; K.hideBtns(); draw();
-      K.task('How many squares of grass?<span class="cn">一共几格草地？</span>'); K.say(Q.h+" rows of "+Q.w+". "+Q.h+" 排，每排 "+Q.w+" 格。");
-      K.pad2(function(v){ if(v===Q.ans){ petsIn(); return good(Q.h+" × "+Q.w+" = "+Q.ans+" squares"); }
-        Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad();
-        if(Q.tries>=2){ K.busy=true; K.task('<span class="eqbig">'+Q.h+' × '+Q.w+' = '+Q.ans+'</span>'); K.later(function(){ K.done(false); },1500); return; }
-        K.say("Count by "+Q.w+"s, one row at a time. 一排一排地 "+Q.w+" 个 "+Q.w+" 个数。"); }); },500); }
+  // ---------- grass: how many squares of grass does the pen need? They are laid one by one, row by row ----------
+  function askGrass(){
+    K.task('How many squares of grass does the pen need?<span class="cn">这个围栏要订几块草皮？</span>'); K.say(Q.h+" rows, "+Q.w+" in each row. "+Q.h+" 排，每排 "+Q.w+" 块。");
+    K.pad2(function(v){ layGrass(v); });
   }
+  function gsq(i,cls){ var u=G.u, x=G.px+(i%Q.w)*u, y=G.py+Math.floor(i/Q.w)*u; return '<div class="'+cls+'" style="left:'+x+'px;top:'+y+'px;width:'+u+'px;height:'+u+'px"></div>'; }
+  function layGrass(n){
+    if(K.busy) return; K.busy=true; K.hideAll(); var A=Q.w*Q.h, put=Math.min(n,A), i=0, u=G.u;
+    (function next(){
+      if(i<put){ $("fly").insertAdjacentHTML("beforeend",gsq(i,"gsq")); K.tone([500+(i%10)*40],.03); i++; Q.gN=i; return K.later(next,Math.max(45,900/A)); }
+      if(n<A){ Q.tries++; Q.mudFrom=put; for(var k=put;k<A;k++) $("fly").insertAdjacentHTML("beforeend",gsq(k,"mud")); mudPet(put);
+        K.say("Too few! Some mud is left, and the "+Q.pet+" rolled in it! 太少了！剩下一块泥地，"+Q.pet+"在泥里打滚！"); return K.later(retryGrass,2800); }
+      if(n>A){ Q.tries++; Q.pile="🌱 +"+(n-A); $("fly").insertAdjacentHTML("beforeend",'<div class="pile" style="left:'+(G.px+Q.w*u+u*.6)+'px;top:'+(G.py+Q.h*u/2)+'px">'+Q.pile+'</div>');
+        K.say("Too many: "+(n-A)+" squares of grass left over. 多了 "+(n-A)+" 块草皮。"); return K.later(retryGrass,2400); }
+      Q.grass=true; Q.gN=0; good(Q.h+" × "+Q.w+" = "+A+" squares");
+    })();
+  }
+  function retryGrass(){
+    if(Q.tries>=2){ Q.grass=true; draw(); K.task('<span class="eqbig">'+Q.h+' × '+Q.w+' = '+(Q.w*Q.h)+'</span>'); K.later(function(){ K.done(false); },1600); return; }
+    K.busy=false; Q.gN=0; Q.mudFrom=null; Q.pile=0; draw(); askGrass(); K.say("Count by "+Q.w+"s, one row at a time. 一排一排地 "+Q.w+" 个 "+Q.w+" 个数。");
+  }
+  // the pet runs into the mud and rolls in it: it comes out muddy
+  function mudPet(at){ var u=G.u, x=G.px+(at%Q.w+.5)*u, y=G.py+(Math.floor(at/Q.w)+.5)*u;
+    var p=document.createElement("div"); p.className="critr hop"; p.textContent=Q.pet; p.style.cssText="font-size:"+u*.9+"px;left:"+(G.x+C*u+20)+"px;top:"+y+"px"; $("fly").appendChild(p);
+    setTimeout(function(){ p.style.left=x+"px"; },60); setTimeout(function(){ p.classList.remove("hop"); p.classList.add("roll","muddy"); K.tone([300,200,260,180],.1); },950); }
   // ---------- area: exactly the squares needed ----------
   function checkArea(){
     if(K.busy) return; var a=Q.w*Q.h;
-    if(a===Q.need){ Q.drag=false; draw(); petsIn(); return good(Q.h+" × "+Q.w+" = "+a+" squares"); }
+    if(a===Q.need){ Q.drag=false; draw(); return good(Q.h+" × "+Q.w+" = "+a+" squares"); }
     Q.tries++; K.tone([200,150],.12,"sawtooth");
     if(Q.tries>=3){ K.busy=true; Q.drag=false; var f=[[1,Q.need]]; for(var i=2;i*i<=Q.need;i++) if(Q.need%i===0) f.push([i,Q.need/i]); var p=f[f.length-1]; Q.h=Math.min(p[0],R-2); Q.w=Q.need/Q.h; draw(); K.task('<span class="eqbig">'+Q.h+' × '+Q.w+' = '+Q.need+'</span>'); K.later(function(){ K.done(false); },1600); return; }
     K.say(a<Q.need?"Too small: "+Q.h+" rows of "+Q.w+" is "+a+". 太小了。":"Too big: "+Q.h+" rows of "+Q.w+" is "+a+". 太大了。");
   }
   // ---------- the fence goes up piece by piece; n pieces for a fence that needs 2(w+h) ----------
   function buildFence(n,mine){
-    if(K.busy) return; var P=2*(Q.w+Q.h), e=edges(), have=mine?Q.need:n, u=G.u; K.busy=true; K.hideAll(); Q.drag=false; Q.fence=false; draw();
+    if(K.busy) return; var P=2*(Q.w+Q.h), e=edges(), have=mine?Q.need:n, u=G.u; K.busy=true; K.hideAll(); Q.drag=false; Q.fence=false; Q.laid=0; Q.pile=0; draw();
     var put=Math.min(have,P), i=0;
     (function next(){
-      if(i<put){ $("fly").insertAdjacentHTML("beforeend",fpHtml(e[i]," pop")); K.tone([400+(i%10)*40],.03); i++; return K.later(next,Math.max(40,700/P)); }
+      if(i<put){ $("fly").insertAdjacentHTML("beforeend",fpHtml(e[i]," pop")); K.tone([400+(i%10)*40],.03); i++; Q.laid=i; return K.later(next,Math.max(40,700/P)); }
       if(have<P){ escape(e[put]); Q.tries++; K.say((mine?"Not enough pieces to go round! ":"Too few! ")+"The "+Q.pet+" ran out of the gap! "+(mine?"栅栏不够围一圈！":"太少了！")+"从缺口跑掉了！"); return K.later(retry,2400); }
-      if(have>P){ $("fly").insertAdjacentHTML("beforeend",'<div class="pile" style="left:'+(G.px+Q.w*u+u*.6)+'px;top:'+(G.py+Q.h*u/2)+'px">🧱 +'+(have-P)+'</div>'); Q.tries++;
+      if(have>P){ Q.pile="🧱 +"+(have-P); $("fly").insertAdjacentHTML("beforeend",'<div class="pile" style="left:'+(G.px+Q.w*u+u*.6)+'px;top:'+(G.py+Q.h*u/2)+'px">'+Q.pile+'</div>'); Q.tries++;
         K.say((mine?"There are "+(have-P)+" pieces left over: the pen is too small. 还剩 "+(have-P)+" 块：围栏太小了。":"Too many: "+(have-P)+" left over. 多了 "+(have-P)+" 块。")); return K.later(retry,2200); }
       if(Q.k==="best"){ var side=Q.need/4, best=Math.floor(side)*Math.ceil(side), a=Q.w*Q.h;
-        if(a<best){ Q.tries++; petsIn(); K.say("All "+Q.need+" pieces used! This yard is "+a+" squares. Can you make it bigger? 用完了！院子有 "+a+" 格。还能更大吗？"); return K.later(retry,2600); } }
-      Q.fence=true; petsIn(); good(Q.k==="fence"?Q.w+" + "+Q.h+" + "+Q.w+" + "+Q.h+" = "+P:Q.k==="best"?"Biggest: "+Q.h+" × "+Q.w+" = "+(Q.w*Q.h)+" squares":"Fence: "+P+" pieces");
+        if(a<best){ Q.tries++; K.say("All "+Q.need+" pieces used! This yard is "+a+" squares. Can you make it bigger? 用完了！院子有 "+a+" 格。还能更大吗？"); return K.later(retry,2600); } }
+      Q.fence=true; good(Q.k==="fence"?Q.w+" + "+Q.h+" + "+Q.w+" + "+Q.h+" = "+P:Q.k==="best"?"Biggest: "+Q.h+" × "+Q.w+" = "+(Q.w*Q.h)+" squares":"Fence: "+P+" pieces");
     })();
   }
   function retry(){
     if(Q.tries>=3){ if(Q.k==="fence"){ K.task('<span class="eqbig">'+Q.w+' + '+Q.h+' + '+Q.w+' + '+Q.h+' = '+(2*(Q.w+Q.h))+'</span>'); }
       else { var s=Q.need/2, bw=Math.ceil(s/2), bh=Math.floor(s/2); Q.w=bw; Q.h=bh; Q.fence=true; draw(); K.task('<span class="eqbig">'+bh+' × '+bw+' = '+(bw*bh)+' · fence '+Q.need+'</span>'); }
       K.later(function(){ K.done(false); },1600); return; }
-    K.busy=false; Q.fence=false; Q.happy=0;
+    K.busy=false; Q.fence=false; Q.laid=0; Q.pile=0;
     if(Q.k==="fence"){ draw(); K.task('How many fence pieces go all the way round?<span class="cn">围一圈要几块栅栏？</span>'); K.say("Count the edges on all four sides. 四条边都要数。"); K.pad2(function(v){ buildFence(v); }); return; }
     Q.drag=true; draw();
     K.btns('<span></span><button type="button" class="main" id="go">🧱 Build the fence! 围栅栏</button><span></span>').querySelector("#go").onclick=function(){ if(!K.busy) buildFence(2*(Q.w+Q.h),true); };
@@ -163,11 +182,6 @@
   function escape(edge){ var u=G.u, x=G.px+edge[0]*u+(edge[2]==="h"?u/2:0), y=G.py+edge[1]*u+(edge[2]==="v"?u/2:0);
     var p=document.createElement("div"); p.className="critr hop"; p.textContent=Q.pet; p.style.cssText="font-size:"+u*.9+"px;left:"+(G.px+Q.w*u/2)+"px;top:"+(G.py+Q.h*u/2)+"px"; $("fly").appendChild(p);
     K.tone([700,500,300],.1); setTimeout(function(){ p.style.left=x+"px"; p.style.top=y+"px"; },60); setTimeout(function(){ p.style.left=(x+(edge[2]==="v"?(edge[0]===0?-3:3)*u:0))+"px"; p.style.top=(y+(edge[2]==="h"?(edge[1]===0?-3:3)*u:0))+"px"; },900); }
-  // the pets hop into the pen: one for every 4 squares
-  function petsIn(){ var u=G.u, n=Math.max(1,Math.min(8,Math.floor(Q.w*Q.h/4))), i; if(Q.happy) return;
-    for(i=0;i<n;i++){ var p=document.createElement("div"); p.className="critr hop"; p.textContent=Q.pet; p.style.cssText="font-size:"+u*.8+"px;left:"+(G.x+C*G.u+20)+"px;top:"+(G.py+Q.h*u/2)+"px"; $("fly").appendChild(p);
-      (function(p,i){ setTimeout(function(){ p.style.left=(G.px+((i%Q.w)+.5)*u)+"px"; p.style.top=(G.py+(Math.floor(i/Q.w)%Q.h+.5)*u)+"px"; },80+i*120); })(p,i); }
-    Q.happy=n; }
   function good(eq){ K.hideAll(); K.task('<span class="eqbig">'+eq+'</span>'); K.say(["Happy pets! 宠物好开心！","Great builder! 建造高手！","Yes! 对啦！"][rnd(3)]); K.done(true,Q.tries); }
   window.__pets={q:function(){ return Q; },K:K,size:function(w,h){ Q.w=w; Q.h=h; draw(); }};
   K.start();
