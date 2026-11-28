@@ -63,7 +63,7 @@
     id:"rescue", store:"rescueLadder.v1", title:"🚒 Rescue Ladder", name:"Rescue Ladder", sub:"Length Practice 测量长度",
     score:["Rescues","救援"], goal:6, need:5, pause:2600,
     colors:{bg:"#fff4f0",line:"#f3d6cc",accent:"#d63a2a",stage:"linear-gradient(180deg,#bfe6ff,#e6f6ff)"},
-    how:'<div>🐱 A kitten is stuck! How high is it?</div><div>🧊 Stack cubes from the ground up: no gaps, no overlaps.</div><div>🪜 Give the ladder just as many sections as cubes, then Go!</div><div>🔢 Count up to 120 to ride the tower.</div><div style="color:var(--muted)">小猫被困住了！用方块从地面往上一块一块叠，不留空隙、不重叠，量一量有多高；梯子接上同样多节，消防员就能救下小猫。数到 120，坐电梯上高楼。</div>',
+    how:'<div>🐱 A kitten is stuck! How high is it?</div><div>🧊 Stack cubes next to the ladder, from the ground up: no gaps, no overlaps.</div><div>🪜 Give the ladder just as many sections as cubes, then Go!</div><div>🔢 Count up to 120 to ride the tower.</div><div style="color:var(--muted)">小猫被困住了！用方块从地面往上一块一块叠，不留空隙、不重叠，量一量有多高；梯子接上同样多节，消防员就能救下小猫。数到 120，坐电梯上高楼。</div>',
     shop:[{id:"dog",e:"🐶",p:5,x:"86%",y:"84%"},{id:"hyd",e:"🧯",p:8,x:"4%",y:"84%"},{id:"tree",e:"🌳",p:12,x:"92%",y:"60%"},{id:"sun",e:"🌞",p:16,x:"86%",y:"2%"},{id:"bird",e:"🐦",p:22,x:"70%",y:"6%"},{id:"flow",e:"🌷",p:28,x:"14%",y:"84%"},{id:"bal",e:"🎈",p:36,x:"56%",y:"4%"},{id:"rain",e:"🌈",p:45,x:"36%",y:"2%"}],
     shopName:"Fire station shop 消防站商店", welcome:"🚒 Welcome to the fire station! 欢迎来消防站！", hello:"Let's save the kittens! 一起救小猫！",
     round:round, resize:function(){ if(Q) draw(); }
@@ -87,7 +87,7 @@
       h+=el("leaf","left:"+px(tx-u*1.6)+";top:"+px(by-u*3.6)+";width:"+px(u*3.4)+";height:"+px(u*2.6))+el("leaf","left:"+px(tx-u*.2)+";top:"+px(by-u*4.3)+";width:"+px(u*3)+";height:"+px(u*2.6));
       h+=el("branch","left:"+px(tx+tw-4)+";top:"+px(by-u*.42)+";width:"+px(u*3.3)+";height:"+px(u*.42));
       for(var i=0;i<Q.cubes;i++) h+=cube(i,i<Q.cubes-1||!Q.drop);
-      h+='<div class="lad" id="lad" style="--u:'+px(u)+';left:'+px(G.ladX)+';width:'+px(G.ladW)+';top:'+px(gy-Q.len*u)+';height:'+px(Q.len*u)+';'+(Q.k==="measure"?"display:none":"")+'"></div>';
+      h+='<div class="lad" id="lad" style="--u:'+px(u)+';left:'+px(G.ladX)+';width:'+px(G.ladW)+';top:'+px(gy-Q.len*u)+';height:'+px(Q.len*u)+'"></div>';
       h+=truckHtml(G.ladX+G.ladW+u*.3,Math.min(W*.34,u*5));
       h+=whoHtml(G.ladX+G.ladW/2)+catHtml(G.ladX+G.ladW*.6,by-u*.42);
     }
@@ -131,8 +131,9 @@
     // compare: the other ladder is 2..12 long, so there is always one far enough from a
     if(k==="compare"){ var a=n, b; do{ b=2+K.rnd(11); }while(Math.abs(a-b)<(easy?3:1)); if(K.rnd(2)){ Q.a=a; Q.b=b; } else { Q.a=b; Q.b=a; } Q.ans=Q.a>Q.b?0:1;
       K.task('Which ladder is <b>longer</b>? Tap it!<span class="cn">哪架梯子更长？点它！长的梯子才够得着小猫。</span>'); K.say("Help! The kitten is on the roof! 小猫在屋顶上！"); }
-    else if(k==="measure"){
-      K.task('How high is the kitten? Stack cubes up to the branch!<span class="cn">小猫有多高？从地面往上叠方块，叠到树枝那么高！</span>');
+    // measure: the ladder already stands by the tree, and the cubes measure it side by side
+    else if(k==="measure"){ Q.len=n;
+      K.task('How tall is the ladder? Stack cubes next to it, up to the branch!<span class="cn">梯子有多高？在梯子旁边往上叠方块，叠到和梯子一样高！</span>');
       ctrl('<button type="button" id="add">🧊 + Cube 加一块</button><button type="button" id="sub">➖ Take off 拿走</button><button type="button" class="main" id="ok">✓ Done 好了</button>');
       $("add").onclick=function(){ if(K.busy) return; if(Q.cubes>=Q.n+3){ K.say("Way too high! 太高啦！"); return; } Q.cubes++; Q.drop=true; draw(); K.tone([400+Q.cubes*40],.06); var c=document.querySelector('.cube[data-i="'+(Q.cubes-1)+'"]'); if(c){ void c.offsetWidth; c.style.top=px(G.gy-Q.cubes*G.u); } Q.drop=false; };
       $("sub").onclick=function(){ if(K.busy||!Q.cubes) return; Q.cubes--; draw(); K.tone([300],.05); };
@@ -183,11 +184,11 @@
     if(K.busy) return;
     if(Q.cubes!==Q.n){ Q.tries++; K.tone([200,150],.12,"sawtooth"); K.say(Q.cubes<Q.n?"Not up to the branch yet! 还没到树枝！":"Too high! Take some off. 太高了，拿走几块。"); if(Q.tries>=3){ Q.cubes=Q.n; draw(); } return; }
     K.busy=true; K.hideBtns(); K.say("Now count the cubes! 现在数一数方块！");
-    K.task('How many cubes high is the kitten?<span class="cn">小猫有几块方块那么高？</span>');
+    K.task('How many cubes tall is the ladder?<span class="cn">梯子有几块方块那么高？</span>');
     K.later(function(){ K.busy=false; K.nums(15,function(v,b){ if(v===Q.n){ return K.later(function(){ climbAfterMeasure(); },50); } Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
       if(Q.tries>=4){ K.busy=true; K.task('<span class="eqbig">'+Q.n+' cubes high</span>'); K.later(function(){ K.done(false); },1400); return; } K.say("Count each cube from the bottom. 从下往上一块一块数。"); }); },300);
   }
-  function climbAfterMeasure(){ K.hideNums(); K.busy=true; Q.len=Q.n; var l=$("lad"); if(l){ l.style.display=""; setLad(); } K.say(Q.n+" cubes high! Up we go! "+Q.n+" 块高！上去救它！");
+  function climbAfterMeasure(){ K.hideNums(); K.busy=true; K.say(Q.n+" cubes high! Up we go! "+Q.n+" 块高！上去救它！");
     K.later(function(){ climbTo(G.ladX+G.ladW/2,G.gy-Q.n*G.u,save); },400); }
   // ---------- ladder ----------
   function climb(){
