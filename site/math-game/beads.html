@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bead Shop</title>
+<meta name="theme-color" content="#a0459b">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Bead Shop: make necklaces with rods of ten beads and single beads. Ten more and ten less, adding tens, adding ones (ten beads snap into a new ten), and adding two-digit numbers. Grade 1 adding within 100.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* the trays, the rods of ten, the beads */
+.tray{position:absolute;border-radius:18px;background:rgba(255,255,255,.6);border:3px solid #d9a8d4;z-index:1}
+.tray.box{background:#fff3d6;border-color:#d9a95a}
+.tray .tl{position:absolute;top:-13px;left:14px;background:#fff;border-radius:9px;padding:0 9px;font-weight:900;font-size:.8rem;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.tray .tl b{font-family:Fredoka,sans-serif;font-size:1.05rem;color:#a0459b}
+.area{position:absolute;border-radius:12px;background:rgba(160,69,155,.07);cursor:pointer}
+.area .al{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);font-weight:900;font-size:.7rem;color:#9a7aa0;white-space:nowrap;pointer-events:none}
+.area.live{background:rgba(255,216,74,.28);box-shadow:0 0 0 3px #ffd84a inset;animation:glow 1.2s ease-in-out infinite}@keyframes glow{50%{box-shadow:0 0 0 6px #ffd84a inset}}
+.bar{position:absolute;background:#7a4a2a;border-radius:3px;z-index:2;transition:left .5s ease,top .5s ease,width .5s ease,height .5s ease,opacity .4s;pointer-events:none}
+.bd{position:absolute;width:var(--d);height:var(--d);margin:calc(var(--d) / -2) 0 0 calc(var(--d) / -2);border-radius:50%;z-index:3;pointer-events:none;
+  background:radial-gradient(circle at 34% 30%,rgba(255,255,255,.85) 0 16%,rgba(255,255,255,0) 18%),var(--c);box-shadow:inset 0 -2px 0 rgba(0,0,0,.22),0 1px 1px rgba(0,0,0,.2);
+  transition:left .5s ease,top .5s ease,transform .5s ease}
+.bd.pop{animation:bpop .35s}@keyframes bpop{50%{transform:scale(1.5)}}
+.snap{position:absolute;transform:translate(-50%,-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:1.6rem;color:#fff;background:#a0459b;border-radius:14px;padding:2px 12px;z-index:6;animation:snap 1s forwards;pointer-events:none}@keyframes snap{0%{transform:translate(-50%,-50%) scale(.4)}25%{transform:translate(-50%,-50%) scale(1.2)}80%{opacity:1}to{opacity:0;transform:translate(-50%,-90%)}}
+.cust{position:absolute;transform:translate(-50%,-50%) scale(.2);opacity:0;z-index:2;transition:transform .5s cubic-bezier(.3,1.6,.6,1),opacity .3s;pointer-events:none}
+.cust svg{width:100%;height:100%}
+.cust.on{transform:translate(-50%,-50%) scale(1);opacity:1}.cust.on.hop{animation:hop .5s .6s 2}@keyframes hop{50%{transform:translate(-50%,-62%) scale(1.05)}}
+.dim .tray,.dim .area,.dim .bar{opacity:.18}
+.hand{position:absolute;font-size:2.1rem;z-index:9;pointer-events:none;animation:tap 1s ease-in-out infinite}@keyframes tap{50%{transform:translateY(10px)}}
+.wrap.fitted .tray .tl{font-size:1rem}.wrap.fitted .area .al{font-size:.85rem}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261202a"></script><script src="critters.js?v=20261130a"></script><script src="g1kit.js?v=20261201a"></script>
+<script>
+(function(){
+  "use strict";
+  // Bead Shop (Grade 1, Unit 5: adding within 100). 6 necklaces a level, 5 right opens the next; any level opened can be played again.
+  //   Your necklace (the top tray) holds rods of ten beads (tens) and single beads (ones). The child moves beads, then says how many.
+  //   more / less   34 + 10, 34 - 10: tap the box to take a ten, or tap your tens to give one back
+  //   addtens / subtens   34 + 30, 56 - 20: several tens
+  //   addones   34 + 5, 37 + 6: tap single beads over one at a time; at 10 loose beads they snap into a new rod of ten
+  //   add2      34 + 23: tens and ones both
+  //   level 1 ten more / ten less, level 2 tens, level 3 ones (making a new ten), level 4 two-digit + two-digit, level 5 all of them
+  // When the answer is right the beads fly round the customer's neck.
+  var $=function(id){ return document.getElementById(id); };
+  var Q=null, W=0, H=0, G={}, rods=[], ones=[];
+  var RODC=["#4a8cff","#2fb36b","#ff8a3d","#9b5cff","#ff4f7b","#18b5c4","#e8b100","#6b7cff","#d65db1","#46a34a"], ONEC="#ff6fa8";
+  var K=G1Kit({
+    id:"beads", store:"beadShop.v1", title:"📿 Bead Shop", name:"Bead Shop", sub:"Adding Within 100 加法（100 以内）",
+    score:["Necklaces","项链"], goal:6, need:5, pause:2800,
+    colors:{bg:"#fbf3fa",line:"#ecd3ea",accent:"#a0459b",stage:"linear-gradient(180deg,#ffe9f6,#f6e3ff)"},
+    how:'<div>📿 A rod is 10 beads (one ten). A loose bead is one.</div><div>👆 Tap the box to move beads onto your necklace, or tap your tens to give some back.</div><div>✨ 10 loose beads snap into a new rod!</div><div>🔢 Then say how many beads: tens first, then ones.</div><div style="color:var(--muted)">一串是 10 颗珠子（一个十），单颗是一。点盒子把珠子放到你的项链上，或者点你的十把它还回去。10 颗单珠会扣成一串！最后说一共几颗：先十位，再个位。</div>',
+    shop:[{id:"rib",e:"🎀",p:5,x:"3%",y:"86%"},{id:"gem",e:"💎",p:8,x:"92%",y:"86%"},{id:"crown",e:"👑",p:12,x:"84%",y:"2%"},{id:"star",e:"🌟",p:16,x:"66%",y:"2%"},{id:"shell",e:"🐚",p:22,x:"12%",y:"86%"},{id:"bal",e:"🎈",p:28,x:"48%",y:"2%"},{id:"rain",e:"🌈",p:36,x:"30%",y:"86%"},{id:"unic",e:"🦄",p:45,x:"75%",y:"86%"}],
+    shopName:"Bead shop 珠子商店", welcome:"📿 Welcome to the Bead Shop! 欢迎来珠子店！", hello:"10 beads make a rod! 10 颗珠子串成一串！",
+    round:round, resize:function(){ if(Q) layout(); }
+  });
+  // ---------- the layout: your necklace tray and the box (side by side on a wide screen, one above the other on a narrow one) ----------
+  function geom(){
+    var st=$("stage"); W=st.clientWidth; H=st.clientHeight; var wide=W/H>1.25, top=Math.max(62,H*.13);
+    var me=wide?{x:W*.03,y:top,w:W*.56,h:H*.95-top}:{x:W*.04,y:top,w:W*.92,h:(H*.97-top)*.58};
+    var bx=wide?{x:W*.62,y:top,w:W*.35,h:H*.95-top}:{x:W*.04,y:me.y+me.h+22,w:W*.92,h:H*.97-me.y-me.h-22};
+    // tens (left) and ones (right) inside each tray
+    function split(t,f,vert){ var p=8, lab=0; return {t:{x:t.x+p,y:t.y+p+4,w:t.w*f-p*1.5,h:t.h-p*2-4-lab,vert:vert},o:{x:t.x+t.w*f+p/2,y:t.y+p+4,w:t.w*(1-f)-p*1.5,h:t.h-p*2-4-lab}}; }
+    var A=split(me,.64,true), B=split(bx,wide?.56:.6,wide);
+    // one bead size for everything: 10 rods across your tens, 10 beads down a rod; the box rods lie down on a narrow screen
+    // (the box makes room for as many rods as this round puts in it, at least 3)
+    var br=Q?Math.max(3,Math.floor(Q.b/10)):3;
+    var d=Math.min(30, A.t.w/(10*1.35), (A.t.h-14)/10.9, A.o.w/(5*1.4), (A.o.h-14)/(2*1.4));
+    d=Math.min(d, B.t.vert? Math.min(B.t.w/(br*1.35),(B.t.h-14)/10.9) : Math.min((B.t.w-6)/10.6,(B.t.h-14)/(br*1.3)), B.o.w/(5*1.4), (B.o.h-14)/(2*1.4));
+    G={wide:wide, me:me, bx:bx, A:A, B:B, br:br, d:Math.max(8,d)};
+  }
+  // where rod i of a tens area goes: [x, y of its first bead, dx, dy between beads] and its bar
+  function rodSpot(area,i){ var d=G.d;
+    if(area.vert){ var step=Math.min(d*1.45,area.w/(area===G.B.t?G.br+.2:10.2)), x=area.x+step*(i+.6), y=area.y+(area.h-14-d*10.6)/2+d*.5+2; return {x:x,y:y,dx:0,dy:d*1.06,bar:[x-1.5,y-d*.6,3,d*10.8]}; }
+    var stepY=Math.min(d*1.35,(area.h-14)/(G.br+.2)), x0=area.x+(area.w-d*10.6)/2+d*.5, y0=area.y+stepY*(i+.6); return {x:x0,y:y0,dx:d*1.06,dy:0,bar:[x0-d*.6,y0-1.5,d*10.8,3]}; }
+  // single bead j: a ten frame of 5 + 5, so it is easy to see how many
+  function oneSpot(area,j){ var c=G.d*1.4, x0=area.x+(area.w-c*5)/2, y0=area.y+(area.h-14-c*2)/2; return [x0+c*((j%5)+.5), y0+c*(Math.floor(j/5)%2+.5)+(j>=10?c*.25:0)]; }
+  function make(cls,css){ var e=document.createElement("div"); e.className=cls; if(css) e.style.cssText=css; $("scene").appendChild(e); return e; }
+  function newRod(where,c){ var r={at:where,c:c,beads:[],bar:make("bar")}; for(var k=0;k<10;k++){ var b=make("bd"); b.style.setProperty("--c",c); r.beads.push(b); } rods.push(r); return r; }
+  function newOne(where){ var e=make("bd"); e.style.setProperty("--c",ONEC); var o={at:where,el:e}; ones.push(o); return o; }
+  function place(e,x,y){ e.style.left=x+"px"; e.style.top=y+"px"; }
+  function layout(){
+    geom(); var d=G.d, sc=$("scene"); sc.style.setProperty("--d",d+"px");
+    drawTrays();
+    if(Q&&Q.neck) return neckLayout();
+    var n={me:0,bx:0};
+    rods.forEach(function(r){ if(r.at==="gone"){ r.bar.style.opacity=0; r.beads.forEach(function(b){ b.style.transform="scale(0)"; }); return; }
+      var s=rodSpot(r.at==="me"?G.A.t:G.B.t, n[r.at]++); var br=r.bar.style; br.left=s.bar[0]+"px"; br.top=s.bar[1]+"px"; br.width=s.bar[2]+"px"; br.height=s.bar[3]+"px"; br.opacity=1;
+      r.beads.forEach(function(b,k){ place(b,s.x+s.dx*k,s.y+s.dy*k); }); });
+    var m={me:0,bx:0};
+    ones.forEach(function(o){ var p=oneSpot(o.at==="me"?G.A.o:G.B.o, m[o.at]++); place(o.el,p[0],p[1]); });
+  }
+  function drawTrays(){
+    var old=document.querySelectorAll("#scene .tray,#scene .area"); [].forEach.call(old,function(e){ e.remove(); });
+    var me=G.me, bx=G.bx, h="";
+    h+='<div class="tray" style="left:'+me.x+'px;top:'+me.y+'px;width:'+me.w+'px;height:'+me.h+'px"><span class="tl">Your necklace 你的项链</span></div>';
+    h+='<div class="tray box" style="left:'+bx.x+'px;top:'+bx.y+'px;width:'+bx.w+'px;height:'+bx.h+'px"><span class="tl">'+(Q?Q.boxLab:"")+'</span></div>';
+    [["me","t",G.A.t,"tens 十"],["me","o",G.A.o,"ones 一"],["bx","t",G.B.t,"tens 十"],["bx","o",G.B.o,"ones 一"]].forEach(function(a){ var r=a[2];
+      var live=Q&&!Q.ask&&!Q.neck&&((Q.give&&a[0]==="me"&&a[1]==="t")||(!Q.give&&a[0]==="bx"&&left(a[1])>0));
+      h+='<div class="area'+(live?" live":"")+'" data-a="'+a[0]+a[1]+'" style="left:'+r.x+'px;top:'+r.y+'px;width:'+r.w+'px;height:'+r.h+'px"><span class="al">'+a[3]+'</span></div>'; });
+    $("scene").insertAdjacentHTML("afterbegin",h);
+  }
+  function left(k){ return k==="t"?rods.filter(function(r){ return r.at==="bx"; }).length:ones.filter(function(o){ return o.at==="bx"; }).length; }
+  function count(at){ return rods.filter(function(r){ return r.at===at; }).length*10+ones.filter(function(o){ return o.at===at; }).length; }
+  // ---------- a round ----------
+  function round(){
+    var L=K.L, easy=K.easy(), hard=K.hard(), kinds=L===1?["more","less"]:L===2?["addtens","subtens"]:L===3?["addones"]:L===4?["add2"]:["more","less","addtens","subtens","addones","add2"];
+    if(L===5&&easy) kinds=["more","less","addtens"];
+    var k=kinds[K.rnd(kinds.length)], a, b, i;
+    $("scene").innerHTML=""; $("scene").classList.remove("dim"); rods=[]; ones=[];
+    if(k==="more"){ a=easy?11+K.rnd(40):11+K.rnd(79); b=10; }
+    else if(k==="less"){ a=easy?20+K.rnd(30):20+K.rnd(79); b=10; }
+    else if(k==="addtens"){ do{ b=10*(1+K.rnd(easy?3:5)); a=Math.random()<.3?10*(1+K.rnd(5)):11+K.rnd(70); }while(a+b>99); }
+    else if(k==="subtens"){ do{ a=easy?30+K.rnd(40):30+K.rnd(69); b=10*(2+K.rnd(easy?2:4)); }while(b>Math.floor(a/10)*10); }
+    else if(k==="addones"){ var mk=hard?Math.random()<.75:easy?Math.random()<.3:Math.random()<.55; // does it make a new ten?
+      do{ a=11+K.rnd(easy?50:85); b=2+K.rnd(8); }while(a+b>99||((a%10+b>=10)!==mk)); }
+    else { var mk2=hard?Math.random()<.6:Math.random()<.3;
+      do{ a=11+K.rnd(easy?40:70); b=11+K.rnd(easy?30:50); }while(a+b>99||b%10===0||((a%10+b%10>=10)!==mk2)); }
+    if(K.D.tut&&K.D.n===1){ k="more"; a=23; b=10; }   // the first round of the first visit: an easy one, with a pointing hand
+    var sub=k==="less"||k==="subtens";
+    Q={k:k,a:a,b:b,sub:sub,give:sub,ans:sub?a-b:a+b,tries:0,ask:false,neck:false,eq:a+(sub?" − ":" + ")+b,
+       boxLab:sub?"Give back 还回去":'Add 加上 <b>'+b+'</b>', cust:Critters.list[K.rnd(Critters.list.length)]};
+    for(i=0;i<Math.floor(a/10);i++) newRod("me",RODC[i%RODC.length]);
+    for(i=0;i<a%10;i++) newOne("me");
+    if(!sub){ for(i=0;i<Math.floor(b/10);i++) newRod("bx",RODC[(Math.floor(a/10)+i)%RODC.length]); for(i=0;i<b%10;i++) newOne("bx"); }
+    Q.need=sub?b/10:0;
+    layout();
+    K.task('<b>'+Q.eq+'</b> = ?<span class="cn">'+(sub?"先把 "+b/10+" 串十还回去":"先把盒子里的珠子放到你的项链上")+'</span>');
+    K.say(sub?(b===10?"10 less! Tap your tens to give one back. 少 10！点你的十，还回去一串。":"Give back "+b+": tap your tens! 还回去 "+b+"：点你的十！")
+             :(k==="addones"?"Tap the ones: one bead at a time! 点个位：一次一颗！":"Tap the box to add the beads! 点盒子，把珠子加上！"));
+    if(K.D.tut&&K.D.n===1) K.later(tutHand,400);
+  }
+  // ---------- moving beads ----------
+  $("scene").addEventListener("click",function(e){
+    if(K.busy||!Q||Q.ask||Q.neck) return;
+    var ar=e.target.closest?e.target.closest(".area"):null; if(!ar) return;
+    var a=ar.getAttribute("data-a"), hd=$("hand"); if(hd) hd.remove();
+    if(Q.give){ if(a!=="met") return nudge();
+      var mine=rods.filter(function(r){ return r.at==="me"; }); if(!mine.length) return;
+      var r=mine[mine.length-1]; r.at="bx"; Q.need--; K.tone([700,520],.06); layout();
+      if(Q.need<=0){ K.busy=true; K.later(ask,650); }   // the tens given back stay in the box, so the child sees what went
+      return; }
+    if(a==="bxt"){ var r2=rods.filter(function(r){ return r.at==="bx"; })[0]; if(!r2) return nudge(); r2.at="me"; K.tone([523,784],.06); layout(); return afterMove(); }
+    if(a==="bxo"){ var o=ones.filter(function(x){ return x.at==="bx"; })[0]; if(!o) return nudge(); o.at="me"; K.tone([700+ones.filter(function(x){ return x.at==="me"; }).length*40],.05); layout(); return afterMove(); }
+    nudge();
+  });
+  function nudge(){ K.tone([220],.08,"sawtooth"); K.say(Q.give?"Tap your tens to give them back. 点你的十，把它还回去。":"Tap the box: tens or ones. 点盒子里的十或一。"); }
+  function afterMove(){
+    var mo=ones.filter(function(x){ return x.at==="me"; });
+    if(mo.length>=10){ K.busy=true; K.later(function(){ snapTen(mo.slice(0,10)); },550); return; }
+    if(!left("t")&&!left("o")){ K.busy=true; K.later(ask,600); }
+  }
+  // ten loose beads click together into a new rod of ten, which slides over to the tens
+  function snapTen(ten){
+    var p=oneSpot(G.A.o,2); $("scene").insertAdjacentHTML("beforeend",'<div class="snap" style="left:'+p[0]+'px;top:'+(p[1]-G.d*1.2)+'px">10!</div>');
+    K.tone([523,659,784,1047],.07); K.say("10 ones make a new ten! 10 个一变成一个新的十！");
+    ten.forEach(function(o){ o.el.classList.add("pop"); });
+    K.later(function(){
+      var r={at:"me",c:ONEC,beads:ten.map(function(o){ return o.el; }),bar:make("bar")}; var s=G.A.o; r.bar.style.cssText="left:"+(s.x+s.w/2)+"px;top:"+s.y+"px;width:3px;height:"+s.h*.8+"px;opacity:0";
+      ten.forEach(function(o){ o.el.classList.remove("pop"); ones.splice(ones.indexOf(o),1); });
+      rods.push(r); layout();
+      K.later(function(){ K.busy=false; if(!left("t")&&!left("o")){ K.busy=true; ask(); } },700);
+    },500);
+  }
+  // ---------- how many now? ----------
+  function ask(){
+    Q.ask=true; K.busy=false; layout();
+    K.task('<b>'+Q.eq+'</b> = ?<span class="cn">一共几颗？先数十，再数一。</span>'); K.say("How many beads now? 现在一共几颗？");
+    K.pad2(function(v){
+      if(v===Q.ans) return good();
+      Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad();
+      if(Q.tries>=2){ K.busy=true; K.say("It's "+Q.ans+"! 是 "+Q.ans+"！"); K.task('<span class="eqbig">'+Q.eq+' = '+Q.ans+'</span>'); K.later(function(){ K.done(false); },900); return; }
+      K.say("Count the rods by tens, then the loose beads. 先十个十个数串，再数单颗。");
+    });
+  }
+  function good(){
+    K.hideAll(); K.task('<span class="eqbig">'+Q.eq+' = '+Q.ans+'</span>');
+    K.say(["A beautiful necklace! 好漂亮的项链！","Yes! 对啦！","Super! 太棒了！"][K.rnd(3)]);
+    Q.neck=true; $("scene").classList.add("dim");
+    var c=make("cust"); c.id="cust"; c.innerHTML=Critters.svg(Q.cust);
+    layout(); void c.offsetWidth; c.classList.add("on","hop");
+    K.done(true,Q.tries);
+  }
+  // the necklace: every bead on your tray goes round the customer's neck
+  function neckLayout(){
+    var c=$("cust"), s=Math.min(W,H)*.34, cx=W/2, cy=H*.5+Math.max(0,H*.02);
+    if(c){ c.style.width=s+"px"; c.style.height=s+"px"; c.style.left=cx+"px"; c.style.top=cy+"px"; }
+    var beads=[]; rods.forEach(function(r){ if(r.at==="me") beads=beads.concat(r.beads); r.bar.style.opacity=0; if(r.at!=="me") r.beads.forEach(function(b){ b.style.transform="scale(0)"; }); });
+    ones.forEach(function(o){ if(o.at==="me") beads.push(o.el); else o.el.style.transform="scale(0)"; });
+    var rx=s*.78, ry=s*.62, circ=Math.PI*(3*(rx+ry)-Math.sqrt((3*rx+ry)*(rx+3*ry))), sz=Math.min(G.d,circ/Math.max(1,beads.length)*.95);
+    beads.forEach(function(b,i){ var t=Math.PI/2+i/beads.length*Math.PI*2; place(b,cx+rx*Math.cos(t),cy+ry*Math.sin(t)); b.style.transform="scale("+(sz/G.d)+")"; });
+  }
+  function tutHand(){ var a=document.querySelector('.area[data-a="bxt"]'); if(!a) return;
+    $("scene").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+(parseFloat(a.style.left)+a.offsetWidth/2-14)+'px;top:'+(parseFloat(a.style.top)+a.offsetHeight/2)+'px">👆</div>'); }
+  window.__beads={q:function(){ return Q; },K:K,mine:function(){ return count("me"); },box:function(){ return {t:left("t"),o:left("o")}; }};
+  K.start();
+})();
+</script>
+</body></html>

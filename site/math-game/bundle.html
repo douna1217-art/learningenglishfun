@@ -108,9 +108,9 @@
     Q={k:k,tries:0,t:0,o:0,inb:0,pile:0,spots:[]};
     if(k==="count"){ n=easy?12+K.rnd(12):hard?30+K.rnd(16):15+K.rnd(25); Q.n=n; Q.pile=n;
       for(var i=0;i<n;i++) Q.spots.push({x:.05+Math.random()*.9,y:.12+Math.random()*.76,r:K.rnd(70)-35});
-      if(K.D.tut){ Q.n=13; Q.pile=13; Q.spots=Q.spots.slice(0,13); }
+      if(K.D.tut&&K.D.n===1){ Q.n=13; Q.pile=13; Q.spots=Q.spots.slice(0,13); }
       K.task('Tap the loose straws to bundle them!<span class="cn">点地上的麦秆，把它们放进捆扎框！</span>');
-      K.say(K.D.tut?"Tap a straw! 点一根麦秆！":"10 in the bundler make a bundle! 捆扎框满 10 根就捆起来！"); }
+      K.say(K.D.tut&&K.D.n===1?"Tap a straw! 点一根麦秆！":"10 in the bundler make a bundle! 捆扎框满 10 根就捆起来！"); }
     else if(k==="make"){ n=easy?11+K.rnd(30):L>=5?12+K.rnd(88):11+K.rnd(79); if(n%10===0) n++; Q.n=n;
       K.task('Load <b>'+n+'</b> straws onto the cart!<span class="cn">往车上装 '+n+' 根麦秆！</span>');
       K.btns('<button type="button" id="undo">↩ Undo 撤回</button><span></span><button type="button" class="main" id="ok">✓ Done 装好了</button>');
@@ -126,7 +126,7 @@
       K.task('The cart has <b>'+Q.n+'</b>. Tap a bundle to untie it!<span class="cn">车上有 '+Q.n+' 根。点一捆，把它拆开！</span>');
       K.say("1 ten = 10 ones! 一个十等于十个一！"); }
     draw();
-    if(K.D.tut&&k==="count") K.later(tutHand,300);
+    if(K.D.tut&&K.D.n===1&&k==="count") K.later(tutHand,300);
   }
   // ---------- count: straws into the bundler ----------
   $("scene").addEventListener("click",function(e){
