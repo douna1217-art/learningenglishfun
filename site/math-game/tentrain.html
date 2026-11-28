@@ -275,9 +275,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   // the train leaves: smoke, wheels turning, the passengers ride along
   function depart(){
     if(Q.t==="family") return next();
-    $("board").style.display="none"; toot(); var tr=$("train"); tr.className="train go"; var dx=G.w+50;
-    tr.style.transform="translateX("+dx+"px)";
-    P.forEach(function(p){ if(p.seat>=0){ p.el.style.transition="left 1.6s cubic-bezier(.5,0,.8,.4)"; p.el.style.left=(parseFloat(p.el.style.left)+dx)+"px"; } });
+    $("board").style.display="none"; toot(); var tr=$("train"); var dx=G.w+50;
+    P.forEach(function(p){ if(p.seat>=0) tr.appendChild(p.el); });   // the passengers ride inside the train: they leave with it
+    void tr.offsetWidth; tr.className="train go"; tr.style.transform="translateX("+dx+"px)";
     var e=$("engine"); for(var i=0;i<5;i++) later(function(){ var r=e.getBoundingClientRect(), st=$("stage").getBoundingClientRect(), z=parseFloat($("wrap").style.zoom)||1, s=document.createElement("i"); s.className="smoke"; s.style.left=((r.left-st.left)/z+G.ew*.6)+"px"; s.style.top=((r.top-st.top)/z)+"px"; $("stage").appendChild(s); setTimeout(function(){ s.remove(); },1200); },i*250);
     later(next,1700);
   }
