@@ -324,7 +324,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function askWhy(){
     $("ans").style.display="none";
     $("task").innerHTML='<b>'+Q.len+'</b> <span class="uin">inches</span> = about <b>'+Q.cmSaid+'</b> <span class="ucm">centimeters</span>. Which is right?<span class="cn">同一段长，'+Q.len+' 英寸 ≈ '+Q.cmSaid+' 厘米。哪句话对？</span>';
-    var opts=[["cm","There are more centimeters, because a centimeter is smaller. 厘米更小，所以要的个数更多。"],["in","There are more inches, because an inch is smaller. 英寸更小，所以个数更多。"],["same","Inches and centimeters are the same size. 英寸和厘米一样长。"]];
+    var opts=[["cm","There are more centimeters, because a centimeter is shorter. 厘米更短，所以要的个数更多。"],["in","There are more inches, because an inch is shorter. 英寸更短，所以个数更多。"],["same","Inches and centimeters are the same size. 英寸和厘米一样长。"]];
     opts.sort(function(){ return Math.random()-.5; });
     var w=$("why"); w.style.display="grid"; w.innerHTML=opts.map(function(o){ return '<button type="button" data-v="'+o[0]+'">'+o[1]+'</button>'; }).join("");
     say("Why is the centimeter number bigger? 为什么厘米的数更大？");
@@ -334,7 +334,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
       else tone([660,880,1100],.08);
       w.style.display="none"; busy=true; Q.unit="in"; U=IN; var r=$("ruler"); r.classList.add("hide");
       if(!Q.helped) Q.tries=0;
-      say("A centimeter is small, so it takes more of them! 厘米小，所以要的个数多！");
+      say("A centimeter is short, so it takes more of them! 厘米短，所以要的个数多！");
       cut(Q.len,function(pl){ place(pl,Q.len); });
     }; });
   }
@@ -456,7 +456,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if(!noTool&&toolTime()) return showTool();
     D.n++; Q=gen(); D.first=false; drawScene(); drawTask(); hud();
     if(Q.show==="both"&&!S.dual){ S.dual=1; save(); say("This ruler has two sides: <span class='uin'>inches</span> on top, <span class='ucm'>centimeters</span> below! 上面是英寸，下面是厘米！"); }
-    else if(!Q.tut) say(Q.type==="broken"?"Count the spaces, not the start number! 数格子，不是看开头的数！":Q.type==="both"?"Let's measure both ways! 两种单位都量一量！":Q.unit==="cm"?"Centimeters are small: count carefully! 厘米很小，仔细看！":"The "+CRITS[Q.crit][0]+" needs a bridge! 小"+{ladybug:"瓢虫",snail:"蜗牛",turtle:"乌龟",chick:"鸡",mouse:"老鼠",bunny:"兔子",hedgehog:"刺猬"}[Q.crit]+"要过河！");
+    else if(!Q.tut) say(Q.type==="broken"?"Count the spaces, not the start number! 数格子，不是看开头的数！":Q.type==="both"?"Let's measure both ways! 两种单位都量一量！":Q.unit==="cm"?"Centimeters are short: count carefully! 厘米很短，仔细看！":"The "+CRITS[Q.crit][0]+" needs a bridge! 小"+{ladybug:"瓢虫",snail:"蜗牛",turtle:"乌龟",chick:"鸡",mouse:"老鼠",bunny:"兔子",hedgehog:"刺猬"}[Q.crit]+"要过河！");
     crit(Q.tut?"Help! 帮帮我！":["Help! 帮帮我！","Hi! 你好！","Please? 拜托！"][rnd(3)]);
   }
   function startDay(){
