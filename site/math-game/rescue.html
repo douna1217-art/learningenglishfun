@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Rescue Ladder</title>
+<meta name="theme-color" content="#d63a2a">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Rescue Ladder: a kitten is stuck up a tree. Measure how high with cubes, build a fire-truck ladder just as long, and the firefighter climbs up to save it. Compare lengths, measure with units (no gaps, no overlaps), count to 120. Grade 1 length.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* the ground, the tree, cubes, ladders, the fire truck, the tower */
+.gnd{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#8fcf6a,#6fb64e);z-index:0}
+.trunk{position:absolute;background:linear-gradient(90deg,#7a4a26,#9a6235 50%,#7a4a26);border-radius:6px 6px 0 0;z-index:1}
+.leaf{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 35%,#7fd36a,#3f9a3a);z-index:1}
+.branch{position:absolute;background:#8a5530;border-radius:5px;z-index:2}
+.cube{position:absolute;box-sizing:border-box;border-radius:4px;border:2px solid rgba(0,0,0,.25);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15),inset 0 3px 0 rgba(255,255,255,.35);z-index:3;transition:top .35s cubic-bezier(.3,1.4,.6,1)}
+.lad{position:absolute;box-sizing:border-box;border-left:5px solid var(--lc,#c8ccd4);border-right:5px solid var(--lc,#c8ccd4);z-index:3;cursor:pointer;
+  background:repeating-linear-gradient(0deg,transparent 0 calc(var(--u) - 5px),var(--lc,#c8ccd4) calc(var(--u) - 5px) var(--u));transition:height .3s ease,top .3s ease}
+.lad.a{--lc:#e0533f}.lad.b{--lc:#3f86e0}
+.lad.shake{animation:lshake .45s 2}@keyframes lshake{25%{transform:translateX(-5px) rotate(-2deg)}75%{transform:translateX(5px) rotate(2deg)}}
+.truck{position:absolute;z-index:2}
+.truck .body{position:absolute;inset:0 0 0 0;background:#e0412e;border:3px solid #a52a1c;border-radius:10px 22px 8px 8px}
+.truck .win{position:absolute;right:10%;top:14%;width:22%;height:34%;background:#bfe6ff;border-radius:6px}
+.truck .wh{position:absolute;bottom:-14px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,#ddd 0 25%,#333 27%)}
+.truck .stripe{position:absolute;left:6%;right:40%;top:48%;height:12%;background:#ffd84a;border-radius:3px}
+.who{position:absolute;transform:translate(-50%,-100%);line-height:1;z-index:5;transition:left .5s ease,top 1.2s ease-in-out;pointer-events:none}
+.cat{position:absolute;transform:translate(-50%,-100%);line-height:1;z-index:4;transition:left .4s ease,top 1.2s ease-in-out;pointer-events:none}
+.cat.meow::after{content:"Meow! 喵！";position:absolute;left:70%;bottom:90%;background:#fff;border-radius:10px;padding:2px 7px;font:900 .8rem Nunito,sans-serif;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.cat.happy{animation:hop .45s 3}@keyframes hop{50%{margin-top:-10px}}
+.wall{position:absolute;background:#f2d7b6;border:3px solid #c79b6c;border-bottom:0;z-index:1}
+.wall i{position:absolute;background:#bfe6ff;border:3px solid #c79b6c;border-radius:4px}
+.roof{position:absolute;background:#c0533f;z-index:1;border-radius:4px}
+.row{position:absolute;border-radius:14px;background:rgba(255,255,255,.55);cursor:pointer;z-index:1}
+.row.bad{animation:rshake .4s}@keyframes rshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.row.good{background:rgba(255,236,140,.85)}
+.hose{position:absolute;pointer-events:none;height:12px;margin-top:-6px;background:linear-gradient(180deg,#f0634e,#c8392a);border-radius:6px;z-index:2}
+.hose::after{content:"";position:absolute;right:-10px;top:-4px;width:14px;height:20px;background:#9aa3ad;border-radius:3px}
+.kid{position:absolute;transform:translate(-50%,-50%);line-height:1;z-index:2;pointer-events:none}
+.tower{position:absolute;background:#f6e7cf;border:3px solid #c79b6c;border-bottom:0;z-index:1}
+.floor{position:absolute;left:0;right:0;border-top:2px solid #e0c49c;display:flex;align-items:center;justify-content:center;gap:8px}
+.floor i{width:22%;height:56%;background:#bfe6ff;border:2px solid #c79b6c;border-radius:4px}
+.plate{min-width:52px;text-align:center;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.25rem;background:#fff;border-radius:9px;padding:0 6px;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.plate.q{background:#ffd84a;animation:qpulse 1s ease-in-out infinite}@keyframes qpulse{50%{transform:scale(1.12)}}
+.plate.fill{background:#c9f0c0;animation:none}
+.hand{position:absolute;font-size:2.1rem;z-index:9;pointer-events:none;animation:tap 1s ease-in-out infinite}@keyframes tap{50%{transform:translateY(10px)}}
+.wrap.fitted .plate{font-size:1.6rem}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261204a"></script><script src="g1kit.js?v=20261201a"></script>
+<script>
+(function(){
+  "use strict";
+  // Rescue Ladder (Grade 1, Unit 6: length and counting to 120). 6 rescues a level, 5 right opens the next; any level opened can be played again.
+  //   compare  two ladders stand by the house: tap the longer one, it reaches the kitten on the roof
+  //   measure  the kitten is on a branch: stack cubes from the ground up to the branch (no gaps), then how many cubes high?
+  //   ladder   the cubes are already there: give the fire-truck ladder just as many sections, then Go! The firefighter climbs.
+  //            Too short: it does not reach. Too long: it bumps into the branch.
+  //   find     three children measured the hose: gaps, overlaps, or right. Tap the right one, then how long is the hose?
+  //   count    a tall tower with floors 96..120: fill the missing floor numbers, the firefighter rides up to the kitten on top
+  //   level 1 compare, level 2 measure, level 3 ladder, level 4 find, level 5 count to 120 (with ladders and hoses)
+  var $=function(id){ return document.getElementById(id); };
+  var Q=null, W=0, H=0, G={};
+  var CUBEC=["#ff8a3d","#4a8cff","#2fb36b","#ffcf3a","#9b5cff","#ff4f7b"];
+  var K=G1Kit({
+    id:"rescue", store:"rescueLadder.v1", title:"🚒 Rescue Ladder", name:"Rescue Ladder", sub:"Length Practice 测量长度",
+    score:["Rescues","救援"], goal:6, need:5, pause:2600,
+    colors:{bg:"#fff4f0",line:"#f3d6cc",accent:"#d63a2a",stage:"linear-gradient(180deg,#bfe6ff,#e6f6ff)"},
+    how:'<div>🐱 A kitten is stuck! How high is it?</div><div>🧊 Stack cubes from the ground up: no gaps, no overlaps.</div><div>🪜 Give the ladder just as many sections as cubes, then Go!</div><div>🔢 Count up to 120 to ride the tower.</div><div style="color:var(--muted)">小猫被困住了！用方块从地面往上一块一块叠，不留空隙、不重叠，量一量有多高；梯子接上同样多节，消防员就能救下小猫。数到 120，坐电梯上高楼。</div>',
+    shop:[{id:"dog",e:"🐶",p:5,x:"86%",y:"84%"},{id:"hyd",e:"🧯",p:8,x:"4%",y:"84%"},{id:"tree",e:"🌳",p:12,x:"92%",y:"60%"},{id:"sun",e:"🌞",p:16,x:"86%",y:"2%"},{id:"bird",e:"🐦",p:22,x:"70%",y:"6%"},{id:"flow",e:"🌷",p:28,x:"14%",y:"84%"},{id:"bal",e:"🎈",p:36,x:"56%",y:"4%"},{id:"rain",e:"🌈",p:45,x:"36%",y:"2%"}],
+    shopName:"Fire station shop 消防站商店", welcome:"🚒 Welcome to the fire station! 欢迎来消防站！", hello:"Let's save the kittens! 一起救小猫！",
+    round:round, resize:function(){ if(Q) draw(); }
+  });
+  // ---------- layout ----------
+  function geom(){
+    var st=$("stage"); W=st.clientWidth; H=st.clientHeight; G.gy=H*.9; G.top=Math.max(70,H*.15);
+    var most=Q?(Q.k==="compare"?Math.max(Q.a,Q.b):Q.n||10):10;
+    G.u=Math.max(14,Math.min(W*.085,(G.gy-G.top)/(most+1.8),46));
+  }
+  function el(cls,css,html){ return '<div class="'+cls+'" style="'+css+'">'+(html||"")+'</div>'; }
+  function px(v){ return Math.round(v)+"px"; }
+  function truckHtml(x,w){ var h=Math.max(30,G.u*1.5); return '<div class="truck" style="left:'+px(x)+';top:'+px(G.gy-h-12)+';width:'+px(w)+';height:'+px(h)+'"><div class="body"></div><i class="win"></i><i class="stripe"></i><i class="wh" style="left:14%"></i><i class="wh" style="right:14%"></i></div>'; }
+  // ---------- drawing ----------
+  function draw(){
+    geom(); var u=G.u, gy=G.gy, h=el("gnd","top:"+px(gy)), s=u*1.25;
+    if(Q.k==="measure"||Q.k==="ladder"){
+      var tx=Math.max(W*.08,W*.5-u*4.2), tw=u*1.3, by=gy-Q.n*u;   // the branch's top edge is the height to measure
+      G.cubeX=tx+tw+u*.25; G.ladX=G.cubeX+u*1.45; G.ladW=u*1.15;
+      h+=el("trunk","left:"+px(tx)+";top:"+px(by-u*2)+";width:"+px(tw)+";height:"+px(gy-by+u*2));
+      h+=el("leaf","left:"+px(tx-u*1.6)+";top:"+px(by-u*3.6)+";width:"+px(u*3.4)+";height:"+px(u*2.6))+el("leaf","left:"+px(tx-u*.2)+";top:"+px(by-u*4.3)+";width:"+px(u*3)+";height:"+px(u*2.6));
+      h+=el("branch","left:"+px(tx+tw-4)+";top:"+px(by-u*.42)+";width:"+px(u*3.3)+";height:"+px(u*.42));
+      for(var i=0;i<Q.cubes;i++) h+=cube(i,i<Q.cubes-1||!Q.drop);
+      h+='<div class="lad" id="lad" style="--u:'+px(u)+';left:'+px(G.ladX)+';width:'+px(G.ladW)+';top:'+px(gy-Q.len*u)+';height:'+px(Q.len*u)+';'+(Q.k==="measure"?"display:none":"")+'"></div>';
+      h+=truckHtml(G.ladX+G.ladW+u*.3,Math.min(W*.34,u*5));
+      h+=whoHtml(G.ladX+G.ladW/2)+catHtml(G.ladX+G.ladW*.6,by-u*.42);
+    }
+    else if(Q.k==="compare"){
+      var c=Math.max(Q.a,Q.b), wx=W*.2, ww=W*.6, roof=gy-c*u;
+      h+='<div class="wall" style="left:'+px(wx)+';top:'+px(roof)+';width:'+px(ww)+';height:'+px(c*u)+'"><i style="left:12%;top:20%;width:16%;height:'+px(u*1.2)+'"></i><i style="right:12%;top:20%;width:16%;height:'+px(u*1.2)+'"></i></div>';
+      h+=el("roof","left:"+px(wx-u*.4)+";top:"+px(roof-u*.35)+";width:"+px(ww+u*.8)+";height:"+px(u*.45));
+      G.lx=[wx+ww*.3,wx+ww*.7];
+      [Q.a,Q.b].forEach(function(L,j){ h+='<div class="lad '+(j?"b":"a")+'" id="lad'+j+'" data-l="'+j+'" style="--u:'+px(u)+';left:'+px(G.lx[j]-u*.6)+';width:'+px(u*1.2)+';top:'+px(gy-L*u)+';height:'+px(L*u)+'"></div>'; });
+      h+=whoHtml(W*.08)+catHtml(wx+ww*.5,roof-u*.35);
+    }
+    else if(Q.k==="find"){
+      var rh=Math.min(u*2.6,(gy-G.top)/3.3), rw=W*.9;
+      G.fu=Math.min(u,(rw-u*2.6)/(Q.n+1.2),rh*.38);   // one cube size for all three rows, so the right row has no gaps
+      Q.rows.forEach(function(r,j){ var y=G.top+j*(rh+rh*.12), x0=W*.05+u*2.2, mid=y+rh*.36;
+        h+='<div class="row" data-r="'+j+'" style="left:'+px(W*.05)+';top:'+px(y)+';width:'+px(rw)+';height:'+px(rh)+'"></div>';
+        h+='<div class="kid" style="left:'+px(W*.05+u*1.1)+';top:'+px(y+rh/2)+';font-size:'+px(Math.min(rh*.55,u*1.4))+'">'+["👧","👦","🧒"][j]+'</div>';
+        h+='<div class="hose" style="left:'+px(x0)+';top:'+px(mid)+';width:'+px(Q.n*G.fu)+'"></div>';
+        var cs=G.fu; r.cubes.forEach(function(cx,k){ h+='<div class="cube" style="pointer-events:none;left:'+px(x0+cx*G.fu)+';top:'+px(mid+10)+';width:'+px(cs)+';height:'+px(cs)+';background:'+CUBEC[k%2?1:0]+'"></div>'; }); });
+    }
+    else {   // count: the tower
+      var fl=Q.floors.length, th=gy-G.top-u*.6, fh=th/fl, twd=Math.min(W*.5,260), x=W/2-twd/2;
+      G.fh=fh; G.towerX=W/2;
+      h+='<div class="tower" style="left:'+px(x)+';top:'+px(gy-th)+';width:'+px(twd)+';height:'+px(th)+'">';
+      Q.floors.forEach(function(f,i){ var cls=f.blank?(f.got?"plate fill":"plate q"):"plate"; h+='<div class="floor" style="top:'+px(th-(i+1)*fh)+';height:'+px(fh)+'"><i></i><span class="'+cls+'" data-f="'+i+'">'+(f.blank&&!f.got?"?":f.v)+'</span><i></i></div>'; });
+      h+='</div>'+el("roof","left:"+px(x-u*.4)+";top:"+px(gy-th-u*.35)+";width:"+px(twd+u*.8)+";height:"+px(u*.45));
+      h+=whoHtml(W/2+twd/2+u*.9)+catHtml(W/2,gy-th-u*.35);
+    }
+    $("scene").innerHTML=h;
+    if(Q.who) placeWho(Q.who[0],Q.who[1],true);
+  }
+  function cube(i,still){ var u=G.u, top=G.gy-(i+1)*u; return '<div class="cube" data-i="'+i+'" style="left:'+px(G.cubeX)+';top:'+px(still?top:top-u*3)+';width:'+px(u)+';height:'+px(u)+';background:'+CUBEC[i%CUBEC.length]+'"></div>'; }
+  function whoHtml(x){ return '<div class="who" id="who" style="left:'+px(x)+';top:'+px(G.gy)+';font-size:'+px(G.u*1.35)+'">🧑‍🚒</div>'; }
+  function catHtml(x,y){ G.catAt=[x,y]; return '<div class="cat" id="cat" style="left:'+px(x)+';top:'+px(y)+';font-size:'+px(G.u*1.15)+'">🐱</div>'; }
+  function placeWho(x,y,now){ var w=$("who"); if(!w) return; if(now){ w.style.transition="none"; } w.style.left=px(x); w.style.top=px(y); if(now){ void w.offsetWidth; w.style.transition=""; } }
+  // ---------- a round ----------
+  function round(){
+    var L=K.L, easy=K.easy(), hard=K.hard(), kinds=L===1?["compare"]:L===2?["measure"]:L===3?["ladder"]:L===4?["find"]:["count","count","ladder","find"];
+    var k=kinds[K.rnd(kinds.length)], n=easy?4+K.rnd(4):hard?7+K.rnd(6):5+K.rnd(6);
+    Q={k:k,n:n,tries:0,cubes:0,len:0,who:null};
+    // compare: the other ladder is 2..12 long, so there is always one far enough from a
+    if(k==="compare"){ var a=n, b; do{ b=2+K.rnd(11); }while(Math.abs(a-b)<(easy?3:1)); if(K.rnd(2)){ Q.a=a; Q.b=b; } else { Q.a=b; Q.b=a; } Q.ans=Q.a>Q.b?0:1;
+      K.task('Which ladder is <b>longer</b>? Tap it!<span class="cn">哪架梯子更长？点它！长的梯子才够得着小猫。</span>'); K.say("Help! The kitten is on the roof! 小猫在屋顶上！"); }
+    else if(k==="measure"){
+      K.task('How high is the kitten? Stack cubes up to the branch!<span class="cn">小猫有多高？从地面往上叠方块，叠到树枝那么高！</span>');
+      ctrl('<button type="button" id="add">🧊 + Cube 加一块</button><button type="button" id="sub">➖ Take off 拿走</button><button type="button" class="main" id="ok">✓ Done 好了</button>');
+      $("add").onclick=function(){ if(K.busy) return; if(Q.cubes>=Q.n+3){ K.say("Way too high! 太高啦！"); return; } Q.cubes++; Q.drop=true; draw(); K.tone([400+Q.cubes*40],.06); var c=document.querySelector('.cube[data-i="'+(Q.cubes-1)+'"]'); if(c){ void c.offsetWidth; c.style.top=px(G.gy-Q.cubes*G.u); } Q.drop=false; };
+      $("sub").onclick=function(){ if(K.busy||!Q.cubes) return; Q.cubes--; draw(); K.tone([300],.05); };
+      $("ok").onclick=measureDone; K.say("Start at the ground! 从地面开始！"); }
+    else if(k==="ladder"){ Q.cubes=n;
+      K.task('Build the ladder just as high as the cubes, then Go!<span class="cn">梯子要和方块一样高，接好了就出发！</span>');
+      ctrl('<button type="button" id="add">🪜 + Section 加一节</button><button type="button" id="sub">➖ Shorter 减一节</button><button type="button" class="main" id="ok">🚒 Go! 出发</button>');
+      $("add").onclick=function(){ if(K.busy) return; if(Q.len>=Q.n+4) return; Q.len++; setLad(); K.tone([520],.05); };
+      $("sub").onclick=function(){ if(K.busy||!Q.len) return; Q.len--; setLad(); K.tone([360],.05); };
+      $("ok").onclick=climb; K.say("Count the cubes! 数一数有几块！"); }
+    else if(k==="find"){ n=easy?4+K.rnd(3):5+K.rnd(4); Q.n=n;
+      var right=[], gaps=[], over=[], i; for(i=0;i<n;i++) right.push(i);
+      var gn=Math.max(2,n-2); for(i=0;i<gn;i++) gaps.push(i*(n-1)/(gn-1));   // fewer cubes spread out: gaps
+      var on=n+2; for(i=0;i<on;i++) over.push(i*(n-1)/(on-1));   // more cubes squeezed in: overlaps
+      Q.rows=K.shuffle([{ok:true,cubes:right},{ok:false,why:"gap",cubes:gaps},{ok:false,why:"over",cubes:over}]);
+      K.task('Who measured the hose the right way? Tap!<span class="cn">谁量对了水管？点一下！</span>'); K.say("No gaps, no overlaps! 不留空隙，不重叠！"); }
+    else { var start=96+K.rnd(19), fl=6, blanks=easy?1:2; Q.floors=[]; for(i=0;i<fl;i++) Q.floors.push({v:start+i}); if(start+fl-1>120){ start=120-fl+1; Q.floors.forEach(function(f,j){ f.v=start+j; }); }
+      var idx=K.shuffle([1,2,3,4,5]).slice(0,blanks).sort(); idx.forEach(function(j){ Q.floors[j].blank=true; });
+      K.say("Fill in the floor numbers! 填上楼层的数！"); askFloor(); }
+    draw();
+  }
+  function ctrl(html){ K.btns(html,3); }
+  function setLad(){ var l=$("lad"); if(!l) return; l.style.height=px(Q.len*G.u); l.style.top=px(G.gy-Q.len*G.u); }
+  // ---------- compare ----------
+  $("scene").addEventListener("click",function(e){
+    if(K.busy||!Q) return;
+    var l=e.target.closest?e.target.closest(".lad[data-l]"):null, r=e.target.closest?e.target.closest(".row"):null;
+    if(l&&Q.k==="compare") return pickLadder(+l.getAttribute("data-l"));
+    if(r&&Q.k==="find"&&!Q.picked) return pickRow(+r.getAttribute("data-r"),r);
+  });
+  function pickLadder(j){
+    K.busy=true; var L=j?Q.b:Q.a, x=G.lx[j];
+    climbTo(x,G.gy-L*G.u,function(){
+      if(j===Q.ans) return save();
+      var c=$("cat"); if(c) c.classList.add("meow"); Q.tries++; K.say("Too short! It can't reach. 太短了，够不着！"); K.tone([200,150],.12,"sawtooth");
+      K.later(function(){ climbTo(W*.08,G.gy,function(){ if(c) c.classList.remove("meow"); if(Q.tries>=2){ K.task('<span class="eqbig">The other ladder is longer.</span>'); K.later(function(){ K.done(false); },900); } else K.busy=false; }); },700); });
+  }
+  // the firefighter walks to the ladder, climbs, then calls back
+  // y is the top of the ladder: the firefighter stands on a rung just below it, hands up at the top
+  function climbTo(x,y,then){ var w=$("who"); if(!w) return then(); y=Math.min(G.gy,y+G.u*1.1); Q.who=[x,G.gy]; w.style.left=px(x); K.later(function(){ Q.who=[x,y]; w.style.top=px(y); K.later(then,1250); },520); }
+  function save(){
+    var c=$("cat"), w=$("who"); K.tone([523,659,784,1047],.08); if(c){ c.classList.remove("meow"); c.style.left=px(parseFloat(w.style.left)+G.u*.45); c.style.top=px(parseFloat(w.style.top)-G.u*.35); }
+    K.later(function(){ Q.who=[parseFloat(w.style.left),G.gy]; w.style.top=px(G.gy); if(c){ c.style.top=px(G.gy-G.u*1.1); } K.later(function(){ if(c){ c.classList.add("happy"); } },1250); },500);
+    good(Q.k==="compare"?"The longer ladder reaches! 长梯子够得着！":Q.k==="ladder"?Q.n+" cubes = "+Q.n+" sections":"");
+  }
+  // ---------- measure ----------
+  function measureDone(){
+    if(K.busy) return;
+    if(Q.cubes!==Q.n){ Q.tries++; K.tone([200,150],.12,"sawtooth"); K.say(Q.cubes<Q.n?"Not up to the branch yet! 还没到树枝！":"Too high! Take some off. 太高了，拿走几块。"); if(Q.tries>=3){ Q.cubes=Q.n; draw(); } return; }
+    K.busy=true; K.hideBtns(); K.say("Now count the cubes! 现在数一数方块！");
+    K.task('How many cubes high is the kitten?<span class="cn">小猫有几块方块那么高？</span>');
+    K.later(function(){ K.busy=false; K.nums(15,function(v,b){ if(v===Q.n){ return K.later(function(){ climbAfterMeasure(); },50); } Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
+      if(Q.tries>=4){ K.busy=true; K.task('<span class="eqbig">'+Q.n+' cubes high</span>'); K.later(function(){ K.done(false); },1400); return; } K.say("Count each cube from the bottom. 从下往上一块一块数。"); }); },300);
+  }
+  function climbAfterMeasure(){ K.hideNums(); K.busy=true; Q.len=Q.n; var l=$("lad"); if(l){ l.style.display=""; setLad(); } K.say(Q.n+" cubes high! Up we go! "+Q.n+" 块高！上去救它！");
+    K.later(function(){ climbTo(G.ladX+G.ladW/2,G.gy-Q.n*G.u,save); },400); }
+  // ---------- ladder ----------
+  function climb(){
+    if(K.busy) return; if(!Q.len){ K.say("Add some sections first! 先接几节梯子！"); return; }
+    K.busy=true; K.hideBtns(); var l=$("lad");
+    if(Q.len>Q.n){ if(l){ l.classList.remove("shake"); void l.offsetWidth; l.classList.add("shake"); } Q.tries++; K.tone([200,150],.12,"sawtooth"); K.say("Too long! It bumps into the branch. 太长了，撞到树枝了！"); return K.later(retryLadder,1100); }
+    climbTo(G.ladX+G.ladW/2,G.gy-Q.len*G.u,function(){
+      if(Q.len===Q.n) return save();
+      var c=$("cat"); if(c) c.classList.add("meow"); Q.tries++; K.tone([200,150],.12,"sawtooth"); K.say("Too short! The kitten is higher. 太短了，小猫在更高的地方！");
+      K.later(function(){ climbTo(G.ladX+G.ladW/2,G.gy,function(){ if(c) c.classList.remove("meow"); retryLadder(); }); },700); });
+  }
+  function retryLadder(){
+    if(Q.tries>=3){ K.task('<span class="eqbig">'+Q.n+' cubes = '+Q.n+' sections</span>'); K.say("It needs "+Q.n+" sections. 需要 "+Q.n+" 节。"); K.later(function(){ K.done(false); },1500); return; }
+    K.busy=false; ctrl('<button type="button" id="add">🪜 + Section 加一节</button><button type="button" id="sub">➖ Shorter 减一节</button><button type="button" class="main" id="ok">🚒 Go! 出发</button>');
+    $("add").onclick=function(){ if(K.busy) return; if(Q.len>=Q.n+4) return; Q.len++; setLad(); K.tone([520],.05); };
+    $("sub").onclick=function(){ if(K.busy||!Q.len) return; Q.len--; setLad(); K.tone([360],.05); };
+    $("ok").onclick=climb;
+  }
+  // ---------- find ----------
+  function pickRow(j,el){
+    var r=Q.rows[j];
+    if(r.ok){ Q.picked=true; el.classList.add("good"); K.tone([523,659],.07); K.say("Yes! Cubes end to end, no gaps! 对！一块接一块，没有空隙！");
+      K.task('How long is the hose?<span class="cn">水管有几块方块长？</span>');
+      K.nums(12,function(v,b){ if(v===Q.n) return good(Q.n+" cubes long"); Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
+        if(Q.tries>=3){ K.busy=true; K.task('<span class="eqbig">'+Q.n+' cubes long</span>'); K.later(function(){ K.done(false); },1400); return; } K.say("Count the cubes under the hose. 数一数水管下面的方块。"); });
+      return; }
+    Q.tries++; el.classList.remove("bad"); void el.offsetWidth; el.classList.add("bad"); K.tone([200,150],.12,"sawtooth");
+    K.say(r.why==="gap"?"Look: there are gaps between the cubes. 看：方块之间有空隙。":"Look: the cubes overlap. 看：方块叠在一起了。");
+    if(Q.tries>=3){ K.busy=true; K.later(function(){ K.done(false); },1200); }
+  }
+  // ---------- count to 120 ----------
+  function askFloor(){
+    var f=null, j; for(j=0;j<Q.floors.length;j++) if(Q.floors[j].blank&&!Q.floors[j].got){ f=Q.floors[j]; break; }
+    if(!f){ K.hideBtns(); K.busy=true; K.say("Up we go! 坐电梯上去！"); var th=Q.floors.length*G.fh; return climbTo(G.towerX+Math.min(W*.5,260)/2+G.u*.9,G.gy-th,function(){ var w=$("who"); if(w){ w.style.left=px(G.towerX); w.style.top=px(G.gy-th-G.u*.35); Q.who=[G.towerX,G.gy-th-G.u*.35]; } K.later(save,500); }); }
+    Q.cur=f; Q.ftries=0; var v=f.v, opts=[v]; [v+10,v-10,v+1,v-1].forEach(function(x){ if(opts.length<3&&x>=90&&x<=130&&opts.indexOf(x)<0&&!Q.floors.some(function(g){ return !g.blank&&g.v===x; })) opts.push(x); });
+    while(opts.length<3) opts.push(v+opts.length*11);
+    K.task('Which number is on this floor?<span class="cn">这一层是几？</span>');
+    var bt=K.btns(K.shuffle(opts).map(function(x){ return '<button type="button" class="big" data-v="'+x+'">'+x+'</button>'; }).join(""),3);
+    [].forEach.call(bt.querySelectorAll("button"),function(b){ b.onclick=function(){ if(K.busy) return; var x=+b.getAttribute("data-v");
+      if(x===Q.cur.v){ Q.cur.got=true; K.tone([660,880],.06); draw(); return askFloor(); }
+      Q.tries++; Q.ftries++; K.bad(b); K.tone([200,150],.12,"sawtooth"); K.say("Count up: one more each floor. 往上数：每层多 1。");
+      if(Q.ftries>=2){ Q.cur.got=true; draw(); K.later(askFloor,600); } }; });
+  }
+  function good(eq){ K.hideAll(); if(eq) K.task('<span class="eqbig">'+eq+'</span>'); if(Q.k==="find"){ K.say(["Great measuring! 量得真好！","Yes! 对啦！"][K.rnd(2)]); } else K.say(["The kitten is safe! 小猫得救啦！","Hooray! 太好了！"][K.rnd(2)]); K.done(true,Q.tries); }
+  window.__rescue={q:function(){ return Q; },K:K};
+  K.start();
+})();
+</script>
+</body></html>
