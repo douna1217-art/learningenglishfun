@@ -116,7 +116,7 @@
     var k=kinds[K.rnd(kinds.length)], tut=K.D.tut&&K.D.n===1;
     stopLoop(); geom();
     Q={k:k,tries:0,t:0,o:0,ts:0,os:0,fall:[],bx:W/2,clock:0,nextAt:.6,live:false,
-       v:H*(tut?.26:easy?.32:hard?.5:.4), gap:tut?1.3:easy?1.05:hard?.7:.85};
+       v:H*(tut?.22:easy?.26:hard?.4:.32), gap:tut?1.4:easy?1.2:hard?.85:1.0};
     if(k==="count"){ Q.t=Q.ts=tut||easy?K.rnd(2):1+K.rnd(3); Q.left=tut?12:easy?10+K.rnd(7):hard?16+K.rnd(13):12+K.rnd(11);
       K.task('Catch the eggs! 接鸡蛋！<span class="cn">移动篮子接住鸡蛋，10 个装满一盒。</span>'); K.say(tut?"Slide to move the basket! 左右移动篮子！":"Catch them all! 全部接住！"); }
     else if(k==="exact"){ var n=easy?14+K.rnd(20):hard?35+K.rnd(55):18+K.rnd(52); if(n%10===0) n++; Q.n=n; Q.left=-1;
