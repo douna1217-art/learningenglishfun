@@ -14,7 +14,7 @@
 .hud{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}.hud div{background:#fff;border-radius:14px;text-align:center;padding:4px;box-shadow:0 3px 0 #f3d6cf}
 .hud small{display:block;font-weight:800;color:var(--muted);font-size:.7rem}.hud b{font-family:Fredoka,sans-serif;font-size:1.35rem}
 /* the theater: red curtains, a wooden stage, lights */
-.stage{position:relative;height:max(330px,calc(100vh - 470px));border-radius:22px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#fff7e0,#f5d9a8 70%);touch-action:none}
+.stage{position:relative;height:max(360px,calc(100vh - 430px));border-radius:22px;overflow:hidden;background:radial-gradient(ellipse at 50% 30%,#fff7e0,#f5d9a8 70%);touch-action:none}
 .curtain{position:absolute;top:0;bottom:0;width:9%;background:repeating-linear-gradient(90deg,#b3243c 0 10px,#8a1a2e 10px 20px);z-index:5;transition:width .8s ease}
 .curtain.l{left:0;border-radius:0 0 30px 0}.curtain.r{right:0;border-radius:0 0 0 30px}.stage.closed .curtain{width:51%}
 .valance{position:absolute;left:0;right:0;top:0;height:22px;background:repeating-radial-gradient(circle at 15px -6px,#b3243c 0 16px,#8a1a2e 16px 18px);background-size:30px 24px;z-index:6}
@@ -37,11 +37,20 @@
 .bag:before{content:"";position:absolute;top:-12%;left:30%;width:40%;height:22%;background:#6a3fb0;border-radius:40% 40% 10% 10%}
 .bag.open{transform:scale(1.5);opacity:0}
 .sign{position:absolute;bottom:17%;transform:translateX(-50%);background:#fff;border-radius:10px;padding:1px 8px;font-weight:900;font-size:.78rem;z-index:4;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.stage.telling .bub{display:none}   /* a phone, while a story is told: the Next button says what to do */
+.plate{position:absolute;border-radius:50%/42%;background:rgba(255,255,255,.72);border:4px solid #e0c08a;z-index:1;box-shadow:0 5px 0 rgba(0,0,0,.08)}
+.plate.newp{border-color:#ffb000;background:rgba(255,246,200,.8)}
+.badge{position:absolute;transform:translate(-50%,0);background:#fff;border-radius:12px;padding:0 10px;font-family:Fredoka,sans-serif;font-weight:700;font-size:1.35rem;z-index:5;box-shadow:0 3px 0 rgba(0,0,0,.15);animation:lnin .4s}
+.badge.newb{color:#e0457b}.badge.tot{background:#2b4a3a;color:#ffe36e}
+.plus{position:absolute;transform:translate(-50%,-50%);font-family:Fredoka,sans-serif;font-weight:700;font-size:2.6rem;color:#a8324a;z-index:5;animation:lnin .4s}
+.it.wob{animation:wob .22s 4}@keyframes wob{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
+.it.gone{opacity:.38;transition:opacity .8s}.it.gone:after{content:"✕";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#e0302a;font-family:Fredoka,sans-serif;font-weight:700;font-size:calc(var(--s,40px) * 1.15);opacity:1}
+.nextb{display:none;width:100%;margin-top:8px;border:0;border-radius:16px;background:#f5b301;color:#3b2a00;font:inherit;font-weight:900;font-size:1.2rem;padding:12px;box-shadow:0 5px 0 #b88a00;cursor:pointer;animation:nb 1.2s ease-in-out infinite}@keyframes nb{50%{transform:scale(1.03)}}
 .link{position:absolute;height:4px;background:#ff4f8a;border-radius:2px;transform-origin:0 50%;z-index:2;pointer-events:none}
 .crumb{position:absolute;width:6px;height:6px;border-radius:2px;background:#c98a4b;z-index:6;animation:crumb .6s ease-out forwards}@keyframes crumb{to{transform:translate(var(--x),var(--y));opacity:0}}
 /* the story lines */
 .lines{position:absolute;left:10%;right:10%;bottom:2%;z-index:6;display:flex;flex-direction:column;align-items:center;gap:2px}
-.ln{background:rgba(255,255,255,.95);border-radius:10px;padding:2px 10px;font-weight:900;font-size:.95rem;animation:lnin .4s}.ln b{font-family:Fredoka,sans-serif;color:#a8324a;font-size:1.15em}@keyframes lnin{from{opacity:0;transform:translateY(8px)}}
+.ln{background:rgba(255,255,255,.95);border-radius:10px;padding:2px 10px;font-weight:900;font-size:.86rem;line-height:1.25;animation:lnin .4s}.ln b{font-family:Fredoka,sans-serif;color:#a8324a;font-size:1.15em}@keyframes lnin{from{opacity:0;transform:translateY(8px)}}
 .ln small{color:var(--muted);font-weight:800;margin-left:6px}
 /* the bottom */
 .task{background:#fff;border-radius:18px;padding:9px 12px;margin-top:8px;text-align:center;font-weight:900;font-size:1.08rem;box-shadow:0 3px 0 #f3d6cf}
@@ -83,6 +92,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     <div class="task" id="task"></div>
     <div class="cards" id="cards"></div>
     <div class="nums" id="nums"></div>
+    <button type="button" class="nextb" id="nextb">Next ▶ 下一句</button>
     <div class="row2" id="row2"><button type="button" id="replay">▶ Watch again 再看一遍</button></div>
   </div>
 </div>
@@ -132,6 +142,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     var easy=D.n<=2||D.bad, hard=!easy&&D.streak>=3, max=L>=5&&!easy?(hard?20:15):10;
     var kinds=L===1?["join-res","sep-res"]:L===2?["put-tot","put-add"]:L===3?["join-chg","sep-chg","join-start","sep-start"]:L===4?["cmp"]:["join-res","sep-res","put-tot","put-add","join-chg","sep-chg","join-start","sep-start","cmp"];
     if(L===3&&easy) kinds=["join-chg","sep-chg"];
+    if(window.__storyOnly) kinds=[window.__storyOnly];   // tests only: one kind of story
     var k=kinds[rnd(kinds.length)], q={k:k,tries:0,eqTries:0}, a, b, c;
     // a the start, b the change, c the end (join: a+b=c, separate: a-b=c)
     if(k.indexOf("join")===0||k==="put-tot"||k==="put-add"){ do{ a=1+rnd(max-2); b=1+rnd(max-a); }while(a+b>Math.min(max,10)&&max===10||a+b>max); c=a+b; }
@@ -166,46 +177,75 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function crumbs(x,y){ for(var i=0;i<6;i++){ var c=document.createElement("i"); c.className="crumb"; c.style.left=x+"px"; c.style.top=y+"px"; c.style.setProperty("--x",(rnd(40)-20)+"px"); c.style.setProperty("--y",(rnd(30)-5)+"px"); $("scene").appendChild(c); (function(e){ setTimeout(function(){ e.remove(); },600); })(c); } }
   function leave(el,how){ var x=parseFloat(el.style.left), y=parseFloat(el.style.top);
     if(how==="eat"){ el.classList.add("eat"); crumbs(x,y); tone([300,250],.05,"square"); } else if(how==="fly"){ el.classList.add("fly"); tone([800,1000],.05); } else { el.classList.add("walk"); tone([500],.04); } }
-  // ---------- playing a story ----------
+  // ---------- playing a story: one sentence at a time; the child taps Next when ready ----------
+  // Two plates: what was there first (left) and what comes (right, glowing, "+4"). Things taken away are not made to vanish:
+  // they wobble, then stay where they were, faded with a red cross, so the whole, the part taken and the part left can all be seen.
+  var STEPS=[], SI=0;
+  function plate(cx,cy,pw,ph,cls){ $("scene").insertAdjacentHTML("beforeend",'<div class="plate'+(cls?" "+cls:"")+'" style="left:'+(cx-pw/2)+'px;top:'+(cy-ph/2)+'px;width:'+pw+'px;height:'+ph+'px"></div>'); }
+  function badge(x,y,t,cls){ $("scene").insertAdjacentHTML("beforeend",'<div class="badge'+(cls?" "+cls:"")+'" style="left:'+x+'px;top:'+y+'px">'+t+'</div>'); }
+  function plus(x,y,t){ $("scene").insertAdjacentHTML("beforeend",'<div class="plus" style="left:'+x+'px;top:'+y+'px">'+t+'</div>'); tone([523,659],.06); }
+  function popIn(e,list,cls){ list.forEach(function(p,i){ later(function(){ var el=put(e,p[0],p[1],SZ,cls); el.style.transform="scale(0)"; void el.offsetWidth; el.style.transform=""; tone([500+i*40],.04); },i*160); }); return list.length*160; }
+  function slideIn(e,list){ list.forEach(function(p,i){ later(function(){ var el=put(e,-50,p[1],SZ,"new"); void el.offsetWidth; el.style.left=p[0]+"px"; tone([600],.04); },i*260); }); return list.length*260+700; }
+  function crossOut(els,how){ els.forEach(function(el,i){ later(function(){ el.classList.add("wob"); var x=parseFloat(el.style.left), y=parseFloat(el.style.top); if(how==="eat") crumbs(x,y); tone([how==="eat"?300:800,how==="eat"?250:1000],.06,how==="eat"?"square":"triangle"); },i*600);
+      later(function(){ el.classList.remove("wob"); el.classList.add("gone"); },i*600+900); }); return els.length*600+1000; }
+  var SZ=40, PW=0, PH=0, LX=0, RX=0, CY=0, LY=0, RY=0, TX=0, TY=0, PX=0, PY=0;
+  function slots(n,cx,cy){ var out=[], rows=Math.ceil(n/5); for(var i=0;i<n;i++){ var p=slot(i,cx,cy,SZ); p[1]+=(.5-(rows-1)/2)*SZ*1.15; out.push(p); } return out; }   // one row: centred
+  function setup2(two){ var w=W(), h=H(), narrow=two&&w<560;
+    if(narrow){ PW=w*.62; SZ=Math.round(Math.max(20,Math.min(40,PW/6.2,h/10))); PH=SZ*2.7; LX=RX=w*.5; LY=h*.25; RY=LY+PH+SZ*1.2; PX=w*.5; PY=(LY+RY)/2; TX=w*.88-24; TY=PY; }
+    else { CY=h*(two?.37:.4); PW=two?w*.33:w*.5; SZ=Math.round(Math.max(22,Math.min(60,PW/5.9,h/8))); PH=SZ*2.8; LX=two?w*.32:w*.5; RX=w*.68; LY=RY=CY; PX=(LX+RX)/2; PY=CY; TX=PX; TY=CY-PH/2-34; }
+    CY=LY; }
   function play(){
-    stopAll(); busy=true; items=[]; $("scene").innerHTML=""; $("lines").innerHTML="";
-    var q=Q, k=q.k, th=q.th, w=W(), h=H(), cy=h*.48, n=Math.max(q.a,q.c,q.b), s=itemSize(k==="cmp"?q.a:n), T=0;
-    function at(ms,f){ T+=ms; later(f,T); }
-    var N=function(v){ return "<b>"+v+"</b>"; };
-    if(k.indexOf("join")===0||k.indexOf("sep")===0){
-      var e=th.e, cx=w*.42, isJ=k.indexOf("join")===0, start=k.indexOf("start")>0, chg=k.indexOf("chg")>0;
-      var where=th.where;
-      if(start){   // some, hidden in the bag
-        bag(cx,cy,s*2); line("Some "+th.n+" are "+where+". "+"("+N("?")+")","有一些"+th.cn+"。");
-        if(isJ){ at(900,function(){ line(fill(th.add,q).replace(q.b,N(q.b)),fill(th.addcn,q)); for(var i=0;i<q.b;i++){ (function(i){ var p=slot(i,w*.68,cy,s); var el=put(e,-40,p[1],s,"new"); later(function(){ el.style.left=p[0]+"px"; },60+i*120); })(i); } });
-          at(1600,function(){ line("Now there are "+N(q.c)+" "+th.n+".","现在有 "+q.c+" "+(th.e==="crit"?"只":"个")+"。"); }); }
-        else { at(900,function(){ line(fill(th.sub,q).replace(q.b,N(q.b)),fill(th.subcn,q)); for(var i=0;i<q.b;i++){ (function(i){ var p=slot(i,cx,cy,s); var el=put(e,cx,cy,s); later(function(){ el.style.left=(p[0]+s*1.5)+"px"; el.style.top=p[1]+"px"; },60); later(function(){ leave(el,th.go); },700+i*150); })(i); } });
-          at(1600+q.b*150,function(){ for(var i=0;i<q.c;i++){ var p=slot(i,w*.7,cy,s); put(e,p[0],p[1],s); } line(N(q.c)+" are left.","还剩 "+q.c+" 个。"); }); }
-      } else {
-        line("There are "+N(q.a)+" "+th.n+" "+where+".","有 "+q.a+" "+(th.e==="crit"?"只":"个")+th.cn+"。");
-        var grp=[]; for(var i=0;i<q.a;i++){ var p=slot(i,cx,cy,s); grp.push(put(e,p[0],p[1],s)); }
-        if(isJ&&!chg){ at(1100,function(){ line(fill(th.add,q).replace(String(q.b),N(q.b)),fill(th.addcn,q)); for(var j=0;j<q.b;j++){ (function(j){ var p=slot(q.a+j,cx,cy,s); var el=put(e,-40,p[1],s,"new"); later(function(){ el.style.left=p[0]+"px"; el.style.top=p[1]+"px"; },60+j*140); })(j); } }); }
-        else if(isJ&&chg){ at(1100,function(){ line(th.some,th.somecn); var bg=bag(-60,cy,s*2); later(function(){ bg.style.left=Math.min(cx+s*4.2,W()*.88-s)+"px"; },60); });
-          at(1400,function(){ line("Now there are "+N(q.c)+" "+th.n+".","现在有 "+q.c+" 个。"); }); }
-        else if(!isJ&&!chg){ at(1100,function(){ line(fill(th.sub,q).replace(String(q.b),N(q.b)),fill(th.subcn,q)); for(var j=0;j<q.b;j++){ (function(j){ var el=grp[q.a-1-j]; later(function(){ leave(el,th.go); },j*220); })(j); } }); }
-        else { at(1100,function(){ line(th.subsome,th.subsomecn); var bg=bag(cx+s*4.2,cy,s*2); bg.style.opacity="0"; for(var j=0;j<q.b;j++){ (function(j){ var el=grp[q.a-1-j]; later(function(){ el.style.left=(cx+s*4.2)+"px"; el.style.top=cy+"px"; el.style.transform="scale(.3)"; el.style.opacity="0"; },j*120); })(j); }
-            later(function(){ bg.style.opacity="1"; },q.b*120+300); });
-          at(1500,function(){ line(N(q.c)+" are left.","还剩 "+q.c+" 个。"); }); }
+    stopAll(); busy=true; items=[]; $("scene").innerHTML=""; $("lines").innerHTML=""; $("nextb").style.display="none"; $("row2").style.display="none";
+    var q=Q, k=q.k, th=q.th, w=W(), h=H(), N=function(v){ return "<b>"+v+"</b>"; }, e=th.e;
+    var unit=th.e==="crit"?"只":"个";
+    STEPS=[];
+    if(k.indexOf("join")===0){
+      setup2(true);
+      var start=k==="join-start", chg=k==="join-chg";
+      STEPS.push(start?{en:"Some "+th.n+" are "+th.where+".",cn:"有一些"+th.cn+"。",go:function(){ plate(LX,LY,PW,PH); bag(LX,LY,SZ*2); badge(LX,LY+PH/2+2,"?"); return 600; }}
+        :{en:"There are "+N(q.a)+" "+th.n+" "+th.where+".",cn:"有 "+q.a+" "+unit+th.cn+"。",go:function(){ plate(LX,LY,PW,PH); var t=popIn(e,slots(q.a,LX,LY)); later(function(){ badge(LX,LY+PH/2+2,q.a); },t); return t+300; }});
+      STEPS.push(chg?{en:th.some,cn:th.somecn,go:function(){ plate(RX,RY,PW,PH,"newp"); var bg=bag(-60,RY,SZ*2); later(function(){ bg.style.left=RX+"px"; },60); later(function(){ badge(RX,RY+PH/2+2,"+ ?","newb"); plus(PX,PY,"+"); },800); return 1100; }}
+        :{en:fill(th.add,q).replace(String(q.b),N(q.b)),cn:fill(th.addcn,q),go:function(){ plate(RX,RY,PW,PH,"newp"); var t=slideIn(e,slots(q.b,RX,RY)); later(function(){ badge(RX,RY+PH/2+2,"+ "+q.b,"newb"); plus(PX,PY,"+"); },t); return t+300; }});
+      if(start||chg) STEPS.push({en:"Now there are "+N(q.c)+" "+th.n+".",cn:"现在一共有 "+q.c+" "+unit+"。",go:function(){ badge(TX,TY,"= "+q.c,"tot"); tone([660,880],.06); return 600; }});
+    } else if(k.indexOf("sep")===0){
+      var start2=k==="sep-start", chg2=k==="sep-chg", how=th.go;
+      if(start2){ setup2(true);
+        STEPS.push({en:"Some "+th.n+" are "+th.where+".",cn:"有一些"+th.cn+"。",go:function(){ plate(LX,LY,PW,PH); bag(LX,LY,SZ*2); badge(LX,LY+PH/2+2,"?"); return 600; }});
+        STEPS.push({en:fill(th.sub,q).replace(String(q.b),N(q.b)),cn:fill(th.subcn,q),go:function(){ plate(RX,RY,PW,PH); var ps=slots(q.b,RX,RY), els=[];
+          ps.forEach(function(p,i){ later(function(){ var el=put(e,LX,LY,SZ); void el.offsetWidth; el.style.left=p[0]+"px"; el.style.top=p[1]+"px"; els.push(el); },i*200); });
+          later(function(){ var t=crossOut(els,how); later(function(){ badge(RX,RY+PH/2+2,"− "+q.b,"newb"); },t); },q.b*200+500); return q.b*200+500+q.b*600+1300; }});
+        STEPS.push({en:N(q.c)+" are left.",cn:"还剩 "+q.c+" "+unit+"。",go:function(){ var t=popIn(e,slots(q.c,LX,LY+SZ*0.1)); var bg=$("bag"); if(bg){ bg.style.left=(LX-PW/2+SZ)+"px"; bg.style.top=(LY-PH/2+SZ*.2)+"px"; bg.style.setProperty("--b",SZ*1.3+"px"); } later(function(){ badge(TX,TY,"left: "+q.c,"tot"); },t); return t+300; }});
+      } else { setup2(false); var grp=[];
+        STEPS.push({en:"There are "+N(q.a)+" "+th.n+" "+th.where+".",cn:"有 "+q.a+" "+unit+th.cn+"。",go:function(){ plate(LX,LY,PW,PH); var ps=slots(q.a,LX,LY); ps.forEach(function(p,i){ later(function(){ var el=put(e,p[0],p[1],SZ); el.style.transform="scale(0)"; void el.offsetWidth; el.style.transform=""; grp.push(el); tone([500+i*40],.04); },i*160); }); later(function(){ badge(LX,LY+PH/2+2,q.a); },q.a*160); return q.a*160+300; }});
+        STEPS.push(chg2?{en:th.subsome,cn:th.subsomecn,go:function(){ var x=W()*.84, bg=bag(x,CY,SZ*1.8); bg.style.opacity="0"; var take=grp.slice(q.a-q.b);
+            take.forEach(function(el,i){ later(function(){ el.classList.add("wob"); },i*500); later(function(){ el.classList.remove("wob"); el.style.left=x+"px"; el.style.top=CY+"px"; el.style.transform="scale(.3)"; },i*500+600); });
+            later(function(){ bg.style.opacity="1"; take.forEach(function(el){ el.style.opacity="0"; }); badge(x,CY+SZ+6,"− ?","newb"); },q.b*500+1300); return q.b*500+1600; }}
+          :{en:fill(th.sub,q).replace(String(q.b),N(q.b)),cn:fill(th.subcn,q),go:function(){ var t=crossOut(grp.slice(q.a-q.b).reverse(),how); later(function(){ badge(LX,CY-PH/2-34,"− "+q.b,"newb"); },t); return t+300; }});
+        if(chg2) STEPS.push({en:N(q.c)+" are left.",cn:"还剩 "+q.c+" "+unit+"。",go:function(){ badge(LX,CY-PH/2-34,"left: "+q.c,"tot"); return 500; }});
       }
     } else if(k.indexOf("put")===0){
-      var t=th, cx1=w*.34, cx2=w*.68;
-      if(k==="put-tot"){ line("There are "+N(q.a)+" "+(t.pl?t.an:t.an+" "+t.n)+".","有 "+q.a+" 个"+t.acn+(t.pl?"":t.cn)+"。"); for(var i=0;i<q.a;i++){ var p=slot(i,cx1,cy,s); put(t.a,p[0],p[1],s); }
-        at(1000,function(){ line("There are "+N(q.b)+" "+(t.pl?t.bn:t.bn+" "+t.n)+".","有 "+q.b+" 个"+t.bcn+(t.pl?"":t.cn)+"。"); for(var j=0;j<q.b;j++){ var p2=slot(j,cx2,cy,s); put(t.b,p2[0],p2[1],s,"new"); } }); }
-      else { line("There are "+N(q.c)+" "+t.n+".","一共有 "+q.c+" 个"+t.cn+"。"); at(900,function(){ line(N(q.a)+" are "+t.an+". The rest are "+t.bn+".",q.a+" 个是"+t.acn+(t.pl?"":"的")+"，其余是"+t.bcn+(t.pl?"":"的")+"。"); for(var i=0;i<q.a;i++){ var p=slot(i,cx1,cy,s); put(t.a,p[0],p[1],s); } bag(cx2,cy,s*2); }); }
+      setup2(true); var t3=th;
+      if(k==="put-tot"){
+        STEPS.push({en:"There are "+N(q.a)+" "+(t3.pl?t3.an:t3.an+" "+t3.n)+".",cn:"有 "+q.a+" 个"+t3.acn+(t3.pl?"":t3.cn)+"。",go:function(){ plate(LX,LY,PW,PH); var t=popIn(t3.a,slots(q.a,LX,LY)); later(function(){ badge(LX,LY+PH/2+2,q.a); },t); return t+300; }});
+        STEPS.push({en:"There are "+N(q.b)+" "+(t3.pl?t3.bn:t3.bn+" "+t3.n)+".",cn:"有 "+q.b+" 个"+t3.bcn+(t3.pl?"":t3.cn)+"。",go:function(){ plate(RX,RY,PW,PH); var t=popIn(t3.b,slots(q.b,RX,RY)); later(function(){ badge(RX,RY+PH/2+2,q.b); plus(PX,PY,"+"); },t); return t+300; }});
+      } else {
+        STEPS.push({en:"There are "+N(q.c)+" "+t3.n+".",cn:"一共有 "+q.c+" 个"+t3.cn+"。",go:function(){ badge(TX,TY,"all: "+q.c,"tot"); plate(LX,LY,PW,PH); plate(RX,RY,PW,PH); return 600; }});
+        STEPS.push({en:N(q.a)+" are "+t3.an+". The rest are "+t3.bn+".",cn:q.a+" 个是"+t3.acn+(t3.pl?"":"的")+"，其余是"+t3.bcn+(t3.pl?"":"的")+"。",go:function(){ var t=popIn(t3.a,slots(q.a,LX,LY)); bag(RX,RY,SZ*2); later(function(){ badge(LX,LY+PH/2+2,q.a); badge(RX,RY+PH/2+2,"?"); plus(PX,PY,"+"); },t); return t+300; }});
+      }
     } else {   // compare: two rows, pair them up
-      s=Math.round(Math.max(24,Math.min(60,(w*.64)/q.a/1.12,h/6))); var t2=th, x0=w*.27, y1=h*.36, y2=h*.6, step=Math.min(s*1.15,(w*.64)/q.a);
-      line(t2.p1+" has "+N(q.a)+" "+t2.n+".",t2.p1+" 有 "+q.a+" 个"+t2.cn+"。");
-      $("scene").insertAdjacentHTML("beforeend",'<div class="sign" style="left:'+(w*.17)+'px;bottom:auto;top:'+(y1-12)+'px">'+t2.p1+'</div>'); for(var i2=0;i2<q.a;i2++) put(t2.e,x0+i2*step,y1,s).dataset.row="1";
-      at(900,function(){ line(t2.p2+" has "+N(q.b)+" "+t2.n+".",t2.p2+" 有 "+q.b+" 个"+t2.cn+"。"); $("scene").insertAdjacentHTML("beforeend",'<div class="sign" style="left:'+(w*.17)+'px;bottom:auto;top:'+(y2-12)+'px">'+t2.p2+'</div>');
-        for(var j=0;j<q.b;j++) put(t2.e,x0+j*step,y2,s,"new").dataset.row="2"; });
+      var t2=th, sz=Math.round(Math.max(24,Math.min(60,(w*.64)/q.a/1.12,h/6))), x0=w*.27, y1=h*.36, y2=h*.6, gapX=Math.min(sz*1.15,(w*.64)/q.a);
+      STEPS.push({en:t2.p1+" has "+N(q.a)+" "+t2.n+".",cn:t2.p1+" 有 "+q.a+" 个"+t2.cn+"。",go:function(){ $("scene").insertAdjacentHTML("beforeend",'<div class="sign" style="left:'+(w*.17)+'px;bottom:auto;top:'+(y1-12)+'px">'+t2.p1+'</div>'); for(var i=0;i<q.a;i++) put(t2.e,x0+i*gapX,y1,sz).dataset.row="1"; return 400; }});
+      STEPS.push({en:t2.p2+" has "+N(q.b)+" "+t2.n+".",cn:t2.p2+" 有 "+q.b+" 个"+t2.cn+"。",go:function(){ $("scene").insertAdjacentHTML("beforeend",'<div class="sign" style="left:'+(w*.17)+'px;bottom:auto;top:'+(y2-12)+'px">'+t2.p2+'</div>'); for(var j=0;j<q.b;j++) put(t2.e,x0+j*gapX,y2,sz,"new").dataset.row="2"; return 400; }});
     }
-    at(1300,function(){ busy=false; afterStory(); });
+    SI=0; $("stage").classList.toggle("telling",W()<560); step();
   }
+  // one sentence: show it, act it out, then wait for Next (or, after the last one, go on to the question)
+  function step(){
+    var st=STEPS[SI]; busy=true; $("nextb").style.display="none";
+    line(st.en,st.cn); var t=st.go()||500; SI++;
+    later(function(){ busy=false; if(SI>=STEPS.length) $("stage").classList.remove("telling"); if(SI<STEPS.length){ $("nextb").style.display="block"; say(Q.tut&&SI===1?"Read it, then tap <b>Next</b>! 读完点“下一句”！":"Tap Next when you're ready. 准备好了点“下一句”。"); } else { $("row2").style.display="flex"; afterStory(); } },t+400);
+  }
+  $("nextb").onclick=function(){ if(busy||!STEPS.length||SI>=STEPS.length) return; step(); };
   function afterStory(){
     if(Q.k==="cmp"&&!Q.paired) return startPairing();
     if(Q.stage==="num") return askNumber();
@@ -256,11 +296,15 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   }
   // the bag opens: the hidden things pop out
   function reveal(){
-    var bg=$("bag"); if(!bg) return; var x=parseFloat(bg.style.left), y=parseFloat(bg.style.top), s=itemSize(Math.max(Q.a,Q.c)), e=Q.k.indexOf("put")===0?Q.th.b:Q.th.e;
+    var bg=$("bag"); if(!bg) return; var x=parseFloat(bg.style.left), y=parseFloat(bg.style.top), s=Math.round(SZ*(Q.k==="sep-start"?.75:1)), e=Q.k.indexOf("put")===0?Q.th.b:Q.th.e, taken=Q.k==="sep-chg";
+    var cx=Q.k==="sep-chg"?x:Q.k==="sep-start"?RX:(Math.abs(x-RX)+Math.abs(y-RY)<Math.abs(x-LX)+Math.abs(y-LY)?RX:LX);
     bg.classList.add("open"); tone([523,659,784],.07);
-    for(var i=0;i<Q.ans;i++){ (function(i){ var el=put(e,x,y,s,"new"); var p=slot(i,x,y,s*.8); later(function(){ el.style.left=p[0]+"px"; el.style.top=p[1]+"px"; },80+i*90); })(i); }
+    if(Q.k==="sep-start"){ [].forEach.call(document.querySelectorAll(".badge"),function(b){ if(b.textContent==="?"){ b.textContent=Q.ans; b.classList.add("tot"); } }); return; }
+    // the hidden things pop out onto their plate (the ones taken away come out crossed out)
+    for(var i=0;i<Q.ans;i++){ (function(i){ var el=put(e,x,y,s,"new"); var p=slot(i,cx-(taken?s*1.6:0),Q.k==="sep-start"?RY:y,s*(Q.k==="sep-start"?.95:1)); later(function(){ el.style.left=p[0]+"px"; el.style.top=p[1]+"px"; if(taken) later(function(){ el.classList.add("gone"); },500); },80+i*110); })(i); }
   }
   function win(){
+    [].forEach.call(document.querySelectorAll(".badge"),function(b){ if(/\?/.test(b.textContent)) b.textContent=b.textContent.replace("?",Q.ans); });
     busy=true; var good=!Q.eqTries&&!Q.tries, coins=good?3:1; D.ok++; D.coins+=coins; S.coins+=coins; D.streak=good?D.streak+1:0; D.bad=!good; save();
     reveal(); tone([660,880,1100],.08); var r=$("stage").getBoundingClientRect(); burst(r.left+r.width/2,r.top+r.height/3); if(pet) MathPet.feed(1);
     var fx=document.createElement("span"); fx.className="float"; fx.textContent="+"+coins+" 🪙"; fx.style.left="45%"; fx.style.top="30%"; $("stage").appendChild(fx); setTimeout(function(){ fx.remove(); },1100);
