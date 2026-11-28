@@ -21,6 +21,8 @@
 .truck .win{position:absolute;right:10%;top:14%;width:22%;height:34%;background:#bfe6ff;border-radius:6px}
 .truck .wh{position:absolute;bottom:-14px;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle,#ddd 0 25%,#333 27%)}
 .truck .stripe{position:absolute;left:6%;right:40%;top:48%;height:12%;background:#ffd84a;border-radius:3px}
+.shaft{position:absolute;z-index:1;background:rgba(210,235,255,.55);border:3px solid #9aa3ad;border-bottom:0;border-radius:6px 6px 0 0}
+.cabin{position:absolute;z-index:2;background:rgba(255,255,255,.75);border:3px solid #6b7480;border-radius:5px;transition:top .45s ease-in-out}
 .who{position:absolute;transform:translate(-50%,-100%);line-height:1;z-index:5;transition:left .5s ease,top 1.2s ease-in-out;pointer-events:none}
 .cat{position:absolute;transform:translate(-50%,-100%);line-height:1;z-index:4;transition:left .4s ease,top 1.2s ease-in-out;pointer-events:none}
 .cat.meow::after{content:"Meow! 喵！";position:absolute;left:70%;bottom:90%;background:#fff;border-radius:10px;padding:2px 7px;font:900 .8rem Nunito,sans-serif;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.12)}
@@ -116,7 +118,11 @@
       h+='<div class="tower" style="left:'+px(x)+';top:'+px(gy-th)+';width:'+px(twd)+';height:'+px(th)+'">';
       Q.floors.forEach(function(f,i){ var cls=f.blank?(f.got?"plate fill":"plate q"):"plate"; h+='<div class="floor" style="top:'+px(th-(i+1)*fh)+';height:'+px(fh)+'"><i></i><span class="'+cls+'" data-f="'+i+'">'+(f.blank&&!f.got?"?":f.v)+'</span><i></i></div>'; });
       h+='</div>'+el("roof","left:"+px(x-u*.4)+";top:"+px(gy-th-u*.35)+";width:"+px(twd+u*.8)+";height:"+px(u*.45));
-      h+=whoHtml(W/2+twd/2+u*.9)+catHtml(W/2,gy-th-u*.35);
+      // a glass elevator beside the tower: the firefighter rides it floor by floor
+      var ew=Math.min(u*1.9,64), sx=x+twd+u*.5; G.sx=sx+ew/2; G.th=th;
+      h+='<div class="shaft" style="left:'+px(sx)+';top:'+px(gy-th)+';width:'+px(ew)+';height:'+px(th)+'"></div><div class="cabin" id="cab" style="left:'+px(sx+3)+';top:'+px(gy-((Q.lift||0)+1)*fh+3)+';width:'+px(ew-6)+';height:'+px(fh-6)+'"></div>';
+      h+=whoHtml(G.sx)+catHtml(W/2,gy-th-u*.35);
+      if(Q.lit!=null) h=h.replace('data-f="'+Q.lit+'"','data-f="'+Q.lit+'" style="background:#ffd84a;transform:scale(1.15)"');
     }
     $("scene").innerHTML=h;
     if(Q.who) placeWho(Q.who[0],Q.who[1],true);
@@ -213,6 +219,23 @@
       var c=$("cat"); if(c) c.classList.add("meow"); Q.tries++; K.tone([200,150],.12,"sawtooth"); K.say("Too short! The kitten is higher. 太短了，小猫在更高的地方！");
       K.later(function(){ climbTo(G.ladX+G.ladW/2,G.gy,function(){ if(c) c.classList.remove("meow"); walkHome(); retryLadder(); }); },700); });
   }
+  // ---------- the elevator ----------
+  function moveWho(x,y){ var w=$("who"); Q.who=[x,y]; if(w){ w.style.transition="left .6s ease,top .45s ease-in-out"; w.style.left=px(x); w.style.top=px(y); } }
+  // the car goes from floor a to floor b, one floor at a time; each floor's number lights up and dings on the way
+  function ride(a,b,then){ var i=a, dir=b>a?1:-1;
+    (function step(){ Q.lift=i; Q.lit=i; var cab=$("cab"); if(cab) cab.style.top=px(G.gy-(i+1)*G.fh+3);
+      moveWho(G.sx,G.gy-i*G.fh-3); if(Q.carry){ Q.cat=[G.sx+G.u*.45,G.gy-i*G.fh-3-G.u*.35]; var c=$("cat"); if(c){ c.style.transition="left .3s,top .45s ease-in-out"; c.style.left=px(Q.cat[0]); c.style.top=px(Q.cat[1]); } }
+      [].forEach.call(document.querySelectorAll(".plate"),function(pl){ var on=+pl.getAttribute("data-f")===i; pl.style.background=on?"#ffd84a":""; pl.style.transform=on?"scale(1.15)":""; });
+      K.tone([500+i*70],.08);
+      if(i===b) return K.later(function(){ Q.lit=null; then(); },500); i+=dir; K.later(step,560); })();
+  }
+  function saveTower(){
+    var c=$("cat"); K.tone([523,659,784,1047],.08); Q.cat=[Q.who[0]+G.u*.45,Q.who[1]-G.u*.35]; if(c){ c.style.left=px(Q.cat[0]); c.style.top=px(Q.cat[1]); }
+    var top=Q.floors.length-1; Q.carry=true;
+    K.later(function(){ moveWho(G.sx,G.gy-top*G.fh-3); Q.cat=[G.sx+G.u*.45,G.gy-top*G.fh-3-G.u*.35]; var cc=$("cat"); if(cc){ cc.style.left=px(Q.cat[0]); cc.style.top=px(Q.cat[1]); } },500);
+    K.say("Got you, kitty! 抓到你了，小猫！");
+    K.later(function(){ ride(top,0,function(){ Q.carry=false; var c2=$("cat"); if(c2) c2.classList.add("happy"); good("Floors "+Q.floors[0].v+" to "+Q.floors[Q.floors.length-1].v+"!"); }); },1200);
+  }
   function walkHome(){ var w=$("who"); if(!w) return; Q.who=[G.whoX,G.gy]; w.style.left=px(G.whoX); }
   function retryLadder(){
     if(Q.tries>=3){ K.task('<span class="eqbig">'+Q.n+' cubes = '+Q.n+' sections</span>'); K.say("It needs "+Q.n+" sections. 需要 "+Q.n+" 节。"); K.later(function(){ K.done(false); },1500); return; }
@@ -236,7 +259,8 @@
   // ---------- count to 120 ----------
   function askFloor(){
     var f=null, j; for(j=0;j<Q.floors.length;j++) if(Q.floors[j].blank&&!Q.floors[j].got){ f=Q.floors[j]; break; }
-    if(!f){ K.hideBtns(); K.busy=true; K.say("Up we go! 坐电梯上去！"); var th=Q.floors.length*G.fh; return climbTo(G.towerX+Math.min(W*.5,260)/2+G.u*.9,G.gy-th,function(){ var w=$("who"); if(w){ w.style.left=px(G.towerX); w.style.top=px(G.gy-th-G.u*.35); Q.who=[G.towerX,G.gy-th-G.u*.35]; } K.later(save,500); }); }
+    if(!f){ K.hideBtns(); K.busy=true; K.say("Up we go! The elevator stops at every floor. 坐电梯，每层都停一下！"); var top=Q.floors.length-1;
+      return ride(0,top,function(){ moveWho(W/2-G.u*.8,G.gy-G.th-G.u*.35); K.later(saveTower,900); }); }
     Q.cur=f; Q.ftries=0; var v=f.v, opts=[v]; [v+10,v-10,v+1,v-1].forEach(function(x){ if(opts.length<3&&x>=90&&x<=130&&opts.indexOf(x)<0&&!Q.floors.some(function(g){ return !g.blank&&g.v===x; })) opts.push(x); });
     while(opts.length<3) opts.push(v+opts.length*11);
     K.task('Which number is on this floor?<span class="cn">这一层是几？</span>');

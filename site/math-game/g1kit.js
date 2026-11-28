@@ -124,8 +124,11 @@
     // ---------- rounds and levels ----------
     K.easy = function () { return K.D.n <= 2 || K.D.bad; };
     K.hard = function () { return !K.easy() && K.D.streak >= 3; };
-    function hud() { $("score").textContent = (K.D ? K.D.ok : 0) + "/" + GOAL; $("day").textContent = K.L; $("coins").textContent = S.coins; }
+    // cfg.score(K) may give its own text for the first box (a board game shows how far along the board it is)
+    function hud() { $("score").textContent = cfg.scoreText && K.D ? cfg.scoreText(K) : (K.D ? K.D.ok : 0) + "/" + GOAL; $("day").textContent = K.L; $("coins").textContent = S.coins; }
     K.hud = hud;
+    // a game whose level ends on its own (the treasure is reached): the next K.done ends the level
+    K.finish = function () { if (K.D) K.D.n = GOAL; };
     K.done = function (good, tries) {
       K.busy = true; var D = K.D;
       if (good) { var coins = tries ? 1 : 3; D.ok++; D.coins += coins; S.coins += coins; D.streak = tries ? 0 : D.streak + 1; D.bad = !!tries; K.save();
@@ -143,10 +146,10 @@
     function startLevel() { K.D = { n: 0, ok: 0, miss: 0, coins: 0, streak: 0, bad: false, first: true, tut: !S.tut && K.L === 1 }; if (root.GameProgress) root.GameProgress.start(cfg.id, "day" + K.L); closeOver(); next(); }
     function endLevel() {
       var D = K.D, won = D.ok >= NEED, lv = K.L;
-      if (root.GameProgress) root.GameProgress.report({ game: cfg.id, level: "day" + lv, name: cfg.name + " Level " + lv, won: won, stars: won ? (D.miss ? 2 : 3) : 0, correct: D.ok, total: GOAL, best: D.ok });
+      if (root.GameProgress) root.GameProgress.report({ game: cfg.id, level: "day" + lv, name: cfg.name + " Level " + lv, won: won, stars: won ? (D.miss ? 2 : 3) : 0, correct: D.ok, total: cfg.scoreText ? D.ok + D.miss : GOAL, best: D.ok });
       if (won) { if (K.L === S.day) S.day++; K.L++; K.save(); }
       K.tone(won ? [523, 659, 784, 1047] : [392, 330, 262], .2);
-      over("<h2>" + (won ? "🎉 Level " + lv + " done!" : "Level " + lv) + "</h2><p>" + (won ? "第 " + lv + " 关完成啦！" : "再试一次，做对 " + NEED + " 个就过关！") + '</p><p style="font-size:1.3rem">⭐ ' + D.ok + " / " + GOAL + " · +" + D.coins + " 🪙</p>" + shopHtml() + levelPick() + '<button type="button" class="go" id="nextDay">' + playLabel() + "</button>");
+      over("<h2>" + (won ? "🎉 Level " + lv + " done!" : "Level " + lv) + "</h2><p>" + (won ? "第 " + lv + " 关完成啦！" : "再试一次，做对 " + NEED + " 个就过关！") + '</p><p style="font-size:1.3rem">⭐ ' + D.ok + (cfg.scoreText ? " right 答对" : " / " + GOAL) + " · +" + D.coins + " 🪙</p>" + shopHtml() + levelPick() + '<button type="button" class="go" id="nextDay">' + playLabel() + "</button>");
       wireShop(); wirePick(); $("nextDay").onclick = startLevel;
     }
     function shopHtml() { if (!cfg.shop) return ""; return '<p style="margin-top:10px">🛒 ' + (cfg.shopName || "Shop 商店") + " · 🪙 " + S.coins + '</p><div class="shop" id="shop">' + cfg.shop.map(function (x) { var own = S.deco[x.id]; return '<button type="button" data-id="' + x.id + '" class="' + (own ? "own" : "") + '"' + (!own && S.coins < x.p ? " disabled" : "") + "><i>" + x.e + "</i>" + (own ? "✓" : x.p + " 🪙") + "</button>"; }).join("") + "</div>"; }

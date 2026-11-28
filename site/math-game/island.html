@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Math Island Adventure</title>
+<meta name="theme-color" content="#1e9bb8">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Math Island Adventure: roll the dice and move your pet across islands from the whole year: ducks, stories, the train, eggs, beads, the fire station and the shape workshop. Lightning rounds of facts within 10. Grade 1 review.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* the board, the pet token, the dice, the challenge card */
+.sp{position:absolute;z-index:2;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 4px 0 rgba(0,0,0,.18);border:3px solid rgba(255,255,255,.7);line-height:1}
+.sp i{font-style:normal}.sp small{font-family:Fredoka,sans-serif;font-weight:700;font-size:.7rem;color:rgba(0,0,0,.45);margin-top:2px}
+.sp.done{filter:saturate(.45) brightness(1.08)}
+.path{position:absolute;z-index:1;background:#f3e2b3;border-radius:8px}
+.tok{position:absolute;z-index:5;transform:translate(-50%,-78%);transition:left .26s ease,top .26s ease;pointer-events:none;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
+.tok.hop{animation:thop .26s}@keyframes thop{50%{margin-top:-14px}}
+.tok svg{width:100%;height:100%}
+.die{position:absolute;z-index:6;width:64px;height:64px;border-radius:14px;background:#fff;border:3px solid #2b2b3a;box-shadow:0 5px 0 rgba(0,0,0,.2);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;transform:translate(-50%,-50%)}
+.die b{border-radius:50%;background:#2b2b3a;margin:3px;visibility:hidden}.die b.on{visibility:visible}
+.die.spin{animation:spin .12s linear infinite}@keyframes spin{50%{transform:translate(-50%,-50%) rotate(18deg) scale(1.08)}}
+.card{position:absolute;z-index:8;left:50%;transform:translateX(-50%);background:#fff;border-radius:20px;box-shadow:0 8px 0 rgba(0,0,0,.15),0 0 0 4px var(--c,#1e9bb8);padding:10px 14px;text-align:center;animation:cin .35s cubic-bezier(.3,1.4,.6,1)}
+@keyframes cin{from{transform:translateX(-50%) scale(.3);opacity:0}}
+.card .ctop{font-weight:900;font-size:.85rem;color:var(--c,#1e9bb8);margin-bottom:4px}
+.card .vis{font-size:1.9rem;line-height:1.25;letter-spacing:2px}
+.card .eq{font-family:Fredoka,sans-serif;font-weight:700;font-size:2rem;margin-top:4px}
+.card .say{font-weight:800;font-size:1rem;margin-top:4px}.card .say small{display:block;color:var(--muted);font-size:.85rem}
+.tf{display:inline-grid;grid-template-columns:repeat(5,1fr);gap:2px;background:#d6453a;padding:3px;border-radius:6px;margin:0 4px;vertical-align:middle}.tf i{width:18px;height:18px;border-radius:4px;background:#fff;font-style:normal;font-size:13px;line-height:18px}
+.tf.b{background:#3f86e0}
+.ct{display:inline-flex;align-items:center;justify-content:center;width:34px;height:22px;background:#f6dfb2;border:2px solid #b98a4a;border-radius:5px;font:700 .75rem Fredoka,sans-serif;color:#8a5a2b;margin:2px;vertical-align:middle}
+.stick{display:inline-flex;vertical-align:middle;margin:4px 0}.stick i{width:20px;height:20px;border-radius:3px;border:2px solid rgba(0,0,0,.2);margin-right:-2px}
+.fuel{height:14px;border-radius:7px;background:#eee;overflow:hidden;margin:6px auto 0;width:80%}.fuel b{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffb020,#ff6b6b);transition:width .25s}
+.sprint{font-family:Fredoka,sans-serif;font-weight:700;font-size:1.3rem;color:#d6453a}
+.chest{animation:chest 1s ease-in-out infinite}@keyframes chest{50%{transform:scale(1.15)}}
+.wrap.fitted .card .vis{font-size:2.4rem}.wrap.fitted .card .eq{font-size:2.5rem}.wrap.fitted .tf i{width:24px;height:24px;font-size:17px;line-height:24px}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261208a"></script><script src="g1kit.js?v=20261208a"></script>
+<script>
+(function(){
+  "use strict";
+  // Math Island Adventure (Grade 1, Unit 8: putting it all together). A board game: roll the die, your pet walks along the
+  // islands of the year; where it lands, a quick question from that island's unit. Right: coins (and sometimes a rainbow
+  // bridge forward). Wrong: no going back, the right answer is shown. A level is one trip to the treasure chest.
+  //   ⚡ lightning: 10 seconds of facts within 10; every right one is fuel for the rocket
+  //   🎁 surprise: a rainbow bridge 2 spaces on, then the question there
+  //   the islands the child gets wrong more often come up more often on the next boards
+  //   level 1: within 10 (ducks, train)   level 2: + stories within 20   level 3: + tens and ones, beads within 100
+  //   level 4: + length, shapes and time   level 5: everything, the longest trip
+  var $=function(id){ return document.getElementById(id); };
+  var Q=null, B=null, W=0, H=0, G={};
+  var ISL={
+    pond:["🦆","Duck Pond","鸭子池塘","#7cc7f2"], story:["🎭","Story Theater","小剧场","#f2a0b8"], train:["🚂","Ten Frame Train","十格火车","#ffb36b"],
+    eggs:["🥚","Egg Farm","鸡蛋农场","#f6d46b"], beads:["📿","Bead Shop","珠子店","#d6a0ef"], rescue:["🚒","Fire Station","消防站","#ff8b7b"],
+    shapes:["🔷","Shape Workshop","图形工坊","#9fb0ff"], zap:["⚡","Lightning!","闪电挑战","#ffe066"], gift:["🎁","Surprise!","惊喜","#9be3a5"]
+  };
+  var K=G1Kit({
+    id:"island", store:"mathIsland.v1", title:"🏝️ Math Island Adventure", name:"Math Island Adventure", sub:"Grade 1 Review 一年级总复习",
+    score:["Space","格"], goal:99, need:1, pause:1500, scoreText:function(){ return B?(Math.min(B.pos,B.len)+"/"+B.len):"0"; },
+    colors:{bg:"#eaf8fb",line:"#c6e8ef",accent:"#1e9bb8",stage:"linear-gradient(180deg,#bfeaff 0 12%,#7fd0e8 12%,#62bfdc)"},
+    how:'<div>🎲 Roll the die: your pet walks along the islands.</div><div>❓ Where it lands, answer a question from that island.</div><div>⚡ Lightning: answer as many as you can in 10 seconds!</div><div>💰 Reach the treasure chest to finish the map.</div><div style="color:var(--muted)">掷骰子，宠物沿着小岛往前走；停在哪个岛，就答那个岛的题。闪电挑战：10 秒内答得越多越好！走到宝箱就完成这张地图。</div>',
+    shop:[{id:"palm",e:"🌴",p:5,x:"2%",y:"3%"},{id:"shell",e:"🐚",p:8,x:"92%",y:"88%"},{id:"crab",e:"🦀",p:12,x:"4%",y:"88%"},{id:"boat",e:"⛵",p:16,x:"86%",y:"3%"},{id:"fish",e:"🐠",p:22,x:"70%",y:"88%"},{id:"whale",e:"🐳",p:28,x:"50%",y:"90%"},{id:"sun",e:"🌞",p:36,x:"72%",y:"1%"},{id:"rainbow",e:"🌈",p:45,x:"30%",y:"1%"}],
+    shopName:"Island shop 小岛商店", welcome:"🏝️ Welcome to Math Island! 欢迎来数学岛！", hello:"Roll the die and set off! 掷骰子出发吧！",
+    round:round, resize:function(){ if(B) draw(); }
+  });
+  function rnd(n){ return K.rnd(n); }
+  // ---------- the board ----------
+  function newBoard(){
+    var L=K.L, pool=L===1?["pond","train"]:L===2?["pond","story","train"]:L===3?["train","story","eggs","beads"]:L===4?["eggs","beads","rescue","shapes"]:["pond","story","train","eggs","beads","rescue","shapes"];
+    var len=[12,14,16,18,20][L-1], weak=K.S.weak||{}, bag=[], i;
+    pool.forEach(function(t){ for(var k=0;k<1+Math.min(3,weak[t]||0);k++) bag.push(t); });   // weak islands come up more
+    var sp=[]; for(i=0;i<len;i++){ var t=bag[rnd(bag.length)]; if(i%5===3) t="zap"; else if(i%7===5) t="gift"; else if(i>0&&sp[i-1]===t&&pool.length>1){ var o=pool.filter(function(x){ return x!==t; }); t=o[rnd(o.length)]; } sp.push(t); }
+    B={len:len,sp:sp,pos:0,done:{}};
+  }
+  // the spaces snake across the stage: start, len spaces, the chest
+  function spot(i){ var n=B.len+2, cols=G.cols, r=Math.floor(i/cols), c=i%cols; if(r%2) c=cols-1-c; return [G.x0+(c+.5)*G.cw, G.y0+(r+.5)*G.ch]; }
+  function geom(){ var st=$("stage"); W=st.clientWidth; H=st.clientHeight; var n=B.len+2;
+    G.cols=W/H>1.15?8:W<480?4:5; G.rows=Math.ceil(n/G.cols); var top=Math.max(64,H*.13);
+    G.cw=Math.min((W-16)/G.cols,120); G.ch=Math.min((H-top-12)/G.rows,G.cw*1.05); G.s=Math.min(G.cw,G.ch)*.8;
+    G.x0=(W-G.cols*G.cw)/2; G.y0=top+((H-top-12)-G.rows*G.ch)/2; }
+  function draw(){
+    geom(); var h="", n=B.len+2, i;
+    for(i=0;i<n-1;i++){ var a=spot(i), b=spot(i+1), x=Math.min(a[0],b[0]), y=Math.min(a[1],b[1]); h+='<div class="path" style="left:'+(x-6)+'px;top:'+(y-6)+'px;width:'+(Math.abs(a[0]-b[0])+12)+'px;height:'+(Math.abs(a[1]-b[1])+12)+'px"></div>'; }
+    for(i=0;i<n;i++){ var p=spot(i), s=G.s, t=i===0?"start":i===n-1?"chest":B.sp[i-1], is=ISL[t], bg=i===0?"#ffffff":i===n-1?"#ffd84a":is[3], ic=i===0?"🏁":i===n-1?"💰":is[0];
+      h+='<div class="sp'+(B.done[i]?" done":"")+'" style="left:'+(p[0]-s/2)+'px;top:'+(p[1]-s/2)+'px;width:'+s+'px;height:'+s+'px;background:'+bg+'"><i class="'+(i===n-1?"chest":"")+'" style="font-size:'+s*.48+'px">'+ic+'</i>'+(i>0&&i<n-1?'<small>'+i+'</small>':'')+'</div>'; }
+    var tp=spot(B.pos), ts=G.s*.9, pet=window.MathPet&&MathPet.get?MathPet.get():null;
+    h+='<div class="tok" id="tok" style="left:'+tp[0]+'px;top:'+tp[1]+'px;width:'+ts+'px;height:'+ts+'px">'+(pet?MathPet.pic(pet,"happy",Math.round(ts)):'<span style="font-size:'+ts*.8+'px">🐣</span>')+'</div>';
+    $("scene").innerHTML=h+'<div id="over2"></div>';
+    if(Q&&Q.cardHtml) showCard(Q.cardHtml,Q.cardCol,true);
+  }
+  // ---------- a turn ----------
+  function round(){
+    if(K.D.n===1||!B) newBoard();
+    Q={tries:0}; draw(); K.hud();
+    K.task('Roll the die!<span class="cn">掷骰子！</span>'); K.say(B.pos?"Where will we land? 会停在哪里？":"Let's go to the treasure! 去找宝藏吧！");
+    K.btns('<span></span><button type="button" class="main" id="roll">🎲 Roll 掷骰子</button><span></span>',3).querySelector("#roll").onclick=roll;
+  }
+  var PIPS={1:[4],2:[0,8],3:[0,4,8]};
+  function dieHtml(v){ var h=""; for(var i=0;i<9;i++) h+='<b class="'+(PIPS[v].indexOf(i)>=0?"on":"")+'"></b>'; return h; }
+  function roll(){
+    if(K.busy) return; K.busy=true; K.hideBtns(); var v=window.__die||1+rnd(3), d=document.createElement("div"); d.className="die spin"; d.id="die"; d.style.left=(W/2)+"px"; d.style.top=(H*.5)+"px"; $("scene").appendChild(d);
+    var k=0, t=setInterval(function(){ d.innerHTML=dieHtml(1+rnd(3)); K.tone([300+rnd(300)],.02); if(++k>8){ clearInterval(t); d.classList.remove("spin"); d.innerHTML=dieHtml(v); K.tone([660],.08); K.later(function(){ d.remove(); walk(v); },650); } },80);
+  }
+  function walk(v){
+    var n=B.len+1; (function step(){ if(v<=0||B.pos>=n) return land(); B.pos++; v--; var t=$("tok"), p=spot(B.pos); if(t){ t.style.left=p[0]+"px"; t.style.top=p[1]+"px"; t.classList.remove("hop"); void t.offsetWidth; t.classList.add("hop"); } K.tone([520+B.pos*12],.04); K.hud(); K.later(step,300); })();
+  }
+  function land(){
+    var n=B.len+1;
+    if(B.pos>=n) return treasure();
+    var t=B.sp[B.pos-1];
+    if(t==="gift"){ K.say("🌈 A rainbow bridge! Jump 2 spaces! 彩虹桥！往前跳 2 格！"); K.tone([523,659,784,1047],.07); B.done[B.pos]=1; return K.later(function(){ walk(2); },900); }
+    if(t==="zap") return sprint();
+    ask(t);
+  }
+  function treasure(){ K.task('<span class="eqbig">💰 The treasure! 找到宝藏了！</span>'); K.say("You did it! 你做到了！"); K.tone([523,659,784,1047,1319],.09); K.finish(); K.done(true,0); }
+  // ---------- the challenge card ----------
+  function showCard(h,col,again){ var o=$("over2"); if(!o) return; o.innerHTML='<div class="card" style="--c:'+col+';top:'+Math.max(60,H*.14)+'px;max-width:'+(W*.92)+'px'+(again?';animation:none':'')+'">'+h+'</div>'; }
+  function hideCard(){ Q.cardHtml=null; var o=$("over2"); if(o) o.innerHTML=""; }
+  function card(t,vis,eq,say,cn){ var is=ISL[t]; Q.cardCol=is[3]; Q.cardHtml='<div class="ctop">'+is[0]+' '+is[1]+' '+is[2]+'</div>'+(vis?'<div class="vis">'+vis+'</div>':'')+(eq?'<div class="eq">'+eq+'</div>':'')+(say?'<div class="say">'+say+'<small>'+cn+'</small></div>':''); showCard(Q.cardHtml,Q.cardCol); }
+  function rep(e,n){ return new Array(n+1).join(e); }
+  function tf(n,cls){ var h='<span class="tf '+(cls||"")+'">'; for(var i=0;i<10;i++) h+='<i>'+(i<n?"●":"")+'</i>'; return h+'</span>'; }
+  // each island makes a quick question: {vis, eq, say, cn, ans, kind ("nums" max | "pad" | "opts" list), why}
+  function make(t){
+    var L=K.L, a, b, c, q={};
+    if(t==="pond"){ if(rnd(2)){ a=2+rnd(6); b=1+rnd(10-a); q={vis:rep("🦆",a)+' ➕ '+rep("🦆",b),eq:a+" + "+b+" = ?",ans:a+b,say:"How many ducks in all?",cn:"一共几只鸭子？"}; }
+      else { a=4+rnd(7); b=1+rnd(a-1); q={vis:rep("🦆",a-b)+'<span style="opacity:.35">'+rep("🦆",b)+'</span> 🛫',eq:a+" − "+b+" = ?",ans:a-b,say:b+" fly away. How many are left?",cn:"飞走了 "+b+" 只，还剩几只？"}; }
+      q.kind="nums"; q.max=10; q.why="Count them. 数一数。"; }
+    else if(t==="story"){ var th=K.shuffle([["Ben","apples","个苹果"],["Mia","stickers","张贴纸"],["Sam","shells","个贝壳"],["Ava","cars","辆小汽车"]])[0];
+      if(rnd(2)){ a=5+rnd(6); b=3+rnd(6); q={say:th[0]+" has "+a+" "+th[1]+". "+th[0]+" gets "+b+" more. How many now?",cn:th[0]+" 有 "+a+th[2]+"，又得到 "+b+th[2]+"。现在有多少？",ans:a+b,eq:a+" + "+b+" = ?"}; }
+      else { a=11+rnd(8); b=3+rnd(7); q={say:th[0]+" has "+a+" "+th[1]+" and gives "+b+" away. How many are left?",cn:th[0]+" 有 "+a+th[2]+"，送出 "+b+th[2]+"。还剩多少？",ans:a-b,eq:a+" − "+b+" = ?"}; }
+      q.kind="nums"; q.max=20; q.why=q.eq.replace("?",q.ans); }
+    else if(t==="train"){ if(L===1){ a=1+rnd(9); q={vis:tf(a),say:"How many more make 10?",cn:"再要几个凑成 10？",eq:a+" + ? = 10",ans:10-a,kind:"nums",max:10,why:"Count the empty seats. 数一数空座位。"}; }
+      else { a=6+rnd(4); b=11-a+rnd(Math.max(1,9-(11-a))); q={vis:tf(10)+tf(a+b-10,"b"),eq:a+" + "+b+" = ?",ans:a+b,say:"How many passengers?",cn:"一共几位乘客？",kind:"nums",max:20,why:"10 and "+(a+b-10)+" more. 10 再加 "+(a+b-10)+"。"}; } }
+    else if(t==="eggs"){ if(rnd(2)){ a=1+rnd(8); b=rnd(10); q={vis:rep('<span class="ct">10</span>',a)+' '+rep("🥚",b),say:"How many eggs?",cn:"一共几个鸡蛋？",ans:a*10+b,kind:"pad",why:a+" tens and "+b+" ones. "+a+" 个十和 "+b+" 个一。"}; }
+      else { a=11+rnd(88); do{ b=11+rnd(88); }while(b===a&&rnd(4)); q={eq:a+" ◯ "+b,say:"Which sign?",cn:"填哪个符号？",ans:a>b?">":a<b?"<":"=",kind:"opts",opts:[">","=","<"],why:"Compare the tens first. 先比十位。"}; } }
+    else if(t==="beads"){ var k=rnd(3); a=12+rnd(70);
+      if(k===0){ q={eq:"10 more than "+a+" = ?",say:"Ten more!",cn:"比 "+a+" 多 10 是几？",ans:a+10}; }
+      else if(k===1){ b=10*(1+rnd(Math.max(1,Math.floor((99-a)/10)))); q={eq:a+" + "+b+" = ?",say:"Add the tens!",cn:"加整十！",ans:a+b}; }
+      else { b=1+rnd(9); if(a+b>99) a=99-b; q={eq:a+" + "+b+" = ?",say:"Add the ones!",cn:"加个位！",ans:a+b}; }
+      q.kind="pad"; q.why=q.eq.replace("?",q.ans); }
+    else if(t==="rescue"){ if(rnd(2)){ a=3+rnd(6); b=3+rnd(6); if(a===b) b=a+1; var cA="#ff8a3d", cB="#4a8cff";
+        q={vis:'<div><span class="stick">'+rep('<i style="background:'+cA+'"></i>',a)+'</span></div><div><span class="stick">'+rep('<i style="background:'+cB+'"></i>',b)+'</span></div>',say:"Which ladder is longer?",cn:"哪架梯子更长？",ans:a>b?"orange 橙色":"blue 蓝色",kind:"opts",opts:["orange 橙色","blue 蓝色"],why:"Line them up and look at the ends. 对齐，看哪个长出来。"}; }
+      else { a=95+rnd(20); q={eq:a+", "+(a+1)+", ?",say:"What comes next?",cn:"下一个是几？",ans:a+2,kind:"opts",opts:K.shuffle([a+2,a+12,a+3]).map(String),why:"Count on by 1. 一个一个往后数。"}; q.ans=String(q.ans); } }
+    else { if(rnd(2)){ var sh=K.shuffle([["triangle",3,"三角形"],["square",4,"正方形"],["hexagon",6,"六边形"],["rectangle",4,"长方形"]])[0];
+        q={say:"How many sides does a "+sh[0]+" have?",cn:sh[2]+"有几条边？",ans:sh[1],kind:"nums",max:8,vis:{triangle:"🔺",square:"🟦",hexagon:"⬡",rectangle:"▭"}[sh[0]],why:"Count the sides. 数一数边。"}; }
+      else { a=1+rnd(12); b=rnd(2)?30:0; q={vis:clockSvg(a,b),say:"What time is it?",cn:"现在几点？",ans:a+":"+(b?"30":"00"),kind:"opts",opts:K.shuffle([a+":"+(b?"30":"00"),a+":"+(b?"00":"30"),(a%12+1)+":"+(b?"30":"00")]),why:b?"The long hand on 6: half past. 长针指 6 是半点。":"The long hand on 12: o'clock. 长针指 12 是整点。"}; } }
+    return q;
+  }
+  function clockSvg(h,m){ var s='<svg viewBox="-55 -55 110 110" width="110" height="110"><circle r="50" fill="#5a6fd6"/><circle r="45" fill="#fff"/>';
+    for(var i=1;i<=12;i++){ var a=i*Math.PI/6; s+='<text x="'+(Math.sin(a)*35).toFixed(1)+'" y="'+(-Math.cos(a)*35+4.5).toFixed(1)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11">'+i+'</text>'; }
+    return s+'<line y1="4" y2="-23" stroke="#2b2b3a" stroke-width="5" stroke-linecap="round" transform="rotate('+((h%12)+m/60)*30+')"/><line y1="5" y2="-38" stroke="#e0533f" stroke-width="3" stroke-linecap="round" transform="rotate('+m*6+')"/><circle r="3.5" fill="#2b2b3a"/></svg>'; }
+  function ask(t){
+    var q=make(t); Q.q=q; Q.t=t; card(t,q.vis,q.eq,q.say,q.cn);
+    K.task((q.say||"")+'<span class="cn">'+(q.cn||"")+'</span>'); K.say(ISL[t][0]+" "+ISL[t][1]+"!"); K.busy=false;
+    var answer=function(v,b){ if(K.busy) return; if(String(v)===String(q.ans)) return right(); wrong(b); };
+    if(q.kind==="nums") K.nums(q.max,answer);
+    else if(q.kind==="pad") K.pad2(function(v){ answer(v,null); });
+    else { var bt=K.btns(q.opts.map(function(o){ return '<button type="button" class="big" data-v="'+o+'">'+o+'</button>'; }).join(""),q.opts.length); [].forEach.call(bt.querySelectorAll("button"),function(x){ x.onclick=function(){ answer(x.getAttribute("data-v"),x); }; }); }
+  }
+  function right(){ B.done[B.pos]=1; hideCard(); K.hideAll(); K.task('<span class="eqbig">'+(Q.q.eq?Q.q.eq.replace("?",Q.q.ans).replace("◯",Q.q.ans):Q.q.ans)+'</span>'); K.say(["Yes! 对啦！","Great! 真棒！","Super! 太好了！"][rnd(3)]); K.done(true,0); }
+  function wrong(b){
+    Q.tries++; if(b) K.bad(b); else K.padBad(); K.tone([200,150],.12,"sawtooth");
+    var w=K.S.weak||(K.S.weak={}); w[Q.t]=(w[Q.t]||0)+1; K.save();
+    K.busy=true; K.hideAll(); K.say(Q.q.why); K.task('<span class="eqbig">'+(Q.q.eq?Q.q.eq.replace("?",Q.q.ans).replace("◯",Q.q.ans):Q.q.ans)+'</span><span class="cn">The answer is '+Q.q.ans+'. We stay here this turn. 答案是 '+Q.q.ans+'。这次先停在这里。</span>');
+    K.later(function(){ hideCard(); K.done(false); },1800);
+  }
+  // ---------- lightning: 10 seconds of facts within 10 ----------
+  function sprint(){
+    var got=0, end=Date.now()+(window.__sprintMs||10000), f=null;
+    function fact(){ var a, b; if(rnd(2)){ a=rnd(6); b=rnd(11-a); f={eq:a+" + "+b,ans:a+b}; } else { a=2+rnd(9); b=rnd(a+1); f={eq:a+" − "+b,ans:a-b}; }
+      card("zap",'<div class="sprint" id="secs"></div><div class="fuel"><b id="fuel" style="width:'+Math.min(100,got*12)+'%"></b></div>',f.eq+" = ?","🚀 Fuel: "+got,"燃料："+got); }
+    K.task('⚡ Lightning! Answer as many as you can!<span class="cn">闪电挑战！10 秒内答得越多越好！</span>'); K.say("Go go go! 快快快！"); K.busy=false; fact();
+    var tick=setInterval(function(){ var s=$("secs"), left=Math.max(0,Math.ceil((end-Date.now())/1000)); if(s) s.textContent="⏱ "+left; if(Date.now()>=end){ clearInterval(tick); over(); } },200);
+    K.nums(10,function(v,b){ if(Date.now()>=end) return; if(v===f.ans){ got++; K.tone([600+got*40],.05); fact(); var s=$("secs"); if(s) s.textContent="⏱ "+Math.max(0,Math.ceil((end-Date.now())/1000)); } else { K.bad(b); K.tone([200],.05); setTimeout(function(){ if(b){ b.disabled=false; b.classList.remove("bad"); } },300); } });
+    function over(){ K.hideAll(); B.done[B.pos]=1; card("zap",'<div style="font-size:3rem">'+(got>=5?"🚀":"🛸")+'</div>',"",got+" right!","答对 "+got+" 题！"); K.task('<span class="eqbig">⚡ '+got+' right in 10 seconds!</span>'); K.say(got>=5?"Blast off! 发射！":"Nice try! Every one counts! 每一题都算数！");
+      K.later(function(){ hideCard(); K.done(true,0); },1500); }
+  }
+  window.__island={q:function(){ return Q; },b:function(){ return B; },K:K,make:make};
+  K.start();
+})();
+</script>
+</body></html>

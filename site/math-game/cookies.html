@@ -17,6 +17,7 @@
 .oven .knobs i:nth-child(2)::after{transform:rotate(40deg);transform-origin:50% 100%}.oven .knobs i:nth-child(3)::after{transform:rotate(-35deg);transform-origin:50% 100%}
 .oven .win{position:absolute;left:8%;right:8%;top:22%;bottom:10%;border-radius:12px;background:radial-gradient(ellipse at 50% 30%,#ffb54d,#c94f1a);border:4px solid #2c3238;overflow:hidden}
 .oven .win.off{background:#3a3f45}
+.oven .win.baking{animation:heat .4s ease-in-out infinite alternate}@keyframes heat{from{filter:brightness(1)}to{filter:brightness(1.3) saturate(1.3)}}
 .tray{position:absolute;left:8%;right:8%;bottom:10%;height:70%;background:#9aa3ad;border-radius:6px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:5%;padding:4%}
 .ck{border-radius:50%;background:var(--c,#f6e3b8);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);align-self:center;justify-self:center;height:100%;width:auto;max-width:100%;aspect-ratio:1}
 .ck.chips{background:radial-gradient(circle at 30% 34%,#4a2a14 0 8%,transparent 9%),radial-gradient(circle at 64% 30%,#4a2a14 0 7%,transparent 8%),radial-gradient(circle at 44% 66%,#4a2a14 0 8%,transparent 9%),radial-gradient(circle at 72% 64%,#4a2a14 0 6%,transparent 7%),var(--c,#f6e3b8)}
@@ -24,9 +25,14 @@
 .cust{position:absolute;transform:translate(-50%,-100%);z-index:3;pointer-events:none;transition:left .6s ease}
 .cust svg{width:100%;height:100%}
 .cust.hop{animation:hop .45s 3}
+.petx{position:absolute;z-index:6;transform:translate(-50%,-50%);pointer-events:none}
+.petx svg{width:100%;height:100%;overflow:visible}
+.petx.good{animation:dance .45s ease-in-out infinite alternate}@keyframes dance{from{transform:translate(-50%,-50%) rotate(-10deg)}to{transform:translate(-50%,-62%) rotate(10deg)}}
+.petx.raw{animation:droop 1.2s ease-in-out infinite}@keyframes droop{50%{transform:translate(-50%,-46%) scale(.96)}}
+.petx.burnt{animation:jump .35s ease-out 3}@keyframes jump{50%{transform:translate(-50%,-70%) scale(1.08)}}
 .waiter{position:absolute;z-index:7;transform:translate(-50%,-50%);transition:left 1.1s ease-in-out,top 1.1s ease-in-out,opacity .4s;pointer-events:none;display:flex;align-items:center;justify-content:center}
 .waiter svg{width:100%;height:100%}
-.gotck{position:absolute;left:-10%;top:40%;font-size:1.8rem}
+.gotck{position:absolute;left:82%;top:34%;font-size:1.8rem}
 .waiter .plate{position:absolute;right:-30%;top:30%;font-size:2rem;transition:transform .4s ease}@keyframes hop{50%{margin-top:-12px}}
 .ticket{position:absolute;z-index:4;background:#fff;border-radius:12px;padding:4px 10px;font-weight:900;font-size:.85rem;box-shadow:0 3px 0 rgba(0,0,0,.12);white-space:nowrap;transform:translate(-50%,-100%)}
 .ticket b{font-family:Fredoka,sans-serif;font-size:1.35rem;color:#c0502f}
@@ -54,7 +60,7 @@
   var RAW="#f6e3b8", GOLD="#d9963f", BURNT="#3a2416";
   var K=G1Kit({
     id:"cookies", store:"cookieBakery.v1", title:"🍪 Cookie Bakery", name:"Cookie Bakery", sub:"Telling Time Practice 认识时间",
-    score:["Cookies","饼干"], goal:6, need:5, pause:4000,
+    score:["Cookies","饼干"], goal:6, need:5, pause:5600,
     colors:{bg:"#fff6ec",line:"#f1dcc2",accent:"#c0502f",stage:"linear-gradient(180deg,#ffe9d2 0 62%,#e8c79f 62%)"},
     how:'<div>🕐 Drag the long hand round to turn the clock (the short hand follows). Or tap −5 −1 +1 +5.</div><div>🍪 Cookies need just the right minutes: too early they are raw, too late they burn!</div><div>🔔 Read the clock to the minute for the customers.</div><div style="color:var(--muted)">拖动长针转动时钟（短针会跟着走），也可以点 −5 −1 +1 +5。饼干要烤刚好的分钟数：太早是生的，太晚就烤焦了！给顾客读准到分钟的时间。</div>',
     shop:[{id:"cake",e:"🎂",p:5,x:"4%",y:"64%"},{id:"donut",e:"🍩",p:8,x:"90%",y:"64%"},{id:"milk",e:"🥛",p:12,x:"14%",y:"66%"},{id:"cup",e:"🧁",p:16,x:"80%",y:"66%"},{id:"pie",e:"🥧",p:22,x:"70%",y:"4%"},{id:"bread",e:"🥐",p:28,x:"54%",y:"4%"},{id:"choc",e:"🍫",p:36,x:"38%",y:"4%"},{id:"star",e:"🌟",p:45,x:"88%",y:"4%"}],
@@ -119,7 +125,7 @@
     return $(id);
   }
   // ---------- a round ----------
-  function round(){
+  function round(){ var px=$("petx"); if(px) px.remove();
     cancelAnimationFrame(anim);
     var L=K.L, easy=K.easy(), hard=K.hard(), kinds=L===1?["read"]:L===2?["set"]:L===3?["bake"]:L===4?["howlong"]:["read","set","bake","howlong"];
     var k=kinds[rnd(kinds.length)], cross=L>=5?(hard?Math.random()<.7:Math.random()<.4):false;
@@ -163,18 +169,38 @@
   // the cookies are ready: the oven dings, the child's own pet carries them from the oven to the customer, who hops and goes
   // (they live on the stage, outside the scene, so a redraw of the scene does not lose them)
   function serve(){
-    var o=G.oven, cs=Math.min(H*.2,W*.16,90), pet=window.MathPet&&MathPet.get?MathPet.get():null, st=$("stage");
-    K.tone([1568,2093],.18,"sine"); Q.lit=true; Q.p=1; var win=$("win"); if(win){ win.classList.remove("off"); win.style.boxShadow="0 0 24px 8px #ffe27a"; } paint(1);
+    var o=G.oven, cs=Math.min(H*.2,W*.16,90), pet=myPet(), st=$("stage");
+    var BK=1600; Q.lit=true; var win=$("win"); if(win){ win.classList.remove("off"); win.classList.add("baking"); } K.tone([180,190],.4,"sine");
+    var t0=Date.now(); (function bake(){ var f=Math.min(1,(Date.now()-t0)/BK); Q.p=f; paint(f); if(f<1) requestAnimationFrame(bake); })();
+    K.later(function(){ K.tone([1568,2093],.18,"sine"); var w2=$("win"); if(w2){ w2.classList.remove("baking"); w2.style.boxShadow="0 0 24px 8px #ffe27a"; } },BK);
     var wt=document.createElement("div"); wt.className="waiter"; wt.style.cssText="width:"+cs*.9+"px;height:"+cs*.9+"px;left:"+(o.x+o.w/2)+"px;top:"+(o.y+o.h*.3)+"px;opacity:0";
-    wt.innerHTML=(pet?MathPet.pic(pet,"happy",Math.round(cs*.9)):'<span style="font-size:'+cs*.7+'px">🐣</span>')+'<span class="plate" id="plate">🍪</span>'; st.appendChild(wt);
-    K.later(function(){ wt.style.opacity=1; },350);
-    K.later(function(){ wt.style.left=(G.cust[0]-cs*.85)+"px"; wt.style.top=(G.cust[1]-cs*.6)+"px"; K.tone([660,784],.06); },800);
+    wt.innerHTML=MathPet.pic(pet,"happy",Math.round(cs*.9))+'<span class="plate" id="plate">🍪</span>'; st.appendChild(wt);
+    K.later(function(){ wt.style.opacity=1; },BK+350);
+    K.later(function(){ wt.style.left=(G.cust[0]-cs*.85)+"px"; wt.style.top=(G.cust[1]-cs*.6)+"px"; K.tone([660,784],.06); },BK+800);
     // the hand-over: the cookie goes from the pet's plate to the customer, who hops for joy
-    K.later(function(){ var pl=$("plate"); if(pl) pl.remove(); K.tone([880,1047],.07); var c=$("cust"); if(c){ c.insertAdjacentHTML("beforeend",'<span class="gotck">🍪</span>'); c.classList.remove("hop"); void c.offsetWidth; c.classList.add("hop"); } },2000);
+    K.later(function(){ var pl=$("plate"); if(pl) pl.remove(); K.tone([880,1047],.07); var c=$("cust"); if(c){ c.insertAdjacentHTML("beforeend",'<span class="gotck">🍪</span>'); c.classList.remove("hop"); void c.offsetWidth; c.classList.add("hop"); } },BK+2000);
     // then the customer leaves with the cookies, and the pet goes back
-    K.later(function(){ Q.gone=true; var c=$("cust"), t=document.querySelector(".ticket"); if(t) t.remove(); if(c){ c.style.transition="left 1.2s ease-in"; c.style.left=(W+cs)+"px"; } wt.style.opacity=0; },2900);
-    K.later(function(){ wt.remove(); },3900);
+    K.later(function(){ Q.gone=true; var c=$("cust"), t=document.querySelector(".ticket"); if(t) t.remove(); if(c){ c.style.transition="left 1.2s ease-in"; c.style.left=(W+cs)+"px"; } wt.style.opacity=0; },BK+2900);
+    K.later(function(){ wt.remove(); },BK+3900);
   }
+  // the child's own pet stands by the oven, big, and reacts: raw cookies make it sad, burnt ones make it jump, right ones make
+  // it dance and throw confetti. It lives on the stage (outside the scene), so a redraw keeps it; a new round clears it.
+  function petReact(how){
+    var old=$("petx"); if(old) old.remove(); var o=G.oven, sz=Math.round(Math.min(H*.32,o.h*.9,140)), pet=myPet();
+    var mood={raw:"hungry",burnt:"surprised",good:"excited"}[how];
+    var el=document.createElement("div"); el.id="petx"; el.className="petx "+how;
+    var x=G.wide?o.x-sz*.55:Math.min(W-sz*.55,o.x+o.w+sz*.55), y=o.y+o.h-sz*.5, rc=document.querySelector(".recipe");
+    // narrow screens: the pet stands beside the oven under the recipe card; with no room there, the card steps aside for it
+    if(!G.wide){ var side=W-(o.x+o.w)-8; x=o.x+o.w+4+side/2; var free=rc?o.y+o.h-(rc.offsetTop+rc.offsetHeight+6):o.h; sz=Math.round(Math.min(sz,side));
+      if(rc&&free<sz*.8){ rc.style.visibility="hidden"; K.later(function(){ var r2=document.querySelector(".recipe"); if(r2) r2.style.visibility=""; },2500); } else sz=Math.min(sz,Math.max(60,free)); y=o.y+o.h-sz*.5; }
+    el.style.cssText="left:"+x+"px;top:"+y+"px;width:"+sz+"px;height:"+sz+"px";
+    el.innerHTML=MathPet.pic(pet,mood,sz);   // the pet's own face shows how it feels
+    $("stage").appendChild(el);
+    if(how==="good"){ var r=el.getBoundingClientRect(); K.burst(r.left+r.width/2,r.top); K.later(function(){ var r2=el.getBoundingClientRect(); K.burst(r2.left+r2.width/2,r2.top); },600); }
+    if(how!=="good") K.later(function(){ el.remove(); },2500);
+  }
+  // the child's pet, or a duckling for a child who has none yet: either can make faces
+  function myPet(){ var p=window.MathPet&&MathPet.get?MathPet.get():null; return p||{type:"duck",eq:{}}; }
   function hopCust(){ var c=$("cust"); if(c){ c.classList.remove("hop"); void c.offsetWidth; c.classList.add("hop"); } }
   // ---------- bake: the clock runs from the start to the time set, the cookies bake as it goes ----------
   function run(a,b,need,then,shade){
@@ -190,7 +216,8 @@
     if(e<=0){ K.say("Time only goes forward! Turn the clock on. 时间只会往前走！把钟往后拨。"); K.tone([220],.08,"sawtooth"); return; }
     Q.turn=false; var set=Q.m; Q.m=Q.s;
     run(Q.s,set,Q.d,function(){
-      if(e===Q.d) return good(fmt(Q.s)+" + "+Q.d+" min = "+fmt(Q.e=Q.s+Q.d));
+      if(e===Q.d){ petReact("good"); return good(fmt(Q.s)+" + "+Q.d+" min = "+fmt(Q.e=Q.s+Q.d)); }
+      petReact(e<Q.d?"raw":"burnt");
       Q.tries++; K.tone([200,150],.12,"sawtooth");
       if(e<Q.d) K.say("Too early! They're still raw dough. They baked "+e+" minutes. 太早了！还是生面团，只烤了 "+e+" 分钟。");
       else { K.say("Too late! They burned! They baked "+e+" minutes. 太晚了！烤焦了！烤了 "+e+" 分钟。"); alarm(); }
@@ -202,10 +229,15 @@
   }
   function alarm(){ var o=G.oven; $("scene").insertAdjacentHTML("beforeend",'<div class="alarm" style="left:'+(o.x+o.w-30)+'px;top:'+(o.y-40)+'px">🚨</div>'); K.tone([880,660,880,660],.12,"square"); }
   // ---------- how long ----------
+  // the cookies as they would be after v minutes (raw if too few, burnt if too many), then back to how they really came out
+  function bakeFor(v){ var to=v/Q.d, from=1, t0=Date.now(); petReact(v<Q.d?"raw":"burnt"); if(v>Q.d) alarm();
+    (function go(){ var f=Math.min(1,(Date.now()-t0)/700); Q.p=from+(to-from)*f; paint(Q.p); if(Q.p>1.15&&Math.random()<.2) smoke(); if(f<1) requestAnimationFrame(go); })();
+    K.say(v<Q.d?"Only "+v+" minutes? They would still be raw! 只烤 "+v+" 分钟？还是生的！":v+" minutes? They would burn! 烤 "+v+" 分钟？会烤焦！");
+    K.later(function(){ Q.p=1; paint(1); [].forEach.call(document.querySelectorAll(".alarm,.smoke"),function(x){ x.remove(); }); },2400); }
   function askLong(){
     K.busy=false; K.task('<b>'+fmt(Q.s)+'</b> to <b>'+fmt(Q.e)+'</b>: how many minutes?<span class="cn">从 '+fmt(Q.s)+' 到 '+fmt(Q.e)+'，一共几分钟？</span>');
-    K.pad2(function(v){ if(v===Q.d) return good(fmt(Q.e)+" − "+fmt(Q.s)+" = "+Q.d+" min");
-      Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad();
+    K.pad2(function(v){ if(v===Q.d){ petReact("good"); return good(fmt(Q.e)+" − "+fmt(Q.s)+" = "+Q.d+" min"); }
+      Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad(); bakeFor(v);
       if(Q.tries>=2){ K.busy=true; K.task('<span class="eqbig">'+Q.d+' minutes</span>'); K.later(function(){ K.done(false); },1400); return; }
       K.say((Q.s%60)+Q.d>=60?"Count to the hour first, then the minutes after it. 先数到整点，再数整点以后的分钟。":"Count the minutes in the yellow part: 5, 10, 15… 数黄色部分：5、10、15……"); });
   }
