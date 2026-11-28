@@ -15,11 +15,14 @@ const server = http.createServer((req, res) => {
 });
 let passed = 0, failed = 0;
 const ok = (c, n, x) => (c ? passed++ : (failed++, console.log("  FAIL:", n, x === undefined ? "" : JSON.stringify(x))));
+// a stuck page must not hang the run: every page action has a limit, and so has the whole check
+setTimeout(() => { console.log("TIMED OUT: stage_games_check took over 240 s"); process.exit(2); }, 240000).unref();
 (async () => {
   await new Promise((r) => server.listen(0, r));
   const base = "http://localhost:" + server.address().port;
   const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
   const page = await browser.newPage({ viewport: { width: 420, height: 1000 } });
+  page.setDefaultTimeout(15000);
   const errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
   const open = async (state) => {

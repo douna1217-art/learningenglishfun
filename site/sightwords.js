@@ -202,13 +202,17 @@
     return out;
   }
 
-  // the words of a sentence, as lower-case keys
+  // the words of a sentence, as lower-case keys (remembered: the quiz compares the same sentences many times over)
+  var TOK = {};
   function tokensOf(sentence) {
-    return pieces(sentence).filter(function (p) {
+    var key = String(sentence);
+    if (Object.prototype.hasOwnProperty.call(TOK, key)) return TOK[key].slice();
+    TOK[key] = pieces(sentence).filter(function (p) {
       return p.k;
     }).map(function (p) {
       return p.k;
     });
+    return TOK[key].slice();
   }
   function overlap(a, b) {
     var tb = tokensOf(b);
