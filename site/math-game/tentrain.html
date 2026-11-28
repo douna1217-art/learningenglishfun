@@ -24,7 +24,7 @@
 .pet{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;font-size:2rem}.pet.cheer{animation:bob .5s 2}@keyframes bob{50%{transform:translateY(-8px)}}
 .bub{background:#fff;border-radius:12px;padding:4px 8px;font-weight:900;font-size:.74rem;line-height:1.2;box-shadow:0 3px 0 rgba(0,0,0,.08)}
 /* the train: an engine and two cars; each car is a ten frame */
-.train{position:absolute;left:0;z-index:2;transition:transform 1.6s cubic-bezier(.5,0,.8,.4)}
+.train{position:absolute;left:0;top:0;z-index:2;transition:transform 1.6s cubic-bezier(.5,0,.8,.4)}
 .train.in{transition:transform 1.4s cubic-bezier(.2,.6,.4,1)}
 .car{position:absolute;border-radius:10px;background:#ff8a5c;border:4px solid #c2501f;box-shadow:inset 0 -6px 0 rgba(0,0,0,.12)}
 .car.c2{background:#5cb8ff;border-color:#2f6fc8}.car.full{animation:full .5s 2}@keyframes full{50%{box-shadow:0 0 0 8px #ffe36e}}
@@ -154,7 +154,18 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   // ---------- passengers ----------
   var P=[];   // {el, seat (-1 on the platform), plat}
   function person(face){ var el=document.createElement("div"); el.className="ps"; el.textContent=face; el.style.width=el.style.height=G.seat*.9+"px"; el.style.fontSize=(G.seat*.75)+"px"; el.style.marginLeft=el.style.marginTop=(-G.seat*.45)+"px"; $("people").appendChild(el); return el; }
-  function addPerson(where,i,n){ var p={el:person(FACES[rnd(FACES.length)]),seat:-1,plat:-1}; P.push(p); if(where==="seat") sitAt(p,i); else standAt(p,i,n); p.el.dataset.i=P.length-1; return p; }
+  // the passengers on the platform wait out of sight until the train has stopped (revealPeople), then walk up
+  function addPerson(where,i,n){ var p={el:person(FACES[rnd(FACES.length)]),seat:-1,plat:-1}; P.push(p); if(where==="seat") sitAt(p,i); else standAt(p,i,n); p.el.dataset.i=P.length-1;
+    // the ones already on the train ride in with it; the ones on the platform come along after it has stopped
+    if(where==="seat"){ $("train").appendChild(p.el); later(function(){ $("people").appendChild(p.el); },1450); }   // inside the train while it rolls in
+    else { p.tx=p.el.style.left; p.el.style.left=(G.w+50)+"px"; p.hidden=true; } return p; }
+  function revealPeople(done){
+    var plat=P.filter(function(p){ return p.seat<0; }), t=0;
+    showCounts();
+    plat.forEach(function(p,i){ later(function(){ p.hidden=false; p.el.style.left=p.tx; },t+i*110); });
+    t+=plat.length*110+500;
+    later(function(){ busy=false; if(done) done(); },t);
+  }
   function size(p,sz){ p.el.style.width=p.el.style.height=sz*.9+"px"; p.el.style.fontSize=(sz*.75)+"px"; p.el.style.marginLeft=p.el.style.marginTop=(-sz*.45)+"px"; }
   function sitAt(p,i){ p.seat=i; p.plat=-1; var xy=seatXY(i); p.el.className="ps"; size(p,G.seat); p.el.style.left=xy[0]+"px"; p.el.style.top=xy[1]+"px"; }
   function standAt(p,i,n){ p.seat=-1; p.plat=i; p.n=n; var xy=platXY(i,n); p.el.className="ps wait"; size(p,G.ps); p.el.style.left=xy[0]+"px"; p.el.style.top=xy[1]+"px"; }
@@ -206,11 +217,12 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if(Q.t==="family"){ $("train").style.display="none"; return startFamily(); }
     $("train").style.display="";
     // the train rolls in from the left
-    var tr=$("train"); tr.className="train"; tr.style.transform="translateX(-"+(G.w+50)+"px)"; void tr.offsetWidth; tr.className="train in go"; tr.style.transform="translateX(0)"; later(function(){ tr.className="train"; },1450); toot();
-    var i;
+    // the train jumps off-screen (no animation), then rolls in
+    var tr=$("train"); tr.className="train"; tr.style.transition="none"; tr.style.transform="translateX(-"+(G.w+50)+"px)"; void tr.offsetWidth; tr.style.transition=""; tr.className="train in go"; tr.style.transform="translateX(0)"; later(function(){ tr.className="train"; },1450); toot();
+    var i; busy=true;
     if(Q.t==="add"){ for(i=0;i<Q.a;i++) addPerson("seat",i); for(i=0;i<Q.b;i++) addPerson("plat",i,Q.b);
       $("task").innerHTML='<b>'+Q.a+'</b> are on the train. <b>'+Q.b+'</b> more get on! Tap them.<span class="cn">车上有 '+Q.a+' 个，又上来 '+Q.b+' 个！点站台上的乘客。</span>';
-      say(Q.tut?"Tap a passenger: they fill the first car! 点乘客，先坐满第一节！":"Fill the first car to 10! 先把第一节坐满 10 个！"); if(Q.tut) later(tutHand,1500); }
+      say(Q.tut?"Tap a passenger: they fill the first car! 点乘客，先坐满第一节！":"Fill the first car to 10! 先把第一节坐满 10 个！"); }
     else if(Q.t==="sub"){ for(i=0;i<Q.a;i++) addPerson("seat",i); Q.off=0;
       $("task").innerHTML='<b>'+Q.a+'</b> are on the train. <b>'+Q.b+'</b> get off! Tap them.<span class="cn">车上有 '+Q.a+' 个，下车 '+Q.b+' 个！点乘客让他们下车。</span>';
       say("Tip: the blue car first, then the red one! 小窍门：先下蓝色车厢的！"); }
@@ -220,7 +232,8 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     else { for(i=0;i<Q.a;i++) addPerson("seat",i); for(i=0;i<10;i++) addPerson("plat",i,10);
       $("task").innerHTML='<b>'+Q.a+'</b> are on the train. We need <b>'+Q.c+'</b>! Board more, then tap Done.<span class="cn">车上有 '+Q.a+' 个，要 '+Q.c+' 个！再上几个，然后点“好了”。</span>';
       $("go2").style.display="block"; say("Count on from "+Q.a+"! 从 "+Q.a+" 往后数！"); }
-    showCounts();
+    $("cnt0").style.display="none"; $("cnt1").style.display="none";
+    later(function(){ revealPeople(function(){ if(Q.tut) tutHand(); }); },1450);   // first the train comes in and stops
   }
   $("go2").onclick=function(){ if(busy||!Q||Q.t!=="missing"||Q.phase!=="act") return; var n=onBoard().length;
     if(n!==Q.c){ Q.tries++; tone([200,150],.12,"sawtooth"); say("There are "+n+" on the train. We need "+Q.c+"! 车上有 "+n+" 个，要 "+Q.c+" 个！"+(n>Q.c?" Tap one to get off. 点一个下车。":"")); return; }
@@ -317,7 +330,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
   if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
   // the room changes: draw the train again and put everyone back in place
-  function relayout(){ if(!Q||Q.t==="family"||$("train").className.indexOf("go")>=0) return; geom(); drawTrain(); P.forEach(function(p){ if(p.gone) return; var sz=G.seat; p.el.style.width=p.el.style.height=sz*.9+"px"; p.el.style.fontSize=(sz*.75)+"px"; p.el.style.marginLeft=p.el.style.marginTop=(-sz*.45)+"px"; if(p.seat>=0) sitAt(p,p.seat); else standAt(p,p.plat,p.n); }); showCounts(); }
+  function relayout(){ if(!Q||Q.t==="family"||$("train").className.indexOf("go")>=0) return; geom(); drawTrain(); P.forEach(function(p){ if(p.gone) return; if(p.hidden){ if(p.seat<0){ p.tx=platXY(p.plat,p.n)[0]+"px"; } return; } var sz=G.seat; p.el.style.width=p.el.style.height=sz*.9+"px"; p.el.style.fontSize=(sz*.75)+"px"; p.el.style.marginLeft=p.el.style.marginTop=(-sz*.45)+"px"; if(p.seat>=0) sitAt(p,p.seat); else standAt(p,p.plat,p.n); }); showCounts(); }
   var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(relayout,150); });
   new MutationObserver(function(){ requestAnimationFrame(relayout); }).observe($("wrap").querySelector(".bottom"),{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});
   drawDeco(); hud(); $("task").innerHTML="🚂 Welcome to Ten Town Station! 欢迎来十镇车站！";
