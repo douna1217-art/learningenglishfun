@@ -64,15 +64,18 @@
     G.tens={x:G.cart.x+10,y:G.cart.y+6,w:G.cart.w*.58-14,h:G.cart.h-12}; G.ones={x:G.cart.x+G.cart.w*.58+4,y:G.cart.y+6,w:G.cart.w*.42-14,h:G.cart.h-12};
   }
   function tenPos(i){ var step=Math.min(G.bw*1.12,G.tens.w/9.3); return [G.tens.x+step*(i+.6),G.tens.y+G.tens.h/2]; }
-  function onePos(i){ var per=Math.max(10,Math.floor(G.ones.w/(G.sw*1.6))), row=Math.floor(i/per), col=i%per, two=Q&&Q.o>per; var hh=two?G.sh*.48:G.sh;
-    return [G.ones.x+G.sw*1.6*(col+.7),G.ones.y+(two?G.ones.h*(row?.75:.27):G.ones.h/2),hh]; }
+  function TO(t,mid,o){ return t+(t===1?' ten':' tens')+mid+o+(o===1?' one':' ones'); }
+  // the loose straws fill rows that fit inside the ones part of the cart (a narrow phone cart gets more, shorter rows)
+  function onePos(i){ var step=G.sw*1.6, per=Math.max(1,Math.floor((G.ones.w-G.sw)/step)), n=Math.max(Q?Q.o:0,i+1), rows=Math.max(1,Math.ceil(n/per)),
+      rowH=(G.ones.h-12)/rows, row=Math.floor(i/per), col=i%per, hh=Math.min(G.sh,rowH*.86);
+    return [G.ones.x+step*(col+.7),G.ones.y+6+rowH*(row+.5),hh]; }
   function bundPos(i){ var step=G.bund.w/10.6; return [G.bund.x+step*(i+.8),G.bund.y+G.bund.h/2]; }
   // ---------- drawing the state (the round's numbers: Q.t tens and Q.o ones on the cart, Q.pile loose straws, Q.inb in the bundler) ----------
   function draw(){
     geom(); var h="", sc=$("scene"), c=G.cart;
     if(Q.k==="compare"){ drawCompare(); return; }
     h+='<div class="zone cart" style="left:'+c.x+'px;top:'+c.y+'px;width:'+c.w+'px;height:'+c.h+'px"><i class="wh" style="left:12%"></i><i class="wh" style="right:12%"></i>'+
-      '<div class="part" style="left:6px;width:'+(c.w*.58-14)+'px"><span class="plab">tens 十 · <b id="tN">'+Q.t+'</b></span></div><div class="part" style="left:'+(c.w*.58+4-0)+'px;width:'+(c.w*.42-14)+'px"><span class="plab">ones 一 · <b id="oN">'+Q.o+'</b></span></div></div>';
+      '<div class="part" style="left:6px;width:'+(c.w*.58-14)+'px"><span class="plab">tens 十 · <b id="tN">'+(Q.hide?'?':Q.t)+'</b></span></div><div class="part" style="left:'+(c.w*.58+4-0)+'px;width:'+(c.w*.42-14)+'px"><span class="plab">ones 一 · <b id="oN">'+(Q.hide?'?':Q.o)+'</b></span></div></div>';
     for(var i=0;i<Q.t;i++){ var p=tenPos(i); h+='<div class="bundle" data-b="'+i+'" style="--h:'+G.sh+'px;--bw:'+G.bw+'px;left:'+p[0]+'px;top:'+p[1]+'px">'+bundleSvg()+'</div>'; }
     for(var j=0;j<Q.o;j++){ var q=onePos(j); h+='<div class="straw" style="--h:'+q[2]+'px;--w:'+G.sw+'px;left:'+q[0]+'px;top:'+q[1]+'px"></div>'; }
     if(Q.k==="count"){
@@ -149,16 +152,16 @@
   }
   function restToOnes(){ Q.o=Q.inb; Q.inb=0; draw(); K.tone([600,700],.06); K.later(askCount,500); }
   function askCount(){
-    K.busy=false; K.task('How many straws? '+Q.t+' tens and '+Q.o+' ones.<span class="cn">一共几根？'+Q.t+' 个十和 '+Q.o+' 个一。</span>'); K.say("Tens first, then ones! 先说十位，再说个位！");
-    K.pad2(function(v){ if(v===Q.n) return good(Q.t+" tens "+Q.o+" ones = "+Q.n); Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad();
-      if(Q.tries>=2){ K.busy=true; K.say("It's "+Q.n+"! 是 "+Q.n+"！"); K.task('<span class="eqbig">'+Q.t+' tens + '+Q.o+' ones = '+Q.n+'</span>'); K.later(function(){ K.done(false); },800); return; }
+    K.busy=false; K.task('How many straws? '+Q.t+(Q.t===1?' ten':' tens')+' and '+Q.o+(Q.o===1?' one':' ones')+'.<span class="cn">一共几根？'+Q.t+' 个十和 '+Q.o+' 个一。</span>'); K.say("Tens first, then ones! 先说十位，再说个位！");
+    K.pad2(function(v){ if(v===Q.n) return good(TO(Q.t," ",Q.o)+" = "+Q.n); Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad();
+      if(Q.tries>=2){ K.busy=true; K.say("It's "+Q.n+"! 是 "+Q.n+"！"); K.task('<span class="eqbig">'+TO(Q.t,' + ',Q.o)+' = '+Q.n+'</span>'); K.later(function(){ K.done(false); },800); return; }
       K.say("The bundles are the tens, the straws are the ones. 捆数是十位，单根是个位。"); });
   }
   function checkMake(){
     if(K.busy) return; var v=Q.t*10+Q.o;
-    if(v===Q.n) return good(Q.n+" = "+Q.t+" tens "+Q.o+" ones");
+    if(v===Q.n) return good(Q.n+" = "+TO(Q.t," ",Q.o));
     Q.tries++; K.tone([200,150],.12,"sawtooth");
-    if(Q.tries>=2){ K.busy=true; Q.t=Math.floor(Q.n/10); Q.o=Q.n%10; draw(); K.say("Like this: "+Q.t+" bundles and "+Q.o+" straws. 像这样："+Q.t+" 捆和 "+Q.o+" 根。"); K.task('<span class="eqbig">'+Q.n+' = '+Q.t+' tens '+Q.o+' ones</span>'); K.later(function(){ K.done(false); },1500); return; }
+    if(Q.tries>=2){ K.busy=true; Q.t=Math.floor(Q.n/10); Q.o=Q.n%10; draw(); K.say("Like this: "+Q.t+" bundles and "+Q.o+" straws. 像这样："+Q.t+" 捆和 "+Q.o+" 根。"); K.task('<span class="eqbig">'+Q.n+' = '+TO(Q.t,' ',Q.o)+'</span>'); K.later(function(){ K.done(false); },1500); return; }
     K.say("That's "+v+". The tens digit says how many bundles! 这是 "+v+"。十位上的数就是几捆！");
   }
   function pickSign(v,btn){
@@ -169,7 +172,7 @@
   }
   function untie(i,el){
     Q.cut=true; K.busy=true; el.classList.add("untie"); K.tone([784,659,523],.07);
-    K.later(function(){ Q.t--; Q.o+=10; draw(); K.say("Now 10 more ones! 多了 10 个一！"); K.later(function(){ K.busy=false; askTens(); },500); },500);
+    K.later(function(){ Q.t--; Q.o+=10; Q.hide=true; draw(); K.say("Now 10 more ones! 多了 10 个一！"); K.later(function(){ K.busy=false; askTens(); },500); },500);
   }
   function askTens(){
     K.task('How many <b>tens</b> now?<span class="cn">现在有几个十？</span>');
@@ -177,8 +180,8 @@
   }
   function askOnes(){
     K.task('How many <b>ones</b> now?<span class="cn">现在有几个一？</span>');
-    K.nums(20,function(v,b){ if(v===Q.o) return good(Q.n+" = "+Q.t+" tens "+Q.o+" ones"); Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
-      if(Q.tries>=3){ K.busy=true; K.task('<span class="eqbig">'+Q.n+' = '+Q.t+' tens '+Q.o+' ones</span>'); K.later(function(){ K.done(false); },1500); return; } K.say("Count the loose straws. 数一数单根的麦秆。"); });
+    K.nums(20,function(v,b){ if(v===Q.o) return good(Q.n+" = "+TO(Q.t," ",Q.o)); Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
+      if(Q.tries>=3){ K.busy=true; K.task('<span class="eqbig">'+Q.n+' = '+TO(Q.t,' ',Q.o)+'</span>'); K.later(function(){ K.done(false); },1500); return; } K.say("Count the loose straws. 数一数单根的麦秆。"); });
   }
   function good(eq){ K.hideAll(); K.task('<span class="eqbig">'+eq+'</span>'); K.say(["Great farming! 种田高手！","Yes! 对啦！","Super! 太棒了！"][K.rnd(3)]); K.done(true,Q.tries); }
   function tutHand(){ var s=document.querySelector(".straw.loose"); if(!s) return; $("scene").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+(parseFloat(s.style.left)-8)+'px;top:'+(parseFloat(s.style.top)+10)+'px">👆</div>'); }
