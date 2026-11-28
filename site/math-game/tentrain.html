@@ -3,7 +3,7 @@
 <title>Ten Frame Train</title>
 <meta name="theme-color" content="#d6453a">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<meta name="description" content="Ten Frame Train: each train car is a ten frame. Board passengers to make ten, let them off to take away, ride doubles, and fill the fact family house. Grade 1 adding and subtracting within 20.">
+<meta name="description" content="Ten Frame Train: each train car is a ten frame. Board passengers to make ten, let them off to take away, ride doubles, and swap the cars to see a fact family. Grade 1 adding and subtracting within 20.">
 <link href="/fonts/fonts.css" rel="stylesheet">
 <style>
 :root{--ink:#2b2a3f;--muted:#6f6a86;--bg:#f4f1ff}
@@ -106,7 +106,8 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   //   sub     13 − 5: tap 5 passengers to get off (the second car first makes a ten: 13 − 3 = 10, 10 − 2 = 8)
   //   double  7 + 7 / 7 + 8: each tap sends the next passenger to the car with fewer: doubles and doubles plus one
   //   missing 9 + ? = 15: board passengers until there are 15, then: how many got on?
-  //   family  the fact family house: 8, 5 and 13 on the roof; fill the four doors (8 + 5 = 13, 5 + 8 = 13, 13 − 5 = 8, 13 − 8 = 5)
+  //   swap    a fact family on the train: 8 in the red car, 5 in the blue: 8 + 5. Tap the train, the cars swap: 5 + 8.
+  //           The blue car's 5 get off: 13 − 5. They get back on, the red car's 8 get off: 13 − 8. The four lines fill the board.
   //   level 1 add (making ten), level 2 take away (from the teens), level 3 doubles and near doubles, level 4 missing numbers and fact
   //   families, level 5 all of them. 6 trains a level, 5 right opens the next; any level opened can be played again.
   var $=function(id){ return document.getElementById(id); };
@@ -143,9 +144,9 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function drawTrain(){
     var h="";
     for(var c=0;c<2;c++){ var x=G.x0+c*(G.cw+7);
-      h+='<div class="car'+(c?" c2":"")+'" id="car'+c+'" style="left:'+x+'px;top:'+G.ty+'px;width:'+G.cw+'px;height:'+G.ch+'px"><span class="cnt" id="cnt'+c+'"></span></div>';
-      for(var i=0;i<10;i++){ var p=seatXY(c*10+i); h+='<div class="seat" style="left:'+(p[0]-G.seat*.45)+'px;top:'+(p[1]-G.seat*.45)+'px;width:'+(G.seat*.9)+'px;height:'+(G.seat*.9)+'px"></div>'; }
-      for(var wv=0;wv<2;wv++) h+='<div class="wheel" style="left:'+(x+G.cw*(wv?.72:.12))+'px;top:'+(G.ty+G.ch-G.seat*.2)+'px;width:'+(G.seat*.85)+'px;height:'+(G.seat*.85)+'px"></div>';
+      h+='<div class="car'+(c?" c2":"")+'" id="car'+c+'" data-k="'+c+'" style="left:'+x+'px;top:'+G.ty+'px;width:'+G.cw+'px;height:'+G.ch+'px"><span class="cnt" id="cnt'+c+'"></span></div>';
+      for(var i=0;i<10;i++){ var p=seatXY(c*10+i); h+='<div class="seat" data-k="'+c+'" style="left:'+(p[0]-G.seat*.45)+'px;top:'+(p[1]-G.seat*.45)+'px;width:'+(G.seat*.9)+'px;height:'+(G.seat*.9)+'px"></div>'; }
+      for(var wv=0;wv<2;wv++) h+='<div class="wheel" data-k="'+c+'" style="left:'+(x+G.cw*(wv?.72:.12))+'px;top:'+(G.ty+G.ch-G.seat*.2)+'px;width:'+(G.seat*.85)+'px;height:'+(G.seat*.85)+'px"></div>';
     }
     var ex=G.x0+2*(G.cw+7), eh=G.ch*1.25;
     h+='<div class="engine" id="engine" style="left:'+ex+'px;top:'+(G.ty+G.ch-eh)+'px;width:'+G.ew+'px;height:'+eh+'px"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><rect x="4" y="38" width="72" height="50" rx="8" fill="#d6453a" stroke="#8a1f1a" stroke-width="4"/><rect x="8" y="10" width="34" height="34" rx="5" fill="#2f6fc8" stroke="#1f3f7a" stroke-width="4"/><rect x="14" y="16" width="22" height="16" rx="3" fill="#cfefff"/><rect x="56" y="18" width="12" height="22" fill="#444"/><path d="M76 54L98 70L98 88L76 88Z" fill="#ffd84a" stroke="#c99a1c" stroke-width="3"/><circle cx="66" cy="50" r="5" fill="#ffe36e"/></svg></div>';
@@ -174,10 +175,15 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function onBoard(){ return P.filter(function(p){ return p.seat>=0; }); }
   function freeSeat(car){ for(var i=(car||0)*10;i<20;i++) if(!P.some(function(p){ return p.seat===i; })) return i; return -1; }
   function counts(){ var a=0,b=0; P.forEach(function(p){ if(p.seat>=0){ if(p.seat<10) a++; else b++; } }); return [a,b]; }
-  function showCounts(){ var c=counts(); $("cnt0").textContent=c[0]?c[0]:""; $("cnt1").textContent=c[1]?c[1]:""; $("cnt0").style.display=c[0]?"":"none"; $("cnt1").style.display=c[1]?"":"none"; }
+  function showCounts(){ if(Q&&Q.t==="swap") return; var c=counts(); $("cnt0").textContent=c[0]?c[0]:""; $("cnt1").textContent=c[1]?c[1]:""; $("cnt0").style.display=c[0]?"":"none"; $("cnt1").style.display=c[1]?"":"none"; }
   $("people").addEventListener("click",function(e){ var el=e.target.closest?e.target.closest(".ps"):null; if(!el||busy||!Q||Q.phase!=="act") return; tapPerson(P[+el.dataset.i]); });
   function tapPerson(p){
     var t=Q.t, hd=$("hand"); if(hd) hd.remove();
+    if(t==="swap"){
+      if(Q.step===1&&!Q.swapped){ Q.swapped=true; return swapCars(); }
+      var want=Q.step===2?1:Q.step===3?0:-1; if(want<0||$("nums").style.display==="grid"||p.out) return;
+      if(p.grp!==want){ say(want?"The blue car gets off! 蓝车厢的下车！":"The red car gets off! 红车厢的下车！"); return; }
+      busy=true; group(want,false); later(askSwap,P.filter(function(x){ return x.grp===want; }).length*90+600); return; }
     if((t==="add"||t==="missing"||t==="double")&&p.seat<0){
       var s;
       if(t==="double"){ var c=counts(); s=freeSeat(c[0]<=c[1]?0:1); if(s>=10&&c[0]<=c[1]) s=freeSeat(0); } else s=freeSeat(0);
@@ -198,7 +204,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   // ---------- a train ----------
   function gen(){
     var easy=D.n<=2||D.bad, hard=!easy&&D.streak>=3;
-    var types=L===1?["add"]:L===2?["sub"]:L===3?["double"]:L===4?["missing","family"]:["add","sub","double","missing","family"];
+    var types=L===1?["add"]:L===2?["sub"]:L===3?["double"]:L===4?["missing","swap"]:["add","sub","double","missing","swap"];
     if(L===5&&easy) types=["add","sub"];
     var t=types[rnd(types.length)], q={t:t,tries:0,phase:"act"}, a, b;
     // adding crosses ten (8 + 5), taking away crosses ten (13 − 5): that is what the two cars show
@@ -206,8 +212,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     else if(t==="sub"){ a=11+rnd(easy?4:8); var lo2=a-10+1, hi2=9; if(easy) hi2=Math.min(9,lo2+2); b=lo2+rnd(hi2-lo2+1); q.a=a; q.b=b; q.ans=a-b; q.eq=a+" − "+b+" = ?"; }
     else if(t==="double"){ a=easy?2+rnd(5):3+rnd(7); var near=!easy&&Math.random()<.5; b=near?a+1:a; if(b>9){ a=8; b=near?9:8; } q.a=a; q.b=b; q.ans=a+b; q.near=near; q.eq=a+" + "+b+" = ?"; }
     else if(t==="missing"){ a=easy?5+rnd(5):3+rnd(7); var c=Math.max(a+2,11)+rnd(Math.max(1,(easy?14:18)-Math.max(a+2,11)+1)); if(c-a>9) c=a+9; q.a=a; q.c=c; q.ans=c-a; q.eq=a+" + ? = "+c; }
-    else { a=2+rnd(8); b=2+rnd(8); if(a===b) b=a===9?8:a+1; q.a=a; q.b=b; q.c=a+b; q.doors=[[a,"+",b,q.c,2],[b,"+",a,q.c,2],[q.c,"−",b,a,2],[q.c,"−",a,b,2]];
-      q.doors.forEach(function(d){ d[4]=rnd(3); }); q.filled=[false,false,false,false]; }
+    else { do{ a=2+rnd(8); b=2+rnd(8); }while(a===b||(easy&&a+b>10)); q.a=a; q.b=b; q.c=a+b; q.step=0; q.lines=[]; q.eq=a+" + "+b+" = "+q.c; }
     if(!S.tut&&L===1&&D.first) q={t:"add",a:8,b:3,ans:11,eq:"8 + 3 = ?",tries:0,phase:"act",tut:true};
     return q;
   }
@@ -216,7 +221,6 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     $("people").innerHTML=""; P=[]; $("house").innerHTML=""; $("board").style.display="none"; showNums(false); $("tiles").style.display="none"; $("go2").style.display="none";
     if(D.n>=GOAL) return endLevel();
     D.n++; Q=gen(); D.first=false; hud(); geom(); drawTrain();
-    if(Q.t==="family"){ $("train").style.display="none"; return startFamily(); }
     $("train").style.display="";
     // the train rolls in from the left
     // the train jumps off-screen (no animation), then rolls in
@@ -231,9 +235,12 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     else if(Q.t==="double"){ for(i=0;i<Q.a+Q.b;i++) addPerson("plat",i,Q.a+Q.b);
       $("task").innerHTML=(Q.near?'Near doubles! ':'Doubles! ')+'<b>'+(Q.a+Q.b)+'</b> friends board: each car gets its turn.<span class="cn">'+(Q.near?"接近双数！":"双数！")+'点乘客，他们轮流坐进两节车厢。</span>';
       say("Two cars, the same number! 两节车厢，一样多！"); }
-    else { for(i=0;i<Q.a;i++) addPerson("seat",i); for(i=0;i<10;i++) addPerson("plat",i,10);
+    else if(Q.t==="missing"){ for(i=0;i<Q.a;i++) addPerson("seat",i); for(i=0;i<10;i++) addPerson("plat",i,10);
       $("task").innerHTML='<b>'+Q.a+'</b> are on the train. We need <b>'+Q.c+'</b>! Board more, then tap Done.<span class="cn">车上有 '+Q.a+' 个，要 '+Q.c+' 个！再上几个，然后点“好了”。</span>';
       $("go2").style.display="block"; say("Count on from "+Q.a+"! 从 "+Q.a+" 往后数！"); }
+    else if(Q.t==="swap"){ for(i=0;i<Q.a;i++) addPerson("seat",i).grp=0; for(i=0;i<Q.b;i++) addPerson("seat",10+i).grp=1;
+      $("task").innerHTML='<b>'+Q.a+'</b> in the red car, <b>'+Q.b+'</b> in the blue car.<span class="cn">红车厢 '+Q.a+' 个，蓝车厢 '+Q.b+' 个。</span>';
+      say("A number family is riding! 一家人坐火车！"); later(askSwap,1500); }
     $("cnt0").style.display="none"; $("cnt1").style.display="none";
     later(function(){ revealPeople(function(){ if(Q.tut) tutHand(); }); },1450);   // first the train comes in and stops
   }
@@ -248,6 +255,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function showNums(on){ var n=$("nums"); n.style.display=on?"grid":"none"; if(on&&!n.firstChild){ var h=""; for(var i=0;i<=20;i++) h+='<button type="button" data-v="'+i+'">'+i+'</button>'; n.innerHTML=h; [].forEach.call(n.querySelectorAll("button"),function(b){ b.onclick=function(){ if(!busy) answer(+b.dataset.v,b); }; }); }
     if(on) [].forEach.call(n.querySelectorAll("button"),function(b){ b.classList.remove("bad"); b.disabled=false; }); }
   function answer(v,btn){
+    if(Q.t==="swap") return swapAnswer(v,btn);
     if(v===Q.ans) return win();
     Q.tries++; btn.classList.add("bad"); btn.disabled=true; tone([200,150],.12,"sawtooth");
     if(Q.tries>=2){ busy=true; countOut(); later(function(){ say("It's "+Q.ans+"! 答案是 "+Q.ans+"！"); later(lose,1400); },onBoard().length*300+200); return; }
@@ -262,6 +270,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     if(t==="sub"){ var o=a-10; return a+' − <span class="s">'+o+'</span> = 10<br>10 − '+(b-o)+' = '+(a-b); }
     if(t==="double") return Q.near?a+' + '+a+' = '+(2*a)+'<br><span class="s">+ 1</span> = '+(2*a+1):a+' + '+a+' = '+(2*a);
     if(t==="missing") return a+' + <span class="s">'+Q.ans+'</span> = '+Q.c;
+    if(t==="swap") return "";
     return "";
   }
   function win(){
@@ -276,36 +285,55 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function lose(){ D.miss++; D.bad=true; D.streak=0; if(Q.tut){ S.tut=1; save(); } showNums(false); $("task").innerHTML='<span class="eqbig">'+(Q.eq?Q.eq.replace("?",Q.ans):"")+'</span>'; var s=strategy(); if(s){ $("board").innerHTML=s; $("board").style.display="block"; } hud(); later(depart,1500); }
   // the train leaves: smoke, wheels turning, the passengers ride along
   function depart(){
-    if(Q.t==="family") return next();
     $("board").style.display="none"; toot(); var tr=$("train"); var dx=G.w+50;
     P.forEach(function(p){ if(p.seat>=0) tr.appendChild(p.el); });   // the passengers ride inside the train: they leave with it
     void tr.offsetWidth; tr.className="train go"; tr.style.transform="translateX("+dx+"px)";
     var e=$("engine"); for(var i=0;i<5;i++) later(function(){ var r=e.getBoundingClientRect(), st=$("stage").getBoundingClientRect(), z=parseFloat($("wrap").style.zoom)||1, s=document.createElement("i"); s.className="smoke"; s.style.left=((r.left-st.left)/z+G.ew*.6)+"px"; s.style.top=((r.top-st.top)/z)+"px"; $("stage").appendChild(s); setTimeout(function(){ s.remove(); },1200); },i*250);
     later(next,1700);
   }
-  // ---------- the fact family house ----------
-  function startFamily(){
-    var q=Q; q.phase="act";
-    var doors=q.doors.map(function(d,i){ var parts=[d[0],d[1],d[2],"=",d[3]], slot=[0,2,4][d[4]]; d.blank=slot===0?d[0]:slot===2?d[2]:d[3];
-      return '<div class="door" data-i="'+i+'">'+parts.map(function(x,j){ return j===slot?'<span class="bl" id="bl'+i+'">?</span>':x; }).join(" ")+'</div>'; }).join("");
-    $("house").innerHTML='<div class="house" id="hs"><div class="roof"><div class="roofN">'+q.c+' · '+q.a+' · '+q.b+'</div></div><div class="walls">'+doors+'</div></div>';
-    $("task").innerHTML='Fact family house! Tap a door, then a number.<span class="cn">一家人算式：点一扇门，再点一个数，把四个算式填完整！</span>';
-    var tl=$("tiles"); tl.style.display="grid"; tl.innerHTML=shuffle([q.a,q.b,q.c]).map(function(v){ return '<button type="button" data-v="'+v+'">'+v+'</button>'; }).join("");
-    Q.door=null;
-    [].forEach.call(document.querySelectorAll(".door"),function(d){ d.onclick=function(){ if(busy||q.filled[+d.dataset.i]) return; [].forEach.call(document.querySelectorAll(".door"),function(x){ x.classList.remove("on"); }); d.classList.add("on"); Q.door=+d.dataset.i; tone([600],.04); }; });
-    [].forEach.call(tl.querySelectorAll("button"),function(b){ b.onclick=function(){ if(busy) return; fillDoor(+b.dataset.v,b); }; });
-    selFirst();
-    say("The three numbers live together! 这三个数是一家人！");
+  // ---------- swap the cars: a fact family ----------
+  // step 0: a + b   step 1 (after the cars swap): b + a   step 2 (blue car off): c − b   step 3 (red car off): c − a
+  function swapEq(){ var a=Q.a, b=Q.b, c=Q.c; return [[a+" + "+b,c],[b+" + "+a,c],[c+" − "+b,a],[c+" − "+a,b]][Q.step]; }
+  function askSwap(){
+    var e=swapEq(); Q.sAns=e[1]; Q.sTries=0; busy=false;
+    $("task").innerHTML='<b>'+e[0]+' = ?</b><span class="cn">'+["一共几个？","换了车厢，一共几个？","蓝车厢的下车了，车上还剩几个？","红车厢的下车了，车上还剩几个？"][Q.step]+'</span>'+facts();
+    showNums(true);
   }
-  function selFirst(){ var i=Q.filled.indexOf(false); if(i<0) return; Q.door=i; [].forEach.call(document.querySelectorAll(".door"),function(x){ x.classList.toggle("on",+x.dataset.i===i); }); }
-  function fillDoor(v,btn){
-    if(Q.door==null) return; var i=Q.door, d=Q.doors[i], el=document.querySelector('.door[data-i="'+i+'"]');
-    if(v===d.blank){ Q.filled[i]=true; $("bl"+i).textContent=v; el.classList.remove("on"); el.classList.add("ok"); tone([660,880],.06);
-      if(Q.filled.every(Boolean)){ $("hs").classList.add("lit"); Q.ans=Q.c; Q.eq=""; return win(); } selFirst(); return; }
-    Q.tries++; el.classList.remove("bad"); void el.offsetWidth; el.classList.add("bad"); tone([200,150],.12,"sawtooth");
-    if(Q.tries>=3){ Q.filled[i]=true; $("bl"+i).textContent=d.blank; el.classList.add("ok"); say("It's "+d.blank+". 是 "+d.blank+"。"); if(Q.filled.every(Boolean)){ busy=true; return later(lose,1200); } selFirst(); return; }
-    say(d[1]==="+"?"Adding the two parts makes the whole. 两个部分加起来是整体。":"The whole take away one part leaves the other. 整体减去一部分，剩下另一部分。");
+  function facts(){ return Q.lines.length?'<span class="cn" style="color:#2f9e5b;font-size:1rem">'+Q.lines.join(" &nbsp;·&nbsp; ")+'</span>':""; }
+  function swapAnswer(v,btn){
+    if(v!==Q.sAns){ Q.tries++; Q.sTries++; btn.classList.add("bad"); btn.disabled=true; tone([200,150],.12,"sawtooth");
+      if(Q.sTries<2){ say(["Count everyone in both cars. 两节车厢的都数一数。","The same friends! Did anyone get on or off? 还是这些朋友，有人上下车吗？","Count who is still on the train. 数一数车上还剩几个。","Count who is still on the train. 数一数车上还剩几个。"][Q.step]); return; }
+      Q.shown=true; say("It's "+Q.sAns+". 是 "+Q.sAns+"。"); }
+    else tone([660,880],.06);
+    var e=swapEq(); Q.lines.push(e[0]+" = "+e[1]); showNums(false); busy=true;
+    if(Q.step===0){ Q.step=1; later(function(){ busy=false; $("task").innerHTML='Tap the train: the cars swap places!<span class="cn">点火车：两节车厢换位置！</span>'+facts(); say("Swap the cars! 交换车厢！"); },700); return; }
+    if(Q.step===1){ Q.step=2; later(function(){ busy=false; $("task").innerHTML='This is the station! The <b>blue</b> car gets off. Tap them!<span class="cn">到站了！蓝车厢的乘客下车，点他们！</span>'+facts(); say("Blue car, everybody off! 蓝车厢的，下车啦！"); },700); return; }
+    if(Q.step===2){ Q.step=3; later(function(){ group(1,true); later(function(){ busy=false; $("task").innerHTML='All aboard! Now the <b>red</b> car gets off. Tap them!<span class="cn">回到车上！现在红车厢的乘客下车，点他们！</span>'+facts(); say("Red car, your turn! 红车厢的，下车啦！"); },900); },500); return; }
+    // the four facts, two by two, are the answer shown at the end
+    Q.eq=Q.lines[0]+" &nbsp; "+Q.lines[1]+"<br>"+Q.lines[2]+" &nbsp; "+Q.lines[3]; Q.ans="";
+    later(function(){ group(0,true); later(function(){ if(Q.shown) lose(); else win(); },900); },500);
   }
+  // the cars swap: the red car lifts, rolls over the blue one, and sets down on the other side; the passengers ride along
+  function swapCars(){
+    busy=true; toot();
+    var dx=G.cw+7, dn=G.ch*1.2, A=[], B=[];   // the red car dips down over the platform and comes up on the other side
+    [].forEach.call(document.querySelectorAll('#train [data-k]'),function(e){ (e.getAttribute("data-k")==="0"?A:B).push(e); });
+    P.forEach(function(p){ if(p.seat>=0) (p.grp===0?A:B).push(p.el); });
+    function move(list,tr,z){ list.forEach(function(e){ e.style.transition="transform .45s ease"; e.style.transform=tr; if(z) e.style.zIndex=z; }); }
+    move(A,"translate(0,"+dn+"px)",8);
+    later(function(){ move(A,"translate("+dx+"px,"+dn+"px)"); move(B,"translate(-"+dx+"px,0)"); },500);
+    later(function(){ move(A,"translate("+dx+"px,0)"); tone([523,659],.07); },1050);
+    later(function(){ A.concat(B).forEach(function(e){ e.style.transition=""; e.style.zIndex=""; }); askSwap(); },1600);
+  }
+  // one car's passengers get off onto the platform (on=false) or back into their seats (on=true)
+  function group(g,on){
+    var list=P.filter(function(p){ return p.grp===g; });
+    list.forEach(function(p,i){ later(function(){
+      if(!on){ p.home={l:p.el.style.left,t:p.el.style.top,tr:p.el.style.transform}; var xy=platXY(i,list.length); p.el.className="ps wait"; p.el.style.transform=""; size(p,G.ps); p.el.style.left=xy[0]+"px"; p.el.style.top=xy[1]+"px"; p.out=true; tone([700-i*20,500],.04); }
+      else if(p.home){ p.el.className="ps"; size(p,G.seat); p.el.style.left=p.home.l; p.el.style.top=p.home.t; p.el.style.transform=p.home.tr; p.out=false; tone([500+i*20,700],.04); }
+    },i*90); });
+  }
+  $("train").addEventListener("click",function(){ if(!busy&&Q&&Q.t==="swap"&&Q.step===1&&!Q.swapped){ Q.swapped=true; swapCars(); } });
   function tutHand(){ var p=P.filter(function(x){ return x.seat<0; })[0]; if(!p) return; $("stage").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+(parseFloat(p.el.style.left)-10)+'px;top:'+(parseFloat(p.el.style.top)+6)+'px">👆</div>'); }
   function hud(){ $("score").textContent=(D?D.ok:0)+"/"+GOAL; $("day").textContent=L; $("coins").textContent=S.coins; }
   function startLevel(){ D={n:0,ok:0,miss:0,coins:0,streak:0,bad:false,first:true}; if(window.GameProgress) GameProgress.start("ten-frame","day"+L); closeOver(); next(); }
@@ -324,7 +352,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function wirePick(){ if(window.LevelPick) LevelPick.wire(function(n){ L=n; $("day").textContent=L; var b=$("play")||$("nextDay"); if(b) b.textContent=playLabel(); }); }
   function over(html){ var o0=$("over"); if(o0) o0.remove(); var o=document.createElement("div"); o.className="over"; o.id="over"; o.innerHTML=html; $("wrap").appendChild(o); }
   function closeOver(){ var o=$("over"); if(o) o.remove(); }
-  var HOW='<div class="how"><div>🚃 Each car is a ten frame: 10 seats.</div><div>👆 Tap passengers to get on: the red car fills up to 10 first!</div><div>🚶 Tap passengers on the train to get off.</div><div>🏠 Fact family house: fill the four doors with the three numbers.</div><div style="color:var(--muted)">每节车厢是一个十格。点站台上的乘客上车，先坐满红车厢；点车上的乘客让他下车；一家人小房子：用三个数把四个算式填完整。</div></div>';
+  var HOW='<div class="how"><div>🚃 Each car is a ten frame: 10 seats.</div><div>👆 Tap passengers to get on: the red car fills up to 10 first!</div><div>🚶 Tap passengers on the train to get off.</div><div>🔁 Swap the cars, let one car get off: the same three numbers make four facts!</div><div style="color:var(--muted)">每节车厢是一个十格。点站台上的乘客上车，先坐满红车厢；点车上的乘客让他下车；交换车厢、让一节车厢下车：同样三个数，组成四个算式！</div></div>';
   function intro(){ over('<h2>🚂 Ten Frame Train</h2><p>Adding &amp; Subtracting Within 20 Practice 20 以内加减</p>'+HOW+levelPick()+'<button type="button" class="go" id="play">'+playLabel()+'</button>'); wirePick(); $("play").onclick=startLevel; }
   $("helpBtn").onclick=function(){ var o=document.createElement("div"); o.className="over"; o.innerHTML='<h2>❓ How to play</h2>'+HOW+'<button type="button" class="go">Got it! 明白了</button>'; $("wrap").appendChild(o); o.querySelector(".go").onclick=function(){ o.remove(); }; };
   var cv=$("fx"), cx=cv.getContext("2d"), parts=[], anim=0;
@@ -332,7 +360,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
   function fx(){ cx.clearRect(0,0,cv.width,cv.height); parts=parts.filter(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.l--; cx.fillStyle=p.c; cx.fillRect(p.x,p.y,6,6); return p.l>0; }); anim=parts.length?requestAnimationFrame(fx):0; if(!anim) cx.clearRect(0,0,cv.width,cv.height); }
   if(window.FitScreen) FitScreen($("wrap"),{wide:[1000,680],narrow:[520,900],max:1.7});
   // the room changes: draw the train again and put everyone back in place
-  function relayout(){ if(!Q||Q.t==="family") return; if($("train").className.indexOf("go")>=0){ clearTimeout(rt); rt=setTimeout(relayout,500); return; }   // moving: try again once it stops
+  function relayout(){ if(!Q||Q.t==="swap") return; if($("train").className.indexOf("go")>=0){ clearTimeout(rt); rt=setTimeout(relayout,500); return; }   // moving: try again once it stops
     geom(); drawTrain(); P.forEach(function(p){ if(p.gone) return; if(p.hidden){ if(p.seat<0){ var xy=platXY(p.plat,p.n); p.tx=xy[0]+"px"; p.el.style.top=xy[1]+"px"; size(p,G.ps); } return; } var sz=G.seat; p.el.style.width=p.el.style.height=sz*.9+"px"; p.el.style.fontSize=(sz*.75)+"px"; p.el.style.marginLeft=p.el.style.marginTop=(-sz*.45)+"px"; if(p.seat>=0) sitAt(p,p.seat); else standAt(p,p.plat,p.n); }); showCounts(); }
   var rt=0; window.addEventListener("resize",function(){ clearTimeout(rt); rt=setTimeout(relayout,150); });
   // the answer buttons below can grow or shrink the stage too: lay the platform out again then, or the waiting animals end up under the buttons
