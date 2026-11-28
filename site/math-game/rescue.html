@@ -88,8 +88,10 @@
       h+=el("branch","left:"+px(tx+tw-4)+";top:"+px(by-u*.42)+";width:"+px(u*3.3)+";height:"+px(u*.42));
       for(var i=0;i<Q.cubes;i++) h+=cube(i,i<Q.cubes-1||!Q.drop);
       h+='<div class="lad" id="lad" style="--u:'+px(u)+';left:'+px(G.ladX)+';width:'+px(G.ladW)+';top:'+px(gy-Q.len*u)+';height:'+px(Q.len*u)+'"></div>';
-      h+=truckHtml(G.ladX+G.ladW+u*.3,Math.min(W*.34,u*5));
-      h+=whoHtml(G.ladX+G.ladW/2)+catHtml(G.ladX+G.ladW*.6,by-u*.42);
+      var trw=Math.min(W*.34,u*5); h+=truckHtml(G.ladX+G.ladW+u*.3,trw);
+      // the firefighter waits beyond the truck, so the ladder's sections are all in sight
+      G.whoX=Math.min(W-u*.8,G.ladX+G.ladW+u*.3+trw+u*.75);
+      h+=whoHtml(G.whoX)+catHtml(G.ladX+G.ladW*.6,by-u*.42);
     }
     else if(Q.k==="compare"){
       var c=Math.max(Q.a,Q.b), wx=W*.2, ww=W*.6, roof=gy-c*u;
@@ -102,11 +104,11 @@
     else if(Q.k==="find"){
       var rh=Math.min(u*2.6,(gy-G.top)/3.3), rw=W*.9;
       G.fu=Math.min(u,(rw-u*2.6)/(Q.n+1.2),rh*.38);   // one cube size for all three rows, so the right row has no gaps
-      Q.rows.forEach(function(r,j){ var y=G.top+j*(rh+rh*.12), x0=W*.05+u*2.2, mid=y+rh*.36;
+      Q.rows.forEach(function(r,j){ var y=G.top+j*(rh+rh*.12), x0=W*.05+u*2.2, mid=y+rh*.26;
         h+='<div class="row" data-r="'+j+'" style="left:'+px(W*.05)+';top:'+px(y)+';width:'+px(rw)+';height:'+px(rh)+'"></div>';
         h+='<div class="kid" style="left:'+px(W*.05+u*1.1)+';top:'+px(y+rh/2)+';font-size:'+px(Math.min(rh*.55,u*1.4))+'">'+["👧","👦","🧒"][j]+'</div>';
         h+='<div class="hose" style="left:'+px(x0)+';top:'+px(mid)+';width:'+px(Q.n*G.fu)+'"></div>';
-        var cs=G.fu; r.cubes.forEach(function(cx,k){ h+='<div class="cube" style="pointer-events:none;left:'+px(x0+cx*G.fu)+';top:'+px(mid+10)+';width:'+px(cs)+';height:'+px(cs)+';background:'+CUBEC[k%2?1:0]+'"></div>'; }); });
+        var cs=G.fu; r.cubes.forEach(function(cx,k){ h+='<div class="cube" style="pointer-events:none;left:'+px(x0+cx*G.fu)+';top:'+px(mid+10+(r.why==="over"&&k%2?cs*.4:0))+';width:'+px(cs)+';height:'+px(cs)+';background:'+CUBEC[k%2?1:0]+';'+(r.why==="over"&&k%2?"z-index:4;box-shadow:-3px 3px 0 rgba(0,0,0,.2)":"")+'"></div>'; }); });
     }
     else {   // count: the tower
       var fl=Q.floors.length, th=gy-G.top-u*.6, fh=th/fl, twd=Math.min(W*.5,260), x=W/2-twd/2;
@@ -198,8 +200,9 @@
     climbTo(G.ladX+G.ladW/2,G.gy-Q.len*G.u,function(){
       if(Q.len===Q.n) return save();
       var c=$("cat"); if(c) c.classList.add("meow"); Q.tries++; K.tone([200,150],.12,"sawtooth"); K.say("Too short! The kitten is higher. 太短了，小猫在更高的地方！");
-      K.later(function(){ climbTo(G.ladX+G.ladW/2,G.gy,function(){ if(c) c.classList.remove("meow"); retryLadder(); }); },700); });
+      K.later(function(){ climbTo(G.ladX+G.ladW/2,G.gy,function(){ if(c) c.classList.remove("meow"); walkHome(); retryLadder(); }); },700); });
   }
+  function walkHome(){ var w=$("who"); if(!w) return; Q.who=[G.whoX,G.gy]; w.style.left=px(G.whoX); }
   function retryLadder(){
     if(Q.tries>=3){ K.task('<span class="eqbig">'+Q.n+' cubes = '+Q.n+' sections</span>'); K.say("It needs "+Q.n+" sections. 需要 "+Q.n+" 节。"); K.later(function(){ K.done(false); },1500); return; }
     K.busy=false; ctrl('<button type="button" id="add">🪜 + Section 加一节</button><button type="button" id="sub">➖ Shorter 减一节</button><button type="button" class="main" id="ok">🚒 Go! 出发</button>');
