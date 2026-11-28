@@ -165,7 +165,8 @@
     var c=G.cart, p=cupXY(c.c,k); f.el.classList.add("fly"); f.el.style.left=(c.x+3+p[0]+c.c*.45)+"px"; f.el.style.top=(c.y+3+p[1]+c.c*.45)+"px"; f.el.style.transform="scale("+(c.c*.6/G.e)+")";
     K.later(function(){ f.el.remove(); Q.os++; drawLoad(); if(Q.os===10) fullCarton(); },380);
   }
-  function splat(f){ f.el.remove(); var s=document.createElement("div"); s.className="splat"; s.style.cssText="left:"+f.x+"px;top:"+(G.load.y-G.e*.4)+"px;width:"+G.e*1.9+"px;height:"+G.e*.8+"px";   // a broken egg on the ground $("fall").appendChild(s); setTimeout(function(){ s.remove(); },900); K.tone([180],.06,"square"); }
+  // a missed egg breaks on the ground
+  function splat(f){ f.el.remove(); var s=document.createElement("div"); s.className="splat"; s.style.cssText="left:"+f.x+"px;top:"+(G.load.y-G.e*.4)+"px;width:"+G.e*1.9+"px;height:"+G.e*.8+"px"; $("fall").appendChild(s); setTimeout(function(){ s.remove(); },900); K.tone([180],.06,"square"); }
   // 10 eggs: the lid closes and the carton rides onto the truck
   function fullCarton(){
     var cart=document.querySelector('#load .carton'); if(!cart) return;
