@@ -28,7 +28,7 @@
 .wrap.fitted .tray .tl{font-size:1rem}.wrap.fitted .area .al{font-size:.85rem}
 </style>
 </head><body>
-<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261202a"></script><script src="critters.js?v=20261130a"></script><script src="g1kit.js?v=20261201a"></script>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261202a"></script><script src="g1kit.js?v=20261201a"></script>
 <script>
 (function(){
   "use strict";
@@ -39,7 +39,7 @@
   //   addones   34 + 5, 37 + 6: tap single beads over one at a time; at 10 loose beads they snap into a new rod of ten
   //   add2      34 + 23: tens and ones both
   //   level 1 ten more / ten less, level 2 tens, level 3 ones (making a new ten), level 4 two-digit + two-digit, level 5 all of them
-  // When the answer is right the beads fly round the customer's neck.
+  // When the answer is right the beads fly onto the princess's neck: one strand, or two or three when there are many beads.
   var $=function(id){ return document.getElementById(id); };
   var Q=null, W=0, H=0, G={}, rods=[], ones=[];
   var RODC=["#4a8cff","#2fb36b","#ff8a3d","#9b5cff","#ff4f7b","#18b5c4","#e8b100","#6b7cff","#d65db1","#46a34a"], ONEC="#ff6fa8";
@@ -117,7 +117,7 @@
     if(K.D.tut&&K.D.n===1){ k="more"; a=23; b=10; }   // the first round of the first visit: an easy one, with a pointing hand
     var sub=k==="less"||k==="subtens";
     Q={k:k,a:a,b:b,sub:sub,give:sub,ans:sub?a-b:a+b,tries:0,ask:false,neck:false,eq:a+(sub?" − ":" + ")+b,
-       boxLab:sub?"Give back 还回去":'Add 加上 <b>'+b+'</b>', cust:Critters.list[K.rnd(Critters.list.length)]};
+       boxLab:sub?"Give back 还回去":'Add 加上 <b>'+b+'</b>', look:K.rnd(LOOKS.length)};
     for(i=0;i<Math.floor(a/10);i++) newRod("me",RODC[i%RODC.length]);
     for(i=0;i<a%10;i++) newOne("me");
     if(!sub){ for(i=0;i<Math.floor(b/10);i++) newRod("bx",RODC[(Math.floor(a/10)+i)%RODC.length]); for(i=0;i<b%10;i++) newOne("bx"); }
@@ -175,18 +175,39 @@
     K.hideAll(); K.task('<span class="eqbig">'+Q.eq+' = '+Q.ans+'</span>');
     K.say(["A beautiful necklace! 好漂亮的项链！","Yes! 对啦！","Super! 太棒了！"][K.rnd(3)]);
     Q.neck=true; $("scene").classList.add("dim");
-    var c=make("cust"); c.id="cust"; c.innerHTML=Critters.svg(Q.cust);
-    layout(); void c.offsetWidth; c.classList.add("on","hop");
+    var c=make("cust"); c.id="cust"; c.innerHTML=princess(LOOKS[Q.look]);
+    layout(); void c.offsetWidth; c.classList.add("on");
     K.done(true,Q.tries);
   }
-  // the necklace: every bead on your tray goes round the customer's neck
+  // the customer: a princess (skin, hair, dress), drawn in a 200 x 240 box; her neck is at (100, 160)
+  var LOOKS=[["#ffe0c7","#3b2a20","#ff7ab6"],["#f5c9a0","#f2c94c","#8f7bff"],["#d9a27a","#7a3b1a","#4fc3f7"],["#9c6b4a","#1d1d1d","#ffb347"],["#ffe0c7","#c0392b","#2fb36b"]];
+  function princess(l){ var sk=l[0], hr=l[1], dr=l[2];
+    return '<svg viewBox="0 0 200 240">'+
+      '<path d="M38 112 Q36 26 100 26 Q164 26 162 112 L168 205 Q100 222 32 205 Z" fill="'+hr+'"/>'+
+      '<path d="M14 240 Q20 176 70 163 L130 163 Q180 176 186 240 Z" fill="'+dr+'"/>'+
+      '<circle cx="44" cy="186" r="24" fill="'+dr+'"/><circle cx="156" cy="186" r="24" fill="'+dr+'"/>'+
+      '<circle cx="44" cy="186" r="24" fill="#fff" opacity=".18"/><circle cx="156" cy="186" r="24" fill="#fff" opacity=".18"/>'+
+      '<rect x="85" y="122" width="30" height="46" rx="12" fill="'+sk+'"/>'+
+      '<path d="M66 164 Q100 214 134 164 Z" fill="'+sk+'"/>'+
+      '<ellipse cx="100" cy="98" rx="38" ry="42" fill="'+sk+'"/>'+
+      '<path d="M60 96 Q64 52 100 52 Q136 52 140 96 Q124 72 100 76 Q76 72 60 96Z" fill="'+hr+'"/>'+
+      '<circle cx="85" cy="101" r="5" fill="#2b2b3a"/><circle cx="115" cy="101" r="5" fill="#2b2b3a"/><circle cx="86.6" cy="99.2" r="1.7" fill="#fff"/><circle cx="116.6" cy="99.2" r="1.7" fill="#fff"/>'+
+      '<circle cx="76" cy="114" r="6" fill="#ff8fa3" opacity=".45"/><circle cx="124" cy="114" r="6" fill="#ff8fa3" opacity=".45"/>'+
+      '<path d="M90 118 Q100 127 110 118" stroke="#c0392b" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+      '<path d="M70 54 L76 26 L89 42 L100 18 L111 42 L124 26 L130 54 Z" fill="#ffd23f" stroke="#e0a800" stroke-width="2" stroke-linejoin="round"/>'+
+      '<circle cx="100" cy="40" r="4.5" fill="#ff4f7b"/><circle cx="82" cy="45" r="3" fill="#4fc3f7"/><circle cx="118" cy="45" r="3" fill="#4fc3f7"/></svg>'; }
+  // the necklace: every bead on your tray goes round the princess's neck, in U-shaped strands under her chin
   function neckLayout(){
-    var c=$("cust"), s=Math.min(W,H)*.34, cx=W/2, cy=H*.5+Math.max(0,H*.02);
-    if(c){ c.style.width=s+"px"; c.style.height=s+"px"; c.style.left=cx+"px"; c.style.top=cy+"px"; }
+    var c=$("cust"), ph=H*.84, pw=ph*200/240, cx=W/2, top=H*.08, k=pw/200;
+    if(pw>W*.9){ pw=W*.9; ph=pw*240/200; k=pw/200; top=Math.max(H*.04,(H-ph)/2); }
+    if(c){ c.style.width=pw+"px"; c.style.height=ph+"px"; c.style.left=cx+"px"; c.style.top=(top+ph/2)+"px"; }
     var beads=[]; rods.forEach(function(r){ if(r.at==="me") beads=beads.concat(r.beads); r.bar.style.opacity=0; if(r.at!=="me") r.beads.forEach(function(b){ b.style.transform="scale(0)"; }); });
     ones.forEach(function(o){ if(o.at==="me") beads.push(o.el); else o.el.style.transform="scale(0)"; });
-    var rx=s*.78, ry=s*.62, circ=Math.PI*(3*(rx+ry)-Math.sqrt((3*rx+ry)*(rx+3*ry))), sz=Math.min(G.d,circ/Math.max(1,beads.length)*.95);
-    beads.forEach(function(b,i){ var t=Math.PI/2+i/beads.length*Math.PI*2; place(b,cx+rx*Math.cos(t),cy+ry*Math.sin(t)); b.style.transform="scale("+(sz/G.d)+")"; });
+    var n=beads.length, ns=n<=30?1:n<=60?2:3, strands=[], tot=0, i;
+    for(i=0;i<ns;i++){ var rx=(26+15*i)*k, ry=(24+16*i)*k, len=Math.PI*(3*(rx+ry)-Math.sqrt((3*rx+ry)*(rx+3*ry)))/2; strands.push({rx:rx,ry:ry,len:len}); tot+=len; }
+    var at=0, sz=G.d; strands.forEach(function(st,j){ st.n=j===ns-1?n-at:Math.round(n*st.len/tot); st.from=at; at+=st.n; if(st.n) sz=Math.min(sz,st.len/st.n*.92); });
+    var ny=top+160*k;
+    strands.forEach(function(st){ for(var q=0;q<st.n;q++){ var t=Math.PI*(st.n===1?.5:q/(st.n-1)); var b=beads[st.from+q]; place(b,cx-st.rx*Math.cos(t),ny+st.ry*Math.sin(t)); b.style.transform="scale("+(sz/G.d)+")"; } });
   }
   function tutHand(){ var a=document.querySelector('.area[data-a="bxt"]'); if(!a) return;
     $("scene").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+(parseFloat(a.style.left)+a.offsetWidth/2-14)+'px;top:'+(parseFloat(a.style.top)+a.offsetHeight/2)+'px">👆</div>'); }
