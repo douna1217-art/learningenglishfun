@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cookie Bakery</title>
+<meta name="theme-color" content="#c0702f">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Cookie Bakery: read the clock to the minute, set it for a customer, and bake cookies for just the right number of minutes. Too early: raw dough. Too late: burnt! Grade 3 telling time and elapsed time.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* the clock, the oven, the cookies, the customer */
+#clk{position:absolute;z-index:3;touch-action:none;cursor:grab;border-radius:50%}
+#clk.drag{cursor:grabbing}
+#clk svg{width:100%;height:100%;overflow:visible;display:block}
+.oven{position:absolute;z-index:2;background:linear-gradient(180deg,#7d8794,#5b6470);border:4px solid #3d444d;border-radius:16px;box-shadow:0 6px 0 rgba(0,0,0,.18)}
+.oven .knobs{position:absolute;left:8%;right:8%;top:5%;height:12%;display:flex;gap:8%;align-items:center}
+.oven .knobs i{position:relative;width:11%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff,#c9d0d7 55%,#9aa3ad);border:2px solid #4a525b;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.oven .knobs i::after{content:"";position:absolute;left:46%;top:10%;width:8%;height:38%;border-radius:2px;background:#e0412e}
+.oven .knobs i:nth-child(2)::after{transform:rotate(40deg);transform-origin:50% 100%}.oven .knobs i:nth-child(3)::after{transform:rotate(-35deg);transform-origin:50% 100%}
+.oven .win{position:absolute;left:8%;right:8%;top:22%;bottom:10%;border-radius:12px;background:radial-gradient(ellipse at 50% 30%,#ffb54d,#c94f1a);border:4px solid #2c3238;overflow:hidden}
+.oven .win.off{background:#3a3f45}
+.tray{position:absolute;left:8%;right:8%;bottom:10%;height:70%;background:#9aa3ad;border-radius:6px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:5%;padding:4%}
+.ck{border-radius:50%;background:var(--c,#f6e3b8);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18);align-self:center;justify-self:center;height:100%;width:auto;max-width:100%;aspect-ratio:1}
+.ck.chips{background:radial-gradient(circle at 30% 34%,#4a2a14 0 8%,transparent 9%),radial-gradient(circle at 64% 30%,#4a2a14 0 7%,transparent 8%),radial-gradient(circle at 44% 66%,#4a2a14 0 8%,transparent 9%),radial-gradient(circle at 72% 64%,#4a2a14 0 6%,transparent 7%),var(--c,#f6e3b8)}
+.smoke{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(80,80,80,.55);z-index:4;pointer-events:none;animation:smk 1.4s ease-out forwards}@keyframes smk{to{transform:translate(var(--x),-90px) scale(2.4);opacity:0}}
+.cust{position:absolute;transform:translate(-50%,-100%);z-index:3;pointer-events:none;transition:left .6s ease}
+.cust svg{width:100%;height:100%}
+.cust.hop{animation:hop .45s 3}@keyframes hop{50%{margin-top:-12px}}
+.ticket{position:absolute;z-index:4;background:#fff;border-radius:12px;padding:4px 10px;font-weight:900;font-size:.85rem;box-shadow:0 3px 0 rgba(0,0,0,.12);white-space:nowrap;transform:translate(-50%,-100%)}
+.ticket b{font-family:Fredoka,sans-serif;font-size:1.35rem;color:#c0502f}
+.recipe{position:absolute;z-index:4;background:#fff8e6;border:2px solid #e0b56a;border-radius:12px;padding:4px 10px;font-weight:900;font-size:.85rem;line-height:1.3;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+.recipe b{font-family:Fredoka,sans-serif;font-size:1.25rem;color:#c0502f}
+.alarm{position:absolute;z-index:6;font-size:2rem;animation:ring .2s 6;pointer-events:none}@keyframes ring{50%{transform:rotate(18deg)}}
+.hand{position:absolute;font-size:2.1rem;z-index:9;pointer-events:none;animation:circ 1.6s ease-in-out infinite}@keyframes circ{50%{transform:translate(30px,26px)}}
+.wrap.fitted .ticket,.wrap.fitted .recipe{font-size:1.05rem}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261205a"></script><script src="critters.js?v=20261130a"></script><script src="g1kit.js?v=20261201a"></script>
+<script>
+(function(){
+  "use strict";
+  // Cookie Bakery (Grade 3: time to the minute, elapsed time). 6 rounds a level, 5 right opens the next; any level opened can be played again.
+  //   read     a customer asks the time: pick it (the wrong ones are the usual slips: hands swapped, the hour too soon, 5 minutes off)
+  //   set      "I'll pick up at 4:37": turn the clock to 4:37 and ring the bell
+  //   bake     the cookies go in at 3:40 and bake 25 minutes: turn the clock to when they come out and take them out.
+  //            The clock runs from 3:40 to that time and the cookies bake as it goes: too early, raw dough; too late, burnt!
+  //   howlong  in at 3:15, out at 3:50: the clock runs and the minutes swept are shaded; how many minutes?
+  //   level 1 read, level 2 set, level 3 bake, level 4 how long, level 5 all (crossing the hour)
+  // The clock is turned by dragging (the minute hand follows the finger round, the hour hand follows it) or with -5 -1 +1 +5.
+  var $=function(id){ return document.getElementById(id); };
+  var Q=null, W=0, H=0, G={}, anim=0;
+  var RAW="#f6e3b8", GOLD="#d9963f", BURNT="#3a2416";
+  var K=G1Kit({
+    id:"cookies", store:"cookieBakery.v1", title:"🍪 Cookie Bakery", name:"Cookie Bakery", sub:"Telling Time Practice 认识时间",
+    score:["Cookies","饼干"], goal:6, need:5, pause:2600,
+    colors:{bg:"#fff6ec",line:"#f1dcc2",accent:"#c0502f",stage:"linear-gradient(180deg,#ffe9d2 0 62%,#e8c79f 62%)"},
+    how:'<div>🕐 Drag the long hand round to turn the clock (the short hand follows). Or tap −5 −1 +1 +5.</div><div>🍪 Cookies need just the right minutes: too early they are raw, too late they burn!</div><div>🔔 Read the clock to the minute for the customers.</div><div style="color:var(--muted)">拖动长针转动时钟（短针会跟着走），也可以点 −5 −1 +1 +5。饼干要烤刚好的分钟数：太早是生的，太晚就烤焦了！给顾客读准到分钟的时间。</div>',
+    shop:[{id:"cake",e:"🎂",p:5,x:"4%",y:"64%"},{id:"donut",e:"🍩",p:8,x:"90%",y:"64%"},{id:"milk",e:"🥛",p:12,x:"14%",y:"66%"},{id:"cup",e:"🧁",p:16,x:"80%",y:"66%"},{id:"pie",e:"🥧",p:22,x:"70%",y:"4%"},{id:"bread",e:"🥐",p:28,x:"54%",y:"4%"},{id:"choc",e:"🍫",p:36,x:"38%",y:"4%"},{id:"star",e:"🌟",p:45,x:"88%",y:"4%"}],
+    shopName:"Bakery shop 面包店商店", welcome:"🍪 Welcome to the Cookie Bakery! 欢迎来饼干店！", hello:"Cookies need just the right time! 饼干要烤刚好的时间！",
+    round:round, resize:function(){ if(Q) draw(); }
+  });
+  // ---------- times ----------
+  // a time is minutes after 12:00 (0..719); shown as h:mm with h from 1 to 12
+  function fmt(m){ m=((m%720)+720)%720; var h=Math.floor(m/60), mm=m%60; return (h===0?12:h)+":"+(mm<10?"0":"")+mm; }
+  function rnd(n){ return K.rnd(n); }
+  // ---------- layout ----------
+  function geom(){
+    var st=$("stage"); W=st.clientWidth; H=st.clientHeight; var wide=W/H>1.1, top=Math.max(66,H*.13); G.wide=wide;
+    if(wide){ G.R=Math.min(H*.38,W*.22); G.cx=W*.3; G.cy=Math.max(top+G.R,H*.55); G.oven={x:W*.58,y:H*.34,w:W*.34,h:Math.min(H*.58,W*.27)}; G.cust=[W*.8,H*.3]; }
+    else { G.R=Math.min(W*.33,(H-top)*.25); G.cx=W*.5; G.cy=top+G.R+4; var oy=G.cy+G.R+18; G.oven={x:W*.06,y:oy,w:W*.54,h:Math.max(80,H*.97-oy)}; G.cust=[W*.82,H*.95]; }
+  }
+  // ---------- the clock (an svg; the hands are turned by setting the time) ----------
+  function clockSvg(){
+    var s='<svg viewBox="-110 -110 220 220"><circle r="104" fill="#c0502f"/><circle r="97" fill="#fffdf6"/>', i;
+    s+='<path id="wedge" fill="rgba(255,196,0,.38)" d=""/>';
+    for(i=0;i<60;i++){ var a=i*Math.PI/30, five=i%5===0, r1=five?80:86; s+='<line x1="'+(Math.sin(a)*r1).toFixed(1)+'" y1="'+(-Math.cos(a)*r1).toFixed(1)+'" x2="'+(Math.sin(a)*93).toFixed(1)+'" y2="'+(-Math.cos(a)*93).toFixed(1)+'" stroke="#3b2a20" stroke-width="'+(five?3.2:1.4)+'" stroke-linecap="round"/>'; }
+    for(i=1;i<=12;i++){ var b=i*Math.PI/6; s+='<text x="'+(Math.sin(b)*66).toFixed(1)+'" y="'+(-Math.cos(b)*66+7).toFixed(1)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="20" fill="#3b2a20">'+i+'</text>'; }
+    s+='<line id="hh" x1="0" y1="8" x2="0" y2="-48" stroke="#3b2a20" stroke-width="8" stroke-linecap="round"/><line id="mh" x1="0" y1="12" x2="0" y2="-80" stroke="#c0502f" stroke-width="5" stroke-linecap="round"/><circle r="7" fill="#3b2a20"/>';
+    return s+'</svg>';
+  }
+  function showTime(m){ var mh=$("mh"), hh=$("hh"); if(!mh) return; mh.setAttribute("transform","rotate("+((m%60)*6)+")"); hh.setAttribute("transform","rotate("+(((m%720)+720)%720/2)+")"); }
+  // the minutes swept by the long hand, from a to b (b after a), shaded
+  function wedge(a,b){ var w=$("wedge"); if(!w) return; if(b<=a){ w.setAttribute("d",""); return; }
+    if(b-a>=60){ w.setAttribute("d","M0 -93 A93 93 0 1 1 -0.1 -93 Z"); return; }
+    var p=function(m){ var t=(m%60)*Math.PI/30; return (Math.sin(t)*93).toFixed(1)+" "+(-Math.cos(t)*93).toFixed(1); };
+    w.setAttribute("d","M0 0 L"+p(a)+" A93 93 0 "+(b-a>30?1:0)+" 1 "+p(b)+" Z"); }
+  // ---------- drawing ----------
+  function draw(){
+    geom(); var R=G.R, o=G.oven, h="";
+    h+='<div id="clk" style="left:'+(G.cx-R)+'px;top:'+(G.cy-R)+'px;width:'+(2*R)+'px;height:'+(2*R)+'px">'+clockSvg()+'</div>';
+    h+='<div class="oven" style="left:'+o.x+'px;top:'+o.y+'px;width:'+o.w+'px;height:'+o.h+'px"><div class="knobs"><i></i><i></i><i></i></div><div class="win'+(Q.k==="bake"||Q.k==="howlong"?"":" off")+'" id="win"><div class="tray" id="tray">'+cookiesHtml()+'</div></div></div>';
+    if(Q.k==="read"||Q.k==="set"){ var cs=Math.min(H*.2,W*.16,90); h+='<div class="cust" id="cust" style="left:'+G.cust[0]+'px;top:'+G.cust[1]+'px;width:'+cs+'px;height:'+cs+'px">'+Critters.svg(Q.cust)+'</div>';
+      h+='<div class="ticket" style="left:'+G.cust[0]+'px;top:'+(G.cust[1]-cs-6)+'px">'+(Q.k==="set"?'I\'ll pick up at <b>'+fmt(Q.t)+'</b>':'What time is it? 几点了？')+'</div>'; }
+    var rpos=G.wide?'left:'+o.x+'px;top:'+Math.max(4,o.y-58)+'px':'left:'+(o.x+o.w+8)+'px;top:'+o.y+'px;right:6px';
+    if(Q.k==="bake"){ h+='<div class="recipe" style="'+rpos+'">In at <b>'+fmt(Q.s)+'</b> · bake <b>'+Q.d+'</b> min<br><span style="color:var(--muted);font-size:.8em">'+fmt(Q.s)+' 放进去，烤 '+Q.d+' 分钟</span></div>'; }
+    if(Q.k==="howlong"){ h+='<div class="recipe" style="'+rpos+'">In <b>'+fmt(Q.s)+'</b> · out <b>'+fmt(Q.e)+'</b><br><span style="color:var(--muted);font-size:.8em">'+fmt(Q.s)+' 放进去，'+fmt(Q.e)+' 拿出来</span></div>'; }
+    $("scene").innerHTML=h; showTime(Q.m); if(Q.wedge) wedge(Q.wedge[0],Q.wedge[1]); paint(Q.p||0);
+    wireClock();
+  }
+  function cookiesHtml(){ var h=""; for(var i=0;i<6;i++) h+='<i class="ck"></i>'; return h; }
+  // how baked: p = minutes baked / minutes needed. Raw until about 0.6, golden at 1, burnt past about 1.35
+  function mix(a,b,t){ t=Math.max(0,Math.min(1,t)); var A=parseInt(a.slice(1),16), B=parseInt(b.slice(1),16), r=[16,8,0].map(function(s){ return Math.round(((A>>s)&255)*(1-t)+((B>>s)&255)*t); }); return "rgb("+r.join(",")+")"; }
+  function paint(p){ var c=p<.6?RAW:p<.97?mix(RAW,GOLD,(p-.6)/.37):p<=1.03?GOLD:mix(GOLD,BURNT,(p-1.03)/.32);
+    [].forEach.call(document.querySelectorAll(".ck"),function(e){ e.style.setProperty("--c",c); e.classList.toggle("chips",p>.9); }); }
+  // ---------- turning the clock ----------
+  function wireClock(){
+    var c=$("clk"); if(!c) return; var last=null, acc=0, from=0;
+    function ang(e){ var r=c.getBoundingClientRect(); return Math.atan2(e.clientX-(r.left+r.width/2),-(e.clientY-(r.top+r.height/2)))*180/Math.PI; }
+    c.onpointerdown=function(e){ if(!Q||!Q.turn||K.busy) return; last=ang(e); acc=0; from=Q.m; c.classList.add("drag"); try{ c.setPointerCapture(e.pointerId); }catch(x){} var hd=$("hand"); if(hd) hd.remove(); };
+    c.onpointermove=function(e){ if(last===null) return; var a=ang(e), d=a-last; if(d>180) d-=360; if(d<-180) d+=360; acc+=d; last=a; var m=from+Math.round(acc/6); if(m!==Q.m){ Q.m=m; showTime(m); if(Math.abs(m)%5===0) K.tone([900],.015); } };
+    c.onpointerup=c.onpointercancel=function(){ last=null; c.classList.remove("drag"); };
+  }
+  function nudge(n){ if(!Q||!Q.turn||K.busy) return; var hd=$("hand"); if(hd) hd.remove(); Q.m+=n; showTime(Q.m); K.tone([n>0?760:560],.03); }
+  function turnButtons(label,id){
+    var b=K.btns('<button type="button" data-n="-5">−5</button><button type="button" data-n="-1">−1</button><button type="button" data-n="1">+1</button><button type="button" data-n="5">+5</button><button type="button" class="main" id="'+id+'">'+label+'</button>',5);
+    [].forEach.call(b.querySelectorAll("button[data-n]"),function(x){ x.onclick=function(){ nudge(+x.getAttribute("data-n")); }; });
+    return $(id);
+  }
+  // ---------- a round ----------
+  function round(){
+    cancelAnimationFrame(anim);
+    var L=K.L, easy=K.easy(), hard=K.hard(), kinds=L===1?["read"]:L===2?["set"]:L===3?["bake"]:L===4?["howlong"]:["read","set","bake","howlong"];
+    var k=kinds[rnd(kinds.length)], cross=L>=5?(hard?Math.random()<.7:Math.random()<.4):false;
+    Q={k:k,tries:0,turn:false,p:0,cust:Critters.list[rnd(Critters.list.length)]};
+    var h=1+rnd(11), mm=easy?5*rnd(12):rnd(60);
+    if(k==="read"){ Q.t=h*60+mm; Q.m=Q.t;
+      var opts=[fmt(Q.t)], sw=(Math.round(mm/5)%12||12)*60+(h%12)*5, soon=mm>=30?((h+1)%12||12)*60+mm:null, off=Q.t+(rnd(2)?5:-5);
+      [sw,soon,off,Q.t+60,Q.t-60].forEach(function(x){ if(x!==null&&opts.length<3&&opts.indexOf(fmt(x))<0) opts.push(fmt(x)); });
+      Q.ans=fmt(Q.t);
+      K.task('What time does the clock show?<span class="cn">钟上是几点几分？</span>'); K.say("Short hand: the hour. Long hand: the minutes. 短针看时，长针看分。");
+      var bt=K.btns(K.shuffle(opts).map(function(x){ return '<button type="button" class="big" data-v="'+x+'">'+x+'</button>'; }).join(""),3);
+      [].forEach.call(bt.querySelectorAll("button"),function(x){ x.onclick=function(){ if(!K.busy) pickRead(x.getAttribute("data-v"),x); }; }); }
+    else if(k==="set"){ Q.t=h*60+mm; do{ Q.m=(1+rnd(11))*60+5*rnd(12); }while(Math.abs(Q.m-Q.t)<20); Q.turn=true;
+      K.task('Turn the clock to <b>'+fmt(Q.t)+'</b>, then ring the bell!<span class="cn">把钟拨到 '+fmt(Q.t)+'，然后按铃！</span>'); K.say("Drag the long hand round! 拖着长针转！");
+      turnButtons("🔔 Ready! 好了","ok").onclick=checkSet; }
+    else if(k==="bake"){ var d=easy?5*(2+rnd(5)):hard?12+rnd(37):5*(2+rnd(8)); var s;
+      do{ s=h*60+(easy?5*rnd(12):rnd(60)); }while(cross?((s%60)+d<60):((s%60)+d>=60)); Q.s=s; Q.d=d; Q.m=s; Q.turn=true;
+      K.task('When do the cookies come out? Turn the clock, then take them out!<span class="cn">饼干几点出炉？拨好钟，再把饼干拿出来！</span>'); K.say("They need "+d+" minutes. 要烤 "+d+" 分钟。");
+      turnButtons("🧤 Take out! 拿出来","ok").onclick=takeOut; }
+    else { var d2=easy?5*(2+rnd(6)):10+rnd(45), s2; do{ s2=h*60+(easy?5*rnd(12):rnd(60)); }while(cross?((s2%60)+d2<60):((s2%60)+d2>=60)); Q.s=s2; Q.e=s2+d2; Q.d=d2; Q.m=s2; Q.p=0;
+      K.task('How many minutes did the cookies bake?<span class="cn">饼干烤了几分钟？</span>'); K.say("Watch the long hand go! 看长针走了多少！");
+      K.later(function(){ run(Q.s,Q.e,Q.d,function(){ Q.wedge=[Q.s,Q.e]; askLong(); },true); },500); }
+    draw();
+    if(Q.turn&&K.D.n===1&&K.L<=3) K.later(function(){ if(!$("hand")) $("scene").insertAdjacentHTML("beforeend",'<div class="hand" id="hand" style="left:'+(G.cx+G.R*.2)+'px;top:'+(G.cy-G.R*.8)+'px">👆</div>'); },400);
+  }
+  // ---------- read ----------
+  function pickRead(v,b){
+    if(v===Q.ans){ hopCust(); return good(Q.ans); }
+    Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
+    if(Q.tries>=2){ K.busy=true; K.task('<span class="eqbig">'+Q.ans+'</span>'); K.later(function(){ K.done(false); },1400); return; }
+    K.say("The short hand points to the hour it has passed. Count the long hand by 5s, then by 1s. 短针刚走过的数是几时；长针先 5 个 5 个数，再 1 个 1 个数。");
+  }
+  // ---------- set ----------
+  function checkSet(){
+    if(K.busy) return; var m=((Q.m%720)+720)%720;
+    if(m===Q.t){ Q.turn=false; hopCust(); return good(fmt(Q.t)); }
+    Q.tries++; K.tone([200,150],.12,"sawtooth");
+    if(Q.tries>=3){ K.busy=true; Q.turn=false; Q.m=Q.t; showTime(Q.t); K.task('<span class="eqbig">'+fmt(Q.t)+'</span>'); K.later(function(){ K.done(false); },1500); return; }
+    K.say("Your clock says "+fmt(m)+". The ticket says "+fmt(Q.t)+". 你的钟是 "+fmt(m)+"，单子上是 "+fmt(Q.t)+"。");
+  }
+  function hopCust(){ var c=$("cust"); if(c){ c.classList.remove("hop"); void c.offsetWidth; c.classList.add("hop"); } }
+  // ---------- bake: the clock runs from the start to the time set, the cookies bake as it goes ----------
+  function run(a,b,need,then,shade){
+    cancelAnimationFrame(anim); K.busy=true; var t0=0, dur=Math.min(2400,400+(b-a)*35);
+    function step(ts){ if(!t0) t0=ts; var f=Math.min(1,(ts-t0)/dur), m=Math.round(a+(b-a)*f); Q.m=m; showTime(m); if(shade) wedge(a,m); Q.p=(m-a)/need; paint(Q.p);
+      if(Q.p>1.15&&Math.random()<.12) smoke();
+      if(f<1) anim=requestAnimationFrame(step); else then(); }
+    anim=requestAnimationFrame(step);
+  }
+  function smoke(){ var w=$("win"); if(!w) return; var o=G.oven, s=document.createElement("i"); s.className="smoke"; s.style.left=(o.x+o.w*(.3+Math.random()*.4))+"px"; s.style.top=(o.y+o.h*.2)+"px"; s.style.setProperty("--x",(Math.random()*40-20)+"px"); $("scene").appendChild(s); setTimeout(function(){ s.remove(); },1500); }
+  function takeOut(){
+    if(K.busy) return; var e=Q.m-Q.s;
+    if(e<=0){ K.say("Time only goes forward! Turn the clock on. 时间只会往前走！把钟往后拨。"); K.tone([220],.08,"sawtooth"); return; }
+    Q.turn=false; var set=Q.m; Q.m=Q.s;
+    run(Q.s,set,Q.d,function(){
+      if(e===Q.d) return good(fmt(Q.s)+" + "+Q.d+" min = "+fmt(Q.e=Q.s+Q.d));
+      Q.tries++; K.tone([200,150],.12,"sawtooth");
+      if(e<Q.d) K.say("Too early! They're still raw dough. They baked "+e+" minutes. 太早了！还是生面团，只烤了 "+e+" 分钟。");
+      else { K.say("Too late! They burned! They baked "+e+" minutes. 太晚了！烤焦了！烤了 "+e+" 分钟。"); alarm(); }
+      K.later(function(){
+        if(Q.tries>=2){ K.say("They come out at "+fmt(Q.s+Q.d)+". "+fmt(Q.s+Q.d)+" 出炉。"); Q.m=Q.s; Q.p=0; showTime(Q.s); paint(0); run(Q.s,Q.s+Q.d,Q.d,function(){ K.task('<span class="eqbig">'+fmt(Q.s)+' + '+Q.d+' min = '+fmt(Q.s+Q.d)+'</span>'); K.later(function(){ K.done(false); },1500); }); return; }
+        K.busy=false; Q.turn=true; Q.m=Q.s; Q.p=0; showTime(Q.s); paint(0); [].forEach.call(document.querySelectorAll(".smoke,.alarm"),function(x){ x.remove(); }); K.say("New cookies! Try again. 再放一盘，再试一次！");
+      },2600);
+    });
+  }
+  function alarm(){ var o=G.oven; $("scene").insertAdjacentHTML("beforeend",'<div class="alarm" style="left:'+(o.x+o.w-30)+'px;top:'+(o.y-40)+'px">🚨</div>'); K.tone([880,660,880,660],.12,"square"); }
+  // ---------- how long ----------
+  function askLong(){
+    K.busy=false; K.task('<b>'+fmt(Q.s)+'</b> to <b>'+fmt(Q.e)+'</b>: how many minutes?<span class="cn">从 '+fmt(Q.s)+' 到 '+fmt(Q.e)+'，一共几分钟？</span>');
+    K.pad2(function(v){ if(v===Q.d) return good(fmt(Q.e)+" − "+fmt(Q.s)+" = "+Q.d+" min");
+      Q.tries++; K.tone([200,150],.12,"sawtooth"); K.padBad();
+      if(Q.tries>=2){ K.busy=true; K.task('<span class="eqbig">'+Q.d+' minutes</span>'); K.later(function(){ K.done(false); },1400); return; }
+      K.say((Q.s%60)+Q.d>=60?"Count to the hour first, then the minutes after it. 先数到整点，再数整点以后的分钟。":"Count the minutes in the yellow part: 5, 10, 15… 数黄色部分：5、10、15……"); });
+  }
+  function good(eq){ K.hideAll(); K.task('<span class="eqbig">'+eq+'</span>'); K.say(["Yummy! 好香！","Just right! 刚刚好！","Super baker! 烘焙高手！"][rnd(3)]); K.done(true,Q.tries); }
+  window.__cookies={q:function(){ return Q; },K:K,set:function(m){ Q.m=m; showTime(m); }};
+  K.start();
+})();
+</script>
+</body></html>
