@@ -100,7 +100,7 @@
     h+='<div id="clk" style="left:'+(G.cx-R)+'px;top:'+(G.cy-R)+'px;width:'+(2*R)+'px;height:'+(2*R)+'px">'+clockSvg()+'</div>';
     h+='<div class="oven" style="left:'+o.x+'px;top:'+o.y+'px;width:'+o.w+'px;height:'+o.h+'px"><div class="knobs"><i></i><i></i><i></i></div><div class="win'+(Q.k==="bake"||Q.k==="howlong"||Q.lit?"":" off")+'" id="win"><div class="tray" id="tray">'+cookiesHtml()+'</div></div></div>';
     if((Q.k==="read"||Q.k==="set")&&!Q.gone){ var cs=Math.min(H*.2,W*.16,90); h+='<div class="cust" id="cust" style="left:'+G.cust[0]+'px;top:'+G.cust[1]+'px;width:'+cs+'px;height:'+cs+'px">'+Critters.svg(Q.cust)+'</div>';
-      h+='<div class="ticket'+(Q.tb?'':' jump')+'" style="left:'+G.cust[0]+'px;top:'+(G.cust[1]-cs-6)+'px">'+(Q.k==="set"?'I\'ll pick up at <b>'+fmt(Q.t)+'</b>':'What time is it? 几点了？')+'</div>'; if(!Q.tb){ var q0=Q; K.later(function(){ q0.tb=true; },2000); } }
+      h+='<div class="ticket'+(Q.tb?'':' jump')+'" style="left:'+Math.max(92,Math.min(G.cust[0],W-92))+'px;top:'+Math.max(G.cust[1]-cs-6,46)+'px">'+(Q.k==="set"?'I\'ll pick up at <b>'+fmt(Q.t)+'</b>':'What time is it? 几点了？')+'</div>'; if(!Q.tb){ var q0=Q; K.later(function(){ q0.tb=true; },2000); } }
     var rpos=G.wide?'left:'+o.x+'px;top:'+Math.max(4,o.y-58)+'px':'left:'+(o.x+o.w+8)+'px;top:'+o.y+'px;right:6px';
     if(Q.k==="bake"){ h+='<div class="recipe" style="'+rpos+'">In at <b>'+fmt(Q.s)+'</b> · bake <b>'+Q.d+'</b> min<br><span style="color:var(--muted);font-size:.8em">'+fmt(Q.s)+' 放进去，烤 '+Q.d+' 分钟</span></div>'; }
     if(Q.k==="howlong"){ h+='<div class="recipe" style="'+rpos+'">In <b>'+fmt(Q.s)+'</b> · out <b>'+fmt(Q.e)+'</b><br><span style="color:var(--muted);font-size:.8em">'+fmt(Q.s)+' 放进去，'+fmt(Q.e)+' 拿出来</span></div>'; }
