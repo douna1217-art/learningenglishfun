@@ -57,6 +57,9 @@
 .why.tools button small{display:block;color:var(--muted);font-size:.7rem}
 .hand{position:absolute;font-size:2rem;z-index:8;pointer-events:none;animation:handgo 1.4s ease-in-out infinite}@keyframes handgo{0%,100%{transform:translateX(0)}50%{transform:translateX(var(--dx,60px))}}
 /* planks, the saw, the critter */
+.plank.pair{background:none;border:0;height:14px}.plank.newp{background:repeating-linear-gradient(90deg,#e9b872 0 22px,#c98f4a 22px 24px)}
+.plab{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:4px;background:#fff;border-radius:7px;padding:0 6px;font-family:Fredoka,sans-serif;font-weight:700;font-size:.85rem;white-space:nowrap;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.newp .plab{background:#ffe27a}
 .plank{position:absolute;height:14px;background:repeating-linear-gradient(90deg,var(--wood) 0 22px,#b97a3c 22px 24px);border:2px solid var(--wood2);border-radius:4px;z-index:4;transition:top .35s cubic-bezier(.3,1.6,.6,1),transform .5s,left .4s}
 .plank.fall{transition:top .7s ease-in,transform .7s ease-in}
 .saw{position:absolute;font-size:1.8rem;z-index:6;animation:saw .18s linear infinite alternate}@keyframes saw{to{transform:translateY(8px) rotate(-12deg)}}
@@ -171,6 +174,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     var show=L===1?"in":L===2?"cm":"both", unit=L===1?"in":L===2?"cm":(Math.random()<.5?"in":"cm");
     var types=["measure"]; if(L>=4) types.push("both"); if(L>=5) types.push("broken","longer","both");
     if(easy) types=["measure"];
+    if(window.__lenOnly) types=[window.__lenOnly];   // tests only: one kind of gap
     var t=types[rnd(types.length)]; if(t==="both") unit="in";
     var q={type:t,unit:unit,gu:unit,show:t==="broken"?unit:show,tries:0,crit:CRIT[rnd(CRIT.length)],stage:1};
     var lo=unit==="in"?(hard?5:2):(hard?10:3), hi=unit==="in"?(easy?5:8):(easy?10:20);
@@ -293,9 +297,13 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     var r=$("ruler"); r.classList.add("hide");
     var len=Q.type==="longer"?Q.have+a:a, piece=Q.type==="longer"?a:a;
     cut(piece,function(pl){
-      if(Q.type==="longer"){   // the new piece joins the plank we had
-        var hv=$("have"); hv.style.left=(XL+2-Q.have*U)+"px"; pl.style.left=(XL+2)+"px"; pl.style.top=(CT-14)+"px";
-        setTimeout(function(){ hv.style.width=(len*U-4)+"px"; pl.remove(); place(hv,len); },450);
+      if(Q.type==="longer"){   // the plank we had slides over the river from the left bank, the new piece joins right after it: together they span the gap
+        var hv=$("have"); hv.style.left=(XL+2)+"px"; pl.style.left=(XL+2+Q.have*U)+"px"; pl.style.top=(CT-14)+"px";
+        // on the river the two pieces stay two, each with its length, so the child sees have + new = the gap
+        setTimeout(function(){
+          var pair=document.createElement("div"); pair.className="plank pair"; pair.style.cssText="left:"+(XL+2)+"px;top:"+(CT-14)+"px;width:"+(len*U-4)+"px";
+          pair.innerHTML='<div class="plank" style="left:0;top:0;width:'+(Q.have*U)+'px;border-right:0;border-radius:4px 0 0 4px"><span class="plab">'+Q.have+' '+Q.unit+'</span></div><div class="plank newp" style="left:'+(Q.have*U)+'px;top:0;width:'+(len*U-4-Q.have*U)+'px;border-radius:0 4px 4px 0"><span class="plab">'+a+' '+Q.unit+'</span></div>';   // no gap between the two pieces: they butt up end to end
+          $("scene").appendChild(pair); hv.style.display="none"; pl.remove(); place(pair,len); },450);
       } else place(pl,len);
     });
   };
@@ -366,7 +374,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     say(t+"<br>Measure again! 再量一次！");
     setTimeout(function(){
       busy=false; crit("");
-      if(longer){ var hv=$("have"); hv.style.width=(Q.have*U)+"px"; hv.style.left=(XL-6-Q.have*U)+"px"; }
+      if(longer){ var hv=$("have"), pr=document.querySelector(".pair"); if(pr) pr.remove(); hv.style.display=""; hv.style.width=(Q.have*U)+"px"; hv.style.left=(XL-6-Q.have*U)+"px"; }
       var r=$("ruler"); r.classList.remove("hide"); setVal("");
     },1500);
   }
