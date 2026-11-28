@@ -80,6 +80,12 @@
     K.shuffle = function (a) { for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
     // ---------- sound, the pet, confetti ----------
     var actx = null;
+    // a struck metal bell, like a kitchen-timer ding: a short hammer click, then ringing partials that fade slowly
+    K.bell = function (f0, vol) { if (!S.sound) return; try { actx = actx || new (root.AudioContext || root.webkitAudioContext)(); if (actx.resume) actx.resume(); f0 = f0 || 1760; vol = vol || .22;
+      var t = actx.currentTime + .01, out = actx.createGain(); out.gain.value = vol; out.connect(actx.destination);
+      [[1, 1, 2.2], [2.76, .5, 1.1], [5.4, .25, .5], [8.93, .12, .25]].forEach(function (p) { [0, .11].forEach(function (d, k) { var o = actx.createOscillator(), g = actx.createGain(), s = t + d, a = p[1] * (k ? .35 : 1); o.type = "sine"; o.frequency.value = f0 * p[0]; g.gain.setValueAtTime(.0001, s); g.gain.exponentialRampToValueAtTime(a, s + .004); g.gain.exponentialRampToValueAtTime(.0001, s + p[2]); o.connect(g); g.connect(out); o.start(s); o.stop(s + p[2] + .05); }); });
+      var n = actx.createBuffer(1, Math.floor(actx.sampleRate * .03), actx.sampleRate), dd = n.getChannelData(0); for (var i = 0; i < dd.length; i++) dd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / dd.length, 3);
+      var src = actx.createBufferSource(), ng = actx.createGain(); src.buffer = n; ng.gain.value = .5; src.connect(ng); ng.connect(out); src.start(t); } catch (e) {} };
     K.tone = function (fs, len, type) { if (!S.sound) return; try { actx = actx || new (root.AudioContext || root.webkitAudioContext)(); fs.forEach(function (f, i) { var t = actx.currentTime + i * len * .7, o = actx.createOscillator(), g = actx.createGain(); o.type = type || "triangle"; o.frequency.value = f; g.gain.setValueAtTime(.13, t); g.gain.exponentialRampToValueAtTime(.001, t + len); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + len + .02); }); } catch (e) {} };
     $("soundBtn").onclick = function () { S.sound = !S.sound; $("soundBtn").textContent = S.sound ? "🔔" : "🔕"; K.save(); };
     $("soundBtn").textContent = S.sound ? "🔔" : "🔕";

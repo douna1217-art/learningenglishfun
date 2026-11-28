@@ -38,6 +38,8 @@
 .ticket b{font-family:Fredoka,sans-serif;font-size:1.35rem;color:#c0502f}
 .recipe{position:absolute;z-index:4;background:#fff8e6;border:2px solid #e0b56a;border-radius:12px;padding:4px 10px;font-weight:900;font-size:.85rem;line-height:1.3;box-shadow:0 3px 0 rgba(0,0,0,.1)}
 .recipe b{font-family:Fredoka,sans-serif;font-size:1.25rem;color:#c0502f}
+.ticket.jump{animation:tkjump .5s ease-in-out 4}@keyframes tkjump{0%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,-112%) scale(1.12)}70%{transform:translate(-50%,-97%) scale(.97)}}
+.ticket b{display:inline-block}.ticket.jump b{animation:tkpop .5s ease-in-out 4}@keyframes tkpop{40%{transform:scale(1.3)}}
 .alarm{position:absolute;z-index:6;font-size:2rem;animation:ring .2s 6;pointer-events:none}@keyframes ring{50%{transform:rotate(18deg)}}
 .hand{position:absolute;font-size:2.1rem;z-index:9;pointer-events:none;animation:circ 1.6s ease-in-out infinite}@keyframes circ{50%{transform:translate(30px,26px)}}
 .wrap.fitted .ticket,.wrap.fitted .recipe{font-size:1.05rem}
@@ -98,7 +100,7 @@
     h+='<div id="clk" style="left:'+(G.cx-R)+'px;top:'+(G.cy-R)+'px;width:'+(2*R)+'px;height:'+(2*R)+'px">'+clockSvg()+'</div>';
     h+='<div class="oven" style="left:'+o.x+'px;top:'+o.y+'px;width:'+o.w+'px;height:'+o.h+'px"><div class="knobs"><i></i><i></i><i></i></div><div class="win'+(Q.k==="bake"||Q.k==="howlong"||Q.lit?"":" off")+'" id="win"><div class="tray" id="tray">'+cookiesHtml()+'</div></div></div>';
     if((Q.k==="read"||Q.k==="set")&&!Q.gone){ var cs=Math.min(H*.2,W*.16,90); h+='<div class="cust" id="cust" style="left:'+G.cust[0]+'px;top:'+G.cust[1]+'px;width:'+cs+'px;height:'+cs+'px">'+Critters.svg(Q.cust)+'</div>';
-      h+='<div class="ticket" style="left:'+G.cust[0]+'px;top:'+(G.cust[1]-cs-6)+'px">'+(Q.k==="set"?'I\'ll pick up at <b>'+fmt(Q.t)+'</b>':'What time is it? 几点了？')+'</div>'; }
+      h+='<div class="ticket'+(Q.tb?'':' jump')+'" style="left:'+G.cust[0]+'px;top:'+(G.cust[1]-cs-6)+'px">'+(Q.k==="set"?'I\'ll pick up at <b>'+fmt(Q.t)+'</b>':'What time is it? 几点了？')+'</div>'; if(!Q.tb){ var q0=Q; K.later(function(){ q0.tb=true; },2000); } }
     var rpos=G.wide?'left:'+o.x+'px;top:'+Math.max(4,o.y-58)+'px':'left:'+(o.x+o.w+8)+'px;top:'+o.y+'px;right:6px';
     if(Q.k==="bake"){ h+='<div class="recipe" style="'+rpos+'">In at <b>'+fmt(Q.s)+'</b> · bake <b>'+Q.d+'</b> min<br><span style="color:var(--muted);font-size:.8em">'+fmt(Q.s)+' 放进去，烤 '+Q.d+' 分钟</span></div>'; }
     if(Q.k==="howlong"){ h+='<div class="recipe" style="'+rpos+'">In <b>'+fmt(Q.s)+'</b> · out <b>'+fmt(Q.e)+'</b><br><span style="color:var(--muted);font-size:.8em">'+fmt(Q.s)+' 放进去，'+fmt(Q.e)+' 拿出来</span></div>'; }
@@ -172,7 +174,7 @@
     var o=G.oven, cs=Math.min(H*.2,W*.16,90), pet=myPet(), st=$("stage");
     var BK=1600; Q.lit=true; var win=$("win"); if(win){ win.classList.remove("off"); win.classList.add("baking"); } K.tone([180,190],.4,"sine");
     var t0=Date.now(); (function bake(){ var f=Math.min(1,(Date.now()-t0)/BK); Q.p=f; paint(f); if(f<1) requestAnimationFrame(bake); })();
-    K.later(function(){ K.tone([1568,2093],.18,"sine"); var w2=$("win"); if(w2){ w2.classList.remove("baking"); w2.style.boxShadow="0 0 24px 8px #ffe27a"; } },BK);
+    K.later(function(){ K.bell(1760); var w2=$("win"); if(w2){ w2.classList.remove("baking"); w2.style.boxShadow="0 0 24px 8px #ffe27a"; } },BK);
     var wt=document.createElement("div"); wt.className="waiter"; wt.style.cssText="width:"+cs*.9+"px;height:"+cs*.9+"px;left:"+(o.x+o.w/2)+"px;top:"+(o.y+o.h*.3)+"px;opacity:0";
     wt.innerHTML=MathPet.pic(pet,"happy",Math.round(cs*.9))+'<span class="plate" id="plate">🍪</span>'; st.appendChild(wt);
     K.later(function(){ wt.style.opacity=1; },BK+350);
