@@ -90,7 +90,7 @@
       h+='<div class="lad" id="lad" style="--u:'+px(u)+';left:'+px(G.ladX)+';width:'+px(G.ladW)+';top:'+px(gy-Q.len*u)+';height:'+px(Q.len*u)+'"></div>';
       var trw=Math.min(W*.34,u*5); h+=truckHtml(G.ladX+G.ladW+u*.3,trw);
       // the firefighter waits beyond the truck, so the ladder's sections are all in sight
-      G.whoX=Math.min(W-u*.8,G.ladX+G.ladW+u*.3+trw+u*.75);
+      G.whoX=G.ladX+G.ladW+u*.3+trw*.16;   // by the truck's back wheel, right next to the ladder
       h+=whoHtml(G.whoX)+catHtml(G.ladX+G.ladW*.6,by-u*.42);
     }
     else if(Q.k==="compare"){
@@ -108,7 +108,7 @@
         h+='<div class="row" data-r="'+j+'" style="left:'+px(W*.05)+';top:'+px(y)+';width:'+px(rw)+';height:'+px(rh)+'"></div>';
         h+='<div class="kid" style="left:'+px(W*.05+u*1.1)+';top:'+px(y+rh/2)+';font-size:'+px(Math.min(rh*.55,u*1.4))+'">'+["👧","👦","🧒"][j]+'</div>';
         h+='<div class="hose" style="left:'+px(x0)+';top:'+px(mid)+';width:'+px(Q.n*G.fu)+'"></div>';
-        var cs=G.fu; r.cubes.forEach(function(cx,k){ h+='<div class="cube" style="pointer-events:none;left:'+px(x0+cx*G.fu)+';top:'+px(mid+10+(r.why==="over"&&k%2?cs*.4:0))+';width:'+px(cs)+';height:'+px(cs)+';background:'+CUBEC[k%2?1:0]+';'+(r.why==="over"&&k%2?"z-index:4;box-shadow:-3px 3px 0 rgba(0,0,0,.2)":"")+'"></div>'; }); });
+        var cs=G.fu; r.cubes.forEach(function(cx,k){ h+='<div class="cube" style="pointer-events:none;left:'+px(x0+cx*G.fu)+';top:'+px(mid+10)+';width:'+px(cs)+';height:'+px(cs)+';background:'+CUBEC[k%2?1:0]+';'+(r.why==="over"?"opacity:.75":"")+'"></div>'; }); });
     }
     else {   // count: the tower
       var fl=Q.floors.length, th=gy-G.top-u*.6, fh=th/fl, twd=Math.min(W*.5,260), x=W/2-twd/2;
@@ -123,7 +123,7 @@
   }
   function cube(i,still){ var u=G.u, top=G.gy-(i+1)*u; return '<div class="cube" data-i="'+i+'" style="left:'+px(G.cubeX)+';top:'+px(still?top:top-u*3)+';width:'+px(u)+';height:'+px(u)+';background:'+CUBEC[i%CUBEC.length]+'"></div>'; }
   function whoHtml(x){ return '<div class="who" id="who" style="left:'+px(x)+';top:'+px(G.gy)+';font-size:'+px(G.u*1.35)+'">🧑‍🚒</div>'; }
-  function catHtml(x,y){ G.catAt=[x,y]; return '<div class="cat" id="cat" style="left:'+px(x)+';top:'+px(y)+';font-size:'+px(G.u*1.15)+'">🐱</div>'; }
+  function catHtml(x,y){ G.catAt=[x,y]; if(Q&&Q.cat){ x=Q.cat[0]; y=Q.cat[1]; } return '<div class="cat" id="cat" style="left:'+px(x)+';top:'+px(y)+';font-size:'+px(G.u*1.15)+'">🐱</div>'; }
   function placeWho(x,y,now){ var w=$("who"); if(!w) return; if(now){ w.style.transition="none"; } w.style.left=px(x); w.style.top=px(y); if(now){ void w.offsetWidth; w.style.transition=""; } }
   // ---------- a round ----------
   function round(){
@@ -175,10 +175,21 @@
   }
   // the firefighter walks to the ladder, climbs, then calls back
   // y is the top of the ladder: the firefighter stands on a rung just below it, hands up at the top
-  function climbTo(x,y,then){ var w=$("who"); if(!w) return then(); y=Math.min(G.gy,y+G.u*1.1); Q.who=[x,G.gy]; w.style.left=px(x); K.later(function(){ Q.who=[x,y]; w.style.top=px(y); K.later(then,1250); },520); }
+  // the firefighter walks over (if not there yet), then climbs one rung at a time, from the bottom rung up (or down)
+  function climbTo(x,y,then){
+    // the stage can be drawn again at any moment (the buttons below change): always move the firefighter that is on it now
+    var w=$("who"); if(!w) return then(); y=Math.min(G.gy,y+G.u*1.1);
+    var cx=Q.who?Q.who[0]:parseFloat(w.style.left), cy=Q.who?Q.who[1]:G.gy, walk=Math.abs(cx-x)>2;
+    w.style.transition="left .5s ease,top .22s linear"; if(walk){ w.style.left=px(x); Q.who=[x,cy]; }
+    K.later(function(){ var steps=Math.max(1,Math.round(Math.abs(cy-y)/G.u)), i=0;
+      (function step(){ i++; var t=cy+(y-cy)*i/steps, ww=$("who"); Q.who=[x,t]; if(ww){ ww.style.transition="left .5s ease,top .22s linear"; ww.style.left=px(x); ww.style.top=px(t); }
+        if(Q.carry){ Q.cat=[x+G.u*.45,t-G.u*.35]; var c=$("cat"); if(c){ c.style.transition="left .2s,top .12s linear"; c.style.left=px(Q.cat[0]); c.style.top=px(Q.cat[1]); } }
+        if(i<steps) K.later(step,Q.carry?130:240); else K.later(then,Q.carry?150:320); })(); },walk?560:20);
+  }
   function save(){
-    var c=$("cat"), w=$("who"); K.tone([523,659,784,1047],.08); if(c){ c.classList.remove("meow"); c.style.left=px(parseFloat(w.style.left)+G.u*.45); c.style.top=px(parseFloat(w.style.top)-G.u*.35); }
-    K.later(function(){ Q.who=[parseFloat(w.style.left),G.gy]; w.style.top=px(G.gy); if(c){ c.style.top=px(G.gy-G.u*1.1); } K.later(function(){ if(c){ c.classList.add("happy"); } },1250); },500);
+    var c=$("cat"); K.tone([523,659,784,1047],.08); Q.cat=[Q.who[0]+G.u*.45,Q.who[1]-G.u*.35]; if(c){ c.classList.remove("meow"); c.style.left=px(Q.cat[0]); c.style.top=px(Q.cat[1]); }
+    // down the ladder rung by rung with the kitten in arm, a little quicker than going up
+    K.later(function(){ Q.carry=true; climbTo(Q.who[0],G.gy-G.u*1.1,function(){ Q.carry=false; var cc=$("cat"); if(cc) cc.classList.add("happy"); }); },500);
     good(Q.k==="compare"?"The longer ladder reaches! 长梯子够得着！":Q.k==="ladder"?Q.n+" cubes = "+Q.n+" sections":"");
   }
   // ---------- measure ----------

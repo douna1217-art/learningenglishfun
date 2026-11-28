@@ -23,7 +23,11 @@
 .smoke{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(80,80,80,.55);z-index:4;pointer-events:none;animation:smk 1.4s ease-out forwards}@keyframes smk{to{transform:translate(var(--x),-90px) scale(2.4);opacity:0}}
 .cust{position:absolute;transform:translate(-50%,-100%);z-index:3;pointer-events:none;transition:left .6s ease}
 .cust svg{width:100%;height:100%}
-.cust.hop{animation:hop .45s 3}@keyframes hop{50%{margin-top:-12px}}
+.cust.hop{animation:hop .45s 3}
+.waiter{position:absolute;z-index:7;transform:translate(-50%,-50%);transition:left 1.1s ease-in-out,top 1.1s ease-in-out,opacity .4s;pointer-events:none;display:flex;align-items:center;justify-content:center}
+.waiter svg{width:100%;height:100%}
+.gotck{position:absolute;left:-10%;top:40%;font-size:1.8rem}
+.waiter .plate{position:absolute;right:-30%;top:30%;font-size:2rem;transition:transform .4s ease}@keyframes hop{50%{margin-top:-12px}}
 .ticket{position:absolute;z-index:4;background:#fff;border-radius:12px;padding:4px 10px;font-weight:900;font-size:.85rem;box-shadow:0 3px 0 rgba(0,0,0,.12);white-space:nowrap;transform:translate(-50%,-100%)}
 .ticket b{font-family:Fredoka,sans-serif;font-size:1.35rem;color:#c0502f}
 .recipe{position:absolute;z-index:4;background:#fff8e6;border:2px solid #e0b56a;border-radius:12px;padding:4px 10px;font-weight:900;font-size:.85rem;line-height:1.3;box-shadow:0 3px 0 rgba(0,0,0,.1)}
@@ -50,7 +54,7 @@
   var RAW="#f6e3b8", GOLD="#d9963f", BURNT="#3a2416";
   var K=G1Kit({
     id:"cookies", store:"cookieBakery.v1", title:"🍪 Cookie Bakery", name:"Cookie Bakery", sub:"Telling Time Practice 认识时间",
-    score:["Cookies","饼干"], goal:6, need:5, pause:2600,
+    score:["Cookies","饼干"], goal:6, need:5, pause:4000,
     colors:{bg:"#fff6ec",line:"#f1dcc2",accent:"#c0502f",stage:"linear-gradient(180deg,#ffe9d2 0 62%,#e8c79f 62%)"},
     how:'<div>🕐 Drag the long hand round to turn the clock (the short hand follows). Or tap −5 −1 +1 +5.</div><div>🍪 Cookies need just the right minutes: too early they are raw, too late they burn!</div><div>🔔 Read the clock to the minute for the customers.</div><div style="color:var(--muted)">拖动长针转动时钟（短针会跟着走），也可以点 −5 −1 +1 +5。饼干要烤刚好的分钟数：太早是生的，太晚就烤焦了！给顾客读准到分钟的时间。</div>',
     shop:[{id:"cake",e:"🎂",p:5,x:"4%",y:"64%"},{id:"donut",e:"🍩",p:8,x:"90%",y:"64%"},{id:"milk",e:"🥛",p:12,x:"14%",y:"66%"},{id:"cup",e:"🧁",p:16,x:"80%",y:"66%"},{id:"pie",e:"🥧",p:22,x:"70%",y:"4%"},{id:"bread",e:"🥐",p:28,x:"54%",y:"4%"},{id:"choc",e:"🍫",p:36,x:"38%",y:"4%"},{id:"star",e:"🌟",p:45,x:"88%",y:"4%"}],
@@ -86,8 +90,8 @@
   function draw(){
     geom(); var R=G.R, o=G.oven, h="";
     h+='<div id="clk" style="left:'+(G.cx-R)+'px;top:'+(G.cy-R)+'px;width:'+(2*R)+'px;height:'+(2*R)+'px">'+clockSvg()+'</div>';
-    h+='<div class="oven" style="left:'+o.x+'px;top:'+o.y+'px;width:'+o.w+'px;height:'+o.h+'px"><div class="knobs"><i></i><i></i><i></i></div><div class="win'+(Q.k==="bake"||Q.k==="howlong"?"":" off")+'" id="win"><div class="tray" id="tray">'+cookiesHtml()+'</div></div></div>';
-    if(Q.k==="read"||Q.k==="set"){ var cs=Math.min(H*.2,W*.16,90); h+='<div class="cust" id="cust" style="left:'+G.cust[0]+'px;top:'+G.cust[1]+'px;width:'+cs+'px;height:'+cs+'px">'+Critters.svg(Q.cust)+'</div>';
+    h+='<div class="oven" style="left:'+o.x+'px;top:'+o.y+'px;width:'+o.w+'px;height:'+o.h+'px"><div class="knobs"><i></i><i></i><i></i></div><div class="win'+(Q.k==="bake"||Q.k==="howlong"||Q.lit?"":" off")+'" id="win"><div class="tray" id="tray">'+cookiesHtml()+'</div></div></div>';
+    if((Q.k==="read"||Q.k==="set")&&!Q.gone){ var cs=Math.min(H*.2,W*.16,90); h+='<div class="cust" id="cust" style="left:'+G.cust[0]+'px;top:'+G.cust[1]+'px;width:'+cs+'px;height:'+cs+'px">'+Critters.svg(Q.cust)+'</div>';
       h+='<div class="ticket" style="left:'+G.cust[0]+'px;top:'+(G.cust[1]-cs-6)+'px">'+(Q.k==="set"?'I\'ll pick up at <b>'+fmt(Q.t)+'</b>':'What time is it? 几点了？')+'</div>'; }
     var rpos=G.wide?'left:'+o.x+'px;top:'+Math.max(4,o.y-58)+'px':'left:'+(o.x+o.w+8)+'px;top:'+o.y+'px;right:6px';
     if(Q.k==="bake"){ h+='<div class="recipe" style="'+rpos+'">In at <b>'+fmt(Q.s)+'</b> · bake <b>'+Q.d+'</b> min<br><span style="color:var(--muted);font-size:.8em">'+fmt(Q.s)+' 放进去，烤 '+Q.d+' 分钟</span></div>'; }
@@ -143,7 +147,7 @@
   }
   // ---------- read ----------
   function pickRead(v,b){
-    if(v===Q.ans){ hopCust(); return good(Q.ans); }
+    if(v===Q.ans){ good(Q.ans); return serve(); }
     Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
     if(Q.tries>=2){ K.busy=true; K.task('<span class="eqbig">'+Q.ans+'</span>'); K.later(function(){ K.done(false); },1400); return; }
     K.say("The short hand points to the hour it has passed. Count the long hand by 5s, then by 1s. 短针刚走过的数是几时；长针先 5 个 5 个数，再 1 个 1 个数。");
@@ -151,10 +155,25 @@
   // ---------- set ----------
   function checkSet(){
     if(K.busy) return; var m=((Q.m%720)+720)%720;
-    if(m===Q.t){ Q.turn=false; hopCust(); return good(fmt(Q.t)); }
+    if(m===Q.t){ Q.turn=false; good(fmt(Q.t)); return serve(); }
     Q.tries++; K.tone([200,150],.12,"sawtooth");
     if(Q.tries>=3){ K.busy=true; Q.turn=false; Q.m=Q.t; showTime(Q.t); K.task('<span class="eqbig">'+fmt(Q.t)+'</span>'); K.later(function(){ K.done(false); },1500); return; }
     K.say("Your clock says "+fmt(m)+". The ticket says "+fmt(Q.t)+". 你的钟是 "+fmt(m)+"，单子上是 "+fmt(Q.t)+"。");
+  }
+  // the cookies are ready: the oven dings, the child's own pet carries them from the oven to the customer, who hops and goes
+  // (they live on the stage, outside the scene, so a redraw of the scene does not lose them)
+  function serve(){
+    var o=G.oven, cs=Math.min(H*.2,W*.16,90), pet=window.MathPet&&MathPet.get?MathPet.get():null, st=$("stage");
+    K.tone([1568,2093],.18,"sine"); Q.lit=true; Q.p=1; var win=$("win"); if(win){ win.classList.remove("off"); win.style.boxShadow="0 0 24px 8px #ffe27a"; } paint(1);
+    var wt=document.createElement("div"); wt.className="waiter"; wt.style.cssText="width:"+cs*.9+"px;height:"+cs*.9+"px;left:"+(o.x+o.w/2)+"px;top:"+(o.y+o.h*.3)+"px;opacity:0";
+    wt.innerHTML=(pet?MathPet.pic(pet,"happy",Math.round(cs*.9)):'<span style="font-size:'+cs*.7+'px">🐣</span>')+'<span class="plate" id="plate">🍪</span>'; st.appendChild(wt);
+    K.later(function(){ wt.style.opacity=1; },350);
+    K.later(function(){ wt.style.left=(G.cust[0]-cs*.85)+"px"; wt.style.top=(G.cust[1]-cs*.6)+"px"; K.tone([660,784],.06); },800);
+    // the hand-over: the cookie goes from the pet's plate to the customer, who hops for joy
+    K.later(function(){ var pl=$("plate"); if(pl) pl.remove(); K.tone([880,1047],.07); var c=$("cust"); if(c){ c.insertAdjacentHTML("beforeend",'<span class="gotck">🍪</span>'); c.classList.remove("hop"); void c.offsetWidth; c.classList.add("hop"); } },2000);
+    // then the customer leaves with the cookies, and the pet goes back
+    K.later(function(){ Q.gone=true; var c=$("cust"), t=document.querySelector(".ticket"); if(t) t.remove(); if(c){ c.style.transition="left 1.2s ease-in"; c.style.left=(W+cs)+"px"; } wt.style.opacity=0; },2900);
+    K.later(function(){ wt.remove(); },3900);
   }
   function hopCust(){ var c=$("cust"); if(c){ c.classList.remove("hop"); void c.offsetWidth; c.classList.add("hop"); } }
   // ---------- bake: the clock runs from the start to the time set, the cookies bake as it goes ----------

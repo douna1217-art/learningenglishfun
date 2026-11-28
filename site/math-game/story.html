@@ -195,7 +195,7 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
     else { CY=h*(two?.37:.4); PW=two?w*.33:w*.5; SZ=Math.round(Math.max(22,Math.min(60,PW/5.9,h/8))); PH=SZ*2.8; LX=two?w*.32:w*.5; RX=w*.68; LY=RY=CY; PX=(LX+RX)/2; PY=CY; TX=PX; TY=CY-PH/2-34; }
     CY=LY; }
   function play(){
-    stopAll(); busy=true; items=[]; $("scene").innerHTML=""; $("lines").innerHTML=""; $("nextb").style.display="none"; $("row2").style.display="none";
+    stopAll(); busy=true; items=[]; $("scene").innerHTML=""; $("lines").innerHTML=""; H0=H(); $("nextb").style.display="none"; $("row2").style.display="none";
     var q=Q, k=q.k, th=q.th, w=W(), h=H(), N=function(v){ return "<b>"+v+"</b>"; }, e=th.e;
     var unit=th.e==="crit"?"只":"个";
     STEPS=[];
@@ -265,6 +265,16 @@ canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:20}
       if(Q.pair.length===Q.b){ Q.paired=true; $("scene").onclick=null; [].forEach.call(document.querySelectorAll('.it[data-row="1"]'),function(x){ if(!x.dataset.done) x.classList.add("glow"); });
         say("Look! These have no partner! 看，这些没有伙伴！"); later(afterStory,900); } };
   }
+  // the number buttons below can make the stage shorter (or taller): the floor moves with it, so everything on the stage
+  // moves too, in proportion, and the match lines are drawn again
+  var H0=0, rsT=0;
+  function rescale(){ var h=H(); if(!H0||Math.abs(h-H0)<2) return; var k=h/H0;
+    [].forEach.call($("scene").querySelectorAll(".link"),function(e){ e.remove(); });
+    [].forEach.call($("scene").children,function(e){ var t=e.style.top; if(t&&/px$/.test(t)) e.style.top=(parseFloat(t)*k)+"px"; });
+    if(Q&&Q.pair) Q.pair.forEach(function(p){ drawLink(p[0],p[1]); }); H0=h; }
+  function onResize(){ clearTimeout(rsT); rsT=setTimeout(rescale,60); }
+  window.addEventListener("resize",onResize);
+  if(window.MutationObserver) new MutationObserver(onResize).observe(document.querySelector(".bottom"),{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});
   function drawLink(a,b){ var x1=parseFloat(a.style.left), y1=parseFloat(a.style.top), x2=parseFloat(b.style.left), y2=parseFloat(b.style.top), d=Math.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1)), ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;
     $("scene").insertAdjacentHTML("beforeend",'<div class="link" style="left:'+x1+'px;top:'+y1+'px;width:'+d+'px;transform:rotate('+ang+'deg)"></div>'); }
   function pickEq(b){

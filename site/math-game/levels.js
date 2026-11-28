@@ -19,7 +19,7 @@
     try { return root.GameProgress ? root.GameProgress.crowns(game, "day" + n) : 0; } catch (e) { return 0; }
   }
   // in the preview made for testing (tools/build_preview.py sets LEVEL_TEST) every level of every game can be picked
-  var TOP = { "pets": 5, "cookies": 5, "rescue": 5, "beads": 5, "eggs": 5, "ten-frame": 5, "story": 5, "duck-pond": 5, "shapes2": 5, "clock": 5, "data": 5, "number-line": 5, "length": 6, "equal-groups": 5, "place-value": 5, "shop-day": 4 };
+  var TOP = { "shapes1": 5, "pets": 5, "cookies": 5, "rescue": 5, "beads": 5, "eggs": 5, "ten-frame": 5, "story": 5, "duck-pond": 5, "shapes2": 5, "clock": 5, "data": 5, "number-line": 5, "length": 6, "equal-groups": 5, "place-value": 5, "shop-day": 4 };
   function testing() { try { return !!(root.LEVEL_TEST || (root.parent && root.parent !== root && root.parent.LEVEL_TEST)); } catch (e) { return !!root.LEVEL_TEST; } }
   function html(game, max, cur) {
     css();

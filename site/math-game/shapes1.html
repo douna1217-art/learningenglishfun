@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Shape Workshop</title>
+<meta name="theme-color" content="#5a6fd6">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="description" content="Shape Workshop: pick the triangles off a moving belt, build a rocket from shapes, share a pizza in halves and fourths, and read the clock to the hour and half hour. Grade 1 shapes and time.">
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style>
+/* the belt, the shapes, the picture to build, the food to share, the clock */
+.belt{position:absolute;left:0;right:0;z-index:1;background:repeating-linear-gradient(90deg,#5d6470 0 26px,#4b525d 26px 52px);border-top:6px solid #2f343b;border-bottom:6px solid #2f343b;animation:belt 1.2s linear infinite}@keyframes belt{to{background-position:-52px 0}}
+.shp{position:absolute;z-index:3;cursor:pointer;touch-action:manipulation}
+.shp svg{width:100%;height:100%;overflow:visible;display:block;filter:drop-shadow(0 3px 0 rgba(0,0,0,.2))}
+.shp.no{animation:no .4s}@keyframes no{25%{transform:translateX(-8px) rotate(-6deg)}75%{transform:translateX(8px) rotate(6deg)}}
+.shp.got{transition:left .5s ease-in,top .5s ease-in,transform .5s;transform:scale(.4);pointer-events:none}
+.box{position:absolute;z-index:2;background:#c98a4b;border:4px solid #8a5a2b;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+.miss{position:absolute;z-index:6;font-weight:900;color:#d63a2a;background:#fff;border-radius:9px;padding:0 8px;animation:up 1s forwards;pointer-events:none}@keyframes up{to{transform:translateY(-40px);opacity:0}}
+.pic{position:absolute;z-index:2}
+.pic svg{width:100%;height:100%;overflow:visible}
+.slot{fill:#8b7d6b;stroke:#6b5d4b;stroke-width:1}
+.slot.on{fill:#a99a85;stroke:#ffd84a;stroke-width:2.5;animation:glow 1s ease-in-out infinite}@keyframes glow{50%{stroke-width:4}}
+.go-rocket{animation:rocket 1.6s ease-in forwards}@keyframes rocket{30%{transform:translateY(4%)}to{transform:translateY(-140%)}}
+.go-car{animation:car 1.6s ease-in forwards}@keyframes car{to{transform:translateX(130%)}}
+.go-boat{animation:boat 1s ease-in-out 3}@keyframes boat{50%{transform:translateY(-5%) rotate(-4deg)}}
+.go-house,.go-tree{animation:bounce .5s 3}@keyframes bounce{50%{transform:scale(1.06)}}
+.food{position:absolute;z-index:2}
+.food svg{width:100%;height:100%;overflow:visible}
+.food g{transition:transform .8s cubic-bezier(.3,1.4,.6,1)}
+.friend{position:absolute;z-index:3;transform:translate(-50%,-50%)}
+.friend svg{width:100%;height:100%}
+.clockbig{position:absolute;z-index:2}
+.clockbig svg,.optclk svg{width:100%;height:100%;display:block}
+.act{position:absolute;z-index:3;transform:translate(-50%,-50%);font-size:3rem;line-height:1;animation:pop .5s}@keyframes pop{from{transform:translate(-50%,-50%) scale(.2)}}
+.btns .opt svg,.btns .optclk{width:64px;height:64px;display:block;margin:0 auto}
+.wrap.fitted .btns .opt svg,.wrap.fitted .btns .optclk{width:84px;height:84px}
+</style>
+</head><body>
+<script src="../pet-art.js?v=20261015b"></script><script src="../sightwords-prizes.js?v=20261104a"></script><script src="../game-prizes.js?v=20261128c"></script><script src="pet.js?v=20261128a"></script><script src="../game-progress.js?v=20261127a"></script><script src="fit.js?v=20261129b"></script><script src="levels.js?v=20261207a"></script><script src="critters.js?v=20261130a"></script><script src="g1kit.js?v=20261201a"></script>
+<script>
+(function(){
+  "use strict";
+  // Shape Workshop (Grade 1, Unit 7: shapes and time). 6 rounds a level, 5 right opens the next; any level opened can be played again.
+  //   sort     shapes ride a belt: tap every triangle (or square, rectangle, circle, hexagon) into the box. Colour, size and turn
+  //            don't matter; the sides and corners do
+  //   build    a rocket, a house, a boat, a car, a tree: one space glows, pick the shape that fits it; the finished picture moves
+  //   share    cut the pizza (sandwich, cake) into equal parts for 2 or 4 friends, then: each gets a half, or a fourth?
+  //   clock    a day: what time is it (o'clock or half past), or which clock shows half past 4?
+  //   level 1 sort, level 2 build, level 3 share, level 4 clock, level 5 all of them
+  var $=function(id){ return document.getElementById(id); };
+  var Q=null, W=0, H=0, G={}, anim=0;
+  var COLS=["#ff6b6b","#4a8cff","#2fb36b","#ffb020","#9b5cff","#ff7ac0","#18b5c4"];
+  var NAME={triangle:["triangle","三角形","3 sides and 3 corners. 三条边，三个角。"],square:["square","正方形","4 sides the same and 4 square corners. 四条一样长的边，四个直角。"],rectangle:["rectangle","长方形","4 sides and 4 square corners: 2 long, 2 short. 四条边、四个直角，两长两短。"],circle:["circle","圆形","round, no sides, no corners. 圆圆的，没有边也没有角。"],hexagon:["hexagon","六边形","6 sides and 6 corners. 六条边，六个角。"]};
+  var K=G1Kit({
+    id:"shapes1", store:"shapeWorkshop.v1", title:"🔷 Shape Workshop", name:"Shape Workshop", sub:"Shapes, Halves &amp; Time Practice 图形、平分和时间",
+    score:["Jobs","任务"], goal:6, need:5, pause:2700,
+    colors:{bg:"#f2f4ff",line:"#dde2fb",accent:"#5a6fd6",stage:"linear-gradient(180deg,#e9eeff 0 68%,#d6dcf5 68%)"},
+    how:'<div>🔺 Tap the shapes the box wants. Count the sides and corners!</div><div>🚀 Build a picture: pick the shape that fits the glowing space.</div><div>🍕 Cut the food into equal parts: halves for 2, fourths for 4.</div><div>🕐 Read the clock: o\'clock and half past.</div><div style="color:var(--muted)">点盒子要的图形，数一数边和角！拼图：选能放进发亮空位的图形。把食物切成一样大的几份：两份是一半，四份是四分之一。读钟：几点整、几点半。</div>',
+    shop:[{id:"star",e:"⭐",p:5,x:"4%",y:"72%"},{id:"robot",e:"🤖",p:8,x:"90%",y:"72%"},{id:"kite",e:"🪁",p:12,x:"84%",y:"4%"},{id:"ball",e:"🏀",p:16,x:"10%",y:"74%"},{id:"block",e:"🧱",p:22,x:"80%",y:"74%"},{id:"gift",e:"🎁",p:28,x:"70%",y:"4%"},{id:"crown",e:"👑",p:36,x:"56%",y:"4%"},{id:"rainbow",e:"🌈",p:45,x:"40%",y:"3%"}],
+    shopName:"Toy shop 玩具店", welcome:"🔷 Welcome to the Shape Workshop! 欢迎来图形工坊！", hello:"Shapes, shares and clocks! 图形、平分和时钟！",
+    round:round, resize:function(){ if(Q) draw(); }
+  });
+  function rnd(n){ return K.rnd(n); }
+  // ---------- shapes (in a 0..100 box) ----------
+  function poly(pts){ return pts.map(function(p){ return p[0]+","+p[1]; }).join(" "); }
+  function shapeSvg(t,col,rot,v){
+    var g='<svg viewBox="0 0 100 100"><g transform="rotate('+(rot||0)+' 50 50)">', a="";
+    if(t==="circle") a='<circle cx="50" cy="50" r="40"';
+    else if(t==="triangle") a='<polygon points="'+poly([[[50,8],[92,88],[8,88]],[[12,10],[12,90],[86,90]],[[42,6],[66,94],[16,78]],[[10,15],[90,15],[50,90]],[[20,20],[95,60],[15,85]]][v%5])+'"';
+    else if(t==="square") a='<polygon points="'+poly([[18,18],[82,18],[82,82],[18,82]])+'"';
+    else if(t==="rectangle") a='<polygon points="'+poly([[[4,28],[96,28],[96,72],[4,72]],[[30,4],[70,4],[70,96],[30,96]],[[10,36],[90,36],[90,64],[10,64]]][v%3])+'"';
+    else { var p=[]; for(var i=0;i<6;i++){ var b=Math.PI/3*i; p.push([(50+42*Math.cos(b)).toFixed(1),(50+42*Math.sin(b)).toFixed(1)]); } a='<polygon points="'+poly(p)+'"'; }
+    return g+a+' fill="'+col+'" stroke="rgba(0,0,0,.25)" stroke-width="3" stroke-linejoin="round"/></g></svg>';
+  }
+  // ---------- the pictures to build: pieces in a 0..100 box ----------
+  var PICS={
+    rocket:[["rectangle",[[40,30],[60,30],[60,84],[40,84]]],["triangle",[[40,30],[50,8],[60,30]]],["triangle",[[40,62],[26,88],[40,84]]],["triangle",[[60,62],[74,88],[60,84]]]],
+    house:[["square",[[24,46],[76,46],[76,94],[24,94]]],["triangle",[[18,46],[50,14],[82,46]]],["rectangle",[[44,68],[56,68],[56,94],[44,94]]]],
+    boat:[["triangle",[[50,14],[50,62],[80,62]]],["rectangle",[[46,14],[50,14],[50,70],[46,70]]],["trapezoid",[[12,70],[88,70],[76,90],[24,90]]]],
+    car:[["rectangle",[[12,52],[88,52],[88,76],[12,76]]],["triangle",[[30,52],[50,30],[70,52]]],["circle",[30,80,10]],["circle",[70,80,10]]],
+    tree:[["triangle",[[22,62],[50,10],[78,62]]],["rectangle",[[44,62],[56,62],[56,92],[44,92]]],["circle",[50,30,6]]]
+  };
+  NAME.trapezoid=["trapezoid","梯形","4 sides; 2 of them go the same way. 四条边，有两条是平行的。"];
+  function pieceSvg(p,cls,fill){ if(p[0]==="circle") return '<circle class="'+cls+'" cx="'+p[1][0]+'" cy="'+p[1][1]+'" r="'+p[1][2]+'"'+(fill?' fill="'+fill+'" stroke="rgba(0,0,0,.25)" stroke-width="1.2"':'')+'/>';
+    return '<polygon class="'+cls+'" points="'+poly(p[1])+'"'+(fill?' fill="'+fill+'" stroke="rgba(0,0,0,.25)" stroke-width="1.2" stroke-linejoin="round"':'')+'/>'; }
+  function genericSvg(t,col){ if(t==="trapezoid") return '<svg viewBox="0 0 100 100"><polygon points="8,30 92,30 74,74 26,74" fill="'+col+'" stroke="rgba(0,0,0,.25)" stroke-width="3" stroke-linejoin="round"/></svg>'; return shapeSvg(t,col,0,0); }
+  // ---------- the food: pizza (circle), sandwich (square), cake (rectangle), cut into n parts ----------
+  function foodPieces(f,n,cut){
+    // cut: "ok" equal parts, "off" unequal parts, or "two" (2 equal parts when 4 are wanted)
+    var c=f==="pizza", x0=f==="cake"?6:12, x1=f==="cake"?94:88, y0=f==="cake"?24:12, y1=f==="cake"?76:88, mx=(x0+x1)/2, my=(y0+y1)/2;
+    if(cut==="off"){ mx=x0+(x1-x0)*.34; my=y0+(y1-y0)*.35; }
+    var parts=(n===2&&cut!=="two")||cut==="two"?2:4, P=[];
+    if(c){ var r=42, cx=cut==="off"?36:50, cy=cut==="off"?38:50;
+      if(parts===2){ var dx=Math.sqrt(r*r-Math.pow(cx-50,2)); P.push(["M"+cx+" "+(50-dx)+" A42 42 0 "+(cx>50?1:0)+" 0 "+cx+" "+(50+dx)+" Z",-1,0]); P.push(["M"+cx+" "+(50-dx)+" A42 42 0 "+(cx<50?1:0)+" 1 "+cx+" "+(50+dx)+" Z",1,0]); }
+      else { var a=function(t){ return (50+r*Math.cos(t)).toFixed(1)+" "+(50+r*Math.sin(t)).toFixed(1); };
+        if(cut==="off"){ var tv=Math.acos((cx-50)/r), th=Math.asin((cy-50)/r);
+          P.push(["M"+cx+" "+cy+" L"+cx+" "+(50-r*Math.sin(tv)).toFixed(1)+" A42 42 0 0 1 "+(50+r*Math.cos(th)).toFixed(1)+" "+cy+" Z",1,-1]);
+          P.push(["M"+cx+" "+cy+" L"+(50+r*Math.cos(th)).toFixed(1)+" "+cy+" A42 42 0 0 1 "+cx+" "+(50+r*Math.sin(tv)).toFixed(1)+" Z",1,1]);
+          P.push(["M"+cx+" "+cy+" L"+cx+" "+(50+r*Math.sin(tv)).toFixed(1)+" A42 42 0 0 1 "+(50-r*Math.cos(th)).toFixed(1)+" "+cy+" Z",-1,1]);
+          P.push(["M"+cx+" "+cy+" L"+(50-r*Math.cos(th)).toFixed(1)+" "+cy+" A42 42 0 0 1 "+cx+" "+(50-r*Math.sin(tv)).toFixed(1)+" Z",-1,-1]); }
+        else { P.push(["M50 50 L"+a(-Math.PI/2)+" A42 42 0 0 1 "+a(0)+" Z",1,-1]); P.push(["M50 50 L"+a(0)+" A42 42 0 0 1 "+a(Math.PI/2)+" Z",1,1]); P.push(["M50 50 L"+a(Math.PI/2)+" A42 42 0 0 1 "+a(Math.PI)+" Z",-1,1]); P.push(["M50 50 L"+a(Math.PI)+" A42 42 0 0 1 "+a(-Math.PI/2)+" Z",-1,-1]); } } }
+    else { var R=function(a,b,c2,d){ return "M"+a+" "+b+" H"+c2+" V"+d+" H"+a+" Z"; };
+      if(parts===2){ P.push([R(x0,y0,mx,y1),-1,0]); P.push([R(mx,y0,x1,y1),1,0]); }
+      else { P.push([R(x0,y0,mx,my),-1,-1]); P.push([R(mx,y0,x1,my),1,-1]); P.push([R(x0,my,mx,y1),-1,1]); P.push([R(mx,my,x1,y1),1,1]); } }
+    return P;
+  }
+  function foodSvg(f,n,cut,apart){
+    var col=f==="pizza"?"#f4b860":f==="sandwich"?"#f7d98a":"#ff9ec3", s='<svg viewBox="0 0 100 100">';
+    foodPieces(f,n,cut).forEach(function(p,i){ var d=apart?12:0; s+='<g style="transform:translate('+(p[1]*d)+'px,'+(p[2]*d)+'px)"><path d="'+p[0]+'" fill="'+col+'" stroke="#8a5a2b" stroke-width="1.6" stroke-linejoin="round"/>'+(f==="pizza"?'<path d="'+p[0]+'" fill="none" stroke="#e0533f" stroke-width="5" stroke-dasharray="1 9" stroke-linecap="round" opacity=".8"/>':'')+'</g>'; });
+    return s+'</svg>';
+  }
+  // ---------- the clock (o'clock and half past) ----------
+  function clockSvg(h,m,badHalf){
+    var s='<svg viewBox="-55 -55 110 110"><circle r="50" fill="#5a6fd6"/><circle r="45" fill="#fff"/>', i;
+    for(i=1;i<=12;i++){ var a=i*Math.PI/6; s+='<text x="'+(Math.sin(a)*35).toFixed(1)+'" y="'+(-Math.cos(a)*35+4.5).toFixed(1)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="11" fill="#2b2b3a">'+i+'</text>'; }
+    var ha=((h%12)+(badHalf?0:m/60))*30, ma=m*6;
+    return s+'<line x1="0" y1="4" x2="0" y2="-23" stroke="#2b2b3a" stroke-width="5" stroke-linecap="round" transform="rotate('+ha+')"/><line x1="0" y1="5" x2="0" y2="-38" stroke="#e0533f" stroke-width="3" stroke-linecap="round" transform="rotate('+ma+')"/><circle r="3.5" fill="#2b2b3a"/></svg>';
+  }
+  function tstr(h,m){ return h+":"+(m?"30":"00"); }
+  function tsay(h,m){ return m?"half past "+h:h+" o'clock"; }
+  // ---------- layout ----------
+  function geom(){ var st=$("stage"); W=st.clientWidth; H=st.clientHeight; G.top=Math.max(66,H*.14); }
+  function draw(){
+    geom(); var h="";
+    if(Q.k==="sort"){ G.by=H*.5; G.bh=Math.min(110,H*.26); G.sz=Math.min(G.bh*.9,90);
+      h+='<div class="belt" style="top:'+(G.by-G.bh/2)+'px;height:'+G.bh+'px"></div>';
+      var bw=Math.min(150,W*.34); G.box=[W/2,H*.86]; h+='<div class="box" id="box" style="left:'+(W/2-bw/2)+'px;top:'+(H*.76)+'px;width:'+bw+'px;height:'+(H*.2)+'px">'+NAME[Q.t][0]+' · '+Q.got+'</div>';
+      $("scene").innerHTML=h; Q.items.forEach(function(it){ if(!it.done) $("scene").appendChild(it.el); place(); }); return; }
+    if(Q.k==="build"){ var S=Math.min(W*.8,H-G.top-12); G.S=S;
+      h+='<div class="pic" id="pic" style="left:'+(W/2-S/2)+'px;top:'+(G.top+(H-G.top-S)/2)+'px;width:'+S+'px;height:'+S+'px"><svg viewBox="0 0 100 100">'+PICS[Q.pic].map(function(p,i){ return Q.filled[i]?pieceSvg(p,"",Q.cols[i]):pieceSvg(p,"slot"+(i===Q.at?" on":"")); }).join("")+'</svg></div>';
+      $("scene").innerHTML=h; return; }
+    if(Q.k==="share"){ var F=Math.min(W*.5,H-G.top-20,260); G.F=F;
+      h+='<div class="food" id="food" style="left:'+(W/2-F/2)+'px;top:'+(G.top+(H-G.top-F)/2)+'px;width:'+F+'px;height:'+F+'px">'+(Q.cut?foodSvg(Q.food,Q.n,"ok",Q.apart):wholeSvg(Q.food))+'</div>';
+      var fs=Math.min(F*.45,90), spots=Q.n===2?[[-1,0],[1,0]]:[[-1,-1],[1,-1],[-1,1],[1,1]];
+      spots.forEach(function(sp,i){ var x=W/2+sp[0]*(F/2+fs*.55), y=G.top+(H-G.top)/2+sp[1]*(F*.32); h+='<div class="friend" style="left:'+Math.max(fs/2,Math.min(W-fs/2,x))+'px;top:'+y+'px;width:'+fs+'px;height:'+fs+'px">'+Critters.svg(Q.friends[i])+'</div>'; });
+      $("scene").innerHTML=h; return; }
+    var C=Math.min(W*.5,H-G.top-16,240);
+    h+='<div class="clockbig" style="left:'+(W/2-C/2)+'px;top:'+(G.top+(H-G.top-C)/2)+'px;width:'+C+'px;height:'+C+'px">'+(Q.show?clockSvg(Q.h,Q.m):'<svg viewBox="-55 -55 110 110"><circle r="50" fill="#5a6fd6"/><circle r="45" fill="#fff"/><text y="14" text-anchor="middle" font-size="40">'+Q.e+'</text></svg>')+'</div>';
+    if(Q.done) h+='<div class="act" style="left:'+(W/2+C*.62)+'px;top:'+(G.top+(H-G.top)/2)+'px">'+Q.e+'</div>';
+    $("scene").innerHTML=h;
+  }
+  function wholeSvg(f){ var col=f==="pizza"?"#f4b860":f==="sandwich"?"#f7d98a":"#ff9ec3";
+    if(f==="pizza") return '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="'+col+'" stroke="#8a5a2b" stroke-width="1.6"/><circle cx="50" cy="50" r="42" fill="none" stroke="#e0533f" stroke-width="5" stroke-dasharray="1 9" stroke-linecap="round" opacity=".8"/></svg>';
+    var y0=f==="cake"?24:12, y1=f==="cake"?76:88, x0=f==="cake"?6:12, x1=f==="cake"?94:88; return '<svg viewBox="0 0 100 100"><rect x="'+x0+'" y="'+y0+'" width="'+(x1-x0)+'" height="'+(y1-y0)+'" fill="'+col+'" stroke="#8a5a2b" stroke-width="1.6"/></svg>'; }
+  // ---------- a round ----------
+  function round(){
+    cancelAnimationFrame(anim);
+    var L=K.L, easy=K.easy(), kinds=L===1?["sort"]:L===2?["build"]:L===3?["share"]:L===4?["clock"]:["sort","build","share","clock"];
+    if(window.__shapesOnly) kinds=[window.__shapesOnly];
+    var k=kinds[rnd(kinds.length)];
+    Q={k:k,tries:0};
+    if(k==="sort") startSort(easy);
+    else if(k==="build"){ var names=Object.keys(PICS); Q.pic=names[rnd(names.length)]; Q.filled=PICS[Q.pic].map(function(){ return false; }); Q.cols=PICS[Q.pic].map(function(){ return COLS[rnd(COLS.length)]; }); Q.at=0;
+      K.task('Build the '+Q.pic+'! Which shape fits the glowing space?<span class="cn">拼一个'+{rocket:"火箭",house:"房子",boat:"小船",car:"汽车",tree:"大树"}[Q.pic]+'！哪个图形放得进发亮的空位？</span>'); K.say("Look at the sides and corners! 看看边和角！"); draw(); askPiece(); return; }
+    else if(k==="share"){ Q.food=["pizza","sandwich","cake"][rnd(3)]; Q.n=easy||rnd(2)?2:4; Q.friends=K.shuffle(Critters.list.slice()).slice(0,Q.n); Q.cut=false;
+      K.task('Share the '+Q.food+' with <b>'+Q.n+'</b> friends: everyone gets the same! Which cut?<span class="cn">把'+{pizza:"披萨",sandwich:"三明治",cake:"蛋糕"}[Q.food]+'分给 '+Q.n+' 个朋友，每人一样多！怎么切？</span>');
+      K.say("Equal parts: the same size! 相等的部分：一样大！"); draw(); askCut(); return; }
+    else { var acts=[["🍳",7,0,"breakfast 早饭"],["🏫",8,30,"school 上学"],["🍎",10,0,"snack 点心"],["🥪",12,0,"lunch 午饭"],["⚽",3,30,"play 玩"],["🎨",4,0,"art 画画"],["🛁",6,30,"bath 洗澡"],["📚",7,30,"story 讲故事"],["🛏️",8,0,"bed 睡觉"]], a=acts[rnd(acts.length)];
+      Q.e=a[0]; Q.h=a[1]; Q.m=easy?0:a[2]; Q.what=a[3]; Q.ask=rnd(2)?"read":"show"; Q.show=Q.ask==="read";
+      if(Q.ask==="read") askRead(); else askShow(); draw(); return; }
+    draw();
+  }
+  // ---------- sort: the belt ----------
+  function startSort(easy){
+    var types=["triangle","square","rectangle","circle","hexagon"], t=types[rnd(easy?3:5)];
+    Q.t=t; Q.got=0; Q.miss=0; Q.wrong=0; Q.items=[]; Q.v=(easy?.13:.17)*(window.__beltSpeed||1);
+    var n=easy?7:9, want=easy?3:4, list=[], i;
+    for(i=0;i<want;i++) list.push(t);
+    var others=types.filter(function(x){ return x!==t&&!(t==="rectangle"&&x==="square"); });   // a square is a rectangle too: no squares when rectangles are wanted
+    while(list.length<n) list.push(others[rnd(others.length)]);
+    list=K.shuffle(list); if(list[0]===t){ var j=list.indexOf(list.filter(function(x){ return x!==t; })[0]); list[0]=list[j]; list[j]=t; }
+    Q.need=want; draw();
+    list.forEach(function(ty,i){ var el=document.createElement("div"); el.className="shp"; var sc=.62+Math.random()*.38, sz=G.sz*sc; el.style.width=el.style.height=sz+"px";
+      el.innerHTML=shapeSvg(ty,COLS[rnd(COLS.length)],rnd(4)*25-30,rnd(5)); var it={t:ty,el:el,x:W+60+i*W*.28*Math.max(.8,1.4-W/1400),sz:sz,done:false}; el.onclick=function(){ tapShape(it); }; Q.items.push(it); $("scene").appendChild(el); });
+    place();
+    K.task('Tap every <b>'+NAME[t][0]+'</b>!<span class="cn">点所有的'+NAME[t][1]+'！</span>'); K.say("A "+NAME[t][0]+": "+NAME[t][2]);
+    var last=0; anim=requestAnimationFrame(function step(ts){ var dt=last?Math.min(.05,(ts-last)/1000):0; last=ts; if(!Q||Q.k!=="sort") return;
+      var left=0; Q.items.forEach(function(it){ if(it.done) return; it.x-=W*Q.v*dt; if(it.x<-it.sz){ it.done=true; it.el.remove(); if(it.t===Q.t){ Q.miss++; missFlash(); } } else left++; });
+      place(); if(left) anim=requestAnimationFrame(step); else endSort(); });
+  }
+  function place(){ if(!Q||Q.k!=="sort") return; Q.items.forEach(function(it){ if(it.done) return; it.el.style.left=(it.x-it.sz/2)+"px"; it.el.style.top=(G.by-it.sz/2)+"px"; }); }
+  function tapShape(it){
+    if(it.done||K.busy) return;
+    if(it.t===Q.t){ it.done=true; Q.got++; K.tone([520+Q.got*80],.06);
+      // all caught: no waiting for the rest of the belt
+      if(Q.got===Q.need){ cancelAnimationFrame(anim); K.busy=true; K.later(endSort,800); }
+      var b=$("box"); it.el.classList.add("got"); it.el.style.left=(G.box[0]-it.sz/2)+"px"; it.el.style.top=(G.box[1]-it.sz/2)+"px"; setTimeout(function(){ it.el.remove(); if(b) b.textContent=NAME[Q.t][0]+" · "+Q.got; },500); return; }
+    Q.wrong++; it.el.classList.remove("no"); void it.el.offsetWidth; it.el.classList.add("no"); K.tone([200,150],.1,"sawtooth"); K.say("That's a "+NAME[it.t][0]+". A "+NAME[Q.t][0]+": "+NAME[Q.t][2]);
+  }
+  function missFlash(){ $("scene").insertAdjacentHTML("beforeend",'<div class="miss" style="left:10px;top:'+(G.by-G.bh)+'px">missed one! 漏了一个！</div>'); K.tone([300,200],.1); }
+  function endSort(){
+    Q.tries=Q.miss+Q.wrong;
+    if(Q.miss===0&&Q.wrong<=1) return good("All "+Q.need+" "+NAME[Q.t][0]+"s!");
+    K.task('<span class="eqbig">'+Q.got+' of '+Q.need+' '+NAME[Q.t][0]+'s</span>'); K.say("A "+NAME[Q.t][0]+": "+NAME[Q.t][2]); K.busy=true; K.later(function(){ K.done(false); },1600);
+  }
+  // ---------- build ----------
+  function askPiece(){
+    var p=PICS[Q.pic][Q.at], t=p[0], all=["triangle","square","rectangle","circle","hexagon","trapezoid"].filter(function(x){ return x!==t; }), opts=K.shuffle([t].concat(K.shuffle(all).slice(0,2)));
+    var bt=K.btns(opts.map(function(x){ return '<button type="button" class="opt" data-t="'+x+'">'+genericSvg(x,Q.cols[Q.at])+'<small style="font-size:.7rem">'+NAME[x][0]+'</small></button>'; }).join(""),3);
+    [].forEach.call(bt.querySelectorAll("button"),function(b){ b.onclick=function(){ if(!K.busy) pickPiece(b.getAttribute("data-t"),b); }; });
+  }
+  function pickPiece(t,b){
+    var p=PICS[Q.pic][Q.at];
+    if(t!==p[0]){ Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth"); K.say("That's a "+NAME[t][0]+". This space has "+NAME[p[0]][2]); return; }
+    Q.filled[Q.at]=true; K.tone([523,659],.07); Q.at++; draw();
+    if(Q.at<PICS[Q.pic].length){ askPiece(); return; }
+    K.hideBtns(); var pic=$("pic"); if(pic) pic.classList.add("go-"+Q.pic); K.tone([523,659,784,1047],.08);
+    good(Q.tries?"The "+Q.pic+" is done!":"Perfect "+Q.pic+"!");
+  }
+  // ---------- share ----------
+  function askCut(){
+    var cuts=K.shuffle(["ok","off",Q.n===4?"two":"three"]);
+    var bt=K.btns(cuts.map(function(c){ return '<button type="button" class="opt" data-c="'+c+'">'+(c==="three"?threeSvg(Q.food):foodSvg(Q.food,Q.n,c))+'</button>'; }).join(""),3);
+    [].forEach.call(bt.querySelectorAll("button"),function(b){ b.onclick=function(){ if(!K.busy) pickCut(b.getAttribute("data-c"),b); }; });
+  }
+  // three parts (for halves): two cut lines
+  function threeSvg(f){ var col=f==="pizza"?"#f4b860":f==="sandwich"?"#f7d98a":"#ff9ec3"; var s=wholeSvg(f).replace("</svg>",""); var y0=f==="cake"?24:8, y1=f==="cake"?76:92; return s+'<line x1="37" y1="'+y0+'" x2="37" y2="'+y1+'" stroke="#8a5a2b" stroke-width="2"/><line x1="63" y1="'+y0+'" x2="63" y2="'+y1+'" stroke="#8a5a2b" stroke-width="2"/></svg>'; }
+  function pickCut(c,b){
+    if(c!=="ok"){ Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth");
+      K.say(c==="off"?"Those parts are not the same size! 这几块不一样大！":c==="two"?"That's only 2 parts. We need "+Q.n+"! 只有 2 块，要 "+Q.n+" 块！":"That's 3 parts. We need 2! 那是 3 块，要 2 块！"); return; }
+    K.hideBtns(); K.busy=true; Q.cut=true; K.tone([700,500],.05); draw();
+    K.later(function(){ Q.apart=true; draw(); K.tone([523,659],.07); K.say("Everyone gets the same! 每人一样多！");
+      K.later(function(){ K.busy=false; K.task('What does each friend get?<span class="cn">每个朋友得到多少？</span>');
+        var bt=K.btns('<button type="button" class="big" data-v="half">a half<br><small style="font-size:.7rem">一半</small></button><button type="button" class="big" data-v="fourth">a fourth<br><small style="font-size:.7rem">四分之一</small></button><button type="button" class="big" data-v="whole">the whole<br><small style="font-size:.7rem">整个</small></button>',3);
+        [].forEach.call(bt.querySelectorAll("button"),function(x){ x.onclick=function(){ if(K.busy) return; var v=x.getAttribute("data-v"), want=Q.n===2?"half":"fourth";
+          if(v===want) return good(Q.n===2?"2 halves: each gets a half":"4 fourths: each gets a fourth");
+          Q.tries++; K.bad(x); K.tone([200,150],.12,"sawtooth"); K.say(Q.n===2?"2 equal parts are called halves. 分成 2 份，每份是一半。":"4 equal parts are called fourths (quarters). 分成 4 份，每份是四分之一。"); }; }); },900); },600);
+  }
+  // ---------- clock ----------
+  function askRead(){
+    var opts=[tstr(Q.h,Q.m)], h2=Q.h%12+1;
+    [Q.m?tstr(h2,30):tstr(Q.h,30),Q.m?tstr(Q.h,0):tstr(h2,0),tstr(Q.h===12?6:12,0)].forEach(function(x){ if(opts.length<3&&opts.indexOf(x)<0) opts.push(x); });
+    K.task('It\'s time for '+Q.what.split(" ")[0]+'! What time is it?<span class="cn">'+Q.what.split(" ")[1]+'的时间到了！现在几点？</span>'); K.say("Short hand: the hour. Long hand on 12: o'clock. On 6: half past. 短针看几时；长针指 12 是整点，指 6 是半点。");
+    var bt=K.btns(K.shuffle(opts).map(function(x){ return '<button type="button" class="big" data-v="'+x+'">'+x+'</button>'; }).join(""),3);
+    [].forEach.call(bt.querySelectorAll("button"),function(b){ b.onclick=function(){ if(K.busy) return; var v=b.getAttribute("data-v");
+      if(v===tstr(Q.h,Q.m)){ Q.done=true; draw(); return good(tsay(Q.h,Q.m)+": "+tstr(Q.h,Q.m)); }
+      Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth"); K.say(Q.m?"At half past, the short hand is between two numbers: it has passed "+Q.h+". 半点时，短针在两个数中间，刚走过 "+Q.h+"。":"The long hand is on 12: o'clock. Look where the short hand points. 长针指 12 是整点，看短针指着几。"); }; });
+  }
+  function askShow(){
+    K.task('It\'s time for '+Q.what.split(" ")[0]+' at <b>'+tsay(Q.h,Q.m)+'</b>. Which clock?<span class="cn">'+Q.what.split(" ")[1]+'时间是 '+tstr(Q.h,Q.m)+'，哪个钟对？</span>'); K.say("Find the right clock! 找对的钟！");
+    var c=[["ok",Q.h,Q.m,false],Q.m?["bad",Q.h,30,true]:["bad",Q.h,30,false],Q.m?["bad2",Q.h,0,false]:["bad2",Q.h===12?6:12,0,false]];
+    if(!Q.m) c[2]=["bad2",(Q.h%12)+1,0,false];
+    var bt=K.btns(K.shuffle(c).map(function(x){ return '<button type="button" class="opt" data-v="'+x[0]+'"><span class="optclk">'+clockSvg(x[1],x[2],x[3])+'</span></button>'; }).join(""),3);
+    [].forEach.call(bt.querySelectorAll("button"),function(b){ b.onclick=function(){ if(K.busy) return; var v=b.getAttribute("data-v");
+      if(v==="ok"){ Q.show=true; Q.done=true; draw(); return good(tsay(Q.h,Q.m)+": "+tstr(Q.h,Q.m)); }
+      Q.tries++; K.bad(b); K.tone([200,150],.12,"sawtooth"); K.say(Q.m?"Half past: the long hand on 6, the short hand just past "+Q.h+". 半点：长针指 6，短针刚过 "+Q.h+"。":"O'clock: the long hand on 12, the short hand on "+Q.h+". 整点：长针指 12，短针指 "+Q.h+"。"); }; });
+  }
+  function good(eq){ K.hideAll(); K.task('<span class="eqbig">'+eq+'</span>'); K.say(["Great work! 做得好！","Yes! 对啦！","Super! 太棒了！"][rnd(3)]); K.done(true,Q.tries); }
+  window.__shapes={q:function(){ return Q; },K:K,need:function(){ return Q&&Q.k==="build"&&Q.at<PICS[Q.pic].length?PICS[Q.pic][Q.at][0]:null; }};
+  K.start();
+})();
+</script>
+</body></html>
